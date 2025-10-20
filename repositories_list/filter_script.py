@@ -10,8 +10,7 @@ load_dotenv()
 GITHUB_API_URL = "https://api.github.com"
 
 # Retrieve the GitHub personal access token from the .env file
-# GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_TOKEN = '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'
+GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 # Headers for authentication
 HEADERS = {
