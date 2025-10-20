@@ -1,1 +1,1 @@
-# research-javascript-test-smells
+# Update README
