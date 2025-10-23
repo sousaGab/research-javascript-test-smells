@@ -1,0 +1,183 @@
+version: 2
+jobs:
+  install:
+    docker:
+      - image: circleci/node:10.24.0-browsers
+    working_directory: ~/repo
+    steps:
+      # Fetch Code
+      - checkout
+
+      - restore_cache:
+          keys:
+            # Restore cached node_modules
+            - v12-dependencies-{{ checksum "yarn.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v12-dependencies-
+
+      - run:
+          name: Add CI global modules
+          command: yarn global add greenkeeper-lockfile@1
+
+      - run:
+          name: Install Dependencies
+          command: yarn
+
+      - run:
+          name: Update Lockfile
+          command: $(yarn global bin)/greenkeeper-lockfile-update
+
+      - run:
+          name: Upload Lockfile
+          command: $(yarn global bin)/greenkeeper-lockfile-upload
+
+      - run:
+          name: Validate Yarn Lock File
+          command: |
+            if [[ "$(git status -s)" != "" ]] && [[ "$CIRCLE_BRANCH" != greenkeeper/* ]]; then
+              echo "Your yarn.lock was modified during install, please check in any changes to the yarn.lock file"
+              exit 1
+            fi
+
+      # Save the node_modules cache
+      - save_cache:
+          paths:
+            - node_modules
+          key: v12-dependencies-{{ checksum "yarn.lock" }}
+  validate:
+    docker:
+      - image: circleci/node:10.24.0-browsers
+    working_directory: ~/repo
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v12-dependencies-{{ checksum "yarn.lock" }}
+
+      - run:
+          # PR's from forks cannot use the dependency cache for performance reasons
+          name: 'Forked PR dependency install'
+          command: yarn
+
+      - run:
+          name: Lint + Typecheck
+          command: yarn validate
+  test-unit:
+    docker:
+      - image: circleci/node:10.24.0-browsers
+    working_directory: ~/repo
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v12-dependencies-{{ checksum "yarn.lock" }}
+
+      - run:
+          # PR's from forks cannot use the dependency cache for performance reasons
+          name: 'Forked PR dependency install'
+          command: yarn
+
+      - run:
+          name: Jest Suite
+          command: yarn test:ci
+          environment:
+            JEST_JUNIT_OUTPUT: 'test-reports/junit/js-test-results.xml'
+
+      - store_test_results:
+          path: test-reports/junit
+  test-bundle:
+    docker:
+      - image: circleci/node:10.24.0-browsers
+    working_directory: ~/repo
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v12-dependencies-{{ checksum "yarn.lock" }}
+
+      # PR's from forks cannot use the dependency cache for performance reasons
+      - run:
+          name: 'Forked PR dependency install'
+          command: yarn
+
+      - run:
+          name: Check Bundle Size
+          command: yarn run bundle-size:check
+  test-browser:
+    docker:
+      # Single Docker container with Node 10 and Cypress dependencies
+      # https://github.com/cypress-io/circleci-orb/blob/master/src/orb.yml
+      - image: cypress/base:10.22.0
+    working_directory: ~/repo
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v12-dependencies-{{ checksum "yarn.lock" }}
+
+      # PR's from forks cannot use the dependency cache for performance reasons
+      - run:
+          name: 'Forked PR dependency install'
+          command: yarn
+
+      - run:
+          name: 'Run cypress'
+          command: node browser-test-harness.js yarn test:browser:ci
+
+      # store videos and screenshots (if any) as CI artifacts
+      - store_artifacts:
+          path: cypress/videos
+      - store_artifacts:
+          path: cypress/screenshots
+  test-a11y:
+    docker:
+      - image: circleci/node:10.24.0-browsers
+    working_directory: ~/repo
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - v12-dependencies-{{ checksum "yarn.lock" }}
+
+      # PR's from forks cannot use the dependency cache for performance reasons
+      - run:
+          name: 'Forked PR dependency install'
+          command: yarn
+
+      - run:
+          name: Accessibility Audit
+          command: node browser-test-harness.js yarn test:accessibility
+
+      - store_artifacts:
+          path: test-reports/lighthouse
+
+      - store_test_results:
+          path: test-reports/lighthouse
+workflows:
+  version: 2
+  build:
+    jobs:
+      - install
+      - validate:
+          requires:
+            - install
+      - test-unit:
+          requires:
+            - install
+      - test-bundle:
+          requires:
+            - install
+      - test-browser:
+          requires:
+            - install
+# disabling ally test due to issue with lighthouse
+# not sure why lighthouse starting breaking, but could
+# be worth looking into upgrading browsers (docker) + lighthouse
+#     - test-a11y:
+#         requires:
+#           - install
