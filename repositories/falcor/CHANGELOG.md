@@ -1,0 +1,127 @@
+# 2.4.1
+## Bugfix
+- Republished to remove an issue with a hash generation of 2.4.0
+
+# 2.4.0
+## Changes
+- [Handling fromPath errors in SetResponse constructor](https://github.com/Netflix/falcor/pull/989)
+
+# 2.3.2
+## Bugfix
+- [Handling fromPath errors in SetResponse constructor](https://github.com/Netflix/falcor/pull/989)
+
+# 2.3.1
+## Bugfix
+- [Avoid fetching null paths](https://github.com/Netflix/falcor/pull/984)
+
+# 2.3.0
+## Changes
+- [Skip nulls in path instead of throwing](https://github.com/Netflix/falcor/pull/982)
+
+# 2.2.2
+## Changes
+- Updated falcor-path-utils to pull in changes: [Use NOINLINE to avoid inlining function definitions](https://github.com/Netflix/falcor-path-utils/pull/23)
+- [Reduced allocation garbage](https://github.com/Netflix/falcor/pull/980)
+
+# 2.2.1
+## Bugs
+- [Empty key sets in path sets could result in an incomplete response](https://github.com/Netflix/falcor/pull/979)
+
+# 2.2.0
+## Features
+- [Request attempt count passed down to DataSource get/set](https://github.com/Netflix/falcor/pull/970)
+
+# 2.1.0
+## Features
+- [Added flags for potentially expensive algorithms](https://github.com/Netflix/falcor/pull/962)
+
+## Other
+- [Unit tests converted to Jest](https://github.com/Netflix/falcor/pull/961)
+
+# 2.0.7
+## Bugs
+- [Correct module.export usage](https://github.com/Netflix/falcor/pull/960)
+
+# 2.0.6
+## Bugs
+- [Fix handling of empty keysets](https://github.com/Netflix/falcor/pull/955)
+
+# 2.0.5
+## Bugs
+- [Fix request path deduplication](https://github.com/Netflix/falcor/pull/949)
+
+# 2.0.4
+## Bugs
+- [Make Model#_clone return instance of current type](https://github.com/Netflix/falcor/pull/730)
+- [Fix error stack traces](https://github.com/Netflix/falcor/pull/941)
+- [Fix handling of outerResults as an optional argument](https://github.com/Netflix/falcor/pull/947)
+
+# 2.0.3
+## Bugs
+- [Fix model._setValueSync() internal API to set path bound values in cache](https://github.com/Netflix/falcor/pull/933)
+
+# 2.0.2
+## Bugs
+- [Fix model.get() dispose to cancel asynchronous DataSource request](https://github.com/Netflix/falcor/pull/933)
+- [Fix model.batch() losing maxRetries config](https://github.com/Netflix/falcor/pull/932)
+
+# 2.0.1
+## Bugs
+- [Fix build issues by replacing asap with falcor-asap](https://github.com/Netflix/falcor/pull/928)
+
+# 2.0.0
+## Features
+- [Dedupe requests partially with existing requests](https://github.com/Netflix/falcor/pull/897)
+- [Add missing paths information when raising
+  MaxRetryExceededError](https://github.com/Netflix/falcor/pull/874)
+
+## Bugs
+- [Fix "expires: 0" metadata on atoms](https://github.com/Netflix/falcor/pull/905/commits)
+- [Protect against model.invalidate from destroying cache](https://github.com/Netflix/falcor/pull/903)
+- [Fix retry count logic](https://github.com/Netflix/falcor/pull/904)
+
+# 1.1.0
+## Bugs
+- [Fix maxRetries on clone](https://github.com/Netflix/falcor/pull/917)
+- [Disables whole-branch response merging](https://github.com/Netflix/falcor/pull/920)
+- [Fix model.set claiming objects passed as argument](https://github.com/Netflix/falcor/pull/920)
+
+# 1.0.0
+## Features
+- [Allow errorSelector to change $type](https://github.com/Netflix/falcor/issues/828)
+- [Falcor.keys](https://github.com/Netflix/falcor/issues/708)
+  - Adds a function to the namespace of `falcor` for ease of json key iteration.
+- [Remove Rx From Core](https://github.com/Netflix/falcor/issues/465)
+  - [Remove Rx From Get](https://github.com/Netflix/falcor/issues/506)
+  - [Remove Rx From Set](https://github.com/Netflix/falcor/issues/604)
+- [Add Falcor Build that contains Router](https://github.com/Netflix/falcor/issues/521)
+- [Code clean-up: Remove selector function / output PathValues code throughout code base](https://github.com/Netflix/falcor/issues/453)
+- [Remove asPathValues from ModelResponse](https://github.com/Netflix/falcor/issues/452)
+- [Improve deref for better MVC Integration](https://github.com/Netflix/falcor/issues/501)
+
+## Bugs
+- [Webpack](https://github.com/Netflix/falcor/issues/586)
+- [MaxRetryExceededError when a route returns a null value not wrapped in an atom](https://github.com/Netflix/falcor/issues/535)
+- [The latest release throws model.get(...).then is not a function error](https://github.com/Netflix/falcor/issues/530)
+- [Collect does not adjust cache size.](https://github.com/Netflix/falcor/issues/507)
+- [number 0 becomes empty atom](https://github.com/Netflix/falcor/issues/460)
+- [\`this.clone()\` is undefined](https://github.com/Netflix/falcor/issues/442)
+- [Model#call() -> Error: "no method 'reduce' on 'localRoot.set(...).reduce'"](https://github.com/Netflix/falcor/issues/533)
+- [Observable and CompositeDisposable  declared but not used](https://github.com/Netflix/falcor/issues/573)
+- [Path returned from falcor-router is undefined after call](https://github.com/Netflix/falcor/issues/589)
+- [New deref doesn't work when deref'ing to a reference.](https://github.com/Netflix/falcor/issues/559)
+- [New deref from an already deref'd model doesn't include the parent model's path.](https://github.com/Netflix/falcor/issues/560)
+
+# 0.1.15
+## Bugs
+- [Fix deref completing without onNext'ing if preload paths fail](https://github.com/Netflix/falcor/pull/667)
+- [Fix deref handling for paths that return an $atom of undefined](https://github.com/Netflix/falcor/pull/663)
+- [Make sure deref calls the DataSource, when starting from a broken reference](https://github.com/Netflix/falcor/pull/661)
+- [Fix expired reference handling, to return undefined, instead of InvalidModelError](https://github.com/Netflix/falcor/pull/658)
+- [Fixed expiry handling for getValueSync](https://github.com/Netflix/falcor/pull/651)
+- [Fixed distinct comparator to account for meta-data ($expires for example)](https://github.com/Netflix/falcor/pull/644)
+- [Fix getCache() serialization issues](https://github.com/Netflix/falcor/pull/640)
+- [Fixed reference promotion in LRU list](https://github.com/Netflix/falcor/pull/636)
+- [Fixed errorSelector bugs - cases where it wasn't invoked, and invoked with malformed paths](https://github.com/Netflix/falcor/pull/611)
+- [Fixed exceptions when call responses didn't contain any returned path/values](https://github.com/Netflix/falcor/pull/600)
+
