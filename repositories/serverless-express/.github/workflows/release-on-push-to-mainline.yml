@@ -1,0 +1,62 @@
+name: CICD
+on:
+  push:
+    branches: [mainline]
+  pull_request:
+env:
+  HUSKY: 0
+jobs:
+  test-lint-audit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Lint
+        if: matrix.node-version == '20.x'
+        run: npm run lint
+
+      - name: Verify Typescript Types
+        if: matrix.node-version == '20.x'
+        run: npm run verify-typescript-types
+
+      - name: Audit
+        if: matrix.node-version == '20.x'
+        run: npm audit --audit-level critical
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/mainline'
+    needs: test-lint-audit
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+      - name: Install
+        run: npm ci
+      - name: Release
+        run: npm run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
