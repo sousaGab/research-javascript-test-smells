@@ -1,0 +1,159 @@
+# Run tests against supported Node versions, and (except for pull requests)
+# against supported browsers.
+
+version: 2.1
+
+executors:
+  node24:
+    docker:
+      - image: cimg/node:24.0.0
+    working_directory: ~/workspace
+  node22:
+    docker:
+      - image: cimg/node:22.0.0
+    working_directory: ~/workspace
+  node20:
+    docker:
+      - image: cimg/node:20.0.0
+    working_directory: ~/workspace
+  node18:
+    docker:
+      - image: cimg/node:18.20.5
+    working_directory: ~/workspace
+
+jobs:
+  build:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - checkout
+      - run:
+          name: Report Node and NPM versions
+          command: echo "Using Node $(node --version) and NPM $(npm --version)"
+      - run:
+          name: Install dependencies
+          command: npm install
+      - run:
+          name: Build
+          command: npm run build
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  test_node: &test_node
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run tests
+          command: npm test
+
+  test_parallel: &test_parallel
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Run tests in parallel
+          command: npm run test:parallel
+
+  test_browsers: &test_browsers
+    executor: node18
+    steps:
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install Sauce Connect
+          command: |
+            tmpdir=$(mktemp -d)
+            cd "$tmpdir"
+            curl https://saucelabs.com/downloads/sauce-connect/5.2.2/sauce-connect-5.2.2_linux.x86_64.tar.gz | tar zxf -
+            chmod +x sc
+            mkdir ~/workspace/bin
+            cp sc ~/workspace/bin
+            echo "Sauce Connect version info:"
+            ~/workspace/bin/sc version
+      - run:
+          name: Run tests
+          command: |
+            # Do everything in one step because Sauce Connect won't exit
+            # cleanly if we kill it from a different step than it started in.
+
+            export PATH=$PATH:$HOME/workspace/bin
+            export SAUCE_TUNNEL_NAME=$CIRCLE_WORKFLOW_JOB_ID
+            scripts/start-sauce-connect
+            set +o errexit
+            scripts/run-all-browsers
+            exitcode=$?
+            set -o errexit
+            scripts/stop-sauce-connect
+            exit $exitcode
+
+workflows:
+  version: 2
+
+  push:
+    jobs:
+      - build:
+          executor: node24
+          name: build_node_24
+      - build:
+          executor: node22
+          name: build_node_22
+      - build:
+          executor: node20
+          name: build_node_20
+      - build:
+          executor: node18
+          name: build_node_18
+      - test_node:
+          executor: node22
+          name: test_node_22
+          requires:
+            - build_node_22
+      - test_node:
+          executor: node20
+          name: test_node_20
+          requires:
+            - build_node_20
+      - test_node:
+          executor: node18
+          name: test_node_18
+          requires:
+            - build_node_18
+      - test_parallel:
+          executor: node24
+          name: test_parallel_node_24
+          requires:
+            - build_node_24
+      - test_parallel:
+          executor: node22
+          name: test_parallel_node_22
+          requires:
+            - build_node_22
+      - test_parallel:
+          executor: node20
+          name: test_parallel_node_20
+          requires:
+            - build_node_20
+      - test_parallel:
+          executor: node18
+          name: test_parallel_node_18
+          requires:
+            - build_node_18
+      - test_browsers:
+          requires:
+             - build_node_18
+          filters:
+            branches:
+              ignore: /pull\/.*/ # Don't run on pull requests.
