@@ -1,0 +1,52 @@
+#!/bin/sh
+
+run_browser() {
+	browser=$1
+	version=$2
+	os="$3"
+	description="$browser $version"
+	if [ $version = "latest" ]; then
+		version=""
+	fi
+
+	echo
+	echo
+	echo "Running $description"
+	echo
+	USE_SAUCE=true JASMINE_BROWSER=$browser SAUCE_BROWSER_VERSION=$version SAUCE_OS="$os" npm run ci
+
+	if [ $? -eq 0 ]; then
+		echo "PASS: $description" >> "$passfile"
+	else
+		echo "FAIL: $description" >> "$failfile"
+	fi
+}
+
+passfile=`mktemp -t jasmine-results.XXXXXX` || exit 1
+failfile=`mktemp -t jasmine-results.XXXXXX` || exit 1
+
+run_browser chrome latest
+
+run_browser firefox latest
+if [ "$1" = "--not-actually-all" ]; then
+  echo "SKIPPED: firefox 140" >> "$passfile"
+  echo "SKIPPED: firefox 128" >> "$passfile"
+  echo "SKIPPED: firefox 115" >> "$passfile"
+else
+  run_browser firefox 140
+  run_browser firefox 128
+  run_browser firefox 115
+fi
+run_browser firefox 102
+
+run_browser safari 17
+run_browser safari 16
+
+run_browser MicrosoftEdge latest
+
+echo
+cat "$passfile" "$failfile"
+
+if [ -s "$failfile" ]; then
+	exit 1
+fi

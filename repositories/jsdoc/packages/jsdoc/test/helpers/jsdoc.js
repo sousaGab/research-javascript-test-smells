@@ -1,0 +1,109 @@
+/*
+  Copyright 2011 the JSDoc Authors.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+*/
+
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { augment } from '@jsdoc/doclet';
+import { createParser, handlers } from '@jsdoc/parse';
+import { Dictionary } from '@jsdoc/tag';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const originalDictionaries = ['jsdoc', 'closure'];
+const packagePath = path.resolve(__dirname, '../..');
+const parseResults = [];
+
+const helpers = {
+  addParseResults: (filename, doclets) => {
+    parseResults.push({
+      filename: filename,
+      doclets: doclets,
+    });
+  },
+  createParser: () => createParser(jsdoc.env),
+  didLog: (fn, level) => {
+    const { emitter } = jsdoc.env;
+    const events = [];
+
+    function listener(e) {
+      events.push(e);
+    }
+
+    emitter.on(`logger:${level}`, listener);
+    fn();
+    emitter.off(`logger:${level}`, listener);
+
+    return events.length !== 0;
+  },
+  dirname: (importMetaUrl) => path.dirname(fileURLToPath(importMetaUrl)),
+  getDocSetFromFile: (filename, parser, shouldValidate, shouldAugment) => {
+    const docSet = {
+      get doclets() {
+        return Array.from(docSet.docletStore.allDoclets);
+      },
+      getByLongname(longname) {
+        return docSet.doclets.filter((doclet) => (doclet.longname || doclet.name) === longname);
+      },
+    };
+    const sourcePath = path.isAbsolute(filename) ? filename : path.join(packagePath, filename);
+    const sourceCode = fs.readFileSync(sourcePath, 'utf8');
+    const testParser = parser || helpers.createParser();
+
+    handlers.attachTo(testParser);
+
+    docSet.docletStore = testParser.parse(`javascript:${sourceCode}`);
+
+    if (shouldAugment !== false) {
+      augment.augmentAll(docSet.docletStore);
+    }
+
+    // tests assume that borrows have not yet been resolved
+
+    if (shouldValidate !== false) {
+      helpers.addParseResults(filename, docSet.doclets);
+    }
+
+    docSet.docletStore.stopListening();
+
+    return docSet;
+  },
+  getParseResults: () => parseResults,
+  replaceTagDictionary: (dictionaryNames) => {
+    const { config } = jsdoc.env;
+
+    if (!Array.isArray(dictionaryNames)) {
+      dictionaryNames = [dictionaryNames];
+    }
+
+    config.tags.dictionaries = dictionaryNames;
+    jsdoc.env.tags = Dictionary.fromEnv(jsdoc.env);
+  },
+  restoreTagDictionary: () => {
+    const { config } = jsdoc.env;
+
+    config.tags.dictionaries = originalDictionaries.slice();
+    jsdoc.env.tags = Dictionary.fromEnv(jsdoc.env);
+  },
+};
+
+if (!global.jsdoc) {
+  global.jsdoc = {};
+}
+
+for (const helper of Object.keys(helpers)) {
+  global.jsdoc[helper] = helpers[helper];
+}
