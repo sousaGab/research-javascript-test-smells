@@ -1,0 +1,64 @@
+// TODO: this is the same as app/templates/core/loading-error.pug, but Vue-ified; can we merge them?
+#loading-error.text-center
+  div(v-if="error.stack")
+    h1 {{ $t("loading_error.unknown") }}
+
+  div(v-else-if="error.code === 401")
+    h1
+      span.spr 401:
+      span {{ $t("loading_error.login_required") }}
+    p {{ $t("loading_error.login_required_desc") }}
+    button.login-btn.btn.btn-primary {{ $t("login.log_in") }}
+    button#create-account-btn.btn.btn-primary {{ $t("login.sign_up") }}
+
+  // 402 currently not in use. TODO: Set it up
+  div(v-else-if="error.code === 402")
+    h2 402: Payment Required
+
+  div(v-else-if="error.code === 403")
+    h1
+      span.spr 403:
+      span {{ $t("loading_error.forbidden") }}
+    p {{ $t("loading_error.forbidden_desc") }}
+
+    // this should make no diff... but sometimes the server returns 403 when it should return 401
+    button#logout-btn.btn.btn-primary(v-if="isAnonymous") {{ $t("login.log_out") }}
+
+  div(v-else-if="error.code === 404")
+    h1
+      span.spr 404:
+      span {{ $t('loading_error.not_found') }}
+    p {{ $t("loading_error.not_found_desc") }}
+
+  div(v-else-if="!error.code")
+    h1 {{ $t("loading_error.connection_failure") }}
+    p {{ $t("loading_error.connection_failure_desc") }}
+
+  div(v-else-if="error.code === 408")
+    h1
+      span.spr 408:
+      span {{ $t("loading_error.timeout") }}
+
+  div(v-else-if="error.code >= 500 && error.code <= 599")
+    h1
+      span.spr {{error.code}}
+      span {{ $t("loading_error.server_error") }}
+
+  div(v-else)
+    h1 {{ $t("loading_error.unknown") }}
+
+    p {{ $t("loading_error.general_desc") }}
+
+  p
+    a(href="/") {{ $t("nav.home") }}
+    span= " | "
+    a(href="/about") {{ $t("nav.about") }}
+    if !features.china
+      span= " | "
+      a(href="https://codecombat.zendesk.com/hc/en-us" target="_blank") {{ $t("contact.faq") }}
+    if !me.isStudent()
+      span= " | "
+      a.contact-modal {{ $t("nav.contact") }}
+
+  - var num = Math.floor(Math.random() * 3) + 1;
+  img#not-found-img(src='/images/pages/not_found/404_' + num + '.png')

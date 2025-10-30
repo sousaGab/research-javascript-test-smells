@@ -1,0 +1,449 @@
+<template>
+  <form
+    class="purchase-form"
+    action="#"
+    @submit.prevent=""
+  >
+    <div
+      v-if="!tecmilenioNotConfirmed"
+      class="form-group"
+    >
+      <label for="licenseType">{{ isTecmilenioPartner ? 'Seleccionar licencia' : 'Select License' }}</label>
+      <select
+        id="licenseType"
+        class="form-control"
+        @change="updateSelectedPrice"
+      >
+        <option
+          v-for="price in priceData"
+          :key="price.id"
+          :value="price.id"
+        >
+          {{ isTecmilenioPartner ? 'Licencia anual de estudiante - Universidad Tecmilenio' : $t(`payments.${price.metadata.i18nName}`) }} - {{ getCurrency(price) }}{{ getUnitPrice(price) }}
+        </option>
+      </select>
+    </div>
+    <div
+      v-if="!tecmilenioNotConfirmed"
+      class="form-group"
+    >
+      <label for="licenseNum">{{ isTecmilenioPartner ? 'Número de Licencias' : 'Number of Licenses' }}</label>
+      <input
+        id="licenseNum"
+        v-model="licenseNum"
+        type="text"
+        class="form-control"
+        :disabled="isTecmilenioPartner"
+      >
+      <p
+        v-if="licenseNum && !errMsg"
+        class="total-price"
+      >
+        {{ isTecmilenioPartner ? 'Total a pagar' : 'Total price' }}: {{ selectedCurrency }}{{ totalPrice }}
+      </p>
+    </div>
+    <div
+      v-if="isTecmilenioPartner"
+      class="tecmilenio"
+    >
+      <div
+        v-if="!tecmilenioNotConfirmed"
+        class="form-group"
+      >
+        <label for="parentEmail">Correo electrónico del padre, madre o tutor</label>
+        <input
+          id="parentEmail"
+          v-model="parentEmail"
+          type="email"
+          class="form-control"
+          required
+        >
+      </div>
+      <div
+        v-if="!tecmilenioNotConfirmed"
+        class="form-group"
+      >
+        <label for="studentName">Nombre del estuadiante</label>
+        <input
+          id="studentNameV2"
+          v-model="studentNameV2"
+          type="text"
+          class="form-control"
+          required
+        >
+      </div>
+      <div
+        v-if="!tecmilenioNotConfirmed"
+        class="form-group"
+      >
+        <label for="studentName">Matrícula del alumno</label>
+        <input
+          id="studentName"
+          v-model.trim="studentName"
+          type="text"
+          class="form-control"
+          required
+        >
+      </div>
+      <div
+        v-if="!tecmilenioNotConfirmed"
+        class="form-group"
+      >
+        <label for="studentNameConfirm">Confirmar Matrícula del alumno</label>
+        <input
+          id="studentNameConfirm"
+          v-model.trim="studentNameConfirm"
+          type="text"
+          class="form-control"
+          ondrop="return false;"
+          onpaste="return false;"
+          required
+        >
+      </div>
+      <div class="form-group">
+        <label for="studentEmail">Correo institucional del alumno</label>
+        <input
+          id="studentEmail"
+          v-model="studentEmail"
+          :disabled="!tecmilenioNotConfirmed"
+          type="email"
+          class="form-control"
+          required
+        >
+      </div>
+      <div
+        v-if="!tecmilenioNotConfirmed"
+        class="form-group"
+      >
+        <label for="campusName">Nombre del campus</label>
+        <select
+          id="campusName"
+          class="form-control"
+          @change="updateSelectedCampus"
+        >
+          <option
+            value=""
+            disabled
+            selected
+          >
+            Seleccionar campus
+          </option>
+          <option
+            v-for="name in tecmilenioCampusNames"
+            :key="name"
+            :value="name"
+          >
+            {{ name }}
+          </option>
+        </select>
+      </div>
+      <div class="form-group">
+        <p
+          v-if="tecmilenioNotConfirmed"
+          class="tecmilenio-pay-warning"
+        >
+          Recibirá un enlace de pago en su correo electrónico que podrá utilizar para completar el pago.
+        </p>
+        <p
+          v-else
+          class="tecmilenio-pay-warning"
+        >
+          Por favor verifica la matrícula del alumno pues con esta información se validará tu pago y se generará tu licencia.
+        </p>
+      </div>
+    </div>
+    <p class="success">
+      {{ successMsg }}
+    </p>
+    <p class="error">
+      {{ errMsg }}
+    </p>
+    <div
+      v-if="tecmilenioNotConfirmed"
+      class="form-group"
+    >
+      <button
+        type="submit"
+        class="btn btn-primary btn-lg purchase-btn"
+        @click="handleSubmit('sendVerificationLink')"
+      >
+        Obtener enlace de pago
+      </button>
+      <icon-loading v-if="showLoading" />
+    </div>
+    <div
+      v-else
+      class="form-group"
+    >
+      <button
+        type="submit"
+        class="btn btn-primary btn-lg purchase-btn"
+        :class="licenseNum ? '' : 'disabled'"
+        @click="handleSubmit('onPurchaseNow')"
+      >
+        {{ isTecmilenioPartner ? 'Comprar ahora' : 'Purchase Now' }}
+      </button>
+      <icon-loading v-if="showLoading" />
+    </div>
+  </form>
+</template>
+
+<script>
+import { getQueryVariable } from 'core/utils'
+import { handleCheckoutSession } from '../paymentPriceHelper'
+import IconLoading from 'app/core/components/IconLoading'
+import priceHelperMixin from './price-helper-mixin'
+
+const fetchJson = require('app/core/api/fetch-json')
+const TECMILENIO_CAMPUS_NAMES = [
+  'Central', 'Online', 'Las Torres', 'Ferrería', 'Cuautitlán lzcalli', 'Toluca', 'Culiacán', 'Zapopan', 'Guadalajara', 'Querétaro', 'Ciudad Juárez', 'San Luis Potosí',
+  'Villahermosa', 'Cancún', 'Cumbres', 'Hermosillo', 'Cuernavaca', 'Veracruz', 'San Nicolás', 'Chihuahua',
+  'Puebla', 'Reynosa', 'Guadalupe', 'Mazatlán', 'Laguna', 'Mérida', 'Durango', 'Ciudad Obregón', 'Los Mochis', 'Nuevo Laredo',
+  'Morelia', 'Zacatecas'
+].sort()
+export default {
+  name: 'PaymentStudentLicensePurchaseView',
+  components: {
+    IconLoading
+  },
+  mixins: [
+    priceHelperMixin
+  ],
+  props: {
+    priceData: Array,
+    paymentGroupId: String,
+    isTecmilenioPartner: {
+      type: Boolean,
+      default: false
+    },
+    isTecmilenioConfirmedLink: {
+      type: Boolean,
+      default: false
+    },
+    isBDPartner: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data () {
+    return {
+      licenseNum: this.isTecmilenioPartner ? 1 : null,
+      selectedPrice: this.priceData[0].id,
+      errMsg: '',
+      successMsg: '',
+      parentEmail: null,
+      studentEmail: null,
+      studentName: null, // this is actually id
+      studentNameConfirm: null, // confirm id
+      studentNameV2: null,
+      showLoading: false,
+      tecmilenioCampusNames: TECMILENIO_CAMPUS_NAMES,
+      selectedCampusName: null
+    }
+  },
+  computed: {
+    tecmilenioNotConfirmed () {
+      return this.isTecmilenioPartner && !this.isTecmilenioConfirmedLink
+    },
+    totalPrice () {
+      const price = this.getSelectedPrice()
+      return (this.getUnitPrice(price) * this.licenseNum).toFixed(2)
+    },
+    selectedCurrency () {
+      const price = this.getSelectedPrice()
+      return this.getCurrency(price)
+    },
+    totalAmountInDecimal () {
+      return this.getSelectedPrice().unit_amount * this.licenseNum
+    }
+  },
+  mounted () {
+    if (this.isTecmilenioPartner) {
+      this.handleEmail()
+    }
+  },
+  methods: {
+    handleSubmit (action) {
+      switch (action) {
+      case 'onPurchaseNow':
+        this.onPurchaseNow()
+        break
+      case 'sendVerificationLink':
+        this.sendVerificationLink()
+        break
+      }
+    },
+    handleEmail () {
+      if (this.isTecmilenioConfirmedLink) {
+        const email = this.getConfirmedEmail()
+        if (email) {
+          this.studentEmail = email
+        } else {
+          noty({ text: 'Couldn\'t find verified email', type: 'error', layout: 'center', timeout: 2000 })
+        }
+      }
+    },
+    getConfirmedEmail () {
+      return getQueryVariable('email')
+    },
+    getCurrency (price) {
+      return price.currency === 'usd' ? '$' : price.currency
+    },
+    getUnitPrice (price) {
+      return price.unit_amount / 100
+    },
+    updateSelectedPrice (e) {
+      this.selectedPrice = e.target.value
+    },
+    updateSelectedCampus (e) {
+      this.selectedCampusName = e.target.value
+    },
+    validateLicenseNum () {
+      this.errMsg = ''
+      if (isNaN(this.licenseNum)) {
+        this.errMsg = 'Invalid number'
+        return false
+      }
+      const licenseNum = parseInt(this.licenseNum)
+      const price = this.getSelectedPrice()
+      const licenseCap = this.getLicenseCap(price)
+      if (licenseCap && (licenseNum > licenseCap)) {
+        this.errMsg = `Sorry, you cannot purchase more than ${licenseCap} licenses`
+        return false
+      }
+      const minLicenses = this.getMinLicenses(price)
+      if (minLicenses && (licenseNum < minLicenses)) {
+        this.errMsg = `Sorry, you cannot purchase less than ${minLicenses} licenses`
+        return false
+      }
+      return true
+    },
+    getSelectedPrice () {
+      return this.priceData.find((p) => p.id === this.selectedPrice)
+    },
+    async sendVerificationLink () {
+      this.showLoading = true
+      this.successMsg = ''
+      this.errMsg = ''
+      if (!this.isTecmilenioEmailValid()) {
+        this.errMsg = 'inválido Correo institucional del alumno'
+        this.showLoading = false
+        return false
+      }
+      try {
+        await fetchJson('/db/tecmilenio/payment-link', { json: { email: this.studentEmail }, method: 'POST' }).then(res => {
+          this.successMsg = 'Por favor revise su correo electrónico para obtener el enlace de pago para completar el proceso de pago.'
+        })
+      } catch (error) {
+        if (error?.code === 422) {
+          this.errMsg = 'inválido Correo institucional del alumno'
+        } else {
+          this.errMsg = 'Internal Server Error'
+        }
+        console.log('Couldn\'t send verification link:', error)
+      }
+      this.showLoading = false
+    },
+    async onPurchaseNow () {
+      this.errMsg = ''
+      this.showLoading = true
+      if (!this.isFormDataValid()) return
+      const sessionOptions = {
+        stripePriceId: this.selectedPrice,
+        paymentGroupId: this.paymentGroupId,
+        numberOfLicenses: this.licenseNum,
+        email: me.get('email'),
+        userId: me.get('_id'),
+        totalAmount: this.totalAmountInDecimal
+      }
+
+      if (this.isTecmilenioPartner) {
+        sessionOptions.email = this.parentEmail
+        sessionOptions.details = {
+          studentName: this.studentName,
+          studentEmail: this.studentEmail,
+          campusName: this.selectedCampusName,
+          studentNameV2: this.studentNameV2
+        }
+      }
+      const { errMsg } = await handleCheckoutSession(sessionOptions)
+      this.errMsg = errMsg
+      this.showLoading = false
+    },
+    isTecmilenioEmailValid () {
+      if (!this.studentEmail || !this.studentEmail.includes('@tecmilenio.mx')) {
+        return false
+      }
+      return true
+    },
+    isFormDataValid () {
+      if (this.isTecmilenioPartner) {
+        if (!this.isTecmilenioEmailValid()) {
+          this.errMsg = 'inválido Correo institucional del alumno'
+          this.showLoading = false
+          return false
+        }
+        const convertedId = parseInt(this.studentName)?.toString()
+        const TEC_VALID_ID_LEN = 8
+        const numOfZeros = (TEC_VALID_ID_LEN - convertedId.length) > 0 ? (TEC_VALID_ID_LEN - convertedId.length) : 0
+        const preZeros = [...Array(numOfZeros).keys()].map(n => '0').join('')
+        const convertedIdWithPreZeros = preZeros + convertedId
+        if (!this.studentName || this.studentName.length !== TEC_VALID_ID_LEN || isNaN(parseInt(this.studentName)) || convertedIdWithPreZeros?.length !== TEC_VALID_ID_LEN || convertedIdWithPreZeros !== this.studentName) {
+          this.errMsg = 'invalido Matrícula del alumno - ingresa solo 8 digitos'
+          this.showLoading = false
+          return false
+        }
+        if (this.studentName !== this.studentNameConfirm) {
+          this.errMsg = 'Discordancia Matrícula del alumno'
+          this.showLoading = false
+          return false
+        }
+        if (!this.selectedCampusName) {
+          this.errMsg = 'inválido campus'
+          this.showLoading = false
+          return false
+        }
+      }
+      if (!this.validateLicenseNum()) {
+        this.showLoading = false
+        return false
+      }
+      return true
+    }
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.purchase-form {
+  width: 70%;
+  padding-left: 30%;
+  padding-top: 15px;
+}
+.purchase-btn {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.total-price {
+  padding-top: 5px
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
+.success {
+  color: #0B6125;
+  font-weight: bold;
+}
+
+.tecmilenio-pay-warning {
+  color: #ff9800;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: bold;
+}
+</style>

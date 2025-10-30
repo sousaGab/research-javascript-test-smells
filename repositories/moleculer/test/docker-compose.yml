@@ -1,0 +1,73 @@
+version: "3.7"
+
+services:
+  nats:
+    image: nats:2
+    ports:
+      - "4222:4222"
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+
+  mqtt:
+    image: ncarlier/mqtt
+    ports:
+      - "1883:1883"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  stan:
+    image: nats-streaming
+    ports:
+      - "4222:4222"
+    volumes:
+      - ./nats.config:/nats.config
+    command: "-c /nats.config"
+
+  activemq:
+    image: rmohr/activemq
+    ports:
+      - "5672:5672"
+      - "8161:8161"
+
+  zookeeper:
+    image: bitnamilegacy/zookeeper:3.9
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: bitnamilegacy/kafka:3.9
+    environment:
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      - KAFKA_LISTENERS=PLAINTEXT://:9092,EXTERNAL://:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://127.0.0.1:9093
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - ALLOW_PLAINTEXT_LISTENER=yes
+      - KAFKA_ENABLE_KRAFT=no
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+
+  etcd3:
+    image: 'quay.io/coreos/etcd:v3.5.16'
+    command:
+      - /usr/local/bin/etcd
+      - --name=etcd0
+      - --data-dir=/etcd-data
+      - --listen-client-urls=http://0.0.0.0:2379
+      - --advertise-client-urls=http://127.0.0.1:2379
+      - --listen-peer-urls=http://0.0.0.0:2380
+    ports:
+      - "2379:2379"
+      - "2380:2380"
