@@ -1,0 +1,205 @@
+@import "app/styles/mixins"
+@import "app/styles/bootstrap/variables"
+@import "app/styles/play/variables"
+
+#level-view.hero .spell-palette-entry-view
+  // Not clickable.
+  cursor: default
+
+#spell-palette-view-mid .spell-palette-entry-view
+  margin-left: 38px
+  width: 174px
+  width: calc(100% - 38px)
+
+  span
+    cursor: pointer
+    user-select: none
+
+  &:hover
+    color: #f3cd90
+
+  &.selected
+    color: white
+
+#spell-palette-view .spell-palette-entry-view
+  margin: 0 1vw 0 0
+  min-width: 10vw
+
+.spell-palette-entry-view
+  display: block
+  padding: 0px 4px
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace
+  font-size: 12px
+  border: 1px solid transparent
+  cursor: pointer
+  @include user-select(all)
+  height: 19px
+  text-overflow: ellipsis
+  overflow: hidden
+  white-space: nowrap
+
+  &:hover
+    border: 1px solid #f3cd90
+
+  &.pinned
+    background-color: #26478a
+
+  &.single-entry
+    height: 38px
+    line-height: 38px
+
+  img.spawnable-image
+    height: 16px
+    margin-right: 4px
+
+  // Originally pulled these colors from the most relevant textmate-theme classes, but then fudged them a lot.
+  //&.function
+  //  color: black
+  //&.object
+  //  color: rgb(6, 150, 14)
+  //&.string
+  //  color: rgb(3, 106, 7)
+  //&.number
+  //  color: rgb(0, 0, 205)
+  //&.boolean
+  //  color: rgb(88, 92, 246)
+  //&.snippet
+  //  color: blue
+  //&.undefined
+  //  color: rgb(197, 6, 11)
+  color: rgb(243, 169, 49)
+
+  body[lang="he"] &, body[lang="ar"] &, body[lang="fa"] &, body[lang="ur"] &
+    .rtl-right-aligned
+      text-align: right
+
+.spell-palette-popover.popover
+  top: 80px
+  min-width: 500px
+
+.spell-palette-popover.popover, .blocklyTooltipDiv
+  max-width: 600px
+  padding: 0
+  border-style: solid
+  border-image: url(/images/level/popover_border_background.png) 16 12 fill round
+  border-width: 16px 12px
+  @include box-shadow(0 0 0 #000)
+
+  //Fixes punctuation but puts comment marker on right, which is apparently worse.
+  //body[lang="he"] &, body[lang="ar"] &, body[lang="fa"] &, body[lang="ur"] &
+  //  .ace_text-layer .ace_comment
+  //    direction: rtl
+  //    unicode-bidi: embed
+
+  body[lang="he"] &, body[lang="ar"] &, body[lang="fa"] &, body[lang="ur"] &
+    .rtl-right-aligned
+      text-align: right
+
+  // Jiggle animation
+  // TODO: consolidate with problem_alert.sass jiggle
+  +keyframes(jiggle)
+    0%
+      transform: rotate(0deg)
+    25%
+      transform: rotate(1deg)
+    50%
+      transform: rotate(0deg)
+    75%
+      transform: rotate(-1deg)
+    100%
+      transform: rotate(0deg)
+
+  &.jiggling
+    @include animation(jiggle .3s infinite)
+
+  &.pinned
+    @include user-select(text)
+
+    .arrow
+      display: none
+
+    .close
+      position: absolute
+      top: -7px
+      right: 2px
+      font-size: 28px
+      font-weight: bold
+      @include opacity(0.6)
+      text-shadow: 0 1px 0 white
+
+      &:hover
+        @include opacity(1)
+
+  h1:not(.not-code), h2:not(.not-code), h3:not(.not-code), h4:not(.not-code), h5:not(.not-code), h6:not(.not-code)
+    font-family: Monaco, Menlo, Ubuntu Mono, Consolas, "source-code-pro", monospace !important
+    font-variant: normal
+
+    body[lang="he"] &, body[lang="ar"] &, body[lang="fa"] &, body[lang="ur"] &
+      font-family: "Cousine", "Courier", "Courier New", monospace !important
+
+  .popover-title
+    background-color: transparent
+    margin: 0 14px
+    padding: 8px 0
+    border-bottom-color: #ccc
+
+  .popover-content
+    max-height: 100%
+    overflow-y: auto
+    margin-right: 10px
+    img
+      float: right
+
+    img:first-child
+      max-width: 100px
+      margin-top: -30px
+
+  &.top .arrow
+    bottom: -2%
+  &.bottom .arrow
+    top: -2%
+  &.left .arrow
+    right: 0%
+  &.right .arrow
+    left: -3%
+
+  .docs-ace-container
+    padding: 2px 4px
+    border-radius: 4px
+
+    &, .docs-ace
+      background-color: #f9f2f4
+      font-size: 12px
+      font-family: Monaco, Menlo, Ubuntu Mono, Consolas, "source-code-pro", monospace !important
+
+    body[lang="he"] &, body[lang="ar"] &, body[lang="fa"] &, body[lang="ur"] &
+      font-family: "Cousine", "Courier", "Courier New", monospace !important
+
+    .docs-ace
+      .ace_cursor, .ace_bracket
+        display: none
+
+  code
+    color: black
+    font-family: Monaco, Menlo, Ubuntu Mono, Consolas, "source-code-pro", monospace !important
+    font-size: 12px
+
+    body[lang="he"] &, body[lang="ar"] &, body[lang="fa"] &, body[lang="ur"] &
+      font-family: "Cousine", "Courier", "Courier New", monospace !important
+
+.blocklyTooltipDiv
+  .docs-ace-container
+    &, .docs-ace
+      white-space: pre-wrap
+
+// iPad property docs
+
+.tome-inventory-property-documentation
+  background-color: #e3d39a
+  padding: 10px
+  padding-bottom: 65px
+  width: 320px
+  min-height: 480px
+
+  h1:not(.not-code), h2:not(.not-code), h3:not(.not-code), h4:not(.not-code), h5:not(.not-code), h6:not(.not-code)
+    font-family: Menlo, Monaco, Consolas, "Courier New", monospace
