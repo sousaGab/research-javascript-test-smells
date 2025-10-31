@@ -1,0 +1,694 @@
+// TODO: This file was created by bulk-decaffeinate.
+// Sanity-check the conversion and remove this comment.
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS103: Rewrite code to no longer use __guard__, or convert again using --optional-chaining
+ * DS104: Avoid inline assignments
+ * DS204: Change includes calls to have a more natural evaluation order
+ * DS205: Consider reworking code to avoid use of IIFEs
+ * DS206: Consider reworking classes to avoid initClass
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/main/docs/suggestions.md
+ */
+let Level
+const CocoModel = require('./CocoModel')
+const LevelComponent = require('./LevelComponent')
+const LevelSystem = require('./LevelSystem')
+const LevelConstants = require('lib/LevelConstants')
+const ThangTypeConstants = require('lib/ThangTypeConstants')
+const utils = require('core/utils')
+const translateUtils = require('lib/translate-utils')
+const store = require('core/store')
+
+// Pure functions for use in Vue
+// First argument is always a raw Level.attributes
+// Accessible via eg. `Level.isProject(levelObj)`
+const LevelLib = {
+  isProject (level) {
+    return (level != null ? level.shareable : undefined) === 'project'
+  },
+}
+
+module.exports = (Level = (function () {
+  Level = class Level extends CocoModel {
+    static initClass () {
+      this.className = 'Level'
+      this.schema = require('schemas/models/level')
+      this.levels = LevelConstants.levels
+      this.prototype.urlRoot = '/db/level'
+      this.prototype.editableByArtisans = true
+
+      this.prototype.cachedLevelComponents = null
+    }
+
+    serialize (options) {
+      let cached, otherSession, session, supermodel;
+      ({ supermodel, session, otherSession, headless: this.headless, sessionless: this.sessionless, cached, isEditorPreview: this.isEditorPreview } = options)
+      if (cached == null) { cached = false }
+      const o = this.denormalize(supermodel, session, otherSession) // hot spot to optimize
+
+      // Figure out Components
+      o.levelComponents = cached ? this.getCachedLevelComponents(supermodel) : $.extend(true, [], (Array.from(supermodel.getModels(LevelComponent)).map((lc) => lc.attributes)))
+      this.sortThangComponents(o.thangs, o.levelComponents, 'Level Thang')
+      this.fillInDefaultComponentConfiguration(o.thangs, o.levelComponents) // hot spot to optimize
+
+      // Figure out Systems
+      const systemModels = $.extend(true, [], (Array.from(supermodel.getModels(LevelSystem)).map((ls) => ls.attributes)))
+      o.systems = this.sortSystems(o.systems, systemModels)
+      this.fillInDefaultSystemConfiguration(o.systems)
+
+      // Figure out ThangTypes' Components
+      const tmap = {}
+      for (const t of Array.from(o.thangs != null ? o.thangs : [])) { tmap[t.thangType] = true }
+      let sessionHeroes = [__guard__(session != null ? session.get('heroConfig') : undefined, x => x.thangType), __guard__(otherSession != null ? otherSession.get('heroConfig') : undefined, x1 => x1.thangType)]
+      if (this.isType('ladder')) {
+        sessionHeroes = [] // Don't load session heroes in straight ladder matches
+      }
+      o.thangTypes = []
+      for (const tt of Array.from(supermodel.getModels('ThangType'))) {
+        if (tmap[tt.get('original')] ||
+          ((tt.get('kind') !== 'Hero' && tt.get('kind') !== 'Junior Hero') && (tt.get('kind') != null) && tt.get('components') && !tt.notInLevel) ||
+          ((tt.get('kind') === 'Hero' || tt.get('kind') === 'Junior Hero') && (this.isType('course', 'course-ladder', 'game-dev') || Array.from(sessionHeroes).includes(tt.get('original'))))) {
+          o.thangTypes.push(({ original: tt.get('original'), name: tt.get('name'), components: $.extend(true, [], tt.get('components')), kind: tt.get('kind') }))
+        }
+      }
+      this.sortThangComponents(o.thangTypes, o.levelComponents, 'ThangType')
+      this.fillInDefaultComponentConfiguration(o.thangTypes, o.levelComponents)
+
+      if (this.picoCTFProblem) { o.picoCTFProblem = this.picoCTFProblem }
+      return o
+    }
+
+    getCachedLevelComponents (supermodel) {
+      if (this.cachedLevelComponents == null) { this.cachedLevelComponents = {} }
+      const levelComponents = supermodel.getModels(LevelComponent)
+      const newLevelComponents = []
+      for (const levelComponent of Array.from(levelComponents)) {
+        if (levelComponent.hasLocalChanges()) {
+          newLevelComponents.push($.extend(true, {}, levelComponent.attributes))
+          continue
+        }
+        if (this.cachedLevelComponents[levelComponent.id] == null) { this.cachedLevelComponents[levelComponent.id] = (this.cachedLevelComponents[levelComponent.id] = $.extend(true, {}, levelComponent.attributes)) }
+        newLevelComponents.push(this.cachedLevelComponents[levelComponent.id])
+      }
+      return newLevelComponents
+    }
+
+    denormalize (supermodel, session, otherSession) {
+      let tt
+      const o = $.extend(true, {}, this.attributes)
+      if (o.thangs && (utils.isCodeCombat || this.isType('hero', 'hero-ladder', 'hero-coop', 'course', 'course-ladder', 'game-dev', 'web-dev'))) {
+        const thangTypesWithComponents = ((() => {
+          const result = []
+          for (tt of Array.from(supermodel.getModels('ThangType'))) {
+            if (tt.get('components')) {
+              result.push(tt)
+            }
+          }
+          return result
+        })())
+        const thangTypesByOriginal = _.indexBy(thangTypesWithComponents, tt => tt.get('original')) // Optimization
+        for (const levelThang of Array.from(o.thangs)) {
+          this.denormalizeThang(levelThang, supermodel, session, otherSession, thangTypesByOriginal)
+        }
+      }
+      return o
+    }
+
+    denormalizeThang (levelThang, supermodel, session, otherSession, thangTypesByOriginal) {
+      let config, heroThangType, isHero, placeholderComponent, placeholders, placeholdersUsed, thangComponent
+      if (levelThang.components == null) { levelThang.components = [] }
+      if (utils.isCodeCombat) {
+        if (/Hero Placeholder/.test(levelThang.id)) {
+          isHero = this.usesSessionHeroInventory()
+        }
+
+        if (isHero && otherSession) {
+          // If it's a hero and there's another session, find the right session for it.
+          // If there is no other session (playing against default code, or on single player), clone all placeholders.
+          // TODO: actually look at the teams on these Thangs to determine which session should go with which placeholder.
+          if ((levelThang.id === 'Hero Placeholder 1') && (session.get('team') === 'humans')) {
+            session = otherSession
+          } else if ((levelThang.id === 'Hero Placeholder') && (session.get('team') === 'ogres')) {
+            session = otherSession
+          }
+        }
+
+        // Empty out placeholder Components and store their values if we're the hero placeholder.
+        if (isHero) {
+          placeholders = {}
+          placeholdersUsed = {}
+          const placeholderThangType = thangTypesByOriginal[levelThang.thangType]
+          if (!placeholderThangType) {
+            console.error("Couldn't find placeholder ThangType for the hero!")
+            isHero = false
+          } else {
+            for (const defaultPlaceholderComponent of Array.from(placeholderThangType.get('components'))) {
+              placeholders[defaultPlaceholderComponent.original] = defaultPlaceholderComponent
+            }
+            for (thangComponent of Array.from(levelThang.components)) {
+              placeholders[thangComponent.original] = thangComponent
+            }
+            levelThang.components = [] // We have stored the placeholder values, so we can inherit everything else.
+            heroThangType = __guard__(session != null ? session.get('heroConfig') : undefined, x => x.thangType)
+            if (heroThangType) {
+              let juniorHeroReplacement
+              if (this.get('product', true) === 'codecombat-junior') {
+                // If we got into a codecombat-junior level with a codecombat hero, pick an equivalent codecombat-junior hero to use instead
+                juniorHeroReplacement = ThangTypeConstants.juniorHeroReplacements[_.invert(ThangTypeConstants.heroes)[heroThangType]]
+              } else {
+                // If we got into a codecombat level with a codecombat-junior hero, pick an equivalent codecombat hero to use instead
+                juniorHeroReplacement = _.invert(ThangTypeConstants.juniorHeroReplacements)[_.invert(ThangTypeConstants.heroes)[heroThangType]]
+              }
+              if (juniorHeroReplacement) {
+                heroThangType = ThangTypeConstants.heroes[juniorHeroReplacement]
+              }
+              levelThang.thangType = heroThangType
+            }
+          }
+        }
+      }
+
+      const thangType = thangTypesByOriginal[levelThang.thangType]
+
+      const configs = {}
+      for (thangComponent of Array.from(levelThang.components)) {
+        configs[thangComponent.original] = thangComponent
+      }
+
+      let defaultEquipsConfig
+      for (const defaultThangComponent of Array.from((thangType != null ? thangType.get('components') : undefined) || [])) {
+        let copy
+        let levelThangComponent = configs[defaultThangComponent.original]
+        if (levelThangComponent) {
+          // Take the ThangType default Components and merge level-specific Component config into it
+          copy = $.extend(true, {}, defaultThangComponent.config)
+          levelThangComponent.config = _.merge(copy, levelThangComponent.config)
+        } else {
+          // Just add the Component as is
+          levelThangComponent = $.extend(true, {}, defaultThangComponent)
+          levelThang.components.push(levelThangComponent)
+        }
+
+        if (utils.isCodeCombat) {
+          if (isHero && (placeholderComponent = placeholders[defaultThangComponent.original])) {
+            placeholdersUsed[placeholderComponent.original] = true
+            const placeholderConfig = placeholderComponent.config || {}
+            if (levelThangComponent.config == null) { levelThangComponent.config = {} }
+            config = levelThangComponent.config
+            if (placeholderConfig.pos) { // Pull in Physical pos x and y
+              if (config.pos == null) { config.pos = {} }
+              config.pos.x = placeholderConfig.pos.x
+              config.pos.y = placeholderConfig.pos.y
+              config.rotation = placeholderConfig.rotation
+            } else if (placeholderConfig.team) { // Pull in Allied team
+              config.team = placeholderConfig.team
+            } else if (placeholderConfig.significantProperty) { // For levels where we cheat on what counts as an enemy
+              config.significantProperty = placeholderConfig.significantProperty
+            } else if (placeholderConfig.programmableMethods) {
+              // Take the ThangType default Programmable and merge level-specific Component config into it
+              copy = $.extend(true, {}, placeholderConfig)
+              const programmableProperties = config?.programmableProperties || []
+              copy.programmableProperties = _.union(programmableProperties, copy.programmableProperties || [])
+              levelThangComponent.config = (config = _.merge(copy, config))
+            } else if (placeholderConfig.extraHUDProperties) {
+              config.extraHUDProperties = _.union(config.extraHUDProperties != null ? config.extraHUDProperties : [], placeholderConfig.extraHUDProperties)
+            } else if (placeholderConfig.voiceRange) { // Pull in voiceRange
+              config.voiceRange = placeholderConfig.voiceRange
+              config.cooldown = placeholderConfig.cooldown
+            } else if (placeholderConfig.inventory) {
+              defaultEquipsConfig = placeholderConfig
+            }
+          }
+        }
+      }
+
+      if (utils.isCodeCombat && isHero) {
+        const equips = _.find(levelThang.components, { original: LevelComponent.EquipsID })
+        if (equips) {
+          const inventory = session?.get('heroConfig')?.inventory || {}
+          if (equips.config == null) { equips.config = {} }
+          // If we somehow don't have all our required properties, then grant the rest of them.
+          if (!this.headless && !this.isEditorPreview) {
+            for (const [slot, defaultItemOriginal] of Object.entries(defaultEquipsConfig?.inventory || {})) {
+              // Look through this ThangType's components for one with config.programmableProperties, see if there's intersection between those and this.get('requiredProperties') and there is NOT such intersection for whatever item we would otherwise have in this slot, and if so, put that item in this slot.
+              if (!defaultItemOriginal) { continue }
+              const defaultItemThangType = thangTypesByOriginal[defaultItemOriginal]
+              if (!defaultItemThangType) { continue }
+
+              // Initialize the default item properties
+              let defaultItemProperties = []
+              for (const component of defaultItemThangType.get('components') || []) {
+                defaultItemProperties = defaultItemProperties.concat(component.config?.programmableProperties || [])
+              }
+
+              // Get the player's item in this slot
+              const playerItemOriginal = inventory[slot]
+
+              // Initialize player's item properties
+              let playerItemProperties = []
+              let playerItemThangType
+              if (playerItemOriginal) {
+                playerItemThangType = thangTypesByOriginal[playerItemOriginal]
+                if (playerItemThangType) {
+                  for (const component of playerItemThangType.get('components') || []) {
+                    playerItemProperties = playerItemProperties.concat(component.config?.programmableProperties || [])
+                  }
+                }
+              }
+
+              // Get required properties from the level
+              const requiredProperties = this.get('requiredProperties') || []
+              const requiredPropertiesForSlot = _.intersection(requiredProperties, defaultItemProperties)
+              const requiredGear = this.get('requiredGear')?.[slot]
+              const restrictedGear = this.get('restrictedGear')?.[slot]
+
+              // Check if the player's item covers all the required properties for this slot
+              const playerItemRequiredPropertiesForSlot = _.intersection(playerItemProperties, requiredPropertiesForSlot)
+              if (playerItemRequiredPropertiesForSlot.length === 0 && playerItemRequiredPropertiesForSlot.length < requiredPropertiesForSlot.length) {
+                // Player's item does not cover required properties, so equip the default item
+                console.log(`Auto-equipping default item ${defaultItemOriginal} ${defaultItemThangType.get('name')} in slot ${slot} to get required properties ${requiredPropertiesForSlot} out of requiredProperties ${requiredProperties}, because player item ${playerItemOriginal} ${playerItemThangType?.get('name')} only has properties ${playerItemProperties}`)
+                inventory[slot] = defaultItemOriginal
+              } else if (requiredGear?.length && !playerItemOriginal) {
+                // Player's item does not exist, so equip the default item. (Note that we do let them play with different items equipped in the slot.)
+                console.log(`Auto-equipping default item ${defaultItemOriginal} in slot ${slot} because player has no item equipped there and a required item is there`)
+                inventory[slot] = defaultItemOriginal
+              } else if (restrictedGear?.length && restrictedGear.includes(playerItemOriginal)) {
+                console.log(`Auto-equipping default item ${defaultItemOriginal} ${defaultItemThangType.get('name')} in slot ${slot} because player item ${playerItemOriginal} ${playerItemThangType?.get('name')} is in restricted list`)
+                inventory[slot] = defaultItemOriginal
+              }
+            }
+          }
+          if (inventory) { equips.config.inventory = $.extend(true, {}, inventory) }
+        }
+        for (const original in placeholders) {
+          placeholderComponent = placeholders[original]
+          if (!placeholdersUsed[original]) {
+            levelThang.components.push(placeholderComponent)
+          }
+        }
+      }
+
+      // Load the user's chosen hero AFTER getting stats from default char
+      if (utils.isOzaria) {
+        if (/Hero Placeholder/.test(levelThang.id)) {
+          if (this.isType('course') && !this.headless && !this.sessionless) {
+            heroThangType = __guard__(me.get('ozariaUserOptions'), x2 => x2.isometricThangTypeOriginal)
+          } else {
+            heroThangType = __guard__(session != null ? session.get('heroConfig') : undefined, x3 => x3.thangType)
+          }
+          if (heroThangType) {
+            levelThang.thangType = heroThangType
+          }
+        }
+      } else {
+        if (/Hero Placeholder/.test(levelThang.id) && this.usesSessionHeroThangType() && !this.usesSessionHeroInventory() && !this.headless && !this.isEditorPreview) {
+          // Grab the hero from my config, not the session hero config (so that switching heroes globally applies to existing sessions), when we are using configured heroes but not their inventory.
+          heroThangType = session.get('heroConfig')?.thangType || me.get('heroConfig')?.thangType
+          if (!heroThangType && this.isType('course')) {
+            heroThangType = ThangTypeConstants.heroes.captain
+          }
+          if (!heroThangType) {
+            heroThangType = ThangTypeConstants.heroes.knight
+          }
+          if (heroThangType) {
+            let juniorHeroReplacement
+            if (this.get('product', true) === 'codecombat-junior') {
+              // If we got into a codecombat-junior level with a codecombat hero, pick an equivalent codecombat-junior hero to use instead
+              juniorHeroReplacement = ThangTypeConstants.juniorHeroReplacements[_.invert(ThangTypeConstants.heroes)[heroThangType]]
+            } else {
+              // If we got into a codecombat level with a codecombat-junior hero, pick an equivalent codecombat hero to use instead
+              juniorHeroReplacement = _.invert(ThangTypeConstants.juniorHeroReplacements)[_.invert(ThangTypeConstants.heroes)[heroThangType]]
+            }
+            if (juniorHeroReplacement) {
+              heroThangType = ThangTypeConstants.heroes[juniorHeroReplacement]
+            }
+            levelThang.thangType = heroThangType
+          }
+        }
+      }
+    }
+
+    sortSystems (levelSystems, systemModels) {
+      const [sorted, originalsSeen] = Array.from([[], {}])
+      const visit = function (system) {
+        if (system.original in originalsSeen) { return }
+        const systemModel = _.find(systemModels, { original: system.original })
+        if (!systemModel) { return console.error('Couldn\'t find model for original', system.original, 'from', systemModels) }
+        for (const d of Array.from(systemModel.dependencies || [])) {
+          const system2 = _.find(levelSystems, { original: d.original })
+          visit(system2)
+        }
+        // console.log 'sorted systems adding', systemModel.name
+        sorted.push({ model: systemModel, config: $.extend(true, {}, system.config) })
+        originalsSeen[system.original] = true
+      }
+      for (const system of Array.from(levelSystems != null ? levelSystems : [])) { visit(system) }
+      return sorted
+    }
+
+    sortThangComponents (thangs, levelComponents, parentType) {
+      // Here we have to sort the Components by their dependencies.
+      // It's a bit tricky though, because we don't have either soft dependencies or priority levels.
+      // Example: Programmable must come last, since it has to override any Component-provided methods that any other Component might have created. Can't enumerate all soft dependencies.
+      // Example: Plans needs to come after everything except Programmable, since other Components that add plannable methods need to have done so by the time Plans is attached.
+      // Example: Collides doesn't depend on Allied, but if both exist, Collides must come after Allied. Soft dependency example. Can't just figure out a proper priority to take care of it.
+      // Example: Moves doesn't depend on Acts, but if both exist, Moves must come after Acts. Another soft dependency example.
+      // Decision? Just special case the sort logic in here until we have more examples than these two and decide how best to handle most of the cases then, since we don't really know the whole of the problem yet.
+      // TODO: anything that depends on Programmable will break right now.
+
+      const originalsToComponents = _.indexBy(levelComponents, 'original') // Optimization for speed
+      const alliedComponent = _.find(levelComponents, { name: 'Allied' })
+      const actsComponent = _.find(levelComponents, { name: 'Acts' })
+
+      return (() => {
+        const result = []
+        for (const thang of Array.from(thangs != null ? thangs : [])) {
+          const originalsToThangComponents = _.indexBy(thang.components, 'original')
+          const sorted = []
+          const visit = function (c, namesToIgnore) {
+            let c2
+            if (Array.from(sorted).includes(c)) { return }
+            const lc = originalsToComponents[c.original]
+            if (!lc) { console.error(thang.id || thang.name, 'couldn\'t find lc for', c, 'of', levelComponents) }
+            if (!lc) { return }
+            if (namesToIgnore && Array.from(namesToIgnore).includes(lc.name)) { return }
+            if (lc.name === 'Plans') {
+              // Plans always comes second-to-last, behind Programmable
+              for (c2 of Array.from(thang.components)) { visit(c2, [lc.name, 'Programmable']) }
+            } else if (lc.name === 'Programmable') {
+              // Programmable always comes last
+              for (c2 of Array.from(thang.components)) { visit(c2, [lc.name]) }
+            } else {
+              for (const d of Array.from(lc.dependencies || [])) {
+                c2 = originalsToThangComponents[d.original]
+                if (!c2) {
+                  let dependent = originalsToComponents[d.original]
+                  dependent = (dependent != null ? dependent.name : undefined) || d.original
+                  console.error(parentType, thang.id || thang.name, 'does not have dependent Component', dependent, 'from', lc.name)
+                }
+                if (c2) { visit(c2) }
+              }
+              if ((lc.name === 'Collides') && alliedComponent) {
+                const allied = originalsToThangComponents[alliedComponent.original]
+                if (allied) {
+                  visit(allied)
+                }
+              }
+              if ((lc.name === 'Moves') && actsComponent) {
+                const acts = originalsToThangComponents[actsComponent.original]
+                if (acts) {
+                  visit(acts)
+                }
+              }
+            }
+            // console.log thang.id, 'sorted comps adding', lc.name
+            return sorted.push(c)
+          }
+          for (const comp of Array.from(thang.components)) {
+            visit(comp)
+          }
+          result.push(thang.components = sorted)
+        }
+        return result
+      })()
+    }
+
+    fillInDefaultComponentConfiguration (thangs, levelComponents) {
+      // This is slow, so I inserted some optimizations to speed it up by caching the eventual defaults of commonly-used Components.
+      if (this.defaultComponentConfigurations == null) { this.defaultComponentConfigurations = {} }
+      let cached = 0 // eslint-disable-line
+      let missed = 0
+      let cachedConfigs = 0 // eslint-disable-line
+      return Array.from(thangs != null ? thangs : []).map((thang) =>
+        (() => {
+          const result = []
+          for (const component of Array.from(thang.components || [])) {
+            let originalComponent
+            const defaultConfiguration = _.find(this.defaultComponentConfigurations[component.original], d => _.isEqual(component, d.originalComponent))
+            const isPhysical = component.original === LevelComponent.PhysicalID
+            if (!isPhysical && defaultConfiguration) {
+              component.config = defaultConfiguration.defaultedConfig
+              ++cached
+              continue
+            }
+            const lc = _.find(levelComponents, { original: component.original })
+            if (!lc) { continue }
+            if (!isPhysical) {
+              originalComponent = $.extend(true, {}, component)
+            }
+            if (component.config == null) { component.config = {} }
+            TreemaUtils.populateDefaults(component.config, lc.configSchema != null ? lc.configSchema : {}, tv4)
+            this.lastType = 'component'
+            this.lastOriginal = component.original
+            if (!isPhysical) {
+              if (this.defaultComponentConfigurations[component.original] == null) { this.defaultComponentConfigurations[component.original] = [] }
+              this.defaultComponentConfigurations[component.original].push({ originalComponent, defaultedConfig: component.config })
+              ++cachedConfigs
+            }
+            result.push(++missed)
+          }
+          return result
+        })())
+    }
+    // console.log 'cached', cached, 'missed', missed
+
+    fillInDefaultSystemConfiguration (levelSystems) {
+      return (() => {
+        const result = []
+        for (const system of Array.from(levelSystems != null ? levelSystems : [])) {
+          if (system.config == null) { system.config = {} }
+          TreemaUtils.populateDefaults(system.config, system.model.configSchema || {}, tv4)
+          this.lastType = 'system'
+          result.push(this.lastOriginal = system.model.name)
+        }
+        return result
+      })()
+    }
+
+    dimensions () {
+      let width = 0
+      let height = 0
+      for (const thang of Array.from(this.get('thangs') || [])) {
+        for (const component of Array.from(thang.components)) {
+          const c = component.config
+          if (c == null) { continue }
+          if ((c.width != null) && (c.width > width)) {
+            ({
+              width,
+            } = c)
+          }
+          if ((c.height != null) && (c.height > height)) {
+            ({
+              height,
+            } = c)
+          }
+        }
+      }
+      return { width, height }
+    }
+
+    isLadder () { return Level.isLadder(this.attributes) }
+
+    static isLadder (level) { return (level.type != null ? level.type.indexOf('ladder') : undefined) > -1 }
+
+    isProject () { return Level.isProject(this.attributes) }
+
+    isType (...types) {
+      return Array.from(types).includes(this.get('type', true))
+    }
+
+    getSolutions () {
+      const plan = this.getProgrammablePlan()
+      const solutions = _.cloneDeep(plan?.solutions || [])
+      const context = this.getCodeContext(plan)
+
+      return _.map(solutions, solution => {
+        try {
+          return {
+            ...solution,
+            source: _.template(solution.source)(context),
+          }
+        } catch (e) {
+          console.error(`Problem with template and solution comments for '${this.get('slug') || this.get('name')}'`, e)
+          return solution
+        }
+      })
+    }
+
+    getSampleCode (team = 'humans') {
+      const plan = this.getProgrammablePlan(team)
+      const sampleCode = _.cloneDeep(plan?.languages || {})
+      sampleCode.javascript = plan?.source
+      const context = this.getCodeContext(plan)
+
+      _.forEach(sampleCode, (code, language) => {
+        try {
+          sampleCode[language] = _.template(code)(context)
+        } catch (e) {
+          console.error(`Problem with template and solution comments for '${this.get('slug') || this.get('name')}'`, e)
+        }
+      })
+
+      return sampleCode
+    }
+
+    getSolutionForLanguage (language) {
+      if (!language) { return '' }
+      const solutions = this.getSolutions()
+      if (this.isType('web-dev')) {
+        const solution = _.find(solutions, { language: 'html', succeeds: true })
+        if (/<playercode>/.test(solution?.source)) {
+          solution.source = utils.extractPlayerCodeTag(solution.source)
+        }
+        if (solution) return solution
+      }
+      let solution = _.find(solutions, { language, succeeds: true })
+      if (solution || language === 'javascript') return solution
+      const jsSolution = _.find(solutions, { language: 'javascript', succeeds: true })
+      if (!jsSolution) return null
+      solution = _.cloneDeep(jsSolution)
+      solution.source = translateUtils.translateJS(jsSolution.source, language)
+      return solution
+    }
+
+    getSampleCodeForLanguage (language) {
+      if (!language) { return '' }
+      const sampleCodeByLanguage = this.getSampleCode()
+      if (this.isType('web-dev')) {
+        const sampleCode = sampleCodeByLanguage.html
+        if (/<playercode>/.test(sampleCode)) {
+          return utils.extractPlayerCodeTag(sampleCode)
+        }
+        if (sampleCode) return sampleCode
+      }
+      const sampleCode = sampleCodeByLanguage[language]
+      if (sampleCode || language === 'javascript' || !sampleCodeByLanguage.javascript) {
+        return sampleCode || ''
+      }
+      return translateUtils.translateJS(sampleCodeByLanguage.javascript, language) || ''
+    }
+
+    getProgrammablePlan (team = 'humans') {
+      const heroThangID = team === 'ogres' ? 'Hero Placeholder 1' : 'Hero Placeholder'
+      const hero = _.find(this.get('thangs') || [], { id: heroThangID })
+      return _.find(hero?.components || [], comp => comp.config?.programmableMethods?.plan)?.config.programmableMethods.plan
+    }
+
+    getCodeContext (plan) {
+      if (!plan) return {}
+      let context = utils.i18n(plan, 'context')
+      if (utils.isOzaria) {
+        context = _.merge({
+          external_ch1_avatar: store.getters?.['me/getCh1Avatar.avatarCodeString']?.crown,
+        }, context)
+      }
+      return context
+    }
+
+    static thresholdForScore ({ level, type, score }) {
+      let levelScoreType, levelScoreTypes
+      if (!(levelScoreTypes = level.scoreTypes)) { return null }
+      if (!(levelScoreType = _.find(levelScoreTypes, { type }))) { return null }
+      for (const threshold of ['gold', 'silver', 'bronze']) {
+        let achieved
+        const thresholdValue = levelScoreType.thresholds[threshold]
+        if (Array.from(LevelConstants.lowerIsBetterScoreTypes).includes(type)) {
+          achieved = score <= thresholdValue
+        } else {
+          achieved = score >= thresholdValue
+        }
+        if (achieved) {
+          return threshold
+        }
+      }
+    }
+
+    isSummative () {
+      return ['open-ended', 'cumulative'].includes(this.get('assessment'))
+    }
+
+    usesLevelHeroLadderEquipment () {
+      // For hero-ladder levels where we have configured Hero Placeholder inventory equipment, we must have intended to use it instead of letting the player choose their hero/equipment.
+      let levelThang
+      if (!this.isType('hero-ladder')) { return false }
+      if (!(levelThang = _.find(this.get('thangs'), { id: 'Hero Placeholder' }))) { return false }
+      const equips = _.find(levelThang.components, { original: LevelComponent.EquipsID })
+      return (__guard__(equips != null ? equips.config : undefined, x => x.inventory) != null)
+    }
+
+    usesSessionHeroThangType () {
+      if (this.isType('ladder', 'course-ladder', 'game-dev', 'web-dev')) { return false }
+      if (this.get('assessment') === 'open-ended') { return false }
+      if (this.usesLevelHeroLadderEquipment()) { return false }
+      return true
+    }
+
+    usesSessionHeroInventory () {
+      if (utils.isOzaria) { return false }
+      if (this.get('product', true) === 'codecombat-junior') { return false }
+      if (this.isType('course') && !me.showHeroAndInventoryModalsToStudents()) { return false }
+      if (this.isType('course') && this.isAssessment()) { return false }
+      if (this.get('assessment')) { return false }
+      if (!this.isType('course', 'hero', 'hero-ladder', 'hero-coop')) { return false }
+      if (this.usesLevelHeroLadderEquipment()) { return false }
+      return true
+    }
+
+    isAssessment () { return Boolean(this.get('assessment')) }
+
+    isCapstone () { return this.get('ozariaType') === 'capstone' }
+
+    isChallenge () { return this.get('ozariaType') === 'challenge' }
+
+    getDisplayContentType () {
+      if (this.isCapstone()) { return 'capstone' }
+      if (this.isChallenge()) { return 'challenge' }
+      if (this.get('type') === 'intro') {
+        const introContent = this.get('introContent') || []
+        if ((introContent.length === 1) && (introContent[0].type === 'cutscene-video')) {
+          return 'cutscene'
+        } else {
+          return 'intro'
+        }
+      }
+      return 'practice'
+    }
+
+    checkRemoteChanges () {
+      return fetch(this.url()).then(response => {
+        return response.json().then(remoteAttributes => {
+          const hasChanges = this._revertAttributes && !_.isEqual(remoteAttributes, this._revertAttributes)
+          return this.trigger('remote-changes-checked', { hasChanges })
+        })
+      })
+    }
+
+    hasAccessByTeacher (teacher) {
+      if (!teacher) {
+        return false
+      }
+      const classroomSub = this.get('classroomSub')
+      let hasAccess = false
+      if (teacher && classroomSub && classroomSub.base) {
+        const sub = classroomSub[teacher.get('geo')?.country] || classroomSub.base
+        if (sub === 'free-after-sales') {
+          hasAccess = teacher.activeSalesCallProducts().length > 0
+        } else {
+          hasAccess = sub === 'free'
+        }
+      }
+      return hasAccess
+    }
+  }
+  Level.initClass()
+  return Level
+})())
+
+_.assign(Level, LevelLib)
+
+function __guard__ (value, transform) {
+  return (typeof value !== 'undefined' && value !== null) ? transform(value) : undefined
+}

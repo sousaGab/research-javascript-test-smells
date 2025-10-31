@@ -1,0 +1,44 @@
+mixin license-type(licenseType, licensePresets, utils, credit)
+  .form-group
+    label
+      span Licenses Type
+      =":"
+      #license-type-select
+        .radio
+          label.license-type
+            input(type="radio", name="licenseType", value="all", checked=licenseType==='all')
+            span(data-i18n="admin.license_type_full")
+        .radio
+          label.license-type
+            input(type="radio", name="licenseType", value="hackstack", checked=licenseType==='hackstack')
+            span(data-i18n="admin.license_type_hackstack")
+        each v, preset in licensePresets
+          .radio
+            label.license-type
+              input(type="radio", name="licenseType", value=preset, checked=licenseType===preset)
+              span=preset
+        .radio
+          label.license-type
+            input(type="radio", name="licenseType", value="customize", checked=licenseType==='customize')
+            span(data-i18n="admin.license_type_customize")
+        #select-courses
+          if licenseType === 'customize'
+            each courseID, key in utils.allCourseIDs
+              label.course-name
+                input(type="checkbox", name="includedCourseIDs", value=courseID, checked=key==='INTRODUCTION_TO_COMPUTER_SCIENCE' || key==='JUNIOR')
+                span=utils.courseAcronyms[courseID]
+        #credits-details
+          if licenseType === 'hackstack'
+            span
+              | Every
+            label.duration-amount
+              input(type="number", min=1, name="durationAmount", value=credit.amount)
+            label.duration-key
+              select#credit-duration-select(name="durationKey")
+                option(value="day" selected=credit.key==='day') Day
+                option(value="week" selected=credit.key==='week') Week
+                option(value="month" selected=credit.key==='month') Month
+            label.credit-limit
+              input(type="number", min=1, name='creditLimit', value=credit.limit)
+            span
+              | prompts

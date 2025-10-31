@@ -1,0 +1,262 @@
+extends /templates/common/user
+
+block append content
+  ol.breadcrumb
+    li
+      a(href="/")
+        span.glyphicon.glyphicon-home
+    li
+      a(href="/account", data-i18n="nav.account")
+    li.active(data-i18n="nav.profile")
+
+  if view.user
+    - var playerLevel = view.user.level()
+    - var emails = view.user.getEnabledEmails()
+    - var totalGems = view.user.gems()
+    - var levelsComplete = (view.user.get('stats') || {}).gamesCompleted
+    - var heroes = view.user.heroes().length
+    - var heroID = (view.user.get('heroConfig') || {}).thangType
+    - var codePoints = (view.user.get('stats') || {}).codePoints
+    - var headArmor = ((view.user.get('heroConfig') || {}).inventory || {}).head
+    - var torsoArmor = ((view.user.get('heroConfig') || {}).inventory || {}).torso
+    - var primaryWeapon = ((view.user.get('heroConfig') || {}).inventory || {})["right-hand"]
+    - var secondaryWeapon = ((view.user.get('heroConfig') || {}).inventory || {})["left-hand"]
+    - var patchesSubmitted = (view.user.get('stats') || {}).patchesSubmitted
+    - var patchesApproved = (view.user.get('stats') || {}).patchesContributed
+    - var patchesAccepted = (view.user.get('stats') || {}).patchesAccepted
+    - var levelEdits = (view.user.get('stats') || {}).levelEdits
+    - var articleEdits = (view.user.get('stats') || {}).articleEdits
+    - var totalTranslations = (view.user.get('stats') || {}).totalTranslationPatches
+    - var levelComponentEdits = (view.user.get('stats') || {}).levelComponentEdits
+    - var adventurerLevel = parseInt(Math.sqrt(levelsComplete/5.0))
+    - var archmageLevel = parseInt(Math.sqrt(levelComponentEdits/10.0))
+    - var artisanLevel = parseInt(Math.sqrt(levelEdits/10.0))
+    - var scribeLevel = parseInt(Math.sqrt(articleEdits / 2.0))
+    - var diplomatLevel = parseInt(Math.sqrt(totalTranslations / 3.0))
+
+    .vertical-buffer
+    .row
+      .left-column
+        .profile-wrapper
+          img.picture(src=view.user.getPhotoURL(150) alt="")
+          div.profile-info
+            h3.name= view.user.get('name')
+            if view.favoriteLanguage
+              div.extra-info
+                span(data-i18n="user.favorite_prefix") Favorite language is
+                strong.favorite-language= view.favoriteLanguage
+                span(data-i18n="user.favorite_postfix") .
+            if levelsComplete
+              div.extra-info
+                span.spr(data-i18n="courses.levels_completed") Levels Complete
+                strong= levelsComplete
+            if heroes
+              div.extra-info
+                span.spr(data-i18n="user.heroes_unlocked") Heroes Unlocked
+                strong= heroes + " / 21"
+            if playerLevel
+              div.extra-info
+                span.spr(data-i18n="general.player_level") Level
+                strong= playerLevel
+            if codePoints
+              div.extra-info
+                span.spr(data-i18n="league.codepoints") Code Points
+                strong= codePoints
+            if totalGems
+              div.extra-info
+                span.spr(data-i18n="account.gems") Gems
+                strong= totalGems
+
+        div.inventory
+          h2.inventory-title(data-i18n="game_menu.inventory_tab") Inventory
+          div.hero-container
+            if view.heroPoseImage
+              img#hero-pose.hero-pose(alt="" src=view.heroPoseImage)
+            if primaryWeapon || secondaryWeapon || headArmor || torsoArmor
+              div.items
+                h4.items-title(data-i18n="user.current_items") Items Equipped
+                div.float
+                  if primaryWeapon
+                    img.primary-weapon(src=`/file/db/thang.type/${primaryWeapon}/portrait.png` alt="")
+                  if secondaryWeapon
+                    img.secondary-weapon(src=`/file/db/thang.type/${secondaryWeapon}/portrait.png` alt="")
+                  if headArmor
+                    img.head-armor(src=`/file/db/thang.type/${headArmor}/portrait.png` alt="")
+                  if torsoArmor
+                    img.torso-armor(src=`/file/db/thang.type/${torsoArmor}/portrait.png` alt="")
+
+        ul.contributor-categories
+          li.contributor-category
+            h4.general-title(data-i18n="user.contributor_badges") Contributor Badges
+          - var categories = []
+          - categories.push({ name: 'Adventurer', level: adventurerLevel, check: levelsComplete })
+          - categories.push({ name: 'Archmage', level: archmageLevel, check: levelComponentEdits })
+          - categories.push({ name: 'Artisan', level: artisanLevel, check: levelEdits })
+          - categories.push({ name: 'Scribe', level: scribeLevel, check: articleEdits })
+          - categories.push({ name: 'Diplomat', level: diplomatLevel, check: totalTranslations })
+          each category in categories
+            if category.check
+              - var categoryLower = category.name.toLowerCase()
+              - var badgeClass = 'bronze'
+              if category.level >= 15
+                - badgeClass = 'diamond'
+              else if category.level >= 10
+                - badgeClass = 'gold'
+              else if category.level >= 5
+                - badgeClass = 'silver'
+              li.contributor-category(class=badgeClass)
+                img.contributor-image(src='/images/pages/user/' + categoryLower + '.png')
+                h4.contributor-title
+                  a(href='/contribute/' + categoryLower)= category.name + ' Lv.' + category.level
+
+
+      .right-column
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title(data-i18n="clans.clans") Clans
+          if (!view.clanModels)
+            .panel-body
+              p(data-i18n="common.loading")
+          else if (view.clanModels.length)
+            table.table
+              tr
+                th.col-xs-4(data-i18n="clans.name") Name
+                th.col-xs-4(data-i18n="clans.chieftain") Chieftain
+                th.col-xs-4(data-i18n="play.heroes") Heroes
+              each clan in view.clanModels
+                tr
+                  td
+                    a(href=`/clans/${clan.id}`)= clan.get('displayName') || clan.get('name')
+                  td
+                    if view.idNameMap && view.idNameMap[clan.get('ownerID')]
+                      a(href=`/user/${clan.get('ownerID')}`)= view.idNameMap[clan.get('ownerID')]
+                    else if clan.get('ownerID')
+                      a(href=`/user/${clan.get('ownerID')}`) Anonymous
+                  td= clan.get('members').length
+          else
+            .panel-body
+              p(data-i18n="user.not_member_of_clans") Not a member of any clans yet.
+
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title(data-i18n="user.singleplayer_title") Singleplayer Levels
+          if (!view.singlePlayerSessions)
+            .panel-body
+              p(data-i18n="common.loading") Loading...
+          else if (view.singlePlayerSessions.length)
+            table.table
+              tr
+                th.col-xs-4(data-i18n="resources.level") Level
+                th.col-xs-4(data-i18n="user.last_played") Last Played
+                th.col-xs-4(data-i18n="user.status") Status
+              - var count = 0
+              each session, index in view.singlePlayerSessions
+                if session.get('levelName')
+                  tr(class=count > 4 ? 'hide' : '')
+                    - count++;
+                    td
+                      a(href=`/play/level/${session.get('levelID')}`)= session.get('levelName')
+                    td= moment(session.get('changed')).fromNow()
+                    if session.get('state') && session.get('state').complete === true
+                      td(data-i18n="user.status_completed") Completed
+                    else
+                      td(data-i18n="user.status_unfinished") Unfinished
+            if count > 4
+              .panel-footer
+                button.btn.btn-info.btn-sm.more-button(data-i18n="editor.more")
+          else
+            .panel-body
+              p(data-i18n="user.no_singleplayer") No Singleplayer games played yet.
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title(data-i18n="user.multiplayer_title") Multiplayer Levels
+          if (!view.multiPlayerSessions)
+            .panel-body
+              p(data-i18n="common.loading") Loading...
+          else if (view.multiPlayerSessions.length)
+            table.table
+              tr
+                th.col-xs-4(data-i18n="resources.level") Level
+                th.col-xs-4(data-i18n="user.last_played") Last Played
+                th.col-xs-4(data-i18n="general.score") Score
+              each session, index in view.multiPlayerSessions
+                tr(class=index > 4 ? 'hide' : '')
+                  td
+                    - var posturl = ''
+                    - if (session.get('team')) posturl = '?team=' + session.get('team')
+                    a(href=`/play/level/${session.get('levelID') + posturl}`)= session.get('levelName') + (session.get('team') ? ' (' + session.get('team') + ')' : '')
+                  td= moment(session.get('changed')).fromNow()
+                  if session.get('totalScore')
+                    td= parseInt(session.get('totalScore') * 100)
+                  else
+                    td(data-i18n="user.status_unfinished") Unfinished
+            if view.multiPlayerSessions.length > 4
+              .panel-footer
+                button.btn.btn-info.btn-sm.more-button(data-i18n="editor.more")
+          else
+            .panel-body
+              p(data-i18n="user.no_multiplayer") No Multiplayer games played yet.
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title(data-i18n="user.achievements_title") Achievements
+          if ! view.earnedAchievements
+            .panel-body
+              p(data-i18n="common.loading") Loading...
+          else if ! view.earnedAchievements.length
+            .panel-body
+              p(data-i18n="user.no_achievements") No achievements earned so far.
+          else
+            table.table
+              tr
+                th.col-xs-4(data-i18n="achievements.achievement") Achievement
+                th.col-xs-4(data-i18n="achievements.last_earned") Last Earned
+                th.col-xs-4(data-i18n="achievements.amount_achieved") Amount
+              each achievement, index in view.earnedAchievements.models
+                tr(class=index > 4 ? 'hide' : '')
+                  td= achievement.get('achievementName')
+                  td= moment(achievement.get('changed')).format("MMMM Do YYYY")
+                  if achievement.get('achievedAmount')
+                    td= achievement.get('achievedAmount')
+                  else
+                    td
+            if view.earnedAchievements.length > 4
+              .panel-footer
+                button.btn.btn-info.btn-sm.more-button(data-i18n="editor.more")
+        .panel.panel-default
+          .panel-heading
+            h3.panel-title(data-i18n="user.contributions_title") Contributions
+          if view.user && (patchesSubmitted || patchesApproved || patchesAccepted || levelEdits || totalTranslations)
+            table.table
+              tr
+                th.col-xs-4(data-i18n="user.type_stat") Type
+                th.col-xs-4(data-i18n="achievements.amount_achieved") Amount
+              tr
+                td(data-i18n="user.patches_submit") Patches Submitted
+                if (patchesSubmitted)
+                  td= patchesSubmitted
+                else
+                  td= "0"
+              tr
+                td(data-i18n="user.patches_approved") Patches Approved
+                if (patchesApproved)
+                  td= patchesApproved
+                else
+                  td= "0"
+              tr
+                td(data-i18n="user.patches_accepted") Patches Accepted
+                if (patchesAccepted)
+                  td= patchesAccepted
+                else
+                  td= "0"
+              tr
+                td(data-i18n="user.level_edits") Level Edits
+                if (levelEdits)
+                  td= levelEdits
+                else
+                  td= "0"
+              tr
+                td(data-i18n="user.total_translations") Total Translations
+                if (totalTranslations)
+                  td= totalTranslations
+                else
+                  td= "0"
