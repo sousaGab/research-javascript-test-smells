@@ -3,7 +3,7 @@
 import figlet from 'figlet';
 import { Command } from 'commander';
 import run from './detector';
-import { printReport } from './output';
+import { printReport, printSummary } from './output';
 import { writeDetailedCsv, writeResumeCsv, writeToHtml, writeToJson } from './export';
 
 const program = new Command();
@@ -28,6 +28,7 @@ program
     writeToJson(report.value, program.opts().output);
     writeResumeCsv(report.value, program.opts().output);
     writeDetailedCsv(report.value, program.opts().output);
+    printSummary(report.value, program.opts().output);
   });
 
 program.parse(process.argv);
