@@ -258,7 +258,10 @@ def run_snuts(repo_name: str, repo_path: str, output_dir: str) -> Tuple[bool, st
             console.print("✗ snutsjs directory not found within project", style="bold red")
             return False, "snutsjs directory not found within project"
 
-        output_csv = Path(output_dir) / f"snutsjs_output.csv"
+        snuts_output_dir = Path(output_dir) / "snutsjs_output"
+        snuts_output_dir.mkdir(parents=True, exist_ok=True)
+
+        output_csv = snuts_output_dir / "smells_detected.csv"
 
         command = [
             "node",
