@@ -194,7 +194,7 @@ def test_check_repositories_module_returns_repos_or_message():
 	- It verifies the function returns a string and not an unexpected error.
 	- It asserts at least one known repository name from this workspace is present.
 	"""
-	from llm_refactor.modules.check_repositories import execute as check_execute
+	from llm_refactor.modules.detect_smells import execute as check_execute
 
 	result = check_execute()
 	assert isinstance(result, str)
