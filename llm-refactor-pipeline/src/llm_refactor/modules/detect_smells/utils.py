@@ -11,6 +11,7 @@ from typing import Dict, List, Optional, Tuple, Any
 import subprocess
 from rich.console import Console
 from rich.panel import Panel
+from rich.status import Status
 
 
 # ============================================================================
@@ -95,6 +96,8 @@ def process_single_repository(
         "csv_created": False,
         "snuts_success": False,
         "snuts_message": "",
+        "steel_success": False,
+        "steel_message": "",
         "status": "pending",
         "message": "",
     }
@@ -113,6 +116,11 @@ def process_single_repository(
         result["snuts_success"] = snuts_success
         result["snuts_message"] = snuts_msg
 
+        # Run steel tool to detect smells
+        steel_success, steel_msg = run_steel(repo_name=repo_name, repo_path=repo_path, output_dir=str(repo_folder))
+        result["steel_success"] = steel_success
+        result["steel_message"] = steel_msg
+
     # Create CSV file
     csv_path = repo_folder / "smells.csv"
     csv_success, csv_msg = create_csv_file(csv_path, csv_headers, force)
@@ -120,12 +128,20 @@ def process_single_repository(
 
     # Determine overall status
     if folder_success and csv_success:
-        if result["snuts_success"]:
+        if result["snuts_success"] and result["steel_success"]:
             result["status"] = "success"
-            result["message"] = "✓ Smell detection completed"
-        elif result["snuts_message"]:
+            result["message"] = "✓ All smell detections completed"
+        elif result["snuts_success"] or result["steel_success"]:
+            failed_tools = []
+            if not result["snuts_success"]:
+                failed_tools.append(f"snuts: {result['snuts_message']}")
+            if not result["steel_success"]:
+                failed_tools.append(f"steel: {result['steel_message']}")
             result["status"] = "warning"
-            result["message"] = f"⚠ Folder/CSV created but snuts failed: {result['snuts_message']}"
+            result["message"] = f"⚠ Partial success. Failed: {', '.join(failed_tools)}"
+        elif result["snuts_message"] or result["steel_message"]:
+            result["status"] = "warning"
+            result["message"] = f"⚠ Folder/CSV created but detection tools failed"
         else:
             result["status"] = "success"
             result["message"] = "✓ Created folder and CSV"
@@ -279,13 +295,14 @@ def run_snuts(repo_name: str, repo_path: str, output_dir: str) -> Tuple[bool, st
         )
         console.print(panel)
 
-        result = subprocess.run(
-            command,
-            cwd=str(snuts_dir),
-            capture_output=True,
-            text=True,
-            timeout=300
-        )
+        with console.status(f"[cyan]Analyzing {repo_name} with snuts...", spinner="dots") as status:
+            result = subprocess.run(
+                command,
+                cwd=str(snuts_dir),
+                capture_output=True,
+                text=True,
+                timeout=300
+            )
 
         console.print(result.stdout)
 
@@ -305,5 +322,77 @@ def run_snuts(repo_name: str, repo_path: str, output_dir: str) -> Tuple[bool, st
         return False, error_msg
     except Exception as e:
         error_msg = f"Failed to run snuts: {str(e)}"
+        console.print(f"✗ {error_msg}", style="bold red")
+        return False, error_msg
+
+
+def run_steel(repo_name: str, repo_path: str, output_dir: str) -> Tuple[bool, str]:
+    console = Console()
+
+    try:
+        current = Path(__file__).resolve()
+        steel_dir = None
+        for ancestor in [current] + list(current.parents):
+            candidate = ancestor / "smell_detection_tools" / "steel"
+            if candidate.is_dir():
+                steel_dir = candidate
+                break
+
+        if steel_dir is None:
+            console.print("✗ steel directory not found within project", style="bold red")
+            return False, "steel directory not found within project"
+
+        steel_output_dir = Path(output_dir) / "steel_output"
+        steel_output_dir.mkdir(parents=True, exist_ok=True)
+
+        test_pattern = "{**/__tests__/**/*.js,**/test/**/*.js,**/?(*.)+(test|tests|spec|specs).js,**/test_*.js,**/test-*.js,**/Spec*.js,**/*Test.js,**/*Tests.js}"
+        glob_pattern = f"{repo_path}/{test_pattern}"
+
+        command = [
+            "npx",
+            "steel",
+            "detect",
+            glob_pattern,
+            "-o",
+            str(steel_output_dir)
+        ]
+
+        panel = Panel(
+            f"[bold magenta]Repository:[/bold magenta] {repo_name}\n"
+            f"[bold magenta]Pattern:[/bold magenta] {test_pattern}\n"
+            f"[bold magenta]Command:[/bold magenta] npx steel detect {glob_pattern} -o {steel_output_dir}",
+            title="🔬 Running Steel Detection",
+            border_style="magenta",
+            padding=(1, 2)
+        )
+        console.print(panel)
+
+        with console.status(f"[magenta]Analyzing {repo_name} with steel...", spinner="dots") as status:
+            result = subprocess.run(
+                command,
+                cwd=str(steel_dir),
+                capture_output=True,
+                text=True,
+                timeout=300
+            )
+
+        console.print(result.stdout)
+
+        if result.stderr:
+            console.print(f"[yellow]STDERR:[/yellow] {result.stderr}")
+
+        if result.returncode == 0:
+            console.print(f"✓ Successfully completed steel detection for [bold magenta]{repo_name}[/bold magenta]", style="bold green")
+            return True, f"Steel detection completed for {repo_name}"
+        else:
+            console.print(f"✗ Steel detection failed for [bold]{repo_name}[/bold]", style="bold red")
+            return False, f"Steel error (exit code {result.returncode})"
+
+    except subprocess.TimeoutExpired:
+        error_msg = f"Steel timeout for {repo_name} (exceeded 300s)"
+        console.print(f"✗ {error_msg}", style="bold red")
+        return False, error_msg
+    except Exception as e:
+        error_msg = f"Failed to run steel: {str(e)}"
         console.print(f"✗ {error_msg}", style="bold red")
         return False, error_msg
