@@ -8,6 +8,7 @@ Functions are organized by purpose: discovery, file operations, processing, and 
 import csv
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
+import subprocess
 
 
 # ============================================================================
@@ -33,6 +34,15 @@ def get_repository_list(repos_dir: Path) -> List[str]:
         return sorted(repos)
     except Exception as e:
         raise RuntimeError(f"Error reading repositories directory: {e}")
+
+
+def validate_repository_exists(repos_dir: Path, repo_name: str) -> Tuple[bool, str]:
+    repo_path = repos_dir / repo_name
+    if not repo_path.exists():
+        return False, f"Repository '{repo_name}' not found in {repos_dir}"
+    if not repo_path.is_dir():
+        return False, f"'{repo_name}' is not a directory"
+    return True, f"Repository '{repo_name}' exists"
 
 
 # ============================================================================
@@ -75,29 +85,14 @@ def create_csv_file(
 # ============================================================================
 
 def process_single_repository(
-    output_dir: Path, repo_name: str, csv_headers: List[str], force: bool = False
+    output_dir: Path, repo_name: str, csv_headers: List[str], force: bool = False, repos_dir: Path = None
 ) -> Dict[str, Any]:
-    """
-    Process a single repository: create folder and CSV file.
-
-    Args:
-        output_dir: Base output directory (e.g., smell_detected)
-        repo_name: Name of the repository
-        csv_headers: Headers for the CSV file
-        force: If True, recreate even if exists
-
-    Returns:
-        Dictionary containing:
-            - repo: repository name
-            - folder_created: whether folder was created
-            - csv_created: whether CSV was created
-            - status: 'success', 'skipped', or 'error'
-            - message: human-readable status message
-    """
     result = {
         "repo": repo_name,
         "folder_created": False,
         "csv_created": False,
+        "snuts_success": False,
+        "snuts_message": "",
         "status": "pending",
         "message": "",
     }
@@ -109,6 +104,13 @@ def process_single_repository(
     folder_success, folder_msg = ensure_directory_exists(repo_folder)
     result["folder_created"] = folder_success and not folder_existed
 
+    # Run snuts tool to detect smells
+    if repos_dir:
+        repo_path = str(repos_dir / repo_name)
+        snuts_success, snuts_msg = run_snuts(repo_name=repo_name, repo_path=repo_path, output_dir=str(repo_folder))
+        result["snuts_success"] = snuts_success
+        result["snuts_message"] = snuts_msg
+
     # Create CSV file
     csv_path = repo_folder / "smells.csv"
     csv_success, csv_msg = create_csv_file(csv_path, csv_headers, force)
@@ -116,8 +118,15 @@ def process_single_repository(
 
     # Determine overall status
     if folder_success and csv_success:
-        result["status"] = "success"
-        result["message"] = "✓ Created folder and CSV"
+        if result["snuts_success"]:
+            result["status"] = "success"
+            result["message"] = "✓ Smell detection completed"
+        elif result["snuts_message"]:
+            result["status"] = "warning"
+            result["message"] = f"⚠ Folder/CSV created but snuts failed: {result['snuts_message']}"
+        else:
+            result["status"] = "success"
+            result["message"] = "✓ Created folder and CSV"
     elif folder_existed and not csv_success and not force:
         result["status"] = "skipped"
         result["message"] = "⊘ Already exists (skipped)"
@@ -129,13 +138,15 @@ def process_single_repository(
 
 
 def calculate_statistics(results: List[Dict]) -> Dict[str, int]:
-    stats = {"total": len(results), "created": 0, "skipped": 0, "errors": 0}
+    stats = {"total": len(results), "created": 0, "skipped": 0, "errors": 0, "warnings": 0}
 
     for result in results:
         if result["status"] == "success":
             stats["created"] += 1
         elif result["status"] == "skipped":
             stats["skipped"] += 1
+        elif result["status"] == "warning":
+            stats["warnings"] += 1
         elif result["status"] == "error":
             stats["errors"] += 1
 
@@ -159,6 +170,7 @@ def build_summary_section(stats: Dict) -> str:
         "Summary:",
         f"  ├─ Total repositories: {stats['total']}",
         f"  ├─ Successfully processed: {stats['created']}",
+        f"  ├─ Warnings: {stats['warnings']}",
         f"  ├─ Skipped (already exist): {stats['skipped']}",
         f"  └─ Errors: {stats['errors']}",
         "─" * 50,
@@ -227,3 +239,58 @@ def count_existing_structures(output_dir: Path, repo_names: List[str]) -> Dict[s
             counts["csvs_exist"] += 1
 
     return counts
+
+def run_snuts(repo_name: str, repo_path: str, output_dir: str) -> Tuple[bool, str]:
+    """
+    Execute the snuts tool for smell detection on a repository.
+    
+    Args:
+        repo_name: Name of the repository
+        repo_path: Full path to the repository directory
+        output_dir: Directory where output should be saved
+        
+    Returns:
+        Tuple of (success: bool, message: str)
+    """
+    
+    try:
+        # Locate snutsjs directory: expected at ../smells_detection_tools/snutsjs
+        snuts_dir = None
+        current = Path(__file__).resolve()
+        # Walk up ancestors and check both inside the ancestor and as a sibling
+        for ancestor in [current] + list(current.parents):
+            candidate = ancestor / "smells_detection_tools" / "snutsjs"
+            if candidate.is_dir():
+                snuts_dir = candidate
+                break
+
+        if snuts_dir is None:
+            return False, "snutsjs directory not found within project"
+        output_csv = Path(output_dir) / f"{repo_name}_snutsjs_output.csv"
+        
+        # Build command
+        command = [
+            "node",
+            str(snuts_dir / "export-csv-local.js"),
+            repo_path,
+            str(output_csv)
+        ]
+        
+        # Execute snuts tool
+        result = subprocess.run(
+            command,
+            cwd=str(snuts_dir),
+            capture_output=True,
+            text=True,
+            timeout=300
+        )
+        
+        if result.returncode == 0:
+            return True, f"Smell detection completed for {repo_name}"
+        else:
+            return False, f"Snuts error: {result.stderr}"
+            
+    except subprocess.TimeoutExpired:
+        return False, f"Snuts timeout for {repo_name}"
+    except Exception as e:
+        return False, f"Failed to run snuts: {str(e)}"

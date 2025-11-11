@@ -41,6 +41,8 @@ class CheckRepositoriesModule(SimpleModule):
 
         Args:
             args: Optional arguments:
+                all: Process all repositories
+                <repo_name>: Process specific repository
                 --force: Recreate existing folders/files
                 --output-dir=PATH: Custom output directory
 
@@ -50,6 +52,19 @@ class CheckRepositoriesModule(SimpleModule):
         # Parse arguments
         force = "--force" in args
         custom_output = self._parse_output_dir_argument(args)
+
+        # Extract mode (all, specific repo, or empty)
+        args_parts = [p for p in args.split() if not p.startswith("--")]
+        mode = args_parts[0] if args_parts else ""
+
+        # Check if no repository specified
+        if not mode:
+            return (
+                "Error: Please specify a repository name or use 'all'\n\n"
+                "Usage:\n"
+                "  detect_smells all [--force] [--output-dir=PATH]\n"
+                "  detect_smells <repository_name> [--force] [--output-dir=PATH]"
+            )
 
         try:
             # Step 1: Find and list repositories
@@ -64,6 +79,16 @@ class CheckRepositoriesModule(SimpleModule):
             if not repos:
                 return f"No repositories found in: {repos_dir}"
 
+            # Determine which repositories to process
+            if mode == "all":
+                repos_to_process = repos
+            else:
+                # Single repository mode - validate it exists
+                is_valid, validation_msg = utils.validate_repository_exists(repos_dir, mode)
+                if not is_valid:
+                    return f"Error: {validation_msg}"
+                repos_to_process = [mode]
+
             # Step 2: Determine and setup output directory
             output_dir = self._determine_output_directory(repos_dir, custom_output)
 
@@ -72,11 +97,11 @@ class CheckRepositoriesModule(SimpleModule):
             if not is_valid:
                 return f"Error: {validation_msg}"
 
-            # Step 3: Process all repositories
+            # Step 3: Process repositories
             results = []
-            for repo_name in repos:
+            for repo_name in repos_to_process:
                 result = utils.process_single_repository(
-                    output_dir, repo_name, self.CSV_HEADERS, force
+                    output_dir, repo_name, self.CSV_HEADERS, force, repos_dir
                 )
                 results.append(result)
 
@@ -123,8 +148,8 @@ class CheckRepositoriesModule(SimpleModule):
         if custom_output:
             return custom_output
 
-        # Default: smell_detected in parent of repositories
-        return repos_dir.parent / "smell_detected"
+        # Default: smells_detected in parent of repositories
+        return repos_dir.parent / "smells_detected"
 
 
 # Create module instance
@@ -148,7 +173,7 @@ def execute(args: str = "") -> str:
 
     Examples:
         >>> execute()
-        # Creates smell_detected structure for all repos
+        # Creates smells_detected structure for all repos
 
         >>> execute("--force")
         # Recreates structure even if exists
