@@ -3,14 +3,14 @@ Check repositories module.
 
 This module orchestrates the setup of directory structure and CSV files
 for smell detection across all repositories. Implementation details are
-delegated to check_repositories_utils.py.
+delegated to utils.py.
 """
 
 from pathlib import Path
 from typing import Optional
 
 from llm_refactor.modules.base import SimpleModule
-from . import check_repositories_utils as utils
+from . import utils
 
 
 class CheckRepositoriesModule(SimpleModule):
@@ -19,7 +19,7 @@ class CheckRepositoriesModule(SimpleModule):
 
     This module orchestrates the discovery of repositories and creation
     of the output structure. All implementation details are handled by
-    utility functions in check_repositories_utils.py.
+    utility functions in utils.py.
     """
 
     name = "check_repositories"
