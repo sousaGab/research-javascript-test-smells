@@ -9,6 +9,8 @@ import csv
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 import subprocess
+from rich.console import Console
+from rich.panel import Panel
 
 
 # ============================================================================
@@ -241,42 +243,39 @@ def count_existing_structures(output_dir: Path, repo_names: List[str]) -> Dict[s
     return counts
 
 def run_snuts(repo_name: str, repo_path: str, output_dir: str) -> Tuple[bool, str]:
-    """
-    Execute the snuts tool for smell detection on a repository.
-    
-    Args:
-        repo_name: Name of the repository
-        repo_path: Full path to the repository directory
-        output_dir: Directory where output should be saved
-        
-    Returns:
-        Tuple of (success: bool, message: str)
-    """
-    
+    console = Console()
+
     try:
-        # Locate snutsjs directory: expected at ../smells_detection_tools/snutsjs
-        snuts_dir = None
         current = Path(__file__).resolve()
-        # Walk up ancestors and check both inside the ancestor and as a sibling
+        snuts_dir = None
         for ancestor in [current] + list(current.parents):
-            candidate = ancestor / "smells_detection_tools" / "snutsjs"
+            candidate = ancestor / "smell_detection_tools" / "snutsjs"
             if candidate.is_dir():
                 snuts_dir = candidate
                 break
 
         if snuts_dir is None:
+            console.print("✗ snutsjs directory not found within project", style="bold red")
             return False, "snutsjs directory not found within project"
-        output_csv = Path(output_dir) / f"{repo_name}_snutsjs_output.csv"
-        
-        # Build command
+
+        output_csv = Path(output_dir) / f"snutsjs_output.csv"
+
         command = [
             "node",
             str(snuts_dir / "export-csv-local.js"),
             repo_path,
             str(output_csv)
         ]
-        
-        # Execute snuts tool
+
+        panel = Panel(
+            f"[bold cyan]Repository:[/bold cyan] {repo_name}\n"
+            f"[bold cyan]Command:[/bold cyan] {' '.join(command)}",
+            title="🔍 Running Smell Detection",
+            border_style="cyan",
+            padding=(1, 2)
+        )
+        console.print(panel)
+
         result = subprocess.run(
             command,
             cwd=str(snuts_dir),
@@ -284,13 +283,24 @@ def run_snuts(repo_name: str, repo_path: str, output_dir: str) -> Tuple[bool, st
             text=True,
             timeout=300
         )
-        
+
+        console.print(result.stdout)
+
+        if result.stderr:
+            console.print(f"[yellow]STDERR:[/yellow] {result.stderr}")
+
         if result.returncode == 0:
+            console.print(f"✓ Successfully completed smell detection for [bold cyan]{repo_name}[/bold cyan]", style="bold green")
             return True, f"Smell detection completed for {repo_name}"
         else:
-            return False, f"Snuts error: {result.stderr}"
-            
+            console.print(f"✗ Smell detection failed for [bold]{repo_name}[/bold]", style="bold red")
+            return False, f"Snuts error (exit code {result.returncode})"
+
     except subprocess.TimeoutExpired:
-        return False, f"Snuts timeout for {repo_name}"
+        error_msg = f"Snuts timeout for {repo_name} (exceeded 300s)"
+        console.print(f"✗ {error_msg}", style="bold red")
+        return False, error_msg
     except Exception as e:
-        return False, f"Failed to run snuts: {str(e)}"
+        error_msg = f"Failed to run snuts: {str(e)}"
+        console.print(f"✗ {error_msg}", style="bold red")
+        return False, error_msg
