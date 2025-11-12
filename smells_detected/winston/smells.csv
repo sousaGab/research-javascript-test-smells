@@ -1,0 +1,4677 @@
+file,type,line,method,source
+/test/integration/formats.test.js,AnonymousTest,"{'startLine':34,'endLine':40}","it('non-TTY environment', function (done) {
+    spawnColorizer(function (err, data) {
+      assume(err).equals(null);
+      assume(data).includes('\u001b[32mSimply a test\u001b[39m');
+      done();
+    })
+  })",snuts
+/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':39,'endLine':46}","it('logger.log(level, error)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info);
+      done();
+    }, format.errors());
+
+    logger.log('info', new Error('Errors lack .toJSON() lulz'));
+  })",snuts
+/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':138,'endLine':145}","it('logger.<level>(error)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info);
+      done();
+    }, format.errors());
+
+    logger.info(new Error('Errors lack .toJSON() lulz'));
+  })",snuts
+/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':164,'endLine':176}","it('logger.<level>(error, meta)', (done) => {
+    const meta = {
+      thisIsMeta: true,
+      anyValue: 'a string'
+    };
+
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, meta);
+      done();
+    }, format.errors());
+
+    logger.info(new Error('Errors lack .toJSON() lulz'), meta);
+  })",snuts
+/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':200,'endLine':213}","it('logger.<level>(msg, meta<error>)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, {
+        message: 'Caught error: Errors lack .toJSON() lulz'
+      });
+
+      done();
+    }, format.combine(
+      format.errors(),
+      format.printf(info => info.message)
+    ));
+
+    logger.info('Caught error:', new Error('Errors lack .toJSON() lulz'));
+  })",snuts
+/test/unit/winston/profiler.test.js,AnonymousTest,"{'startLine':14,'endLine':18}","it('new Profiler()', function () {
+    assume(function () {
+      new Profiler();
+    }).throws('Logger is required for profiling');
+  })",snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':26,'endLine':37}","it('.configure()', function () {
+      let logger = winston.createLogger({
+        transports: [new winston.transports.Console()]
+      });
+
+      assume(logger.transports.length).equals(1);
+      assume(logger.transports[0].name).equals('console');
+
+      logger.configure();
+
+      assume(logger.transports.length).equals(0);
+    })",snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':283,'endLine':300}","it('.<level>()', function (done) {
+      let logger = helpers.createLogger(function (info) {
+        assume(info).is.an('object');
+        assume(info.level).equals('info');
+        assume(info.message).is.a('string');
+        assume(info[MESSAGE]).is.a('string');
+        assume(info.message).equals('');
+        assume(JSON.parse(info[MESSAGE])).deep.equals({
+          level: 'info',
+          message: ''
+        });
+
+        done();
+      });
+
+      logger.info();
+      logger.info('');
+    })",snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':302,'endLine':329}","it('default levels', function (done) {
+      let logger = winston.createLogger();
+      let expected = {message: 'foo', level: 'debug'};
+
+      function logLevelTransport(level) {
+        return new TransportStream({
+          level: level,
+          log: function (obj) {
+            if (level === 'info') {
+              assume(obj).equals(undefined, 'Transport on level info should never be called');
+            }
+
+            assume(obj.message).equals('foo');
+            assume(obj.level).equals('debug');
+            assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'debug', message: 'foo'});
+            done();
+          }
+        });
+      }
+
+      assume(logger.info).is.a('function');
+      assume(logger.debug).is.a('function');
+
+      logger
+          .add(logLevelTransport('info'))
+          .add(logLevelTransport('debug'))
+          .log(expected);
+    })",snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':331,'endLine':366}","it('custom levels', function (done) {
+      let logger = winston.createLogger({
+        levels: {
+          bad: 0,
+          test: 1,
+          ok: 2
+        }
+      });
+
+      let expected = {message: 'foo', level: 'test'};
+
+      function filterLevelTransport(level) {
+        return new TransportStream({
+          level: level,
+          log: function (obj) {
+            if (level === 'bad') {
+              assume(obj).equals(undefined, 'transport on level ""bad"" should never be called');
+            }
+
+            assume(obj.message).equals('foo');
+            assume(obj.level).equals('test');
+            assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'test', message: 'foo'});
+            done();
+          }
+        });
+      }
+
+      assume(logger.bad).is.a('function');
+      assume(logger.test).is.a('function');
+      assume(logger.ok).is.a('function');
+
+      logger
+          .add(filterLevelTransport('bad'))
+          .add(filterLevelTransport('ok'))
+          .log(expected);
+    })",snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':407,'endLine':439}","it('default levels', function () {
+        let logger = winston.createLogger({
+          level: 'verbose',
+          levels: winston.config.npm.levels,
+          transports: [new winston.transports.Console()]
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(4);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isErrorEnabled).is.a('function');
+        assume(logger.isWarnEnabled).is.a('function');
+        assume(logger.isInfoEnabled).is.a('function');
+        assume(logger.isVerboseEnabled).is.a('function');
+        assume(logger.isDebugEnabled).is.a('function');
+        assume(logger.isSillyEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('error')).true();
+        assume(logger.isLevelEnabled('warn')).true();
+        assume(logger.isLevelEnabled('info')).true();
+        assume(logger.isLevelEnabled('verbose')).true();
+        assume(logger.isLevelEnabled('debug')).false();
+        assume(logger.isLevelEnabled('silly')).false();
+
+        assume(logger.isErrorEnabled()).true();
+        assume(logger.isWarnEnabled()).true();
+        assume(logger.isInfoEnabled()).true();
+        assume(logger.isVerboseEnabled()).true();
+        assume(logger.isDebugEnabled()).false();
+        assume(logger.isSillyEnabled()).false();
+      })",snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':512,'endLine':539}","it('custom levels', function () {
+        let logger = winston.createLogger({
+          level: 'test',
+          levels: {
+            bad: 0,
+            test: 1,
+            ok: 2
+          },
+          transports: [new winston.transports.Console()]
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(1);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isBadEnabled).is.a('function');
+        assume(logger.isTestEnabled).is.a('function');
+        assume(logger.isOkEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('bad')).true();
+        assume(logger.isLevelEnabled('test')).true();
+        assume(logger.isLevelEnabled('ok')).false();
+
+        assume(logger.isBadEnabled()).true();
+        assume(logger.isTestEnabled()).true();
+        assume(logger.isOkEnabled()).false();
+      })",snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':645,'endLine':657}","it('error', (done) => {
+      const consoleTransport = new winston.transports.Console();
+      const logger = winston.createLogger({
+        transports: [consoleTransport]
+      });
+
+      logger.on('error', (err, transport) => {
+        assume(err).instanceOf(Error);
+        assume(transport).is.an('object');
+        done();
+      });
+      consoleTransport.emit('error', new Error());
+    })",snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':659,'endLine':671}","it('warn', (done) => {
+      const consoleTransport = new winston.transports.Console();
+      const logger = winston.createLogger({
+        transports: [consoleTransport]
+      });
+
+      logger.on('warn', (err, transport) => {
+        assume(err).instanceOf(Error);
+        assume(transport).is.an('object');
+        done();
+      });
+      consoleTransport.emit('warn', new Error());
+    })",snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':1003,'endLine':1013}","it('.log(level, message)', function (done) {
+        let logger = helpers.createLogger(function (info) {
+          assume(info).is.an('object');
+          assume(info.level).equals('info');
+          assume(info.message).equals('Some super awesome log message');
+          assume(info[MESSAGE]).is.a('string');
+          done();
+        });
+
+        logger.log('info', 'Some super awesome log message')
+      })",snuts
+/test/unit/winston/logger.test.js,IdenticalTestDescription,"{'startLine':407,'endLine':439}","it('default levels', function () {
+        let logger = winston.createLogger({
+          level: 'verbose',
+          levels: winston.config.npm.levels,
+          transports: [new winston.transports.Console()]
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(4);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isErrorEnabled).is.a('function');
+        assume(logger.isWarnEnabled).is.a('function');
+        assume(logger.isInfoEnabled).is.a('function');
+        assume(logger.isVerboseEnabled).is.a('function');
+        assume(logger.isDebugEnabled).is.a('function');
+        assume(logger.isSillyEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('error')).true();
+        assume(logger.isLevelEnabled('warn')).true();
+        assume(logger.isLevelEnabled('info')).true();
+        assume(logger.isLevelEnabled('verbose')).true();
+        assume(logger.isLevelEnabled('debug')).false();
+        assume(logger.isLevelEnabled('silly')).false();
+
+        assume(logger.isErrorEnabled()).true();
+        assume(logger.isWarnEnabled()).true();
+        assume(logger.isInfoEnabled()).true();
+        assume(logger.isVerboseEnabled()).true();
+        assume(logger.isDebugEnabled()).false();
+        assume(logger.isSillyEnabled()).false();
+      })",snuts
+/test/unit/winston/logger.test.js,IdenticalTestDescription,"{'startLine':512,'endLine':539}","it('custom levels', function () {
+        let logger = winston.createLogger({
+          level: 'test',
+          levels: {
+            bad: 0,
+            test: 1,
+            ok: 2
+          },
+          transports: [new winston.transports.Console()]
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(1);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isBadEnabled).is.a('function');
+        assume(logger.isTestEnabled).is.a('function');
+        assume(logger.isOkEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('bad')).true();
+        assume(logger.isLevelEnabled('test')).true();
+        assume(logger.isLevelEnabled('ok')).false();
+
+        assume(logger.isBadEnabled()).true();
+        assume(logger.isTestEnabled()).true();
+        assume(logger.isOkEnabled()).false();
+      })",snuts
+/test/unit/winston/logger.test.js,ConditionalTestLogic,"{'startLine':310,'endLine':312}","it('default levels', function (done) {
+      let logger = winston.createLogger();
+      let expected = {message: 'foo', level: 'debug'};
+
+      function logLevelTransport(level) {
+        return new TransportStream({
+          level: level,
+          log: function (obj) {
+            if (level === 'info') {
+              assume(obj).equals(undefined, 'Transport on level info should never be called');
+            }
+
+            assume(obj.message).equals('foo');
+            assume(obj.level).equals('debug');
+            assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'debug', message: 'foo'});
+            done();
+          }
+        });
+      }
+
+      assume(logger.info).is.a('function');
+      assume(logger.debug).is.a('function');
+
+      logger
+          .add(logLevelTransport('info'))
+          .add(logLevelTransport('debug'))
+          .log(expected);
+    })",snuts
+/test/unit/winston/logger.test.js,ConditionalTestLogic,"{'startLine':346,'endLine':348}","it('custom levels', function (done) {
+      let logger = winston.createLogger({
+        levels: {
+          bad: 0,
+          test: 1,
+          ok: 2
+        }
+      });
+
+      let expected = {message: 'foo', level: 'test'};
+
+      function filterLevelTransport(level) {
+        return new TransportStream({
+          level: level,
+          log: function (obj) {
+            if (level === 'bad') {
+              assume(obj).equals(undefined, 'transport on level ""bad"" should never be called');
+            }
+
+            assume(obj.message).equals('foo');
+            assume(obj.level).equals('test');
+            assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'test', message: 'foo'});
+            done();
+          }
+        });
+      }
+
+      assume(logger.bad).is.a('function');
+      assume(logger.test).is.a('function');
+      assume(logger.ok).is.a('function');
+
+      logger
+          .add(filterLevelTransport('bad'))
+          .add(filterLevelTransport('ok'))
+          .log(expected);
+    })",snuts
+/test/unit/winston/logger.test.js,ConditionalTestLogic,"{'startLine':372,'endLine':374}","it('sets transports levels', done => {
+      let logger;
+      const transport = new TransportStream({
+        log(obj) {
+          if (obj.level === 'info') {
+            assume(obj).equals(undefined, 'Transport on level info should never be called');
+          }
+
+          assume(obj.message).equals('foo');
+          assume(obj.level).equals('error');
+          assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'error', message: 'foo'});
+          done();
+        }
+      });
+
+      // Begin our test in the next tick after the pipe event is
+      // emitted from the transport.
+      transport.once('pipe', () => setImmediate(() => {
+        const expectedError = {message: 'foo', level: 'error'};
+        const expectedInfo = {message: 'bar', level: 'info'};
+
+        assume(logger.error).is.a('function');
+        assume(logger.info).is.a('function');
+
+        // Set the level
+        logger.level = 'error';
+
+        // Log the messages. ""info"" should never arrive.
+        logger
+            .log(expectedInfo)
+            .log(expectedError);
+      }));
+
+      logger = winston.createLogger({
+        transports: [transport]
+      });
+    })",snuts
+/test/unit/winston/logger.test.js,NonFunctionalStatement,"{'startLine':608,'endLine':609}","it(`'finish' event awaits transports to emit 'finish'`, function (done) {
+      const transports = [
+        new TransportStream({
+          log: function () {
+          }
+        }),
+        new TransportStream({
+          log: function () {
+          }
+        }),
+        new TransportStream({
+          log: function () {
+          }
+        })
+      ];
+
+      const finished = [];
+      const logger = winston.createLogger({transports});
+
+      // Assert each transport emits finish
+      transports.forEach((transport, i) => {
+        transport.on('finish', () => finished[i] = true);
+      });
+
+      // Manually end the last transport to simulate mixed
+      // finished state
+      transports[2].end();
+
+      // Assert that all transport 'finish' events have been
+      // emitted when the logger emits 'finish'.
+      logger.on('finish', function () {
+        assume(finished[0]).true();
+        assume(finished[1]).true();
+        assume(finished[2]).true();
+        done();
+      });
+
+      setImmediate(() => logger.end());
+    })",snuts
+/test/unit/winston/logger.test.js,NonFunctionalStatement,"{'startLine':612,'endLine':613}","it(`'finish' event awaits transports to emit 'finish'`, function (done) {
+      const transports = [
+        new TransportStream({
+          log: function () {
+          }
+        }),
+        new TransportStream({
+          log: function () {
+          }
+        }),
+        new TransportStream({
+          log: function () {
+          }
+        })
+      ];
+
+      const finished = [];
+      const logger = winston.createLogger({transports});
+
+      // Assert each transport emits finish
+      transports.forEach((transport, i) => {
+        transport.on('finish', () => finished[i] = true);
+      });
+
+      // Manually end the last transport to simulate mixed
+      // finished state
+      transports[2].end();
+
+      // Assert that all transport 'finish' events have been
+      // emitted when the logger emits 'finish'.
+      logger.on('finish', function () {
+        assume(finished[0]).true();
+        assume(finished[1]).true();
+        assume(finished[2]).true();
+        done();
+      });
+
+      setImmediate(() => logger.end());
+    })",snuts
+/test/unit/winston/logger.test.js,NonFunctionalStatement,"{'startLine':616,'endLine':617}","it(`'finish' event awaits transports to emit 'finish'`, function (done) {
+      const transports = [
+        new TransportStream({
+          log: function () {
+          }
+        }),
+        new TransportStream({
+          log: function () {
+          }
+        }),
+        new TransportStream({
+          log: function () {
+          }
+        })
+      ];
+
+      const finished = [];
+      const logger = winston.createLogger({transports});
+
+      // Assert each transport emits finish
+      transports.forEach((transport, i) => {
+        transport.on('finish', () => finished[i] = true);
+      });
+
+      // Manually end the last transport to simulate mixed
+      // finished state
+      transports[2].end();
+
+      // Assert that all transport 'finish' events have been
+      // emitted when the logger emits 'finish'.
+      logger.on('finish', function () {
+        assume(finished[0]).true();
+        assume(finished[1]).true();
+        assume(finished[2]).true();
+        done();
+      });
+
+      setImmediate(() => logger.end());
+    })",snuts
+/test/unit/winston/logger.test.js,VerboseStatement,"{'startLine':407,'endLine':439}","it('default levels', function () {
+        let logger = winston.createLogger({
+          level: 'verbose',
+          levels: winston.config.npm.levels,
+          transports: [new winston.transports.Console()]
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(4);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isErrorEnabled).is.a('function');
+        assume(logger.isWarnEnabled).is.a('function');
+        assume(logger.isInfoEnabled).is.a('function');
+        assume(logger.isVerboseEnabled).is.a('function');
+        assume(logger.isDebugEnabled).is.a('function');
+        assume(logger.isSillyEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('error')).true();
+        assume(logger.isLevelEnabled('warn')).true();
+        assume(logger.isLevelEnabled('info')).true();
+        assume(logger.isLevelEnabled('verbose')).true();
+        assume(logger.isLevelEnabled('debug')).false();
+        assume(logger.isLevelEnabled('silly')).false();
+
+        assume(logger.isErrorEnabled()).true();
+        assume(logger.isWarnEnabled()).true();
+        assume(logger.isInfoEnabled()).true();
+        assume(logger.isVerboseEnabled()).true();
+        assume(logger.isDebugEnabled()).false();
+        assume(logger.isSillyEnabled()).false();
+      })",snuts
+/test/unit/winston/logger.test.js,VerboseStatement,"{'startLine':441,'endLine':476}","it('default levels, transport override', function () {
+        let transport = new winston.transports.Console();
+        transport.level = 'debug';
+
+        let logger = winston.createLogger({
+          level: 'info',
+          levels: winston.config.npm.levels,
+          transports: [transport]
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(5);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isErrorEnabled).is.a('function');
+        assume(logger.isWarnEnabled).is.a('function');
+        assume(logger.isInfoEnabled).is.a('function');
+        assume(logger.isVerboseEnabled).is.a('function');
+        assume(logger.isDebugEnabled).is.a('function');
+        assume(logger.isSillyEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('error')).true();
+        assume(logger.isLevelEnabled('warn')).true();
+        assume(logger.isLevelEnabled('info')).true();
+        assume(logger.isLevelEnabled('verbose')).true();
+        assume(logger.isLevelEnabled('debug')).true();
+        assume(logger.isLevelEnabled('silly')).false();
+
+        assume(logger.isErrorEnabled()).true();
+        assume(logger.isWarnEnabled()).true();
+        assume(logger.isInfoEnabled()).true();
+        assume(logger.isVerboseEnabled()).true();
+        assume(logger.isDebugEnabled()).true();
+        assume(logger.isSillyEnabled()).false();
+      })",snuts
+/test/unit/winston/logger.test.js,VerboseStatement,"{'startLine':478,'endLine':510}","it('default levels, no transports', function () {
+        let logger = winston.createLogger({
+          level: 'verbose',
+          levels: winston.config.npm.levels,
+          transports: []
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(4);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isErrorEnabled).is.a('function');
+        assume(logger.isWarnEnabled).is.a('function');
+        assume(logger.isInfoEnabled).is.a('function');
+        assume(logger.isVerboseEnabled).is.a('function');
+        assume(logger.isDebugEnabled).is.a('function');
+        assume(logger.isSillyEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('error')).true();
+        assume(logger.isLevelEnabled('warn')).true();
+        assume(logger.isLevelEnabled('info')).true();
+        assume(logger.isLevelEnabled('verbose')).true();
+        assume(logger.isLevelEnabled('debug')).false();
+        assume(logger.isLevelEnabled('silly')).false();
+
+        assume(logger.isErrorEnabled()).true();
+        assume(logger.isWarnEnabled()).true();
+        assume(logger.isInfoEnabled()).true();
+        assume(logger.isVerboseEnabled()).true();
+        assume(logger.isDebugEnabled()).false();
+        assume(logger.isSillyEnabled()).false();
+      })",snuts
+/test/unit/winston/logger.test.js,VerboseStatement,"{'startLine':570,'endLine':600}","it('custom levels, transport override', function () {
+        let transport = new winston.transports.Console();
+        transport.level = 'ok';
+
+        let logger = winston.createLogger({
+          level: 'bad',
+          levels: {
+            bad: 0,
+            test: 1,
+            ok: 2
+          },
+          transports: [transport]
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(2);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isBadEnabled).is.a('function');
+        assume(logger.isTestEnabled).is.a('function');
+        assume(logger.isOkEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('bad')).true();
+        assume(logger.isLevelEnabled('test')).true();
+        assume(logger.isLevelEnabled('ok')).true();
+
+        assume(logger.isBadEnabled()).true();
+        assume(logger.isTestEnabled()).true();
+        assume(logger.isOkEnabled()).true();
+      })",snuts
+/test/unit/winston/logger-legacy.test.js,GeneralFixture,"{'startLine':66,'endLine':66}","beforeEach(() => {
+        consoleErrorSpy = jest.spyOn(console, 'error');
+      })",snuts
+/test/unit/winston/log-exception.test.js,AnonymousTest,"{'startLine':37,'endLine':50}","it('handlers immutable', function () {
+      var logger = winston.createLogger({
+        exceptionHandlers: [
+          new winston.transports.Console(),
+          new winston.transports.File({ filename: path.join(testLogFixturesPath, 'filelog.log') })
+        ]
+      });
+
+      assume(logger.exceptions.handlers.size).equals(2);
+      assume(process.listeners('uncaughtException').length).equals(1);
+      logger.exceptions.unhandle();
+      assume(logger.exceptions.handlers.size).equals(2);
+      assume(process.listeners('uncaughtException').length).equals(0);
+    })",snuts
+/test/unit/winston/log-exception.test.js,GeneralFixture,"{'startLine':90,'endLine':97}","beforeEach(function () {
+          filePath = path.join(testLogFixturesPath, 'unhandled-exception.log');
+          processExitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+          logger = winston.createLogger({
+            transports: [
+              new winston.transports.File({
+                filename: filePath,
+                handleExceptions: true
+              })
+            ]
+          });
+          logger.exceptions.handle();
+        })",snuts
+/test/unit/winston/log-exception.test.js,NonFunctionalStatement,"{'startLine':76,'endLine':76}","beforeEach(function () {
+      filePath = path.join(testLogFixturesPath, 'unhandled-exception.log');
+      processExitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+    })",snuts
+/test/unit/winston/log-exception.test.js,NonFunctionalStatement,"{'startLine':89,'endLine':89}","beforeEach(function () {
+          filePath = path.join(testLogFixturesPath, 'unhandled-exception.log');
+          processExitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
+          logger = winston.createLogger({
+            transports: [
+              new winston.transports.File({
+                filename: filePath,
+                handleExceptions: true
+              })
+            ]
+          });
+          logger.exceptions.handle();
+        })",snuts
+/test/unit/winston/exception-stream.test.js,GeneralFixture,"{'startLine':49,'endLine':54}","beforeEach(function () {
+      transportLogCalls = [];
+      fakeTransport = {
+        log: (info, callback) => {
+          transportLogCalls.push(info);
+          return setImmediate(callback);
+        }
+      };
+      exceptionStream = new ExceptionStream(fakeTransport);
+    })",snuts
+/test/unit/winston/create-logger.test.js,ConditionalTestLogic,"{'startLine':84,'endLine':97}","it('new Logger({ levels }) custom methods are not bound to instance', function (done) {
+        let logger = winston.createLogger({
+            level: 'error',
+            exitOnError: false,
+            transports: []
+        });
+
+        let logs = [];
+        let extendedLogger = Object.create(logger, {
+            write: {
+                value: function (...args) {
+                    logs.push(args);
+                    if (logs.length === 4) {
+                        assume(logs.length).is.eql(4);
+                        assume(logs[0]).is.eql([{test: 1, level: 'info'}]);
+                        assume(logs[1]).is.eql([{test: 2, level: 'warn'}]);
+                        assume(logs[2]).is.eql([{message: 'test3', level: 'info'}])
+                        assume(logs[3]).is.eql([{
+                            with: 'meta',
+                            test: 4,
+                            level: 'warn',
+                            message: 'a warning'
+                        }]);
+
+                        done();
+                    }
+                }
+            }
+        });
+
+        extendedLogger.log('info', {test: 1});
+        extendedLogger.log('warn', {test: 2});
+        extendedLogger.info('test3');
+        extendedLogger.warn('a warning', {with: 'meta', test: 4});
+    })",snuts
+/test/unit/winston/container.test.js,AnonymousTest,"{'startLine':17,'endLine':20}","it('.add(default-test)', function () {
+      defaultTest = container.add('default-test');
+      assume(defaultTest.log).is.a('function');
+    })",snuts
+/test/unit/winston/container.test.js,AnonymousTest,"{'startLine':22,'endLine':24}","it('.get(default-test)', function () {
+      assume(container.get('default-test')).equals(defaultTest);
+    })",snuts
+/test/unit/winston/container.test.js,AnonymousTest,"{'startLine':26,'endLine':28}","it('.has(default-test)', function () {
+      assume(container.has('default-test')).true();
+    })",snuts
+/test/unit/winston/container.test.js,AnonymousTest,"{'startLine':30,'endLine':32}","it('.has(not-has)', function () {
+      assume(container.has('not-has')).false();
+    })",snuts
+/test/unit/winston/container.test.js,AnonymousTest,"{'startLine':34,'endLine':37}","it('.close(default-test)', function () {
+      container.close('default-test');
+      assume(container.loggers.has('default-test')).falsy();
+    })",snuts
+/test/unit/winston/container.test.js,AnonymousTest,"{'startLine':39,'endLine':42}","it('.close(non-existent)', function () {
+      container.close('non-existent');
+      assume(container.loggers.has('non-existent')).falsy();
+    })",snuts
+/test/unit/winston/container.test.js,AnonymousTest,"{'startLine':44,'endLine':47}","it('.close()', function () {
+      container.close();
+      assume(container.loggers.has()).falsy();
+    })",snuts
+/test/unit/winston/container.test.js,AnonymousTest,"{'startLine':55,'endLine':59}","it('.get(some-logger)', function () {
+      all.someLogger = container.get('some-logger');
+      assume(all.someLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someLogger._readableState.pipes).equals(transports[0]);
+    })",snuts
+/test/unit/winston/container.test.js,AnonymousTest,"{'startLine':61,'endLine':67}","it('.get(some-other-logger)', function () {
+      all.someOtherLogger = container.get('some-other-logger');
+
+      assume(all.someOtherLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someOtherLogger._readableState.pipes).equals(transports[0]);
+      assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
+    })",snuts
+/test/unit/winston/container.test.js,AnonymousTest,"{'startLine':75,'endLine':79}","it('.get(some-logger)', function () {
+      all.someLogger = container.get('some-logger');
+      assume(all.someLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someLogger._readableState.pipes).equals(transport);
+    })",snuts
+/test/unit/winston/container.test.js,AnonymousTest,"{'startLine':81,'endLine':87}","it('.get(some-other-logger)', function () {
+      all.someOtherLogger = container.get('some-other-logger');
+
+      assume(all.someOtherLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someOtherLogger._readableState.pipes).equals(transport);
+      assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
+    })",snuts
+/test/unit/winston/container.test.js,IdenticalTestDescription,"{'startLine':75,'endLine':79}","it('.get(some-logger)', function () {
+      all.someLogger = container.get('some-logger');
+      assume(all.someLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someLogger._readableState.pipes).equals(transport);
+    })",snuts
+/test/unit/winston/container.test.js,IdenticalTestDescription,"{'startLine':81,'endLine':87}","it('.get(some-other-logger)', function () {
+      all.someOtherLogger = container.get('some-other-logger');
+
+      assume(all.someOtherLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someOtherLogger._readableState.pipes).equals(transport);
+      assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
+    })",snuts
+/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':248,'endLine':272}","it('should not exceed the max files', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        maxsize: 2024, // Small size to trigger frequent rotations
+        maxFiles: 3, // Only allow 3 files total
+        lazy: true
+      });
+
+      // Log well beyond enough data to create 3 files
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+
+      // Wait for the last expected file
+      await new Promise(resolve => setTimeout(resolve, 5000));
+
+      // Should have 3 files total (maxFiles)
+      assertFileExists('testarchive.log');
+      assertFileExists('testarchive1.log');
+      assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
+    }, 10000)",snuts
+/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':274,'endLine':298}","it('should delete the oldest file when maxfiles is met', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        maxsize: 1024, // Small size to trigger frequent rotations
+        maxFiles: 2, // Only allow 2 files total
+        lazy: true // Ensure files are created immediately
+      });
+
+      // Create first log file
+      await logToTransport(transport);
+      await waitForFile('testarchive.log');
+
+      // Create second log file
+      await logToTransport(transport);
+      await waitForFile('testarchive1.log');
+
+      // Create third log file (should delete the oldest one)
+      await logToTransport(transport, { kbytes: 0.5 });
+      await waitForFile('testarchive2.log');
+
+      // Should only have 2 most recent files (maxFiles = 2)
+      assertFileDoesNotExist('testarchive.log'); // The oldest file should be deleted
+      assertFileExists('testarchive1.log');
+      assertFileExists('testarchive2.log');
+    })",snuts
+/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':303,'endLine':333}","it('should write to original file and older files will be in ascending order', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        maxFiles: 4,
+        tailable: true
+      });
+
+      // We need to log enough data to create 3 files of 4KB each = 12KB total
+      await logToTransport(transport, { kbytes: 4, char: 'A' });
+      await waitForFile('testarchive.log');
+      await logToTransport(transport, { kbytes: 4, char: 'B' });
+      await waitForFile('testarchive1.log');
+      await logToTransport(transport, { kbytes: 4, char: 'C' });
+      await waitForFile('testarchive2.log');
+      await logToTransport(transport, { kbytes: 1, char: 'D' });
+      await waitForFile('testarchive3.log');
+
+      // Verify the expected files exist and their contents are correct
+      assertFileExists('testarchive.log');
+      assertFileExists('testarchive1.log');
+      assertFileExists('testarchive2.log');
+      assertFileExists('testarchive3.log');
+
+      // Verify the contents of the files are in the expected order
+      assertFileContentsStartWith('testarchive.log', 'D');
+      assertFileContentsStartWith('testarchive1.log', 'C');
+      assertFileContentsStartWith('testarchive2.log', 'B');
+      // FIX: I would expect the first file that was rolled to be filled with the first log message
+      // instead the file is empty. Investigation needed.
+      // assertFileContentsStartWith('testarchive3.log', 'A');
+    })",snuts
+/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':335,'endLine':364}","it('should write to the newest file and older files will be in descending order', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        tailable: false
+      });
+
+      // We need to log enough data to create 3 files of 4KB each = 12KB total
+      await logToTransport(transport, { kbytes: 4, char: 'A' });
+      await waitForFile('testarchive.log');
+      await logToTransport(transport, { kbytes: 4, char: 'B' });
+      await waitForFile('testarchive1.log');
+      await logToTransport(transport, { kbytes: 4, char: 'C' });
+      await waitForFile('testarchive2.log');
+
+      // Verify the expected files exist
+      assertFileExists('testarchive.log');
+      assertFileExists('testarchive1.log');
+      assertFileExists('testarchive2.log');
+
+      // Verify the contents of the files are in the expected order
+      // eslint-disable-next-line -- intentionally asserting file starts with no values
+      assertFileContentsStartWith('testarchive.log', undefined);
+      // FIX: only two of the files are filled and are not in the expected order. File contents are as follows:
+      //   file testarchive.log  - empty
+      //   file testarchive1.log - 'B'
+      //   file testarchive2.log - 'C'
+      //   file testarchive3.log - empty
+      // assertFileContentsStartWith('testarchive1.log', 'A');
+      // assertFileContentsStartWith('testarchive2.log', 'B');
+    })",snuts
+/test/unit/winston/transports/file.test.js,VerboseStatement,"{'startLine':303,'endLine':333}","it('should write to original file and older files will be in ascending order', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        maxFiles: 4,
+        tailable: true
+      });
+
+      // We need to log enough data to create 3 files of 4KB each = 12KB total
+      await logToTransport(transport, { kbytes: 4, char: 'A' });
+      await waitForFile('testarchive.log');
+      await logToTransport(transport, { kbytes: 4, char: 'B' });
+      await waitForFile('testarchive1.log');
+      await logToTransport(transport, { kbytes: 4, char: 'C' });
+      await waitForFile('testarchive2.log');
+      await logToTransport(transport, { kbytes: 1, char: 'D' });
+      await waitForFile('testarchive3.log');
+
+      // Verify the expected files exist and their contents are correct
+      assertFileExists('testarchive.log');
+      assertFileExists('testarchive1.log');
+      assertFileExists('testarchive2.log');
+      assertFileExists('testarchive3.log');
+
+      // Verify the contents of the files are in the expected order
+      assertFileContentsStartWith('testarchive.log', 'D');
+      assertFileContentsStartWith('testarchive1.log', 'C');
+      assertFileContentsStartWith('testarchive2.log', 'B');
+      // FIX: I would expect the first file that was rolled to be filled with the first log message
+      // instead the file is empty. Investigation needed.
+      // assertFileContentsStartWith('testarchive3.log', 'A');
+    })",snuts
+/test/unit/winston/transports/error.test.js,AnonymousTest,"{'startLine':57,'endLine':59}","it(""error didn't"", () => {
+      assume(logError).not.exists();
+    })",snuts
+/test/unit/winston/transports/error.test.js,AnonymousTest,"{'startLine':75,'endLine':77}","it('error occurred', () => {
+      assume(logError).property('message', mainError);
+    })",snuts
+/test/unit/winston/transports/error.test.js,AnonymousTest,"{'startLine':94,'endLine':96}","it('error occurred', () => {
+      assume(logError).property('message', mainError);
+    })",snuts
+/test/unit/winston/transports/error.test.js,GeneralFixture,"{'startLine':30,'endLine':30}","beforeEach(() => {
+    errorMessage = mainError;
+    counter = 0;
+    maxCounter = 1;
+    logError = null;
+    transport = newTransport();
+    logger = winston.createLogger({
+      level: 'info',
+      transports: [transport]
+    });
+    logger.on('error', error => {
+      counter = 0;
+      logError = error;
+    });
+  })",snuts
+/test/unit/winston/transports/error.test.js,GeneralFixture,"{'startLine':31,'endLine':31}","beforeEach(() => {
+    errorMessage = mainError;
+    counter = 0;
+    maxCounter = 1;
+    logError = null;
+    transport = newTransport();
+    logger = winston.createLogger({
+      level: 'info',
+      transports: [transport]
+    });
+    logger.on('error', error => {
+      counter = 0;
+      logError = error;
+    });
+  })",snuts
+/test/unit/winston/transports/error.test.js,GeneralFixture,"{'startLine':32,'endLine':32}","beforeEach(() => {
+    errorMessage = mainError;
+    counter = 0;
+    maxCounter = 1;
+    logError = null;
+    transport = newTransport();
+    logger = winston.createLogger({
+      level: 'info',
+      transports: [transport]
+    });
+    logger.on('error', error => {
+      counter = 0;
+      logError = error;
+    });
+  })",snuts
+/test/unit/winston/transports/error.test.js,IdenticalTestDescription,"{'startLine':68,'endLine':73}","it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    })",snuts
+/test/unit/winston/transports/error.test.js,IdenticalTestDescription,"{'startLine':87,'endLine':92}","it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    })",snuts
+/test/unit/winston/transports/error.test.js,IdenticalTestDescription,"{'startLine':94,'endLine':96}","it('error occurred', () => {
+      assume(logError).property('message', mainError);
+    })",snuts
+/test/unit/winston/transports/error.test.js,IdenticalTestDescription,"{'startLine':107,'endLine':112}","it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    })",snuts
+/test/helpers/handler-tests.js,AnonymousTest,"{'startLine':36,'endLine':38}","it('.getProcessInfo()', function () {
+      helpers.assertProcessInfo(handler.getProcessInfo());
+    })",snuts
+/test/helpers/handler-tests.js,AnonymousTest,"{'startLine':40,'endLine':42}","it('.getOsInfo()', function () {
+      helpers.assertOsInfo(handler.getOsInfo());
+    })",snuts
+/test/helpers/handler-tests.js,AnonymousTest,"{'startLine':44,'endLine':46}","it('.getTrace(new Error)', function () {
+      helpers.assertTrace(handler.getTrace(new Error()));
+    })",snuts
+/test/helpers/handler-tests.js,AnonymousTest,"{'startLine':48,'endLine':50}","it('.getTrace()', function () {
+      helpers.assertTrace(handler.getTrace());
+    })",snuts
+/test/helpers/handler-tests.js,AnonymousTest,"{'startLine':52,'endLine':54}","it('.getAllInfo(undefined)', function () {
+      handler.getAllInfo();
+    })",snuts
+/test/helpers/handler-tests.js,AnonymousTest,"{'startLine':66,'endLine':98}","it('.handle()', function (done) {
+      var msg = new Date().toString();
+      var writeable = helpers.writeable(function (info) {
+        assume(info).is.an('object');
+        assume(info.error).is.an('error');
+        assume(info.error.message).equals(msg);
+        assume(info.message).includes(`${listener}: ${msg}`);
+        assume(info.stack).is.a('string');
+        assume(info.process).is.an('object');
+        assume(info.os).is.an('object');
+        assume(info.trace).is.an('array');
+
+        done();
+      });
+
+      var transport = new winston.transports.Stream({ stream: writeable });
+      var handler = helpers[helper]({
+        exitOnError: false,
+        transports: [transport]
+      });
+
+      assume(handler.catcher).is.a('undefined');
+
+      transport[toggleSetting] = true;
+      handler.handle();
+
+      assume(handler.catcher).is.a('function');
+      assume(process.listeners(listener)).deep.equals([
+        handler.catcher
+      ]);
+
+      process.emit(listener, new Error(msg));
+    })",snuts
+/test/helpers/index.js,NonFunctionalStatement,"{'startLine':121,'endLine':121}",Unknown,snuts
+/test/unit/winston/winston.test.js,Unknown Test,"{'column': 2, 'line': 13}","it('should expose transports', function () {
+    assume(winston.transports).is.an('object');
+    assume(winston.Transport).is.a('function');
+    assume(!winston.transports.Transport).true();
+    assume(winston.transports.Console).is.a('function');
+    assume(winston.transports.File).is.a('function');
+  })",steel
+/test/unit/winston/winston.test.js,Unknown Test,"{'column': 2, 'line': 21}","it('should have the expected initial state', function () {
+    assume(winston.default.transports).deep.equals([]);
+    assume(winston.level).equals('info');
+  })",steel
+/test/unit/winston/winston.test.js,Unknown Test,"{'column': 4, 'line': 75}","it('exposes the configuration', function () {
+      assume(winston.config).is.an('object');
+    })",steel
+/test/unit/winston/winston.test.js,Unknown Test,"{'column': 4, 'line': 79}","it('exposes the version', function () {
+      assume(winston.version).equals(require('../../../package.json').version);
+    })",steel
+/test/unit/winston/tail-file.test.js,Conditional Test Logic,"{'line': 30, 'column': 2, 'index': 878}",Unknown,steel
+/test/unit/winston/tail-file.test.js,Global Variable,"{'line': 22, 'column': 2, 'index': 570}",Unknown,steel
+/test/unit/winston/tail-file.test.js,Global Variable,"{'line': 23, 'column': 2, 'index': 598}",Unknown,steel
+/test/unit/winston/tail-file.test.js,Global Variable,"{'line': 24, 'column': 2, 'index': 637}",Unknown,steel
+/test/unit/winston/tail-file.test.js,Global Variable,"{'line': 25, 'column': 2, 'index': 680}",Unknown,steel
+/test/unit/winston/tail-file.test.js,Global Variable,"{'line': 26, 'column': 2, 'index': 716}",Unknown,steel
+/test/unit/winston/tail-file.test.js,Global Variable,"{'line': 27, 'column': 2, 'index': 740}",Unknown,steel
+/test/unit/winston/tail-file.test.js,Global Variable,"{'line': 28, 'column': 2, 'index': 811}",Unknown,steel
+/test/unit/winston/tail-file.test.js,Global Variable,"{'line': 65, 'column': 4, 'index': 1682}","it('returns a stream that emits ""line"" for every line', function (done) {
+    var tailable = path.join(testLogFixturesPath, 'common-tail-file.log');
+    var expected = 0;
+    //
+    // Performs the actual tail and asserts it.
+    //
+    function startTailFile() {
+      var stream = tailFile({ file: tailable });
+      assume(stream).instanceof(Stream);
+
+      stream.on('line', function (buff) {
+        expected += 1;
+        assume(JSON.parse('' + buff)).is.an('object');
+      });
+    }
+
+    logOnInterval({
+      file: tailable,
+      open: startTailFile,
+      timeout: 5000
+    }, function (err, actual) {
+      assume(expected).equals(actual.write);
+      done();
+    });
+  })",steel
+/test/unit/winston/tail-file.test.js,Global Variable,"{'line': 66, 'column': 4, 'index': 1757}","it('returns a stream that emits ""line"" for every line', function (done) {
+    var tailable = path.join(testLogFixturesPath, 'common-tail-file.log');
+    var expected = 0;
+    //
+    // Performs the actual tail and asserts it.
+    //
+    function startTailFile() {
+      var stream = tailFile({ file: tailable });
+      assume(stream).instanceof(Stream);
+
+      stream.on('line', function (buff) {
+        expected += 1;
+        assume(JSON.parse('' + buff)).is.an('object');
+      });
+    }
+
+    logOnInterval({
+      file: tailable,
+      open: startTailFile,
+      timeout: 5000
+    }, function (err, actual) {
+      assume(expected).equals(actual.write);
+      done();
+    });
+  })",steel
+/test/unit/winston/tail-file.test.js,Global Variable,"{'line': 71, 'column': 6, 'index': 1874}","it('returns a stream that emits ""line"" for every line', function (done) {
+    var tailable = path.join(testLogFixturesPath, 'common-tail-file.log');
+    var expected = 0;
+    //
+    // Performs the actual tail and asserts it.
+    //
+    function startTailFile() {
+      var stream = tailFile({ file: tailable });
+      assume(stream).instanceof(Stream);
+
+      stream.on('line', function (buff) {
+        expected += 1;
+        assume(JSON.parse('' + buff)).is.an('object');
+      });
+    }
+
+    logOnInterval({
+      file: tailable,
+      open: startTailFile,
+      timeout: 5000
+    }, function (err, actual) {
+      assume(expected).equals(actual.write);
+      done();
+    });
+  })",steel
+/test/unit/winston/tail-file.test.js,Unknown Test,"{'column': 2, 'line': 59}","it('is a function', function () {
+    assume(tailFile).is.a('function');
+    assume(tailFile.length).equals(2);
+  })",steel
+/test/unit/winston/tail-file.test.js,Unknown Test,"{'column': 2, 'line': 64}","it('returns a stream that emits ""line"" for every line', function (done) {
+    var tailable = path.join(testLogFixturesPath, 'common-tail-file.log');
+    var expected = 0;
+    //
+    // Performs the actual tail and asserts it.
+    //
+    function startTailFile() {
+      var stream = tailFile({ file: tailable });
+      assume(stream).instanceof(Stream);
+
+      stream.on('line', function (buff) {
+        expected += 1;
+        assume(JSON.parse('' + buff)).is.an('object');
+      });
+    }
+
+    logOnInterval({
+      file: tailable,
+      open: startTailFile,
+      timeout: 5000
+    }, function (err, actual) {
+      assume(expected).equals(actual.write);
+      done();
+    });
+  })",steel
+/test/unit/winston/profiler.test.js,Global Variable,"{'line': 30, 'column': 4, 'index': 829}","it('.done({ info })', function (done) {
+    const logger = new Logger();
+    logger.write = function (info) {
+      assume(info).is.an('object');
+      assume(info.something).equals('ok');
+      assume(info.level).equals('info');
+      assume(info.durationMs).is.a('number');
+      assume(info.message).equals('testing1');
+      done();
+    };
+    var profiler = new Profiler(logger);
+    setTimeout(function () {
+      profiler.done({
+        something: 'ok',
+        level: 'info',
+        message: 'testing1'
+      });
+    }, 200);
+  })",steel
+/test/unit/winston/profiler.test.js,Sleepy Test,"{'line': 31, 'column': 4, 'index': 870}","it('.done({ info })', function (done) {
+    const logger = new Logger();
+    logger.write = function (info) {
+      assume(info).is.an('object');
+      assume(info.something).equals('ok');
+      assume(info.level).equals('info');
+      assume(info.durationMs).is.a('number');
+      assume(info.message).equals('testing1');
+      done();
+    };
+    var profiler = new Profiler(logger);
+    setTimeout(function () {
+      profiler.done({
+        something: 'ok',
+        level: 'info',
+        message: 'testing1'
+      });
+    }, 200);
+  })",steel
+/test/unit/winston/profiler.test.js,Unknown Test,"{'column': 2, 'line': 14}","it('new Profiler()', function () {
+    assume(function () {
+      new Profiler();
+    }).throws('Logger is required for profiling');
+  })",steel
+/test/unit/winston/profiler.test.js,Unknown Test,"{'column': 2, 'line': 20}","it('.done({ info })', function (done) {
+    const logger = new Logger();
+    logger.write = function (info) {
+      assume(info).is.an('object');
+      assume(info.something).equals('ok');
+      assume(info.level).equals('info');
+      assume(info.durationMs).is.a('number');
+      assume(info.message).equals('testing1');
+      done();
+    };
+    var profiler = new Profiler(logger);
+    setTimeout(function () {
+      profiler.done({
+        something: 'ok',
+        level: 'info',
+        message: 'testing1'
+      });
+    }, 200);
+  })",steel
+/test/unit/winston/profiler.test.js,Unknown Test,"{'column': 2, 'line': 40}","it('non logger object', function(){
+    assume(function() {
+      new Profiler(new Error('Unknown error'));
+    }).throws('Logger is required for profiling');
+
+    assume(function () {
+      new Profiler({a:'b'});
+    }).throws('Logger is required for profiling');
+
+    assume(function(){
+      new Profiler([1,2,3,4]);
+    }).throws('Logger is required for profiling');
+
+    assume(function () {
+      new Profiler(new PassThrough());
+    }).throws('Logger is required for profiling');
+
+    assume(function () {
+      new Profiler(2);
+    }).throws('Logger is required for profiling');
+    
+    assume(function () {
+      new Profiler('1');
+    }).throws('Logger is required for profiling');
+  })",steel
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 310, 'column': 12, 'index': 10031}","it('default levels', function (done) {
+      let logger = winston.createLogger();
+      let expected = {message: 'foo', level: 'debug'};
+
+      function logLevelTransport(level) {
+        return new TransportStream({
+          level: level,
+          log: function (obj) {
+            if (level === 'info') {
+              assume(obj).equals(undefined, 'Transport on level info should never be called');
+            }
+
+            assume(obj.message).equals('foo');
+            assume(obj.level).equals('debug');
+            assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'debug', message: 'foo'});
+            done();
+          }
+        });
+      }
+
+      assume(logger.info).is.a('function');
+      assume(logger.debug).is.a('function');
+
+      logger
+          .add(logLevelTransport('info'))
+          .add(logLevelTransport('debug'))
+          .log(expected);
+    })",steel
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 346, 'column': 12, 'index': 11008}","it('custom levels', function (done) {
+      let logger = winston.createLogger({
+        levels: {
+          bad: 0,
+          test: 1,
+          ok: 2
+        }
+      });
+
+      let expected = {message: 'foo', level: 'test'};
+
+      function filterLevelTransport(level) {
+        return new TransportStream({
+          level: level,
+          log: function (obj) {
+            if (level === 'bad') {
+              assume(obj).equals(undefined, 'transport on level ""bad"" should never be called');
+            }
+
+            assume(obj.message).equals('foo');
+            assume(obj.level).equals('test');
+            assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'test', message: 'foo'});
+            done();
+          }
+        });
+      }
+
+      assume(logger.bad).is.a('function');
+      assume(logger.test).is.a('function');
+      assume(logger.ok).is.a('function');
+
+      logger
+          .add(filterLevelTransport('bad'))
+          .add(filterLevelTransport('ok'))
+          .log(expected);
+    })",steel
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 372, 'column': 10, 'index': 11780}","it('sets transports levels', done => {
+      let logger;
+      const transport = new TransportStream({
+        log(obj) {
+          if (obj.level === 'info') {
+            assume(obj).equals(undefined, 'Transport on level info should never be called');
+          }
+
+          assume(obj.message).equals('foo');
+          assume(obj.level).equals('error');
+          assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'error', message: 'foo'});
+          done();
+        }
+      });
+
+      // Begin our test in the next tick after the pipe event is
+      // emitted from the transport.
+      transport.once('pipe', () => setImmediate(() => {
+        const expectedError = {message: 'foo', level: 'error'};
+        const expectedInfo = {message: 'bar', level: 'info'};
+
+        assume(logger.error).is.a('function');
+        assume(logger.info).is.a('function');
+
+        // Set the level
+        logger.level = 'error';
+
+        // Log the messages. ""info"" should never arrive.
+        logger
+            .log(expectedInfo)
+            .log(expectedError);
+      }));
+
+      logger = winston.createLogger({
+        transports: [transport]
+      });
+    })",steel
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 681, 'column': 10, 'index': 22087}","it(`rethrows errors from user-defined formats`, function () {
+      stdMocks.use();
+      const logger = winston.createLogger({
+        transports: [new winston.transports.Console()],
+        format: winston.format.printf((info) => {
+          // Set a trap.
+          if (info.message === 'ENDOR') {
+            throw new Error('ITS A TRAP!');
+          }
+
+          return info.message;
+        })
+      });
+
+      // Trigger the trap.  Swallow the error so processing continues.
+      try {
+        logger.info('ENDOR');
+      } catch (err) {
+        assume(err.message).equals('ITS A TRAP!');
+      }
+
+      const expected = [
+        'Now witness the power of the fully armed and operational logger',
+        'Consider the philosophical and metaphysical – BANANA BANANA BANANA',
+        'I was god once. I saw – you were doing well until everyone died.'
+      ];
+
+      expected.forEach(msg => logger.info(msg));
+
+      stdMocks.restore();
+      const actual = stdMocks.flush();
+      assume(actual.stdout).deep.equals(expected.map(msg => `${msg}${EOL}`));
+      assume(actual.stderr).deep.equals([]);
+    })",steel
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 801, 'column': 10, 'index': 25790}","it(`.info('Hello') preserve meta without splat format`, function (done) {
+        const logged = [];
+        const logger = helpers.createLogger(function (info, enc, next) {
+          logged.push(info);
+          assume(info.label).equals('world');
+          next();
+
+          if (logged.length === 1) done();
+        });
+
+        logger.info('Hello', {label: 'world'});
+      })",steel
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 814, 'column': 10, 'index': 26212}","it(`.info('Hello %d') does not mutate unnecessarily with string interpolation tokens`, function (done) {
+        const logged = [];
+        const logger = helpers.createLogger(function (info, enc, next) {
+          logged.push(info);
+          assume(info.label).equals(undefined);
+          next();
+
+          if (logged.length === 1) done();
+        });
+
+        logger.info('Hello %j', {label: 'world'}, {extra: true});
+      })",steel
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 827, 'column': 10, 'index': 26638}","it(`.info('Hello') and .info('Hello %d') preserve meta with splat format`, function (done) {
+        const logged = [];
+        const logger = helpers.createLogger(function (info, enc, next) {
+          logged.push(info);
+          assume(info.label).equals('world');
+          next();
+
+          if (logged.length === 2) done();
+        }, format.splat());
+
+        logger.info('Hello', {label: 'world'});
+        logger.info('Hello %d', 100, {label: 'world'});
+      })",steel
+/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 724, 'column': 6, 'index': 23465}","it('ending profiler with object argument should be included in output', function (done) {
+      let logger = helpers.createLogger(function (info) {
+        assume(info).is.an('object');
+        assume(info.something).equals('ok');
+        assume(info.level).equals('info');
+        assume(info.durationMs).is.a('number');
+        assume(info.message).equals('testing1');
+        assume(info[MESSAGE]).is.a('string');
+        done();
+      });
+
+      logger.profile('testing1');
+      setTimeout(function () {
+        logger.profile('testing1', {
+          something: 'ok',
+          level: 'info'
+        })
+      }, 100);
+    })",steel
+/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 748, 'column': 6, 'index': 24230}","it('calling profile with a callback function should not make a difference', function (done) {
+      let logger = helpers.createLogger(function (info) {
+        assume(info).is.an('object');
+        assume(info.something).equals('ok');
+        assume(info.level).equals('info');
+        assume(info.durationMs).is.a('number');
+        assume(info.message).equals('testing2');
+        assume(info[MESSAGE]).is.a('string');
+        done();
+      });
+
+      logger.profile('testing2', function () {
+        done(new Error('Unexpected callback invoked'));
+      });
+
+      setTimeout(function () {
+        logger.profile('testing2', {
+          something: 'ok',
+          level: 'info'
+        })
+      }, 100);
+    })",steel
+/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 768, 'column': 6, 'index': 24853}","it('should stop a timer when `done` is called on it', function (done) {
+      let logger = helpers.createLogger(function (info) {
+        assume(info).is.an('object');
+        assume(info.something).equals('ok');
+        assume(info.level).equals('info');
+        assume(info.durationMs).is.a('number');
+        assume(info.message).equals('testing1');
+        assume(info[MESSAGE]).is.a('string');
+        done();
+      });
+
+      let timer = logger.startTimer();
+      setTimeout(function () {
+        timer.done({
+          message: 'testing1',
+          something: 'ok',
+          level: 'info'
+        });
+      }, 100);
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 26}","it('.configure()', function () {
+      let logger = winston.createLogger({
+        transports: [new winston.transports.Console()]
+      });
+
+      assume(logger.transports.length).equals(1);
+      assume(logger.transports[0].name).equals('console');
+
+      logger.configure();
+
+      assume(logger.transports.length).equals(0);
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 39}","it('.configure({ transports })', function () {
+      let logger = winston.createLogger();
+
+      assume(logger.transports.length).equals(0);
+
+      logger.configure({
+        transports: [new winston.transports.Console()]
+      });
+
+      assume(logger.transports.length).equals(1);
+      assume(logger.transports[0].name).equals('console');
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 70}","it('should return the highest log level', function () {
+      let logger = winston.createLogger();
+
+      const highestLogLevel = logger.getHighestLogLevel();
+
+      assume(highestLogLevel).equals(2);
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 98}","it('should only enable levels ""info"" and above by default', function () {
+      let logger = winston.createLogger();
+
+      const isHttpEnabled = logger.isLevelEnabled('http');
+      const isInfoEnabled = logger.isLevelEnabled('info');
+      const isWarnEnabled = logger.isLevelEnabled('warn');
+      const isErrorEnabled = logger.isLevelEnabled('error');
+
+      assume(isHttpEnabled).to.be.false();
+      assume(isInfoEnabled).to.be.true();
+      assume(isWarnEnabled).to.be.true();
+      assume(isErrorEnabled).to.be.true();
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 124}","it('should indicate all levels are disabled if configured with a level of null', function () {
+      const logger = winston.createLogger({ level: null });
+
+      const levelEnabledResults = [];
+      levelEnabledResults.push(logger.isLevelEnabled('silly'));
+      levelEnabledResults.push(logger.isLevelEnabled('debug'));
+      levelEnabledResults.push(logger.isLevelEnabled('verbose'));
+      levelEnabledResults.push(logger.isLevelEnabled('http'));
+      levelEnabledResults.push(logger.isLevelEnabled('info'));
+      levelEnabledResults.push(logger.isLevelEnabled('warn'));
+      levelEnabledResults.push(logger.isLevelEnabled('error'));
+
+      const isEveryLevelDisabled = levelEnabledResults.every(result => result === false);
+      assume(isEveryLevelDisabled).to.be.true();
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 143}","it('should throw error when adding an invalid transport', function () {
+        let logger = winston.createLogger();
+        assume(function () {
+          logger.add(5);
+        }).throws(/invalid transport/i);
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 150}","it('should add the expected transport', function (done) {
+        let logger = winston.createLogger();
+        let expected = {message: 'foo', level: 'info'};
+        let transport = new TransportStream({
+          log: function (info) {
+            assume(info.message).equals('foo');
+            assume(info.level).equals('info');
+            assume(JSON.parse(info[MESSAGE])).deep.equals({level: 'info', message: 'foo'});
+            done();
+          }
+        });
+
+        logger.add(transport);
+        logger.log(expected);
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 166}","it('should allow adding multiple transports', function () {
+        let transports = [
+          new winston.transports.File({
+            name: 'filelog-info.log',
+            filename: path.join(testLogFixturesPath, 'filelog-info.log'),
+            level: 'info'
+          }),
+          new winston.transports.File({
+            name: 'filelog-error.log',
+            filename: path.join(testLogFixturesPath, 'filelog-error.log'),
+            level: 'error'
+          })
+        ];
+        let logger = winston.createLogger({
+          transports: transports
+        });
+
+        assume(logger.transports.length).equals(2);
+        assume(logger.transports.map(function (wrap) {
+          return wrap.transport || wrap;
+        })).deep.equals(transports);
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 191}","it('should do nothing if transport was not added', function () {
+        let transports = [
+          new winston.transports.Console(),
+          new winston.transports.File({filename: path.join(testLogFixturesPath, 'filelog.log')})
+        ];
+
+        let logger = winston.createLogger({transports: transports})
+            .remove(new winston.transports.Console());
+
+        assume(logger.transports.length).equals(2);
+        assume(logger.transports.map(function (wrap) {
+          // Unwrap LegacyTransportStream instances
+          return wrap.transport || wrap;
+        })).deep.equals(transports);
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 207}","it('should remove transport when matching one is found', function () {
+        let transports = [
+          new winston.transports.Console(),
+          new winston.transports.File({filename: path.join(testLogFixturesPath, 'filelog.log')})
+        ];
+
+        let logger = winston.createLogger({transports: transports});
+
+        assume(logger.transports.length).equals(2);
+        logger.remove(transports[0]);
+        assume(logger.transports.length).equals(1);
+        assume(logger.transports[0]).equals(transports[1]);
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 221}","it('should remove specified logger even when duplicate exists', function () {
+        let transports = [
+          new winston.transports.File({
+            name: 'filelog-info.log',
+            filename: path.join(testLogFixturesPath, 'filelog-info.log'),
+            level: 'info'
+          }),
+          new winston.transports.File({
+            name: 'filelog-error.log',
+            filename: path.join(testLogFixturesPath, 'filelog-error.log'),
+            level: 'error'
+          })
+        ];
+        let logger = winston.createLogger({
+          transports: transports
+        });
+
+        logger.remove(transports[0]);
+        assume(logger.transports.length).equals(1);
+        assume(logger.transports[0]).equals(transports[1]);
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 245}","it('should do nothing when no transports exist', function () {
+        let logger = winston.createLogger();
+        assume(logger.transports.length).equals(0);
+        logger.clear();
+        assume(logger.transports.length).equals(0);
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 252}","it('should remove all transports', function () {
+        let logger = winston.createLogger({
+          transports: [new winston.transports.Console()]
+        });
+
+        assume(logger.transports.length).equals(1);
+        logger.clear();
+        assume(logger.transports.length).equals(0);
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 264}","it('should return a log stream for all transports', function () {
+        let logger = winston.createLogger();
+        let outStream = logger.stream();
+
+        assume(isStream(outStream)).true();
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 274}","it('report unknown levels', function () {
+      const consoleErrorSpy = jest.spyOn(console, 'error');
+      let logger = winston.createLogger();
+
+      logger.log({ message: 'foo', level: 'bar' });
+
+      assume(consoleErrorSpy.mock.calls[0]).deep.equals(['[winston] Unknown logger level: %s', 'bar']);
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 283}","it('.<level>()', function (done) {
+      let logger = helpers.createLogger(function (info) {
+        assume(info).is.an('object');
+        assume(info.level).equals('info');
+        assume(info.message).is.a('string');
+        assume(info[MESSAGE]).is.a('string');
+        assume(info.message).equals('');
+        assume(JSON.parse(info[MESSAGE])).deep.equals({
+          level: 'info',
+          message: ''
+        });
+
+        done();
+      });
+
+      logger.info();
+      logger.info('');
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 302}","it('default levels', function (done) {
+      let logger = winston.createLogger();
+      let expected = {message: 'foo', level: 'debug'};
+
+      function logLevelTransport(level) {
+        return new TransportStream({
+          level: level,
+          log: function (obj) {
+            if (level === 'info') {
+              assume(obj).equals(undefined, 'Transport on level info should never be called');
+            }
+
+            assume(obj.message).equals('foo');
+            assume(obj.level).equals('debug');
+            assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'debug', message: 'foo'});
+            done();
+          }
+        });
+      }
+
+      assume(logger.info).is.a('function');
+      assume(logger.debug).is.a('function');
+
+      logger
+          .add(logLevelTransport('info'))
+          .add(logLevelTransport('debug'))
+          .log(expected);
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 331}","it('custom levels', function (done) {
+      let logger = winston.createLogger({
+        levels: {
+          bad: 0,
+          test: 1,
+          ok: 2
+        }
+      });
+
+      let expected = {message: 'foo', level: 'test'};
+
+      function filterLevelTransport(level) {
+        return new TransportStream({
+          level: level,
+          log: function (obj) {
+            if (level === 'bad') {
+              assume(obj).equals(undefined, 'transport on level ""bad"" should never be called');
+            }
+
+            assume(obj.message).equals('foo');
+            assume(obj.level).equals('test');
+            assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'test', message: 'foo'});
+            done();
+          }
+        });
+      }
+
+      assume(logger.bad).is.a('function');
+      assume(logger.test).is.a('function');
+      assume(logger.ok).is.a('function');
+
+      logger
+          .add(filterLevelTransport('bad'))
+          .add(filterLevelTransport('ok'))
+          .log(expected);
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 368}","it('sets transports levels', done => {
+      let logger;
+      const transport = new TransportStream({
+        log(obj) {
+          if (obj.level === 'info') {
+            assume(obj).equals(undefined, 'Transport on level info should never be called');
+          }
+
+          assume(obj.message).equals('foo');
+          assume(obj.level).equals('error');
+          assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'error', message: 'foo'});
+          done();
+        }
+      });
+
+      // Begin our test in the next tick after the pipe event is
+      // emitted from the transport.
+      transport.once('pipe', () => setImmediate(() => {
+        const expectedError = {message: 'foo', level: 'error'};
+        const expectedInfo = {message: 'bar', level: 'info'};
+
+        assume(logger.error).is.a('function');
+        assume(logger.info).is.a('function');
+
+        // Set the level
+        logger.level = 'error';
+
+        // Log the messages. ""info"" should never arrive.
+        logger
+            .log(expectedInfo)
+            .log(expectedError);
+      }));
+
+      logger = winston.createLogger({
+        transports: [transport]
+      });
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 407}","it('default levels', function () {
+        let logger = winston.createLogger({
+          level: 'verbose',
+          levels: winston.config.npm.levels,
+          transports: [new winston.transports.Console()]
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(4);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isErrorEnabled).is.a('function');
+        assume(logger.isWarnEnabled).is.a('function');
+        assume(logger.isInfoEnabled).is.a('function');
+        assume(logger.isVerboseEnabled).is.a('function');
+        assume(logger.isDebugEnabled).is.a('function');
+        assume(logger.isSillyEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('error')).true();
+        assume(logger.isLevelEnabled('warn')).true();
+        assume(logger.isLevelEnabled('info')).true();
+        assume(logger.isLevelEnabled('verbose')).true();
+        assume(logger.isLevelEnabled('debug')).false();
+        assume(logger.isLevelEnabled('silly')).false();
+
+        assume(logger.isErrorEnabled()).true();
+        assume(logger.isWarnEnabled()).true();
+        assume(logger.isInfoEnabled()).true();
+        assume(logger.isVerboseEnabled()).true();
+        assume(logger.isDebugEnabled()).false();
+        assume(logger.isSillyEnabled()).false();
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 441}","it('default levels, transport override', function () {
+        let transport = new winston.transports.Console();
+        transport.level = 'debug';
+
+        let logger = winston.createLogger({
+          level: 'info',
+          levels: winston.config.npm.levels,
+          transports: [transport]
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(5);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isErrorEnabled).is.a('function');
+        assume(logger.isWarnEnabled).is.a('function');
+        assume(logger.isInfoEnabled).is.a('function');
+        assume(logger.isVerboseEnabled).is.a('function');
+        assume(logger.isDebugEnabled).is.a('function');
+        assume(logger.isSillyEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('error')).true();
+        assume(logger.isLevelEnabled('warn')).true();
+        assume(logger.isLevelEnabled('info')).true();
+        assume(logger.isLevelEnabled('verbose')).true();
+        assume(logger.isLevelEnabled('debug')).true();
+        assume(logger.isLevelEnabled('silly')).false();
+
+        assume(logger.isErrorEnabled()).true();
+        assume(logger.isWarnEnabled()).true();
+        assume(logger.isInfoEnabled()).true();
+        assume(logger.isVerboseEnabled()).true();
+        assume(logger.isDebugEnabled()).true();
+        assume(logger.isSillyEnabled()).false();
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 478}","it('default levels, no transports', function () {
+        let logger = winston.createLogger({
+          level: 'verbose',
+          levels: winston.config.npm.levels,
+          transports: []
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(4);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isErrorEnabled).is.a('function');
+        assume(logger.isWarnEnabled).is.a('function');
+        assume(logger.isInfoEnabled).is.a('function');
+        assume(logger.isVerboseEnabled).is.a('function');
+        assume(logger.isDebugEnabled).is.a('function');
+        assume(logger.isSillyEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('error')).true();
+        assume(logger.isLevelEnabled('warn')).true();
+        assume(logger.isLevelEnabled('info')).true();
+        assume(logger.isLevelEnabled('verbose')).true();
+        assume(logger.isLevelEnabled('debug')).false();
+        assume(logger.isLevelEnabled('silly')).false();
+
+        assume(logger.isErrorEnabled()).true();
+        assume(logger.isWarnEnabled()).true();
+        assume(logger.isInfoEnabled()).true();
+        assume(logger.isVerboseEnabled()).true();
+        assume(logger.isDebugEnabled()).false();
+        assume(logger.isSillyEnabled()).false();
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 512}","it('custom levels', function () {
+        let logger = winston.createLogger({
+          level: 'test',
+          levels: {
+            bad: 0,
+            test: 1,
+            ok: 2
+          },
+          transports: [new winston.transports.Console()]
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(1);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isBadEnabled).is.a('function');
+        assume(logger.isTestEnabled).is.a('function');
+        assume(logger.isOkEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('bad')).true();
+        assume(logger.isLevelEnabled('test')).true();
+        assume(logger.isLevelEnabled('ok')).false();
+
+        assume(logger.isBadEnabled()).true();
+        assume(logger.isTestEnabled()).true();
+        assume(logger.isOkEnabled()).false();
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 541}","it('custom levels, no transports', function () {
+        let logger = winston.createLogger({
+          level: 'test',
+          levels: {
+            bad: 0,
+            test: 1,
+            ok: 2
+          },
+          transports: []
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(1);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isBadEnabled).is.a('function');
+        assume(logger.isTestEnabled).is.a('function');
+        assume(logger.isOkEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('bad')).true();
+        assume(logger.isLevelEnabled('test')).true();
+        assume(logger.isLevelEnabled('ok')).false();
+
+        assume(logger.isBadEnabled()).true();
+        assume(logger.isTestEnabled()).true();
+        assume(logger.isOkEnabled()).false();
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 570}","it('custom levels, transport override', function () {
+        let transport = new winston.transports.Console();
+        transport.level = 'ok';
+
+        let logger = winston.createLogger({
+          level: 'bad',
+          levels: {
+            bad: 0,
+            test: 1,
+            ok: 2
+          },
+          transports: [transport]
+        });
+
+        assume(logger.getHighestLogLevel).is.a('function');
+        assume(logger.getHighestLogLevel()).equals(2);
+
+        assume(logger.isLevelEnabled).is.a('function');
+
+        assume(logger.isBadEnabled).is.a('function');
+        assume(logger.isTestEnabled).is.a('function');
+        assume(logger.isOkEnabled).is.a('function');
+
+        assume(logger.isLevelEnabled('bad')).true();
+        assume(logger.isLevelEnabled('test')).true();
+        assume(logger.isLevelEnabled('ok')).true();
+
+        assume(logger.isBadEnabled()).true();
+        assume(logger.isTestEnabled()).true();
+        assume(logger.isOkEnabled()).true();
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 645}","it('error', (done) => {
+      const consoleTransport = new winston.transports.Console();
+      const logger = winston.createLogger({
+        transports: [consoleTransport]
+      });
+
+      logger.on('error', (err, transport) => {
+        assume(err).instanceOf(Error);
+        assume(transport).is.an('object');
+        done();
+      });
+      consoleTransport.emit('error', new Error());
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 659}","it('warn', (done) => {
+      const consoleTransport = new winston.transports.Console();
+      const logger = winston.createLogger({
+        transports: [consoleTransport]
+      });
+
+      logger.on('warn', (err, transport) => {
+        assume(err).instanceOf(Error);
+        assume(transport).is.an('object');
+        done();
+      });
+      consoleTransport.emit('warn', new Error());
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 712}","it('ending profiler with object argument should be included in output', function (done) {
+      let logger = helpers.createLogger(function (info) {
+        assume(info).is.an('object');
+        assume(info.something).equals('ok');
+        assume(info.level).equals('info');
+        assume(info.durationMs).is.a('number');
+        assume(info.message).equals('testing1');
+        assume(info[MESSAGE]).is.a('string');
+        done();
+      });
+
+      logger.profile('testing1');
+      setTimeout(function () {
+        logger.profile('testing1', {
+          something: 'ok',
+          level: 'info'
+        })
+      }, 100);
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 733}","it('calling profile with a callback function should not make a difference', function (done) {
+      let logger = helpers.createLogger(function (info) {
+        assume(info).is.an('object');
+        assume(info.something).equals('ok');
+        assume(info.level).equals('info');
+        assume(info.durationMs).is.a('number');
+        assume(info.message).equals('testing2');
+        assume(info[MESSAGE]).is.a('string');
+        done();
+      });
+
+      logger.profile('testing2', function () {
+        done(new Error('Unexpected callback invoked'));
+      });
+
+      setTimeout(function () {
+        logger.profile('testing2', {
+          something: 'ok',
+          level: 'info'
+        })
+      }, 100);
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 756}","it('should stop a timer when `done` is called on it', function (done) {
+      let logger = helpers.createLogger(function (info) {
+        assume(info).is.an('object');
+        assume(info.something).equals('ok');
+        assume(info.level).equals('info');
+        assume(info.durationMs).is.a('number');
+        assume(info.message).equals('testing1');
+        assume(info[MESSAGE]).is.a('string');
+        done();
+      });
+
+      let timer = logger.startTimer();
+      setTimeout(function () {
+        timer.done({
+          message: 'testing1',
+          something: 'ok',
+          level: 'info'
+        });
+      }, 100);
+    })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 836}","it('.info(undefined) creates info with { message: undefined }', function (done) {
+        const logger = helpers.createLogger(function (info) {
+          assume(info.message).equals(undefined);
+          done();
+        });
+
+        logger.info(undefined);
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 845}","it('.info(null) creates info with { message: null }', function (done) {
+        const logger = helpers.createLogger(function (info) {
+          assume(info.message).equals(null);
+          done();
+        });
+
+        logger.info(null);
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 854}","it('.info(new Error()) uses Error instance as info', function (done) {
+        const err = new Error('test');
+        const logger = helpers.createLogger(function (info) {
+          assume(info).instanceOf(Error);
+          assume(info).equals(err);
+          done();
+        });
+
+        logger.info(err);
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 871}","it('sets child meta for text messages correctly', (done) => {
+        const assertFn = ((msg) => {
+          assume(msg.level).equals('info');
+          assume(msg.message).equals('dummy message');
+          assume(msg.requestId).equals('451');
+          done();
+        });
+
+        const logger = winston.createLogger({
+          transports: [
+            mockTransport.createMockTransport(assertFn)
+          ]
+        });
+
+        const childLogger = logger.child({requestId: '451'});
+        childLogger.info('dummy message');
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 889}","it('sets child meta for json messages correctly', (done) => {
+        const assertFn = ((msg) => {
+          assume(msg.level).equals('info');
+          assume(msg.message.text).equals('dummy');
+          assume(msg.requestId).equals('451');
+          done();
+        });
+
+        const logger = winston.createLogger({
+          transports: [
+            mockTransport.createMockTransport(assertFn)
+          ]
+        });
+
+        const childLogger = logger.child({requestId: '451'});
+        childLogger.info({text: 'dummy'});
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 907}","it('merges child and provided meta correctly', (done) => {
+        const assertFn = ((msg) => {
+          assume(msg.level).equals('info');
+          assume(msg.message).equals('dummy message');
+          assume(msg.service).equals('user-service');
+          assume(msg.requestId).equals('451');
+          done();
+        });
+
+        const logger = winston.createLogger({
+          transports: [
+            mockTransport.createMockTransport(assertFn)
+          ]
+        });
+
+        const childLogger = logger.child({service: 'user-service'});
+        childLogger.info('dummy message', {requestId: '451'});
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 926}","it('provided meta take precedence over defaultMeta', (done) => {
+        const assertFn = ((msg) => {
+          assume(msg.level).equals('info');
+          assume(msg.message).equals('dummy message');
+          assume(msg.service).equals('audit-service');
+          assume(msg.requestId).equals('451');
+          done();
+        });
+
+        const logger = winston.createLogger({
+          defaultMeta: {service: 'user-service'},
+          transports: [
+            mockTransport.createMockTransport(assertFn)
+          ]
+        });
+
+        logger.info('dummy message', {
+          requestId: '451',
+          service: 'audit-service'
+        });
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 948}","it('provided meta take precedence over child meta', (done) => {
+        const assertFn = ((msg) => {
+          assume(msg.level).equals('info');
+          assume(msg.message).equals('dummy message');
+          assume(msg.service).equals('audit-service');
+          assume(msg.requestId).equals('451');
+          done();
+        });
+
+        const logger = winston.createLogger({
+          transports: [
+            mockTransport.createMockTransport(assertFn)
+          ]
+        });
+
+        const childLogger = logger.child({service: 'user-service'});
+        childLogger.info('dummy message', {
+          requestId: '451',
+          service: 'audit-service'
+        });
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 970}","it('handles error stack traces in child loggers correctly', (done) => {
+        const assertFn = ((msg) => {
+          assume(msg.level).equals('error');
+          assume(msg.message).equals('dummy error');
+          assume(msg.stack).includes('logger.test.js');
+          assume(msg.service).equals('user-service');
+          done();
+        });
+
+        const logger = winston.createLogger({
+          transports: [
+            mockTransport.createMockTransport(assertFn)
+          ]
+        });
+
+        const childLogger = logger.child({service: 'user-service'});
+        childLogger.error(Error('dummy error'));
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 989}","it('defaultMeta() autobinds correctly', (done) => {
+        const logger = helpers.createLogger(info => {
+          assume(info.message).equals('test');
+          done();
+        });
+
+        const log = logger.info;
+        log('test');
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 1003}","it('.log(level, message)', function (done) {
+        let logger = helpers.createLogger(function (info) {
+          assume(info).is.an('object');
+          assume(info.level).equals('info');
+          assume(info.message).equals('Some super awesome log message');
+          assume(info[MESSAGE]).is.a('string');
+          done();
+        });
+
+        logger.log('info', 'Some super awesome log message')
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 1044}","it('.log(level, message, meta)', function (done) {
+        let meta = {one: 2};
+        let logger = helpers.createLogger(function (info) {
+          assume(info).is.an('object');
+          assume(info.level).equals('info');
+          assume(info.message).equals('Some super awesome log message');
+          assume(info.one).equals(2);
+          assume(info[MESSAGE]).is.a('string');
+          done();
+        });
+
+        logger.log('info', 'Some super awesome log message', meta);
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 1058}","it('.log(level, formatStr, ...splat)', function (done) {
+        const format = winston.format.combine(
+            winston.format.splat(),
+            winston.format.printf(info => `${info.level}: ${info.message}`)
+        );
+
+        let logger = helpers.createLogger(function (info) {
+          assume(info).is.an('object');
+          assume(info.level).equals('info');
+          assume(info.message).equals('100% such wow {""much"":""javascript""}');
+          assume(info[SPLAT]).deep.equals([100, 'wow', {much: 'javascript'}]);
+          assume(info[MESSAGE]).equals('info: 100% such wow {""much"":""javascript""}');
+          done();
+        }, format);
+
+        logger.log('info', '%d%% such %s %j', 100, 'wow', {much: 'javascript'});
+      })",steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 1076}","it('.log(level, formatStr, ...splat, meta)', function (done) {
+        const format = winston.format.combine(
+            winston.format.splat(),
+            winston.format.printf(info => `${info.level}: ${info.message} ${JSON.stringify({thisIsMeta: info.thisIsMeta})}`)
+        );
+
+        let logger = helpers.createLogger(function (info) {
+          assume(info).is.an('object');
+          assume(info.level).equals('info');
+          assume(info.message).equals('100% such wow {""much"":""javascript""}');
+          assume(info[SPLAT]).deep.equals([100, 'wow', {much: 'javascript'}]);
+          assume(info.thisIsMeta).true();
+          assume(info[MESSAGE]).equals('info: 100% such wow {""much"":""javascript""} {""thisIsMeta"":true}');
+          done();
+        }, format);
+
+        logger.log('info', '%d%% such %s %j', 100, 'wow', {much: 'javascript'}, {thisIsMeta: true});
+      })",steel
+/test/unit/winston/logger-legacy.test.js,Unknown Test,"{'column': 6, 'line': 97}","it('.remove() is successful', function () {
+        const consoleTransport = new winston.transports.Console();
+        const legacyTransport = new TransportClass();
+
+        logger = winston.createLogger();
+        logger.add(consoleTransport);
+        logger.add(legacyTransport);
+
+        assume(logger.transports.length).equals(2);
+        logger.remove(legacyTransport);
+        assume(logger.transports.length).equals(1);
+        assume(logger.transports[0]).equals(consoleTransport);
+      })",steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 107, 'column': 10, 'index': 3508}","it('when strings are thrown as errors', async () => {
+          const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+
+          process.emit('uncaughtException', expectedMessage);
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          expect(processExitSpy).toHaveBeenCalledTimes(1);
+          expect(processExitSpy).toHaveBeenCalledWith(1);
+
+          // Read the log file and verify its contents
+          const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+          const data = JSON.parse(contents);
+
+          // Assert on the log data
+          assume(data).is.an('object');
+          helpers.assertProcessInfo(data.process);
+          helpers.assertOsInfo(data.os);
+          helpers.assertTrace(data.trace);
+          assume(data.message).includes('uncaughtException: ' + expectedMessage);
+        })",steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 108, 'column': 10, 'index': 3567}","it('when strings are thrown as errors', async () => {
+          const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+
+          process.emit('uncaughtException', expectedMessage);
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          expect(processExitSpy).toHaveBeenCalledTimes(1);
+          expect(processExitSpy).toHaveBeenCalledWith(1);
+
+          // Read the log file and verify its contents
+          const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+          const data = JSON.parse(contents);
+
+          // Assert on the log data
+          assume(data).is.an('object');
+          helpers.assertProcessInfo(data.process);
+          helpers.assertOsInfo(data.os);
+          helpers.assertTrace(data.trace);
+          assume(data.message).includes('uncaughtException: ' + expectedMessage);
+        })",steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 128, 'column': 10, 'index': 4397}","it('with a custom winston.Logger instance', async () => {
+          const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+
+          process.emit('uncaughtException', expectedMessage);
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          expect(processExitSpy).toHaveBeenCalledTimes(1);
+          expect(processExitSpy).toHaveBeenCalledWith(1);
+
+          // Read the log file and verify its contents
+          const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+          const data = JSON.parse(contents);
+
+          // Assert on the log data
+          assume(data).is.an('object');
+          helpers.assertProcessInfo(data.process);
+          helpers.assertOsInfo(data.os);
+          helpers.assertTrace(data.trace);
+          assume(data.message).includes('uncaughtException: ' + expectedMessage);
+        })",steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 129, 'column': 10, 'index': 4456}","it('with a custom winston.Logger instance', async () => {
+          const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+
+          process.emit('uncaughtException', expectedMessage);
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          expect(processExitSpy).toHaveBeenCalledTimes(1);
+          expect(processExitSpy).toHaveBeenCalledWith(1);
+
+          // Read the log file and verify its contents
+          const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+          const data = JSON.parse(contents);
+
+          // Assert on the log data
+          assume(data).is.an('object');
+          helpers.assertProcessInfo(data.process);
+          helpers.assertOsInfo(data.os);
+          helpers.assertTrace(data.trace);
+          assume(data.message).includes('uncaughtException: ' + expectedMessage);
+        })",steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 156, 'column': 8, 'index': 5448}","it('with the default winston logger', async () => {
+        const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+        winston.exceptions.handle([
+          new winston.transports.File({
+            filename: filePath,
+            handleExceptions: true
+          })
+        ]);
+
+        process.emit('uncaughtException', expectedMessage);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        expect(processExitSpy).toHaveBeenCalledTimes(1);
+        expect(processExitSpy).toHaveBeenCalledWith(1);
+
+        // Read the log file and verify its contents
+        const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+        const data = JSON.parse(contents);
+
+        // Assert on the log data
+        assume(data).is.an('object');
+        helpers.assertProcessInfo(data.process);
+        helpers.assertOsInfo(data.os);
+        helpers.assertTrace(data.trace);
+        assume(data.message).includes('uncaughtException: ' + expectedMessage);
+      })",steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 157, 'column': 8, 'index': 5505}","it('with the default winston logger', async () => {
+        const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+        winston.exceptions.handle([
+          new winston.transports.File({
+            filename: filePath,
+            handleExceptions: true
+          })
+        ]);
+
+        process.emit('uncaughtException', expectedMessage);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        expect(processExitSpy).toHaveBeenCalledTimes(1);
+        expect(processExitSpy).toHaveBeenCalledWith(1);
+
+        // Read the log file and verify its contents
+        const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+        const data = JSON.parse(contents);
+
+        // Assert on the log data
+        assume(data).is.an('object');
+        helpers.assertProcessInfo(data.process);
+        helpers.assertOsInfo(data.os);
+        helpers.assertTrace(data.trace);
+        assume(data.message).includes('uncaughtException: ' + expectedMessage);
+      })",steel
+/test/unit/winston/log-exception.test.js,Global Variable,"{'line': 24, 'column': 6, 'index': 764}","it('does not log to any transports', function (done) {
+      var logFile = path.join(testLogFixturesPath, 'unhandle-exception.log');
+
+      helpers.tryUnlink(logFile);
+
+      spawn('node', [path.join(testHelperScriptsPath, 'unhandle-exceptions.js')])
+        .on('exit', function () {
+          fs.exists(logFile, function (exists) {
+            assume(exists).false();
+            done();
+          });
+        });
+    })",steel
+/test/unit/winston/log-exception.test.js,Global Variable,"{'line': 38, 'column': 6, 'index': 1177}","it('handlers immutable', function () {
+      var logger = winston.createLogger({
+        exceptionHandlers: [
+          new winston.transports.Console(),
+          new winston.transports.File({ filename: path.join(testLogFixturesPath, 'filelog.log') })
+        ]
+      });
+
+      assume(logger.exceptions.handlers.size).equals(2);
+      assume(process.listeners('uncaughtException').length).equals(1);
+      logger.exceptions.unhandle();
+      assume(logger.exceptions.handlers.size).equals(2);
+      assume(process.listeners('uncaughtException').length).equals(0);
+    })",steel
+/test/unit/winston/log-exception.test.js,Magic Number,"{'line': 108, 'column': 54, 'index': 3611}","it('when strings are thrown as errors', async () => {
+          const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+
+          process.emit('uncaughtException', expectedMessage);
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          expect(processExitSpy).toHaveBeenCalledTimes(1);
+          expect(processExitSpy).toHaveBeenCalledWith(1);
+
+          // Read the log file and verify its contents
+          const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+          const data = JSON.parse(contents);
+
+          // Assert on the log data
+          assume(data).is.an('object');
+          helpers.assertProcessInfo(data.process);
+          helpers.assertOsInfo(data.os);
+          helpers.assertTrace(data.trace);
+          assume(data.message).includes('uncaughtException: ' + expectedMessage);
+        })",steel
+/test/unit/winston/log-exception.test.js,Magic Number,"{'line': 129, 'column': 54, 'index': 4500}","it('with a custom winston.Logger instance', async () => {
+          const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+
+          process.emit('uncaughtException', expectedMessage);
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          expect(processExitSpy).toHaveBeenCalledTimes(1);
+          expect(processExitSpy).toHaveBeenCalledWith(1);
+
+          // Read the log file and verify its contents
+          const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+          const data = JSON.parse(contents);
+
+          // Assert on the log data
+          assume(data).is.an('object');
+          helpers.assertProcessInfo(data.process);
+          helpers.assertOsInfo(data.os);
+          helpers.assertTrace(data.trace);
+          assume(data.message).includes('uncaughtException: ' + expectedMessage);
+        })",steel
+/test/unit/winston/log-exception.test.js,Magic Number,"{'line': 157, 'column': 52, 'index': 5549}","it('with the default winston logger', async () => {
+        const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+        winston.exceptions.handle([
+          new winston.transports.File({
+            filename: filePath,
+            handleExceptions: true
+          })
+        ]);
+
+        process.emit('uncaughtException', expectedMessage);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        expect(processExitSpy).toHaveBeenCalledTimes(1);
+        expect(processExitSpy).toHaveBeenCalledWith(1);
+
+        // Read the log file and verify its contents
+        const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+        const data = JSON.parse(contents);
+
+        // Assert on the log data
+        assume(data).is.an('object');
+        helpers.assertProcessInfo(data.process);
+        helpers.assertOsInfo(data.os);
+        helpers.assertTrace(data.trace);
+        assume(data.message).includes('uncaughtException: ' + expectedMessage);
+      })",steel
+/test/unit/winston/log-exception.test.js,Mystery Guest,"{'column': 10, 'line': 30}","it('does not log to any transports', function (done) {
+      var logFile = path.join(testLogFixturesPath, 'unhandle-exception.log');
+
+      helpers.tryUnlink(logFile);
+
+      spawn('node', [path.join(testHelperScriptsPath, 'unhandle-exceptions.js')])
+        .on('exit', function () {
+          fs.exists(logFile, function (exists) {
+            assume(exists).false();
+            done();
+          });
+        });
+    })",steel
+/test/unit/winston/log-exception.test.js,Sleepy Test,"{'line': 62, 'column': 4, 'index': 2016}","it('Custom exitOnError function does not exit', function (done) {
+    const child = spawn('node', [path.join(testHelperScriptsPath, 'exit-on-error.js')]);
+    const stdout = [];
+
+    child.stdout.setEncoding('utf8');
+    child.stdout.on('data', function (line) {
+      stdout.push(line);
+    });
+
+    setTimeout(function () {
+      assume(child.killed).false();
+      assume(stdout).deep.equals(['Ignore this error']);
+      child.kill();
+      done();
+    }, 1000);
+  })",steel
+/test/unit/winston/log-exception.test.js,Sleepy Test,"{'line': 105, 'column': 39, 'index': 3470}","it('when strings are thrown as errors', async () => {
+          const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+
+          process.emit('uncaughtException', expectedMessage);
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          expect(processExitSpy).toHaveBeenCalledTimes(1);
+          expect(processExitSpy).toHaveBeenCalledWith(1);
+
+          // Read the log file and verify its contents
+          const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+          const data = JSON.parse(contents);
+
+          // Assert on the log data
+          assume(data).is.an('object');
+          helpers.assertProcessInfo(data.process);
+          helpers.assertOsInfo(data.os);
+          helpers.assertTrace(data.trace);
+          assume(data.message).includes('uncaughtException: ' + expectedMessage);
+        })",steel
+/test/unit/winston/log-exception.test.js,Sleepy Test,"{'line': 126, 'column': 39, 'index': 4359}","it('with a custom winston.Logger instance', async () => {
+          const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+
+          process.emit('uncaughtException', expectedMessage);
+          await new Promise(resolve => setTimeout(resolve, 500));
+
+          expect(processExitSpy).toHaveBeenCalledTimes(1);
+          expect(processExitSpy).toHaveBeenCalledWith(1);
+
+          // Read the log file and verify its contents
+          const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+          const data = JSON.parse(contents);
+
+          // Assert on the log data
+          assume(data).is.an('object');
+          helpers.assertProcessInfo(data.process);
+          helpers.assertOsInfo(data.os);
+          helpers.assertTrace(data.trace);
+          assume(data.message).includes('uncaughtException: ' + expectedMessage);
+        })",steel
+/test/unit/winston/log-exception.test.js,Sleepy Test,"{'line': 154, 'column': 37, 'index': 5412}","it('with the default winston logger', async () => {
+        const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+        winston.exceptions.handle([
+          new winston.transports.File({
+            filename: filePath,
+            handleExceptions: true
+          })
+        ]);
+
+        process.emit('uncaughtException', expectedMessage);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        expect(processExitSpy).toHaveBeenCalledTimes(1);
+        expect(processExitSpy).toHaveBeenCalledWith(1);
+
+        // Read the log file and verify its contents
+        const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+        const data = JSON.parse(contents);
+
+        // Assert on the log data
+        assume(data).is.an('object');
+        helpers.assertProcessInfo(data.process);
+        helpers.assertOsInfo(data.os);
+        helpers.assertTrace(data.trace);
+        assume(data.message).includes('uncaughtException: ' + expectedMessage);
+      })",steel
+/test/unit/winston/log-exception.test.js,Unknown Test,"{'column': 4, 'line': 23}","it('does not log to any transports', function (done) {
+      var logFile = path.join(testLogFixturesPath, 'unhandle-exception.log');
+
+      helpers.tryUnlink(logFile);
+
+      spawn('node', [path.join(testHelperScriptsPath, 'unhandle-exceptions.js')])
+        .on('exit', function () {
+          fs.exists(logFile, function (exists) {
+            assume(exists).false();
+            done();
+          });
+        });
+    })",steel
+/test/unit/winston/log-exception.test.js,Unknown Test,"{'column': 4, 'line': 37}","it('handlers immutable', function () {
+      var logger = winston.createLogger({
+        exceptionHandlers: [
+          new winston.transports.Console(),
+          new winston.transports.File({ filename: path.join(testLogFixturesPath, 'filelog.log') })
+        ]
+      });
+
+      assume(logger.exceptions.handlers.size).equals(2);
+      assume(process.listeners('uncaughtException').length).equals(1);
+      logger.exceptions.unhandle();
+      assume(logger.exceptions.handlers.size).equals(2);
+      assume(process.listeners('uncaughtException').length).equals(0);
+    })",steel
+/test/unit/winston/log-exception.test.js,Unknown Test,"{'column': 2, 'line': 53}","it('Custom exitOnError function does not exit', function (done) {
+    const child = spawn('node', [path.join(testHelperScriptsPath, 'exit-on-error.js')]);
+    const stdout = [];
+
+    child.stdout.setEncoding('utf8');
+    child.stdout.on('data', function (line) {
+      stdout.push(line);
+    });
+
+    setTimeout(function () {
+      assume(child.killed).false();
+      assume(stdout).deep.equals(['Ignore this error']);
+      child.kill();
+      done();
+    }, 1000);
+  })",steel
+/test/unit/winston/exception-stream.test.js,Global Variable,"{'line': 26, 'column': 4, 'index': 738}","it('has expected methods', function () {
+    var filename = path.join(testLogFixturesPath, 'exception-stream.log');
+    var transport = new winston.transports.File({ filename });
+    var instance = new ExceptionStream(transport);
+
+    assume(instance.handleExceptions).is.true();
+    assume(instance.transport).equals(transport);
+    assume(instance._write).is.a('function');
+    assume(instance).instanceof(ExceptionStream);
+    assume(instance).inherits(Writable);
+  })",steel
+/test/unit/winston/exception-stream.test.js,Global Variable,"{'line': 27, 'column': 4, 'index': 813}","it('has expected methods', function () {
+    var filename = path.join(testLogFixturesPath, 'exception-stream.log');
+    var transport = new winston.transports.File({ filename });
+    var instance = new ExceptionStream(transport);
+
+    assume(instance.handleExceptions).is.true();
+    assume(instance.transport).equals(transport);
+    assume(instance._write).is.a('function');
+    assume(instance).instanceof(ExceptionStream);
+    assume(instance).inherits(Writable);
+  })",steel
+/test/unit/winston/exception-stream.test.js,Global Variable,"{'line': 28, 'column': 4, 'index': 876}","it('has expected methods', function () {
+    var filename = path.join(testLogFixturesPath, 'exception-stream.log');
+    var transport = new winston.transports.File({ filename });
+    var instance = new ExceptionStream(transport);
+
+    assume(instance.handleExceptions).is.true();
+    assume(instance.transport).equals(transport);
+    assume(instance._write).is.a('function');
+    assume(instance).instanceof(ExceptionStream);
+    assume(instance).inherits(Writable);
+  })",steel
+/test/unit/winston/exception-stream.test.js,Unknown Test,"{'column': 2, 'line': 25}","it('has expected methods', function () {
+    var filename = path.join(testLogFixturesPath, 'exception-stream.log');
+    var transport = new winston.transports.File({ filename });
+    var instance = new ExceptionStream(transport);
+
+    assume(instance.handleExceptions).is.true();
+    assume(instance.transport).equals(transport);
+    assume(instance._write).is.a('function');
+    assume(instance).instanceof(ExceptionStream);
+    assume(instance).inherits(Writable);
+  })",steel
+/test/unit/winston/exception-stream.test.js,Unknown Test,"{'column': 2, 'line': 37}","it('throws without a transport', function () {
+    const invalidInstantation = () => new ExceptionStream();
+
+    assume(invalidInstantation).throws('ExceptionStream requires a TransportStream instance.');
+  })",steel
+/test/unit/winston/exception-stream.test.js,Unknown Test,"{'column': 4, 'line': 58}","it('should write to the transport when the exception property is false', async function () {
+      const info = {
+        level: 'error',
+        message: 'Test exception message',
+        exception: true,
+        timestamp: new Date().toISOString()
+      };
+
+      await writeToStreamAsync(exceptionStream, info);
+
+      assume(transportLogCalls).to.be.length(1);
+    })",steel
+/test/unit/winston/create-logger.test.js,Conditional Test Logic,"{'line': 84, 'column': 20, 'index': 2578}","it('new Logger({ levels }) custom methods are not bound to instance', function (done) {
+        let logger = winston.createLogger({
+            level: 'error',
+            exitOnError: false,
+            transports: []
+        });
+
+        let logs = [];
+        let extendedLogger = Object.create(logger, {
+            write: {
+                value: function (...args) {
+                    logs.push(args);
+                    if (logs.length === 4) {
+                        assume(logs.length).is.eql(4);
+                        assume(logs[0]).is.eql([{test: 1, level: 'info'}]);
+                        assume(logs[1]).is.eql([{test: 2, level: 'warn'}]);
+                        assume(logs[2]).is.eql([{message: 'test3', level: 'info'}])
+                        assume(logs[3]).is.eql([{
+                            with: 'meta',
+                            test: 4,
+                            level: 'warn',
+                            message: 'a warning'
+                        }]);
+
+                        done();
+                    }
+                }
+            }
+        });
+
+        extendedLogger.log('info', {test: 1});
+        extendedLogger.log('warn', {test: 2});
+        extendedLogger.info('test3');
+        extendedLogger.warn('a warning', {with: 'meta', test: 4});
+    })",steel
+/test/unit/winston/create-logger.test.js,Global Variable,"{'line': 23, 'column': 8, 'index': 819}","it('new Logger({ silent: true })', function (done) {
+        const neverLogTo = new TransportStream({
+            log: function (info) {
+                assume(false).true('TransportStream was improperly written to');
+            }
+        });
+
+        var logger = winston.createLogger({
+            transports: [neverLogTo],
+            silent: true
+        });
+
+        logger.log({
+            level: 'info',
+            message: 'This should be ignored'
+        });
+
+        setImmediate(() => done());
+    })",steel
+/test/unit/winston/create-logger.test.js,Unknown Test,"{'column': 4, 'line': 8}","it('should build a logger with default values', function () {
+        let logger = winston.createLogger();
+        assume(logger).is.an('object');
+        assume(isStream(logger.format));
+        assume(logger.level).equals('info');
+        assume(logger.exitOnError).equals(true);
+    })",steel
+/test/unit/winston/create-logger.test.js,Unknown Test,"{'column': 4, 'line': 16}","it('new Logger({ silent: true })', function (done) {
+        const neverLogTo = new TransportStream({
+            log: function (info) {
+                assume(false).true('TransportStream was improperly written to');
+            }
+        });
+
+        var logger = winston.createLogger({
+            transports: [neverLogTo],
+            silent: true
+        });
+
+        logger.log({
+            level: 'info',
+            message: 'This should be ignored'
+        });
+
+        setImmediate(() => done());
+    })",steel
+/test/unit/winston/create-logger.test.js,Unknown Test,"{'column': 4, 'line': 36}","it('new Logger({ parameters })', function () {
+        let myFormat = format(function (info, opts) {
+            return info;
+        })();
+
+        let logger = winston.createLogger({
+            format: myFormat,
+            level: 'error',
+            exitOnError: false,
+            transports: []
+        });
+
+        assume(logger.format).equals(myFormat);
+        assume(logger.level).equals('error');
+        assume(logger.exitOnError).equals(false);
+        assume(logger._readableState.pipesCount).equals(0);
+    })",steel
+/test/unit/winston/create-logger.test.js,Unknown Test,"{'column': 4, 'line': 54}","it('new Logger({ levels }) defines custom methods', function () {
+        let myFormat = format(function (info, opts) {
+            return info;
+        })();
+
+        let logger = winston.createLogger({
+            levels: winston.config.syslog.levels,
+            format: myFormat,
+            level: 'error',
+            exitOnError: false,
+            transports: []
+        });
+
+        Object.keys(winston.config.syslog.levels).forEach(level => {
+            assume(logger[level]).is.a('function');
+        })
+    })",steel
+/test/unit/winston/create-logger.test.js,Unknown Test,"{'column': 4, 'line': 72}","it('new Logger({ levels }) custom methods are not bound to instance', function (done) {
+        let logger = winston.createLogger({
+            level: 'error',
+            exitOnError: false,
+            transports: []
+        });
+
+        let logs = [];
+        let extendedLogger = Object.create(logger, {
+            write: {
+                value: function (...args) {
+                    logs.push(args);
+                    if (logs.length === 4) {
+                        assume(logs.length).is.eql(4);
+                        assume(logs[0]).is.eql([{test: 1, level: 'info'}]);
+                        assume(logs[1]).is.eql([{test: 2, level: 'warn'}]);
+                        assume(logs[2]).is.eql([{message: 'test3', level: 'info'}])
+                        assume(logs[3]).is.eql([{
+                            with: 'meta',
+                            test: 4,
+                            level: 'warn',
+                            message: 'a warning'
+                        }]);
+
+                        done();
+                    }
+                }
+            }
+        });
+
+        extendedLogger.log('info', {test: 1});
+        extendedLogger.log('warn', {test: 2});
+        extendedLogger.info('test3');
+        extendedLogger.warn('a warning', {with: 'meta', test: 4});
+    })",steel
+/test/unit/winston/container.test.js,Global Variable,"{'line': 14, 'column': 4, 'index': 276}","describe('no transports', function () {
+    var container = new winston.Container();
+    var defaultTest;
+
+    it('.add(default-test)', function () {
+      defaultTest = container.add('default-test');
+      assume(defaultTest.log).is.a('function');
+    });
+
+    it('.get(default-test)', function () {
+      assume(container.get('default-test')).equals(defaultTest);
+    });
+
+    it('.has(default-test)', function () {
+      assume(container.has('default-test')).true();
+    });
+
+    it('.has(not-has)', function () {
+      assume(container.has('not-has')).false();
+    });
+
+    it('.close(default-test)', function () {
+      container.close('default-test');
+      assume(container.loggers.has('default-test')).falsy();
+    });
+
+    it('.close(non-existent)', function () {
+      container.close('non-existent');
+      assume(container.loggers.has('non-existent')).falsy();
+    });
+
+    it('.close()', function () {
+      container.close();
+      assume(container.loggers.has()).falsy();
+    });
+  })",steel
+/test/unit/winston/container.test.js,Global Variable,"{'line': 15, 'column': 4, 'index': 321}","describe('no transports', function () {
+    var container = new winston.Container();
+    var defaultTest;
+
+    it('.add(default-test)', function () {
+      defaultTest = container.add('default-test');
+      assume(defaultTest.log).is.a('function');
+    });
+
+    it('.get(default-test)', function () {
+      assume(container.get('default-test')).equals(defaultTest);
+    });
+
+    it('.has(default-test)', function () {
+      assume(container.has('default-test')).true();
+    });
+
+    it('.has(not-has)', function () {
+      assume(container.has('not-has')).false();
+    });
+
+    it('.close(default-test)', function () {
+      container.close('default-test');
+      assume(container.loggers.has('default-test')).falsy();
+    });
+
+    it('.close(non-existent)', function () {
+      container.close('non-existent');
+      assume(container.loggers.has('non-existent')).falsy();
+    });
+
+    it('.close()', function () {
+      container.close();
+      assume(container.loggers.has()).falsy();
+    });
+  })",steel
+/test/unit/winston/container.test.js,Global Variable,"{'line': 51, 'column': 4, 'index': 1286}","describe('explicit transports', function () {
+    var transports = [new winston.transports.Http({ port: 9412 })];
+    var container = new winston.Container({ transports: transports });
+    var all = {};
+
+    it('.get(some-logger)', function () {
+      all.someLogger = container.get('some-logger');
+      assume(all.someLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someLogger._readableState.pipes).equals(transports[0]);
+    });
+
+    it('.get(some-other-logger)', function () {
+      all.someOtherLogger = container.get('some-other-logger');
+
+      assume(all.someOtherLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someOtherLogger._readableState.pipes).equals(transports[0]);
+      assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
+    });
+  })",steel
+/test/unit/winston/container.test.js,Global Variable,"{'line': 52, 'column': 4, 'index': 1354}","describe('explicit transports', function () {
+    var transports = [new winston.transports.Http({ port: 9412 })];
+    var container = new winston.Container({ transports: transports });
+    var all = {};
+
+    it('.get(some-logger)', function () {
+      all.someLogger = container.get('some-logger');
+      assume(all.someLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someLogger._readableState.pipes).equals(transports[0]);
+    });
+
+    it('.get(some-other-logger)', function () {
+      all.someOtherLogger = container.get('some-other-logger');
+
+      assume(all.someOtherLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someOtherLogger._readableState.pipes).equals(transports[0]);
+      assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
+    });
+  })",steel
+/test/unit/winston/container.test.js,Global Variable,"{'line': 53, 'column': 4, 'index': 1425}","describe('explicit transports', function () {
+    var transports = [new winston.transports.Http({ port: 9412 })];
+    var container = new winston.Container({ transports: transports });
+    var all = {};
+
+    it('.get(some-logger)', function () {
+      all.someLogger = container.get('some-logger');
+      assume(all.someLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someLogger._readableState.pipes).equals(transports[0]);
+    });
+
+    it('.get(some-other-logger)', function () {
+      all.someOtherLogger = container.get('some-other-logger');
+
+      assume(all.someOtherLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someOtherLogger._readableState.pipes).equals(transports[0]);
+      assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
+    });
+  })",steel
+/test/unit/winston/container.test.js,Global Variable,"{'line': 71, 'column': 4, 'index': 2163}","describe('explicit non-array transport', function () {
+    var transport = new winston.transports.Http({ port: 9412 });
+    var container = new winston.Container({ transports: transport });
+    var all = {};
+
+    it('.get(some-logger)', function () {
+      all.someLogger = container.get('some-logger');
+      assume(all.someLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someLogger._readableState.pipes).equals(transport);
+    });
+
+    it('.get(some-other-logger)', function () {
+      all.someOtherLogger = container.get('some-other-logger');
+
+      assume(all.someOtherLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someOtherLogger._readableState.pipes).equals(transport);
+      assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
+    });
+  })",steel
+/test/unit/winston/container.test.js,Global Variable,"{'line': 72, 'column': 4, 'index': 2228}","describe('explicit non-array transport', function () {
+    var transport = new winston.transports.Http({ port: 9412 });
+    var container = new winston.Container({ transports: transport });
+    var all = {};
+
+    it('.get(some-logger)', function () {
+      all.someLogger = container.get('some-logger');
+      assume(all.someLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someLogger._readableState.pipes).equals(transport);
+    });
+
+    it('.get(some-other-logger)', function () {
+      all.someOtherLogger = container.get('some-other-logger');
+
+      assume(all.someOtherLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someOtherLogger._readableState.pipes).equals(transport);
+      assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
+    });
+  })",steel
+/test/unit/winston/container.test.js,Global Variable,"{'line': 73, 'column': 4, 'index': 2298}","describe('explicit non-array transport', function () {
+    var transport = new winston.transports.Http({ port: 9412 });
+    var container = new winston.Container({ transports: transport });
+    var all = {};
+
+    it('.get(some-logger)', function () {
+      all.someLogger = container.get('some-logger');
+      assume(all.someLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someLogger._readableState.pipes).equals(transport);
+    });
+
+    it('.get(some-other-logger)', function () {
+      all.someOtherLogger = container.get('some-other-logger');
+
+      assume(all.someOtherLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someOtherLogger._readableState.pipes).equals(transport);
+      assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
+    });
+  })",steel
+/test/unit/winston/container.test.js,Unknown Test,"{'column': 4, 'line': 17}","it('.add(default-test)', function () {
+      defaultTest = container.add('default-test');
+      assume(defaultTest.log).is.a('function');
+    })",steel
+/test/unit/winston/container.test.js,Unknown Test,"{'column': 4, 'line': 22}","it('.get(default-test)', function () {
+      assume(container.get('default-test')).equals(defaultTest);
+    })",steel
+/test/unit/winston/container.test.js,Unknown Test,"{'column': 4, 'line': 26}","it('.has(default-test)', function () {
+      assume(container.has('default-test')).true();
+    })",steel
+/test/unit/winston/container.test.js,Unknown Test,"{'column': 4, 'line': 30}","it('.has(not-has)', function () {
+      assume(container.has('not-has')).false();
+    })",steel
+/test/unit/winston/container.test.js,Unknown Test,"{'column': 4, 'line': 34}","it('.close(default-test)', function () {
+      container.close('default-test');
+      assume(container.loggers.has('default-test')).falsy();
+    })",steel
+/test/unit/winston/container.test.js,Unknown Test,"{'column': 4, 'line': 39}","it('.close(non-existent)', function () {
+      container.close('non-existent');
+      assume(container.loggers.has('non-existent')).falsy();
+    })",steel
+/test/unit/winston/container.test.js,Unknown Test,"{'column': 4, 'line': 44}","it('.close()', function () {
+      container.close();
+      assume(container.loggers.has()).falsy();
+    })",steel
+/test/unit/winston/container.test.js,Unknown Test,"{'column': 4, 'line': 55}","it('.get(some-logger)', function () {
+      all.someLogger = container.get('some-logger');
+      assume(all.someLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someLogger._readableState.pipes).equals(transports[0]);
+    })",steel
+/test/unit/winston/container.test.js,Unknown Test,"{'column': 4, 'line': 61}","it('.get(some-other-logger)', function () {
+      all.someOtherLogger = container.get('some-other-logger');
+
+      assume(all.someOtherLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someOtherLogger._readableState.pipes).equals(transports[0]);
+      assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
+    })",steel
+/test/unit/winston/container.test.js,Unknown Test,"{'column': 4, 'line': 75}","it('.get(some-logger)', function () {
+      all.someLogger = container.get('some-logger');
+      assume(all.someLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someLogger._readableState.pipes).equals(transport);
+    })",steel
+/test/unit/winston/container.test.js,Unknown Test,"{'column': 4, 'line': 81}","it('.get(some-other-logger)', function () {
+      all.someOtherLogger = container.get('some-other-logger');
+
+      assume(all.someOtherLogger._readableState.pipes).instanceOf(winston.transports.Http);
+      assume(all.someOtherLogger._readableState.pipes).equals(transport);
+      assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
+    })",steel
+/test/unit/winston/transports/stream.test.js,Unknown Test,"{'column': 2, 'line': 12}","it('should support objectMode streams', function (done) {
+    const expected = {
+      level: 'info',
+      message: 'lolwut testing!'
+    };
+
+    const stream = writeable(function (info) {
+      assume(info).equals(expected);
+      done();
+    });
+
+    const transport = new winston.transports.Stream({ stream });
+    transport.log(expected);
+  })",steel
+/test/unit/winston/transports/stream.test.js,Unknown Test,"{'column': 2, 'line': 27}","it('should support UTF8 encoding streams', function (done) {
+    const expected = {
+      level: 'info',
+      message: 'lolwut testing!',
+      [MESSAGE]: 'info: lolwut testing!'
+    };
+
+    const stream = writeable(function (raw) {
+      assume(raw.toString()).equals(`${expected[MESSAGE]}${os.EOL}`);
+      done();
+    }, false);
+
+    const transport = new winston.transports.Stream({ stream });
+    transport.log(expected);
+  })",steel
+/test/unit/winston/transports/stream.test.js,Unknown Test,"{'column': 2, 'line': 43}","it('should throw when not passed a stream', function () {
+    assume(function () {
+      const stream = new winston.transports.Stream()
+    }).throws('options.stream is required.');''
+  })",steel
+/test/unit/winston/transports/http.test.js,Conditional Test Logic,"{'line': 36, 'column': 2, 'index': 727}",Unknown,steel
+/test/unit/winston/transports/http.test.js,Global Variable,"{'line': 30, 'column': 2, 'index': 581}",Unknown,steel
+/test/unit/winston/transports/http.test.js,Unknown Test,"{'column': 4, 'line': 69}","it('should send logs over HTTP', function (done) {
+      const httpTransport = new Http({
+        host: host,
+        port: server.address().port,
+        path: 'log'
+      }).on('error', assumeError).on('logged', function () {
+        onLogged(context, done);
+      });
+      httpTransport.log(dummyLog, assumeError);
+    })",steel
+/test/unit/winston/transports/http.test.js,Unknown Test,"{'column': 4, 'line': 89}","it('test max message reached', function (done) {
+      const httpTransport = new Http({
+        host: host,
+        port: server.address().port,
+        path: 'log',
+        batch: true,
+        batchCount: 5
+      })
+        .on('error', assumeError)
+        .on('logged', function () {
+          onLogged(context, done);
+        });
+
+      httpTransport.log(dummyLog, assumeError);
+      httpTransport.log(dummyLog, assumeError);
+      httpTransport.log(dummyLog, assumeError);
+      httpTransport.log(dummyLog, assumeError);
+      httpTransport.log(dummyLog, assumeError);
+    })",steel
+/test/unit/winston/transports/http.test.js,Unknown Test,"{'column': 4, 'line': 118}","it('test timeout reached', function (done) {
+      jest.setTimeout(5000);
+      const httpTransport = new Http({
+        host: host,
+        port: server.address().port,
+        path: 'log',
+        batch: true,
+        batchCount: 5,
+        batchInterval: 2000
+      })
+        .on('error', assumeError)
+        .on('logged', function () {
+          onLogged(context, done);
+        });
+
+      httpTransport.log(dummyLog, assumeError);
+      httpTransport.log(dummyLog, assumeError);
+    })",steel
+/test/unit/winston/transports/http.test.js,Unknown Test,"{'column': 4, 'line': 153}","it('should be able to handle options with circular structure', function (done) {
+      const httpTransport = new Http({
+        host: host,
+        port: server.address().port,
+        path: 'log'
+      })
+        .on('error', assumeError)
+        .on('logged', function () {
+          onLogged(context, done);
+        });
+
+      httpTransport.log(circularLog, assumeError);
+    })",steel
+/test/unit/winston/transports/http.test.js,Unknown Test,"{'column': 4, 'line': 167}","it('should be able to handle options with circular structure when passing maximumDepth', function (done) {
+      const httpTransport = new Http({
+        host: host,
+        maximumDepth: 5,
+        port: server.address().port,
+        path: 'log'
+      })
+        .on('error', assumeError)
+        .on('logged', function () {
+          onLogged(context, done);
+        });
+
+      httpTransport.log(circularLog, assumeError);
+    })",steel
+/test/unit/winston/transports/file.test.js,Conditional Test Logic,"{'line': 31, 'column': 2, 'index': 1456}",Unknown,steel
+/test/unit/winston/transports/file.test.js,Conditional Test Logic,"{'line': 53, 'column': 2, 'index': 2357}",Unknown,steel
+/test/unit/winston/transports/file.test.js,Sleepy Test,"{'line': 266, 'column': 35, 'index': 9201}","it('should not exceed the max files', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        maxsize: 2024, // Small size to trigger frequent rotations
+        maxFiles: 3, // Only allow 3 files total
+        lazy: true
+      });
+
+      // Log well beyond enough data to create 3 files
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+
+      // Wait for the last expected file
+      await new Promise(resolve => setTimeout(resolve, 5000));
+
+      // Should have 3 files total (maxFiles)
+      assertFileExists('testarchive.log');
+      assertFileExists('testarchive1.log');
+      assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
+    }, 10000)",steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 130}","it('should log to the file with the given filename', async function () {
+      const expectedFilename = 'testfilename.log';
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        filename: expectedFilename
+      });
+
+      await logToTransport(transport);
+      await waitForFile(expectedFilename);
+
+      assertFileExists(expectedFilename);
+    })",steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 145}","it('should create multiple files correctly with rotation Function', async function () {
+      let i = 0;
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        rotationFormat: () => `_${i++}`
+      });
+
+      await logToTransport(transport, { kbytes: 4 });
+      await waitForFile('testarchive.log');
+
+      await logToTransport(transport, { kbytes: 4 });
+      await waitForFile('testarchive_1.log');
+
+      assertFileExists('testarchive.log');
+      assertFileExists('testarchive_1.log');
+    })",steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 164}","it('should archive log file when max size is exceeded', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        zippedArchive: true
+      });
+
+      await logToTransport(transport, { kbytes: 1 });
+      await waitForFile('testarchive.log');
+      assertFileExists('testarchive.log');
+      assertFileDoesNotExist('testarchive1.log');
+
+      await logToTransport(transport, { kbytes: 4 });
+      await waitForFile('testarchive1.log');
+      assertFileExists('testarchive.log.gz');
+      assertFileExists('testarchive1.log');
+
+      await logToTransport(transport, { kbytes: 4 });
+      await waitForFile('testarchive2.log');
+      assertFileExists('testarchive1.log.gz');
+      assertFileExists('testarchive2.log');
+    })",steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 186}","it('should not archive log file when max size is exceeded', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        zippedArchive: false
+      });
+
+      await logToTransport(transport, { kbytes: 1 });
+      await waitForFile('testarchive.log');
+      assertFileExists('testarchive.log');
+      assertFileDoesNotExist('testarchive1.log');
+
+      await logToTransport(transport, { kbytes: 4 });
+      await waitForFile('testarchive1.log');
+      assertFileExists('testarchive.log');
+      assertFileExists('testarchive1.log');
+
+      await logToTransport(transport, { kbytes: 4 });
+      await waitForFile('testarchive2.log');
+      assertFileExists('testarchive1.log');
+      assertFileExists('testarchive2.log');
+    })",steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 210}","it('should create a new file the configured max size is exceeded', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        maxsize: 2048
+      });
+
+      await logToTransport(transport, { kbytes: 1 });
+      await waitForFile('testarchive.log');
+
+      await logToTransport(transport, { kbytes: 2 });
+      await waitForFile('testarchive1.log');
+
+      // Verify both files exist after rotation
+      assertFileExists('testarchive.log');
+      assertFileExists('testarchive1.log');
+    })",steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 227}","it('should not exceed max size for any file', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        maxsize: 2048
+      });
+
+      await logToTransport(transport, { kbytes: 3 });
+      await waitForFile('testarchive.log');
+
+      await logToTransport(transport, { kbytes: 2 });
+      await waitForFile('testarchive1.log');
+      await waitForFile('testarchive2.log');
+
+      // Verify both files exist after rotation
+      assertFileSizeLessThan('testarchive.log', 2048);
+      assertFileSizeLessThan('testarchive1.log', 2048);
+      assertFileSizeLessThan('testarchive2.log', 2048);
+    })",steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 248}","it('should not exceed the max files', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        maxsize: 2024, // Small size to trigger frequent rotations
+        maxFiles: 3, // Only allow 3 files total
+        lazy: true
+      });
+
+      // Log well beyond enough data to create 3 files
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+      await logToTransport(transport);
+
+      // Wait for the last expected file
+      await new Promise(resolve => setTimeout(resolve, 5000));
+
+      // Should have 3 files total (maxFiles)
+      assertFileExists('testarchive.log');
+      assertFileExists('testarchive1.log');
+      assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
+    }, 10000)",steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 274}","it('should delete the oldest file when maxfiles is met', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        maxsize: 1024, // Small size to trigger frequent rotations
+        maxFiles: 2, // Only allow 2 files total
+        lazy: true // Ensure files are created immediately
+      });
+
+      // Create first log file
+      await logToTransport(transport);
+      await waitForFile('testarchive.log');
+
+      // Create second log file
+      await logToTransport(transport);
+      await waitForFile('testarchive1.log');
+
+      // Create third log file (should delete the oldest one)
+      await logToTransport(transport, { kbytes: 0.5 });
+      await waitForFile('testarchive2.log');
+
+      // Should only have 2 most recent files (maxFiles = 2)
+      assertFileDoesNotExist('testarchive.log'); // The oldest file should be deleted
+      assertFileExists('testarchive1.log');
+      assertFileExists('testarchive2.log');
+    })",steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 303}","it('should write to original file and older files will be in ascending order', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        maxFiles: 4,
+        tailable: true
+      });
+
+      // We need to log enough data to create 3 files of 4KB each = 12KB total
+      await logToTransport(transport, { kbytes: 4, char: 'A' });
+      await waitForFile('testarchive.log');
+      await logToTransport(transport, { kbytes: 4, char: 'B' });
+      await waitForFile('testarchive1.log');
+      await logToTransport(transport, { kbytes: 4, char: 'C' });
+      await waitForFile('testarchive2.log');
+      await logToTransport(transport, { kbytes: 1, char: 'D' });
+      await waitForFile('testarchive3.log');
+
+      // Verify the expected files exist and their contents are correct
+      assertFileExists('testarchive.log');
+      assertFileExists('testarchive1.log');
+      assertFileExists('testarchive2.log');
+      assertFileExists('testarchive3.log');
+
+      // Verify the contents of the files are in the expected order
+      assertFileContentsStartWith('testarchive.log', 'D');
+      assertFileContentsStartWith('testarchive1.log', 'C');
+      assertFileContentsStartWith('testarchive2.log', 'B');
+      // FIX: I would expect the first file that was rolled to be filled with the first log message
+      // instead the file is empty. Investigation needed.
+      // assertFileContentsStartWith('testarchive3.log', 'A');
+    })",steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 335}","it('should write to the newest file and older files will be in descending order', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        tailable: false
+      });
+
+      // We need to log enough data to create 3 files of 4KB each = 12KB total
+      await logToTransport(transport, { kbytes: 4, char: 'A' });
+      await waitForFile('testarchive.log');
+      await logToTransport(transport, { kbytes: 4, char: 'B' });
+      await waitForFile('testarchive1.log');
+      await logToTransport(transport, { kbytes: 4, char: 'C' });
+      await waitForFile('testarchive2.log');
+
+      // Verify the expected files exist
+      assertFileExists('testarchive.log');
+      assertFileExists('testarchive1.log');
+      assertFileExists('testarchive2.log');
+
+      // Verify the contents of the files are in the expected order
+      // eslint-disable-next-line -- intentionally asserting file starts with no values
+      assertFileContentsStartWith('testarchive.log', undefined);
+      // FIX: only two of the files are filled and are not in the expected order. File contents are as follows:
+      //   file testarchive.log  - empty
+      //   file testarchive1.log - 'B'
+      //   file testarchive2.log - 'C'
+      //   file testarchive3.log - empty
+      // assertFileContentsStartWith('testarchive1.log', 'A');
+      // assertFileContentsStartWith('testarchive2.log', 'B');
+    })",steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 368}","it('should not create log file until needed when lazy is enabled', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        lazy: true
+      });
+
+      await logToTransport(transport, { kbytes: 4 });
+      await waitForFile('testarchive.log');
+
+      assertFileExists('testarchive.log');
+      assertFileDoesNotExist('testarchive1.log');
+    })",steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 381}","it('should create log files on initializaiton when lazy is enabled', async function () {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        lazy: false
+      });
+
+      await logToTransport(transport, { kbytes: 4 });
+      await waitForFile('testarchive.log');
+
+      assertFileExists('testarchive.log');
+      assertFileExists('testarchive1.log');
+      assertFileDoesNotExist('testarchive2.log');
+    })",steel
+/test/unit/winston/transports/file-create-dir.test.js,Conditional Test Logic,"{'line': 16, 'column': 6, 'index': 437}","beforeEach(function () {
+    return rimraf(logDir).catch(err => {
+      if (err){
+        console.log('Error encountered when removing `temp_logs` dir')
+        console.log(err);
+      }
+    })
+  })",steel
+/test/unit/winston/transports/file-create-dir.test.js,Mystery Guest,"{'column': 11, 'line': 32}","it('should create directory if it does not exist', function () {
+    winston.createLogger({
+      transports: [
+        new winston.transports.File({
+          filename: path.join(logDir, 'file.log')
+        })
+      ]
+    });
+
+    assert(fs.existsSync(logDir));
+  })",steel
+/test/unit/winston/transports/file-create-dir.test.js,Mystery Guest,"{'column': 11, 'line': 47}","it('should create directory if it does not exist when write to the stream', function () {
+    const streamfile = path.join(logDir, 'simple-stream.log');
+    const stream = fs.createWriteStream(streamfile);
+
+    winston.createLogger({
+      transports: [
+        new winston.transports.File({
+          stream: stream
+        })
+      ]
+    });
+
+    assert(fs.existsSync(logDir));
+  })",steel
+/test/unit/winston/transports/error.test.js,Conditional Test Logic,"{'line': 17, 'column': 8, 'index': 475}","describe('transports issue 1364', () => {
+  const mainError = 'Error logging!';
+  const otherError = 'Other error';
+  let logger;
+  let errorMessage;
+  let counter;
+  let maxCounter;
+  let logError;
+  let transport;
+  const newTransport = () =>
+    Object.assign(new winston.transports.Console(), {
+      log: (info, next) => {
+        if (counter === maxCounter) {
+          next(new Error(errorMessage));
+          return;
+        }
+        if (logError !== null) {
+          errorMessage = otherError;
+        }
+        counter = counter + 1;
+        next();
+        return;
+      }
+    });
+  beforeEach(() => {
+    errorMessage = mainError;
+    counter = 0;
+    maxCounter = 1;
+    logError = null;
+    transport = newTransport();
+    logger = winston.createLogger({
+      level: 'info',
+      transports: [transport]
+    });
+    logger.on('error', error => {
+      counter = 0;
+      logError = error;
+    });
+  });
+
+  describe('only log once', () => {
+    beforeEach(() => {
+      logger.info('log once');
+    });
+
+    it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    });
+
+    it(""error didn't"", () => {
+      assume(logError).not.exists();
+    });
+  });
+
+  describe('log twice', () => {
+    beforeEach(() => {
+      logger.info('log twice 1');
+      logger.info('log twice 2'); // this raises the `mainError` for the transport
+    });
+
+    it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    });
+
+    it('error occurred', () => {
+      assume(logError).property('message', mainError);
+    });
+  });
+
+  describe('log thrice', () => {
+    beforeEach(() => {
+      logger.info('log thrice 1');
+      logger.info('log thrice 2'); // this raises the `mainError` for the transport
+      logger.info('log thrice 3');
+    });
+
+    it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    });
+
+    it('error occurred', () => {
+      assume(logError).property('message', mainError);
+    });
+  });
+
+  describe('log four times', () => {
+    beforeEach(() => {
+      logger.info('log four times 1');
+      logger.info('log four times 2'); // this raises the `mainError` for the transport
+      logger.info('log four times 3');
+      logger.info('log four times 4'); // this raises the `otherError` for the transport
+    });
+
+    it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    });
+
+    it('other error occurred', () => {
+      assume(logError).property('message', otherError);
+    });
+  });
+})",steel
+/test/unit/winston/transports/error.test.js,Conditional Test Logic,"{'line': 21, 'column': 8, 'index': 582}","describe('transports issue 1364', () => {
+  const mainError = 'Error logging!';
+  const otherError = 'Other error';
+  let logger;
+  let errorMessage;
+  let counter;
+  let maxCounter;
+  let logError;
+  let transport;
+  const newTransport = () =>
+    Object.assign(new winston.transports.Console(), {
+      log: (info, next) => {
+        if (counter === maxCounter) {
+          next(new Error(errorMessage));
+          return;
+        }
+        if (logError !== null) {
+          errorMessage = otherError;
+        }
+        counter = counter + 1;
+        next();
+        return;
+      }
+    });
+  beforeEach(() => {
+    errorMessage = mainError;
+    counter = 0;
+    maxCounter = 1;
+    logError = null;
+    transport = newTransport();
+    logger = winston.createLogger({
+      level: 'info',
+      transports: [transport]
+    });
+    logger.on('error', error => {
+      counter = 0;
+      logError = error;
+    });
+  });
+
+  describe('only log once', () => {
+    beforeEach(() => {
+      logger.info('log once');
+    });
+
+    it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    });
+
+    it(""error didn't"", () => {
+      assume(logError).not.exists();
+    });
+  });
+
+  describe('log twice', () => {
+    beforeEach(() => {
+      logger.info('log twice 1');
+      logger.info('log twice 2'); // this raises the `mainError` for the transport
+    });
+
+    it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    });
+
+    it('error occurred', () => {
+      assume(logError).property('message', mainError);
+    });
+  });
+
+  describe('log thrice', () => {
+    beforeEach(() => {
+      logger.info('log thrice 1');
+      logger.info('log thrice 2'); // this raises the `mainError` for the transport
+      logger.info('log thrice 3');
+    });
+
+    it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    });
+
+    it('error occurred', () => {
+      assume(logError).property('message', mainError);
+    });
+  });
+
+  describe('log four times', () => {
+    beforeEach(() => {
+      logger.info('log four times 1');
+      logger.info('log four times 2'); // this raises the `mainError` for the transport
+      logger.info('log four times 3');
+      logger.info('log four times 4'); // this raises the `otherError` for the transport
+    });
+
+    it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    });
+
+    it('other error occurred', () => {
+      assume(logError).property('message', otherError);
+    });
+  });
+})",steel
+/test/unit/winston/transports/error.test.js,Unknown Test,"{'column': 4, 'line': 50}","it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    })",steel
+/test/unit/winston/transports/error.test.js,Unknown Test,"{'column': 4, 'line': 57}","it(""error didn't"", () => {
+      assume(logError).not.exists();
+    })",steel
+/test/unit/winston/transports/error.test.js,Unknown Test,"{'column': 4, 'line': 68}","it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    })",steel
+/test/unit/winston/transports/error.test.js,Unknown Test,"{'column': 4, 'line': 75}","it('error occurred', () => {
+      assume(logError).property('message', mainError);
+    })",steel
+/test/unit/winston/transports/error.test.js,Unknown Test,"{'column': 4, 'line': 87}","it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    })",steel
+/test/unit/winston/transports/error.test.js,Unknown Test,"{'column': 4, 'line': 94}","it('error occurred', () => {
+      assume(logError).property('message', mainError);
+    })",steel
+/test/unit/winston/transports/error.test.js,Unknown Test,"{'column': 4, 'line': 107}","it('logger transport has single correct transport', () => {
+      const transports = logger.transports;
+      assume(transports).is.an('array');
+      assume(transports).length(1);
+      assume(transports).contains(transport);
+    })",steel
+/test/unit/winston/transports/error.test.js,Unknown Test,"{'column': 4, 'line': 114}","it('other error occurred', () => {
+      assume(logError).property('message', otherError);
+    })",steel
+/test/unit/winston/transports/console.test.js,Global Variable,"{'line': 78, 'column': 6, 'index': 2310}","it('logs all levels to stdout', function () {
+      stdMocks.use();
+      transports.defaults.levels = defaultLevels;
+      Object.keys(defaultLevels)
+        .forEach(function (level) {
+          const info = {
+            [LEVEL]: level,
+            message: `This is level ${level}`,
+            level
+          };
+
+          info[MESSAGE] = JSON.stringify(info);
+          transports.defaults.log(info);
+        });
+
+      stdMocks.restore();
+      var output = stdMocks.flush();
+      assume(output.stderr).is.an('array');
+      assume(output.stderr).length(0);
+      assume(output.stdout).is.an('array');
+      assume(output.stdout).length(7);
+    })",steel
+/test/unit/winston/transports/console.test.js,Global Variable,"{'line': 126, 'column': 6, 'index': 3960}","it('{ eol } adds a custom EOL delimiter', function (done) {
+    stdMocks.use();
+    transports.eol.log({ [MESSAGE]: 'info: testing. 1 2 3...' }, function () {
+      stdMocks.restore();
+
+      var output = stdMocks.flush(),
+          line   = output.stdout[0];
+
+      assume(line).equal('info: testing. 1 2 3...X');
+      done();
+    });
+  })",steel
+/test/unit/winston/transports/console.test.js,Unknown Test,"{'column': 4, 'line': 62}","it('logs all levels to stdout', function () {
+      stdMocks.use();
+      transports.defaults.levels = defaultLevels;
+      Object.keys(defaultLevels)
+        .forEach(function (level) {
+          const info = {
+            [LEVEL]: level,
+            message: `This is level ${level}`,
+            level
+          };
+
+          info[MESSAGE] = JSON.stringify(info);
+          transports.defaults.log(info);
+        });
+
+      stdMocks.restore();
+      var output = stdMocks.flush();
+      assume(output.stderr).is.an('array');
+      assume(output.stderr).length(0);
+      assume(output.stdout).is.an('array');
+      assume(output.stdout).length(7);
+    })",steel
+/test/unit/winston/transports/console.test.js,Unknown Test,"{'column': 4, 'line': 93}","it(""if stderrLevels is set, but not an Array { stderrLevels: 'Not an Array' }"", function () {
+      assume(function () {
+        let throwing = new winston.transports.Console({
+          stderrLevels: 'Not an Array'
+        })
+      }).throws(/Cannot make set from type other than Array of string elements/);
+    })",steel
+/test/unit/winston/transports/console.test.js,Unknown Test,"{'column': 4, 'line': 101}","it(""if stderrLevels contains non-string elements { stderrLevels: ['good', /^invalid$/, 'valid']"", function () {
+      assume(function () {
+        let throwing = new winston.transports.Console({
+          stderrLevels: ['good', /^invalid$/, 'valid']
+        })
+      }).throws(/Cannot make set from type other than Array of string elements/);
+    })",steel
+/test/unit/winston/transports/console.test.js,Unknown Test,"{'column': 2, 'line': 121}","it('{ eol } adds a custom EOL delimiter', function (done) {
+    stdMocks.use();
+    transports.eol.log({ [MESSAGE]: 'info: testing. 1 2 3...' }, function () {
+      stdMocks.restore();
+
+      var output = stdMocks.flush(),
+          line   = output.stdout[0];
+
+      assume(line).equal('info: testing. 1 2 3...X');
+      done();
+    });
+  })",steel
+/test/unit/winston/transports/00-file-stress.test.js,Conditional Test Logic,"{'line': 27, 'column': 6, 'index': 685}","beforeEach(function () {
+    try {
+      fs.unlinkSync(fileStressLogFile);
+    } catch (ex) {
+      if (ex && ex.code !== 'ENOENT') { return done(ex); }
+    }
+  })",steel
+/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 47, 'column': 4, 'index': 1122}","it('should handle a high volume of writes', function (done) {
+    const logger = winston.createLogger({
+      transports: [new winston.transports.File({
+        filename: fileStressLogFile
+      })]
+    });
+
+    const counters = {
+      write: 0,
+      read: 0
+    };
+
+    const interval = setInterval(function () {
+      logger.info(++counters.write);
+    }, 0);
+
+    setTimeout(function () {
+      clearInterval(interval);
+
+      helpers.tryRead(fileStressLogFile)
+        .on('error', function (err) {
+          assume(err).false();
+          logger.close();
+          done();
+        })
+        .pipe(split())
+        .on('data', function (d) {
+          const json = JSON.parse(d);
+          assume(json.level).equal('info');
+          assume(json.message).equal(++counters.read);
+        })
+        .on('end', function () {
+          assume(counters.write).equal(counters.read);
+          logger.close();
+          done();
+        });
+    }, 10000);
+  })",steel
+/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 90, 'column': 4, 'index': 2199}","it('should handle a high volume of large writes', function (done) {
+    const logger = winston.createLogger({
+      transports: [new winston.transports.File({
+        filename: fileStressLogFile
+      })]
+    });
+
+    const counters = {
+      write: 0,
+      read: 0
+    };
+
+    const interval = setInterval(function () {
+      const msg = {
+        counter: ++counters.write,
+        message: 'a'.repeat(16384 - os.EOL.length - 1)
+      };
+      logger.info(msg);
+    }, 0);
+
+    setTimeout(function () {
+      clearInterval(interval);
+
+      helpers.tryRead(fileStressLogFile)
+        .on('error', function (err) {
+          assume(err).false();
+          logger.close();
+          done();
+        })
+        .pipe(split())
+        .on('data', function (d) {
+          const json = JSON.parse(d);
+          assume(json.level).equal('info');
+          assume(json.message).equal('a'.repeat(16384 - os.EOL.length - 1));
+          assume(json.counter).equal(++counters.read);
+        })
+        .on('end', function () {
+          assume(counters.write).equal(counters.read);
+          logger.close();
+          done();
+        });
+    }, 10000);
+  })",steel
+/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 132, 'column': 4, 'index': 3353}","it('should handle a high volume of large writes synchronous', function (done) {
+    const logger = winston.createLogger({
+      transports: [new winston.transports.File({
+        filename: fileStressLogFile
+      })]
+    });
+
+    const counters = {
+      write: 0,
+      read: 0
+    };
+
+    const msgs = new Array(10).fill().map(() => ({
+      counter: ++counters.write,
+      message: 'a'.repeat(16384 - os.EOL.length - 1)
+    }));
+    msgs.forEach(msg => logger.info(msg));
+
+    setTimeout(function () {
+      helpers.tryRead(fileStressLogFile)
+        .on('error', function (err) {
+          assume(err).false();
+          logger.close();
+          done();
+        })
+        .pipe(split())
+        .on('data', function (d) {
+          const json = JSON.parse(d);
+          assume(json.level).equal('info');
+          assume(json.message).equal('a'.repeat(16384 - os.EOL.length - 1));
+          assume(json.counter).equal(++counters.read);
+        })
+        .on('end', function () {
+          assume(counters.write).equal(counters.read);
+          logger.close();
+          done();
+        });
+    }, 10000);
+  })",steel
+/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 173, 'column': 4, 'index': 4430}","it('should handle a high volume of writes with lazy option enabled', function (done) {
+    const logger = winston.createLogger({
+      transports: [
+        new winston.transports.File({
+          filename: fileStressLogFile,
+          lazy: true
+        })
+      ]
+    });
+
+    const counters = {
+      write: 0,
+      read: 0
+    };
+
+    const interval = setInterval(function () {
+      logger.info(++counters.write);
+    }, 0);
+
+    setTimeout(function () {
+      clearInterval(interval);
+
+      helpers
+        .tryRead(fileStressLogFile)
+        .on('error', function (err) {
+          assume(err).false();
+          logger.close();
+          done();
+        })
+        .pipe(split())
+        .on('data', function (d) {
+          const json = JSON.parse(d);
+          assume(json.level).equal('info');
+          assume(json.message).equal(++counters.read);
+        })
+        .on('end', function () {
+          assume(counters.write).equal(counters.read);
+          logger.close();
+          done();
+        });
+    }, 10000);
+  })",steel
+/test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 31}","it('should handle a high volume of writes', function (done) {
+    const logger = winston.createLogger({
+      transports: [new winston.transports.File({
+        filename: fileStressLogFile
+      })]
+    });
+
+    const counters = {
+      write: 0,
+      read: 0
+    };
+
+    const interval = setInterval(function () {
+      logger.info(++counters.write);
+    }, 0);
+
+    setTimeout(function () {
+      clearInterval(interval);
+
+      helpers.tryRead(fileStressLogFile)
+        .on('error', function (err) {
+          assume(err).false();
+          logger.close();
+          done();
+        })
+        .pipe(split())
+        .on('data', function (d) {
+          const json = JSON.parse(d);
+          assume(json.level).equal('info');
+          assume(json.message).equal(++counters.read);
+        })
+        .on('end', function () {
+          assume(counters.write).equal(counters.read);
+          logger.close();
+          done();
+        });
+    }, 10000);
+  })",steel
+/test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 70}","it('should handle a high volume of large writes', function (done) {
+    const logger = winston.createLogger({
+      transports: [new winston.transports.File({
+        filename: fileStressLogFile
+      })]
+    });
+
+    const counters = {
+      write: 0,
+      read: 0
+    };
+
+    const interval = setInterval(function () {
+      const msg = {
+        counter: ++counters.write,
+        message: 'a'.repeat(16384 - os.EOL.length - 1)
+      };
+      logger.info(msg);
+    }, 0);
+
+    setTimeout(function () {
+      clearInterval(interval);
+
+      helpers.tryRead(fileStressLogFile)
+        .on('error', function (err) {
+          assume(err).false();
+          logger.close();
+          done();
+        })
+        .pipe(split())
+        .on('data', function (d) {
+          const json = JSON.parse(d);
+          assume(json.level).equal('info');
+          assume(json.message).equal('a'.repeat(16384 - os.EOL.length - 1));
+          assume(json.counter).equal(++counters.read);
+        })
+        .on('end', function () {
+          assume(counters.write).equal(counters.read);
+          logger.close();
+          done();
+        });
+    }, 10000);
+  })",steel
+/test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 114}","it('should handle a high volume of large writes synchronous', function (done) {
+    const logger = winston.createLogger({
+      transports: [new winston.transports.File({
+        filename: fileStressLogFile
+      })]
+    });
+
+    const counters = {
+      write: 0,
+      read: 0
+    };
+
+    const msgs = new Array(10).fill().map(() => ({
+      counter: ++counters.write,
+      message: 'a'.repeat(16384 - os.EOL.length - 1)
+    }));
+    msgs.forEach(msg => logger.info(msg));
+
+    setTimeout(function () {
+      helpers.tryRead(fileStressLogFile)
+        .on('error', function (err) {
+          assume(err).false();
+          logger.close();
+          done();
+        })
+        .pipe(split())
+        .on('data', function (d) {
+          const json = JSON.parse(d);
+          assume(json.level).equal('info');
+          assume(json.message).equal('a'.repeat(16384 - os.EOL.length - 1));
+          assume(json.counter).equal(++counters.read);
+        })
+        .on('end', function () {
+          assume(counters.write).equal(counters.read);
+          logger.close();
+          done();
+        });
+    }, 10000);
+  })",steel
+/test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 154}","it('should handle a high volume of writes with lazy option enabled', function (done) {
+    const logger = winston.createLogger({
+      transports: [
+        new winston.transports.File({
+          filename: fileStressLogFile,
+          lazy: true
+        })
+      ]
+    });
+
+    const counters = {
+      write: 0,
+      read: 0
+    };
+
+    const interval = setInterval(function () {
+      logger.info(++counters.write);
+    }, 0);
+
+    setTimeout(function () {
+      clearInterval(interval);
+
+      helpers
+        .tryRead(fileStressLogFile)
+        .on('error', function (err) {
+          assume(err).false();
+          logger.close();
+          done();
+        })
+        .pipe(split())
+        .on('data', function (d) {
+          const json = JSON.parse(d);
+          assume(json.level).equal('info');
+          assume(json.message).equal(++counters.read);
+        })
+        .on('end', function () {
+          assume(counters.write).equal(counters.read);
+          logger.close();
+          done();
+        });
+    }, 10000);
+  })",steel
+/test/unit/winston/config/config.test.js,Unknown Test,"{'column': 2, 'line': 13}","it('should have expected methods', function () {
+    assume(winston.config).is.an('object');
+    assume(winston.config.addColors).is.a('function');
+    assume(winston.config.cli).is.an('object');
+    assume(winston.config.npm).is.an('object');
+    assume(winston.config.syslog).is.an('object');
+  })",steel
+/test/unit/formats/errors.test.js,Conditional Test Logic,"{'line': 33, 'column': 4, 'index': 854}",Unknown,steel
+/test/unit/formats/errors.test.js,Unknown Test,"{'column': 2, 'line': 39}","it('logger.log(level, error)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info);
+      done();
+    }, format.errors());
+
+    logger.log('info', new Error('Errors lack .toJSON() lulz'));
+  })",steel
+/test/unit/formats/errors.test.js,Unknown Test,"{'column': 2, 'line': 48}","it('logger.log(level, error) [custom error properties]', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, {
+        something: true,
+        wut: 'another string'
+      });
+
+      done();
+    }, format.errors());
+
+    const err = new Error('Errors lack .toJSON() lulz');
+    err.something = true;
+    err.wut = 'another string';
+
+    logger.log('info', err);
+  })",steel
+/test/unit/formats/errors.test.js,Unknown Test,"{'column': 2, 'line': 65}","it('logger.log(level, error, meta)', (done) => {
+    const meta = {
+      thisIsMeta: true,
+      anyValue: 'a string'
+    };
+
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, meta);
+      done();
+    }, format.errors());
+
+    logger.log('info', new Error('Errors lack .toJSON() lulz'), meta);
+  })",steel
+/test/unit/formats/errors.test.js,Unknown Test,"{'column': 2, 'line': 79}","it('logger.log(level, error, meta) [custom error properties]', (done) => {
+    const meta = {
+      thisIsMeta: true,
+      anyValue: 'a string'
+    };
+
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, Object.assign({
+        something: true,
+        wut: 'another string'
+      }, meta));
+
+      done();
+    }, format.errors());
+
+    const err = new Error('Errors lack .toJSON() lulz');
+    err.something = true;
+    err.wut = 'another string';
+
+    logger.log('info', err, meta);
+  })",steel
+/test/unit/formats/errors.test.js,Unknown Test,"{'column': 2, 'line': 101}","it('logger.log(level, msg, meta<error>)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, {
+        message: 'Caught error: Errors lack .toJSON() lulz'
+      });
+
+      done();
+    }, format.combine(
+      format.errors(),
+      format.printf(info => info.message)
+    ));
+
+    logger.log('info', 'Caught error:', new Error('Errors lack .toJSON() lulz'));
+  })",steel
+/test/unit/formats/errors.test.js,Unknown Test,"{'column': 2, 'line': 116}","it('logger.log(level, msg, meta<error>) [custom error properties]', (done) => {
+    const err = new Error('Errors lack .toJSON() lulz');
+    err.something = true;
+    err.wut = 'another string';
+
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, {
+        message: 'Caught error: Errors lack .toJSON() lulz',
+        stack: err.stack,
+        something: true,
+        wut: 'another string'
+      });
+
+      done();
+    }, format.combine(
+      format.errors(),
+      format.printf(info => info.message)
+    ));
+
+    logger.log('info', 'Caught error:', err);
+  })",steel
+/test/unit/formats/errors.test.js,Unknown Test,"{'column': 2, 'line': 138}","it('logger.<level>(error)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info);
+      done();
+    }, format.errors());
+
+    logger.info(new Error('Errors lack .toJSON() lulz'));
+  })",steel
+/test/unit/formats/errors.test.js,Unknown Test,"{'column': 2, 'line': 147}","it('logger.<level>(error) [custom error properties]', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, {
+        something: true,
+        wut: 'another string'
+      });
+
+      done();
+    }, format.errors());
+
+    const err = new Error('Errors lack .toJSON() lulz');
+    err.something = true;
+    err.wut = 'another string';
+
+    logger.info(err);
+  })",steel
+/test/unit/formats/errors.test.js,Unknown Test,"{'column': 2, 'line': 164}","it('logger.<level>(error, meta)', (done) => {
+    const meta = {
+      thisIsMeta: true,
+      anyValue: 'a string'
+    };
+
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, meta);
+      done();
+    }, format.errors());
+
+    logger.info(new Error('Errors lack .toJSON() lulz'), meta);
+  })",steel
+/test/unit/formats/errors.test.js,Unknown Test,"{'column': 2, 'line': 178}","it('logger.<level>(error, meta) [custom error properties]', (done) => {
+    const meta = {
+      thisIsMeta: true,
+      anyValue: 'a string'
+    };
+
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, Object.assign({
+        something: true,
+        wut: 'another string'
+      }, meta));
+
+      done();
+    }, format.errors());
+
+    const err = new Error('Errors lack .toJSON() lulz');
+    err.something = true;
+    err.wut = 'another string';
+
+    logger.info(err, meta);
+  })",steel
+/test/unit/formats/errors.test.js,Unknown Test,"{'column': 2, 'line': 200}","it('logger.<level>(msg, meta<error>)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, {
+        message: 'Caught error: Errors lack .toJSON() lulz'
+      });
+
+      done();
+    }, format.combine(
+      format.errors(),
+      format.printf(info => info.message)
+    ));
+
+    logger.info('Caught error:', new Error('Errors lack .toJSON() lulz'));
+  })",steel
+/test/unit/formats/errors.test.js,Unknown Test,"{'column': 2, 'line': 215}","it('logger.<level>(msg, meta<error>) [custom error properties]', (done) => {
+    const err = new Error('Errors lack .toJSON() lulz');
+    err.something = true;
+    err.wut = 'another string';
+
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, {
+        message: 'Caught error: Errors lack .toJSON() lulz',
+        stack: err.stack,
+        something: true,
+        wut: 'another string'
+      });
+
+      done();
+    }, format.combine(
+      format.errors(),
+      format.printf(info => info.message)
+    ));
+
+    logger.info('Caught error:', err);
+  })",steel
+/test/integration/logger.test.js,Unknown Test,"{'column': 2, 'line': 7}","it('that Logger class is exported', () => {
+    Logger === require('../../lib/winston/logger');
+  })",steel
+/test/integration/logger.test.js,Unknown Test,"{'column': 2, 'line': 11}","it('can be inherited', () => {
+    class CustomLogger extends Logger {}
+    const instance = new CustomLogger();
+    assume(instance).instanceOf(CustomLogger);
+    assume(instance).instanceOf(Logger);
+  })",steel
+/test/integration/formats.test.js,Global Variable,"{'line': 16, 'column': 0, 'index': 343}",Unknown,steel
+/test/integration/formats.test.js,Global Variable,"{'line': 23, 'column': 2, 'index': 569}",Unknown,steel
+/test/integration/formats.test.js,Global Variable,"{'line': 24, 'column': 2, 'index': 643}",Unknown,steel
+/test/integration/formats.test.js,Unknown Test,"{'column': 2, 'line': 34}","it('non-TTY environment', function (done) {
+    spawnColorizer(function (err, data) {
+      assume(err).equals(null);
+      assume(data).includes('\u001b[32mSimply a test\u001b[39m');
+      done();
+    })
+  })",steel
+/test/helpers/handler-tests.js,Global Variable,"{'line': 8, 'column': 4, 'index': 230}","describe('basics', function () {
+    var handler;
+
+    beforeEach(function () {
+      handler = helpers[helper]();
+    });
+
+    it('has expected methods', function () {
+      assume(handler.handle).is.a('function');
+      assume(handler.unhandle).is.a('function');
+      assume(handler.getAllInfo).is.a('function');
+      assume(handler.getProcessInfo).is.a('function');
+      assume(handler.getOsInfo).is.a('function');
+      assume(handler.getTrace).is.a('function');
+    });
+
+    it(`new ${name}()`, function () {
+      assume(function () {
+        // eslint-disable-next-line no-new
+        new winston[name]();
+      }).throws(/Logger is required/);
+    });
+
+    it(`new ${name}(logger)`, function () {
+      var logger = winston.createLogger();
+      var handler_ = new winston[name](logger);
+      assume(handler_.logger).equals(logger);
+    });
+
+    it('.getProcessInfo()', function () {
+      helpers.assertProcessInfo(handler.getProcessInfo());
+    });
+
+    it('.getOsInfo()', function () {
+      helpers.assertOsInfo(handler.getOsInfo());
+    });
+
+    it('.getTrace(new Error)', function () {
+      helpers.assertTrace(handler.getTrace(new Error()));
+    });
+
+    it('.getTrace()', function () {
+      helpers.assertTrace(handler.getTrace());
+    });
+
+    it('.getAllInfo(undefined)', function () {
+      handler.getAllInfo();
+    });
+  })",steel
+/test/helpers/handler-tests.js,Global Variable,"{'line': 31, 'column': 6, 'index': 907}","it(`new ${name}(logger)`, function () {
+      var logger = winston.createLogger();
+      var handler_ = new winston[name](logger);
+      assume(handler_.logger).equals(logger);
+    })",steel
+/test/helpers/handler-tests.js,Global Variable,"{'line': 32, 'column': 6, 'index': 950}","it(`new ${name}(logger)`, function () {
+      var logger = winston.createLogger();
+      var handler_ = new winston[name](logger);
+      assume(handler_.logger).equals(logger);
+    })",steel
+/test/helpers/handler-tests.js,Global Variable,"{'line': 67, 'column': 6, 'index': 1795}","it('.handle()', function (done) {
+      var msg = new Date().toString();
+      var writeable = helpers.writeable(function (info) {
+        assume(info).is.an('object');
+        assume(info.error).is.an('error');
+        assume(info.error.message).equals(msg);
+        assume(info.message).includes(`${listener}: ${msg}`);
+        assume(info.stack).is.a('string');
+        assume(info.process).is.an('object');
+        assume(info.os).is.an('object');
+        assume(info.trace).is.an('array');
+
+        done();
+      });
+
+      var transport = new winston.transports.Stream({ stream: writeable });
+      var handler = helpers[helper]({
+        exitOnError: false,
+        transports: [transport]
+      });
+
+      assume(handler.catcher).is.a('undefined');
+
+      transport[toggleSetting] = true;
+      handler.handle();
+
+      assume(handler.catcher).is.a('function');
+      assume(process.listeners(listener)).deep.equals([
+        handler.catcher
+      ]);
+
+      process.emit(listener, new Error(msg));
+    })",steel
+/test/helpers/handler-tests.js,Global Variable,"{'line': 68, 'column': 6, 'index': 1834}","it('.handle()', function (done) {
+      var msg = new Date().toString();
+      var writeable = helpers.writeable(function (info) {
+        assume(info).is.an('object');
+        assume(info.error).is.an('error');
+        assume(info.error.message).equals(msg);
+        assume(info.message).includes(`${listener}: ${msg}`);
+        assume(info.stack).is.a('string');
+        assume(info.process).is.an('object');
+        assume(info.os).is.an('object');
+        assume(info.trace).is.an('array');
+
+        done();
+      });
+
+      var transport = new winston.transports.Stream({ stream: writeable });
+      var handler = helpers[helper]({
+        exitOnError: false,
+        transports: [transport]
+      });
+
+      assume(handler.catcher).is.a('undefined');
+
+      transport[toggleSetting] = true;
+      handler.handle();
+
+      assume(handler.catcher).is.a('function');
+      assume(process.listeners(listener)).deep.equals([
+        handler.catcher
+      ]);
+
+      process.emit(listener, new Error(msg));
+    })",steel
+/test/helpers/handler-tests.js,Global Variable,"{'line': 81, 'column': 6, 'index': 2284}","it('.handle()', function (done) {
+      var msg = new Date().toString();
+      var writeable = helpers.writeable(function (info) {
+        assume(info).is.an('object');
+        assume(info.error).is.an('error');
+        assume(info.error.message).equals(msg);
+        assume(info.message).includes(`${listener}: ${msg}`);
+        assume(info.stack).is.a('string');
+        assume(info.process).is.an('object');
+        assume(info.os).is.an('object');
+        assume(info.trace).is.an('array');
+
+        done();
+      });
+
+      var transport = new winston.transports.Stream({ stream: writeable });
+      var handler = helpers[helper]({
+        exitOnError: false,
+        transports: [transport]
+      });
+
+      assume(handler.catcher).is.a('undefined');
+
+      transport[toggleSetting] = true;
+      handler.handle();
+
+      assume(handler.catcher).is.a('function');
+      assume(process.listeners(listener)).deep.equals([
+        handler.catcher
+      ]);
+
+      process.emit(listener, new Error(msg));
+    })",steel
+/test/helpers/handler-tests.js,Global Variable,"{'line': 82, 'column': 6, 'index': 2360}","it('.handle()', function (done) {
+      var msg = new Date().toString();
+      var writeable = helpers.writeable(function (info) {
+        assume(info).is.an('object');
+        assume(info.error).is.an('error');
+        assume(info.error.message).equals(msg);
+        assume(info.message).includes(`${listener}: ${msg}`);
+        assume(info.stack).is.a('string');
+        assume(info.process).is.an('object');
+        assume(info.os).is.an('object');
+        assume(info.trace).is.an('array');
+
+        done();
+      });
+
+      var transport = new winston.transports.Stream({ stream: writeable });
+      var handler = helpers[helper]({
+        exitOnError: false,
+        transports: [transport]
+      });
+
+      assume(handler.catcher).is.a('undefined');
+
+      transport[toggleSetting] = true;
+      handler.handle();
+
+      assume(handler.catcher).is.a('function');
+      assume(process.listeners(listener)).deep.equals([
+        handler.catcher
+      ]);
+
+      process.emit(listener, new Error(msg));
+    })",steel
+/test/helpers/handler-tests.js,Unknown Test,"{'column': 4, 'line': 14}","it('has expected methods', function () {
+      assume(handler.handle).is.a('function');
+      assume(handler.unhandle).is.a('function');
+      assume(handler.getAllInfo).is.a('function');
+      assume(handler.getProcessInfo).is.a('function');
+      assume(handler.getOsInfo).is.a('function');
+      assume(handler.getTrace).is.a('function');
+    })",steel
+/test/helpers/handler-tests.js,Unknown Test,"{'column': 4, 'line': 36}","it('.getProcessInfo()', function () {
+      helpers.assertProcessInfo(handler.getProcessInfo());
+    })",steel
+/test/helpers/handler-tests.js,Unknown Test,"{'column': 4, 'line': 40}","it('.getOsInfo()', function () {
+      helpers.assertOsInfo(handler.getOsInfo());
+    })",steel
+/test/helpers/handler-tests.js,Unknown Test,"{'column': 4, 'line': 44}","it('.getTrace(new Error)', function () {
+      helpers.assertTrace(handler.getTrace(new Error()));
+    })",steel
+/test/helpers/handler-tests.js,Unknown Test,"{'column': 4, 'line': 48}","it('.getTrace()', function () {
+      helpers.assertTrace(handler.getTrace());
+    })",steel
+/test/helpers/handler-tests.js,Unknown Test,"{'column': 4, 'line': 52}","it('.getAllInfo(undefined)', function () {
+      handler.getAllInfo();
+    })",steel
+/test/helpers/handler-tests.js,Unknown Test,"{'column': 4, 'line': 66}","it('.handle()', function (done) {
+      var msg = new Date().toString();
+      var writeable = helpers.writeable(function (info) {
+        assume(info).is.an('object');
+        assume(info.error).is.an('error');
+        assume(info.error.message).equals(msg);
+        assume(info.message).includes(`${listener}: ${msg}`);
+        assume(info.stack).is.a('string');
+        assume(info.process).is.an('object');
+        assume(info.os).is.an('object');
+        assume(info.trace).is.an('array');
+
+        done();
+      });
+
+      var transport = new winston.transports.Stream({ stream: writeable });
+      var handler = helpers[helper]({
+        exitOnError: false,
+        transports: [transport]
+      });
+
+      assume(handler.catcher).is.a('undefined');
+
+      transport[toggleSetting] = true;
+      handler.handle();
+
+      assume(handler.catcher).is.a('function');
+      assume(process.listeners(listener)).deep.equals([
+        handler.catcher
+      ]);
+
+      process.emit(listener, new Error(msg));
+    })",steel

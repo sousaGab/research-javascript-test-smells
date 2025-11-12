@@ -1,0 +1,5014 @@
+file,type,line,method,source
+/system-test/testTransformApi.js,AnonymousTest,"{'startLine':13,'endLine':21}","it('outputs warnings', () => {
+    const input = 'if (true) { var x = 10; }\n x = 12;\n';
+
+    const {code, warnings} = transform(input, ['let']);
+    expect(code).to.equal(input);
+    expect(warnings).to.deep.equal([
+      {line: 1, msg: 'Unable to transform var', type: 'let'},
+    ]);
+  })",snuts
+/test/transform/multiVarTest.js,IdenticalTestDescription,"{'startLine':27,'endLine':34}","it('should split into separate declarations', () => {
+      expectTransform(
+        'var x,y=100;'
+      ).toReturn(
+        'var x;\n' +
+        'var y=100;'
+      );
+    })",snuts
+/test/transform/multiVarTest.js,IdenticalTestDescription,"{'startLine':38,'endLine':51}","it('should split into separate declarations', () => {
+      expectTransform(
+        'var x,y=100;\n' +
+        'let a,b=123;\n' +
+        'const c=12,d=234'
+      ).toReturn(
+        'var x;\n' +
+        'var y=100;\n' +
+        'let a;\n' +
+        'let b=123;\n' +
+        'const c=12;\n' +
+        'const d=234;'
+      );
+    })",snuts
+/test/transform/multiVarTest.js,IdenticalTestDescription,"{'startLine':55,'endLine':62}","it('should split into separate declarations', () => {
+      expectTransform(
+        'var x,y=100;// hello'
+      ).toReturn(
+        'var x;// hello\n' +
+        'var y=100;'
+      );
+    })",snuts
+/test/transform/multiVarTest.js,IdenticalTestDescription,"{'startLine':95,'endLine':108}","it('should split into separate declarations', () => {
+      expectTransform(
+        'switch (nr) {\n' +
+        '  case 1:\n' +
+        '    var a=1, b=2;\n' +
+        '}'
+      ).toReturn(
+        'switch (nr) {\n' +
+        '  case 1:\n' +
+        '    var a=1;\n' +
+        '    var b=2;\n' +
+        '}'
+      );
+    })",snuts
+/test/transform/letTest.js,AnonymousTest,"{'startLine':725,'endLine':732}","it('should ignore', () => {
+      expectNoChange(
+        'a = 1;\n' +
+        'var a = 2;'
+      ).withWarnings([
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",snuts
+/test/transform/letTest.js,AnonymousTest,"{'startLine':754,'endLine':761}","it('should ignore', () => {
+      expectNoChange(
+        'foo(a);\n' +
+        'var a = 2;'
+      ).withWarnings([
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",snuts
+/test/transform/letTest.js,AnonymousTest,"{'startLine':765,'endLine':773}","it('should ignore', () => {
+      expectNoChange(
+        'var a = 1;\n' +
+        'var a = 2;'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'},
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",snuts
+/test/transform/letTest.js,IdenticalTestDescription,"{'startLine':294,'endLine':302}","it('should use const when not referenced afterwards', () => {
+      expectTransform(
+        'var [x, y] = [1, 2];\n' +
+        'var {foo, bar} = {foo: 1, bar: 2};'
+      ).toReturn(
+        'const [x, y] = [1, 2];\n' +
+        'const {foo, bar} = {foo: 1, bar: 2};'
+      );
+    })",snuts
+/test/transform/letTest.js,IdenticalTestDescription,"{'startLine':304,'endLine':314}","it('should use let when assigned to afterwards', () => {
+      expectTransform(
+        'var [x, y] = [1, 2];\n' +
+        'x = 3;\n' +
+        'y = 4;'
+      ).toReturn(
+        'let [x, y] = [1, 2];\n' +
+        'x = 3;\n' +
+        'y = 4;'
+      );
+    })",snuts
+/test/transform/letTest.js,IdenticalTestDescription,"{'startLine':405,'endLine':415}","it('should use let when variable re-declared inside it', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        '() => { var a = 1; };\n' +
+        'a = 2;'
+      ).toReturn(
+        'let a = 0;\n' +
+        '() => { const a = 1; };\n' +
+        'a = 2;'
+      );
+    })",snuts
+/test/transform/letTest.js,IdenticalTestDescription,"{'startLine':417,'endLine':425}","it('should use let when variable assigned inside it', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        '() => { a = 1; };'
+      ).toReturn(
+        'let a = 0;\n' +
+        '() => { a = 1; };'
+      );
+    })",snuts
+/test/transform/letTest.js,IdenticalTestDescription,"{'startLine':427,'endLine':435}","it('should use const when variable referenced inside it', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        '() => { bar(a); };'
+      ).toReturn(
+        'const a = 0;\n' +
+        '() => { bar(a); };'
+      );
+    })",snuts
+/test/transform/letTest.js,IdenticalTestDescription,"{'startLine':437,'endLine':445}","it('should use const when variable redeclared as parameter', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        '(a) => a = 1;'
+      ).toReturn(
+        'const a = 0;\n' +
+        '(a) => a = 1;'
+      );
+    })",snuts
+/test/transform/letTest.js,IdenticalTestDescription,"{'startLine':449,'endLine':457}","it('should use const when variable redeclared as parameter', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        'function foo({a}) { a = 1; };'
+      ).toReturn(
+        'const a = 0;\n' +
+        'function foo({a}) { a = 1; };'
+      );
+    })",snuts
+/test/transform/letTest.js,IdenticalTestDescription,"{'startLine':754,'endLine':761}","it('should ignore', () => {
+      expectNoChange(
+        'foo(a);\n' +
+        'var a = 2;'
+      ).withWarnings([
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",snuts
+/test/transform/letTest.js,IdenticalTestDescription,"{'startLine':765,'endLine':773}","it('should ignore', () => {
+      expectNoChange(
+        'var a = 1;\n' +
+        'var a = 2;'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'},
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",snuts
+/test/transform/defaultParamTest.js,IdenticalTestDescription,"{'startLine':38,'endLine':46}","it('should work for simple case', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = a ? a : 4;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",snuts
+/test/transform/defaultParamTest.js,IdenticalTestDescription,"{'startLine':48,'endLine':58}","it('should work for different types of parameters', () => {
+      expectTransform(
+        'function x(a, b, c) {\n' +
+        '  a = a ? a : ""salam"";\n' +
+        '  b = b ? b : {};\n' +
+        '  c = c ? c : [];\n' +
+        '}'
+      ).toReturn(
+        'function x(a = ""salam"", b = {}, c = []) {}'
+      );
+    })",snuts
+/test/transform/defaultParamTest.js,IdenticalTestDescription,"{'startLine':136,'endLine':144}","it('should work for ===', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = typeof a === ""undefined"" ? 4 : a;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",snuts
+/test/transform/defaultParamTest.js,IdenticalTestDescription,"{'startLine':146,'endLine':154}","it('should work for !==', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = typeof a !== ""undefined"" ? a : 4;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",snuts
+/test/transform/defaultParamTest.js,IdenticalTestDescription,"{'startLine':156,'endLine':164}","it('should work for ==', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = typeof a == ""undefined"" ? 4 : a;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",snuts
+/test/transform/defaultParamTest.js,IdenticalTestDescription,"{'startLine':166,'endLine':174}","it('should work for !=', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = typeof a != ""undefined"" ? a : 4;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",snuts
+/test/transform/defaultParamTest.js,IdenticalTestDescription,"{'startLine':176,'endLine':182}","it('should not work for other operators (like >)', () => {
+      expectNoChange(
+        'function x(a) {\n' +
+        '  a = typeof a > undefined ? a : 4;\n' +
+        '}'
+      );
+    })",snuts
+/test/transform/defaultParamTest.js,IdenticalTestDescription,"{'startLine':184,'endLine':190}","it('should not work for === when variable in wrong location', () => {
+      expectNoChange(
+        'function x(a) {\n' +
+        '  a = typeof a === ""undefined"" ? a : 5;\n' +
+        '}'
+      );
+    })",snuts
+/test/transform/defaultParamTest.js,IdenticalTestDescription,"{'startLine':192,'endLine':198}","it('should not work for !== when variable in wrong location', () => {
+      expectNoChange(
+        'function x(a) {\n' +
+        '  a = typeof a !== ""undefined"" ? 5 : a;\n' +
+        '}'
+      );
+    })",snuts
+/test/transform/classTest.js,IdenticalTestDescription,"{'startLine':605,'endLine':630}","it('should convert setters and getters', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        '/** This is an accessor */\n' +
+        'Object.defineProperty(MyClass.prototype, ""someAccessor"", {\n' +
+        '  get: function () {\n' +
+        '    return this._some;\n' +
+        '  },\n' +
+        '  set: function (value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  /** This is an accessor */\n' +
+        '  get someAccessor() {\n' +
+        '    return this._some;\n' +
+        '  }\n' +
+        '\n' +
+        '  set someAccessor(value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",snuts
+/test/transform/classTest.js,IdenticalTestDescription,"{'startLine':659,'endLine':677}","it('should ignore other options when converting get/set', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperty(MyClass.prototype, ""someAccessor"", {\n' +
+        '  configurable: true,\n' +
+        '  enumerable: true,\n' +
+        '  set: function (value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  set someAccessor(value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",snuts
+/test/transform/classTest.js,IdenticalTestDescription,"{'startLine':679,'endLine':689}","it('should ignore non-function property', () => {
+      expectNoChange(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperty(MyClass.prototype, ""propName"", {\n' +
+        '  value: 10,\n' +
+        '  configurable: true,\n' +
+        '  writable: true\n' +
+        '});'
+      );
+    })",snuts
+/test/transform/classTest.js,IdenticalTestDescription,"{'startLine':691,'endLine':705}","it('should transform arrow-function that does not use this', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperty(MyClass.prototype, ""getter"", {\n' +
+        '  get: () => something\n' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  get getter() {\n' +
+        '    return something;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",snuts
+/test/transform/classTest.js,IdenticalTestDescription,"{'startLine':707,'endLine':715}","it('should ignore arrow-function that uses this', () => {
+      expectNoChange(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperty(MyClass.prototype, ""getter"", {\n' +
+        '  get: () => this.something\n' +
+        '});'
+      );
+    })",snuts
+/test/transform/classInheritanceTest.js,IdenticalTestDescription,"{'startLine':145,'endLine':153}","it('determines a function is a class', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = Object.create(ParentClass.prototype);'
+      ).toReturn(
+        'class MyClass extends ParentClass {}'
+      );
+    })",snuts
+/test/transform/classInheritanceTest.js,IdenticalTestDescription,"{'startLine':155,'endLine':164}","it('discards the prototype.constructor assignment', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = Object.create(ParentClass.prototype);\n' +
+        'MyClass.prototype.constructor = MyClass;'
+      ).toReturn(
+        'class MyClass extends ParentClass {}'
+      );
+    })",snuts
+/test/transform/arrowTest.js,IdenticalTestDescription,"{'startLine':215,'endLine':219}","it('should not convert functions using `arguments`', () => {
+      expectNoChange('a(function () { arguments; }.bind(this));').withWarnings([
+        {line: 1, msg: 'Can not use arguments in arrow function', type: 'arrow'}
+      ]);
+    })",snuts
+/test/transform/arrowTest.js,IdenticalTestDescription,"{'startLine':225,'endLine':227}","it('should not convert named function expressions', () => {
+      expectNoChange('a(function foo() { });');
+    })",snuts
+/test/transform/whitespaceTest.js,Unknown Test,"{'column': 2, 'line': 17}","it('should not eliminate leading newlines', () => {
+    expectTransform(
+      '\n\nvar x = 42;'
+    ).toReturn(
+      '\n\nconst x = 42;'
+    );
+  })",steel
+/test/transform/whitespaceTest.js,Unknown Test,"{'column': 2, 'line': 25}","it('should not eliminate trailing newlines', () => {
+    expectTransform(
+      'var x = 42;\n\n'
+    ).toReturn(
+      'const x = 42;\n\n'
+    );
+  })",steel
+/test/transform/whitespaceTest.js,Unknown Test,"{'column': 2, 'line': 33}","it('ignores #! comment at the beginning of file', () => {
+    expectTransform(
+      '#!/usr/bin/env node\n' +
+      'var x = 42;'
+    ).toReturn(
+      '#!/usr/bin/env node\n' +
+      'const x = 42;'
+    );
+  })",steel
+/test/transform/whitespaceTest.js,Unknown Test,"{'column': 2, 'line': 43}","it('ignores #! comment almost at the beginning of file', () => {
+    expectTransform(
+      '\n' +
+      '#!/usr/local/bin/node\n' +
+      'if (true) {\n' +
+      '  var foo = 42;\n' +
+      '}'
+    ).toReturn(
+      '\n' +
+      '#!/usr/local/bin/node\n' +
+      'if (true) {\n' +
+      '  const foo = 42;\n' +
+      '}'
+    );
+  })",steel
+/test/transform/whitespaceTest.js,Unknown Test,"{'column': 2, 'line': 59}","it('should preserve #! comment using CRLF', () => {
+    expectTransform(
+      '#!/usr/bin/env node\r\n' +
+      'var x = 42;'
+    ).toReturn(
+      '#!/usr/bin/env node\r\n' +
+      'const x = 42;'
+    );
+  })",steel
+/test/transform/whitespaceTest.js,Unknown Test,"{'column': 2, 'line': 69}","it('should preserve CRLF line terminators', () => {
+    expectTransform(
+      'var f = function(x) {\r\n' +
+      '  if (x > 10)\r\n' +
+      '    return 42;\r\n' +
+      '};'
+    ).toReturn(
+      'const f = x => {\r\n' +
+      '  if (x > 10)\r\n' +
+      '    return 42;\r\n' +
+      '};'
+    );
+  })",steel
+/test/transform/whitespaceTest.js,Unknown Test,"{'column': 2, 'line': 83}","it('should use LF in case of mixed line terminators', () => {
+    expectTransform(
+      'var f = function(x) {\n' +
+      '  if (x > 10)\r\n' +
+      '    return 42;\r\n' +
+      '};'
+    ).toReturn(
+      'const f = x => {\n' +
+      '  if (x > 10)\n' +
+      '    return 42;\n' +
+      '};'
+    );
+  })",steel
+/test/transform/whitespaceTest.js,Unknown Test,"{'column': 2, 'line': 97}","it('should preserve TABs', () => {
+    expectTransform(
+      'var f = function(x) {\n' +
+      '\tif (x > 10) {\n' +
+      '\t\tvar y = 42;\n' +
+      '\t\treturn {x: x, y: y};\n' +
+      '\t}\n' +
+      '};'
+    ).toReturn(
+      'const f = x => {\n' +
+      '\tif (x > 10) {\n' +
+      '\t\tconst y = 42;\n' +
+      '\t\treturn {x, y};\n' +
+      '\t}\n' +
+      '};'
+    );
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('should not convert non-concatenated strings', () => {
+    expectNoChange('var result = ""test"";');
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 9}","it('should not convert non-string binary expressions with + operator', () => {
+    expectNoChange('var result = 1 + 2;');
+    expectNoChange('var result = a + b;');
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 14}","it('should not convert only string concatenation', () => {
+    expectNoChange('var result = ""Hello "" + "" World!"";');
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 18}","it('should convert string and one variable concatenation', () => {
+    expectTransform(
+      'var result = ""Firstname: "" + firstname;'
+    ).toReturn(
+      'var result = `Firstname: ${firstname}`;'
+    );
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 26}","it('should convert string and multiple variables concatenation', () => {
+    expectTransform(
+      'var result = ""Fullname: "" + firstname + lastname;'
+    ).toReturn(
+      'var result = `Fullname: ${firstname}${lastname}`;'
+    );
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 34}","it('should convert parenthized string concatenations', () => {
+    expectTransform(
+      '""str1 "" + (x + "" str2"");'
+    ).toReturn(
+      '`str1 ${x} str2`;'
+    );
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 42}","it('should convert parenthized string concatenations and other concatenations', () => {
+    expectTransform(
+      'x + "" str1 "" + (y + "" str2"");'
+    ).toReturn(
+      '`${x} str1 ${y} str2`;'
+    );
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 50}","it('should convert parenthized non-string concatenations', () => {
+    expectTransform(
+      '(x + y) + "" string "" + (a + b);'
+    ).toReturn(
+      '`${x + y} string ${a + b}`;'
+    );
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 58}","it('should convert non-parenthized non-string concatenations', () => {
+    expectTransform(
+      'x + y + "" string "" + a + b;'
+    ).toReturn(
+      '`${x + y} string ${a}${b}`;'
+    );
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 66}","it('should convert string and call expressions', () => {
+    expectTransform(
+      'var result = ""Firstname: "" + person.getFirstname() + ""Lastname: "" + person.getLastname();'
+    ).toReturn(
+      'var result = `Firstname: ${person.getFirstname()}Lastname: ${person.getLastname()}`;'
+    );
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 74}","it('should convert string and number literals', () => {
+    expectTransform(
+      '""foo "" + 25 + "" bar"";'
+    ).toReturn(
+      '`foo ${25} bar`;'
+    );
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 82}","it('should convert string and member-expressions', () => {
+    expectTransform(
+      '""foo "" + foo.bar + "" bar"";'
+    ).toReturn(
+      '`foo ${foo.bar} bar`;'
+    );
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 90}","it('should escape ` characters', () => {
+    expectTransform(
+      'var result = ""Firstname: `"" + firstname + ""`"";'
+    ).toReturn(
+      'var result = `Firstname: \\`${firstname}\\``;'
+    );
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 98}","it('should leave \\t, \\r, \\n, \\v, \\f, \\b, \\0, \\\\ escaped as is', () => {
+    expectTransform('x = ""\\t"" + y;').toReturn('x = `\\t${y}`;');
+    expectTransform('x = ""\\r"" + y;').toReturn('x = `\\r${y}`;');
+    expectTransform('x = ""\\n"" + y;').toReturn('x = `\\n${y}`;');
+    expectTransform('x = ""\\v"" + y;').toReturn('x = `\\v${y}`;');
+    expectTransform('x = ""\\f"" + y;').toReturn('x = `\\f${y}`;');
+    expectTransform('x = ""\\b"" + y;').toReturn('x = `\\b${y}`;');
+    expectTransform('x = ""\\0"" + y;').toReturn('x = `\\0${y}`;');
+    expectTransform('x = ""\\\\"" + y;').toReturn('x = `\\\\${y}`;');
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 109}","it('should leave hex- and unicode-escapes as is', () => {
+    expectTransform('x = ""\\xA9"" + y;').toReturn('x = `\\xA9${y}`;');
+    expectTransform('x = ""\\u00A9"" + y;').toReturn('x = `\\u00A9${y}`;');
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 114}","it('should eliminate escaping of quotes', () => {
+    expectTransform('x = ""\\\'"" + y;').toReturn('x = `\'${y}`;');
+    expectTransform('x = ""\\"""" + y;').toReturn('x = `""${y}`;');
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 119}","it('should preserve comments', () => {
+    expectTransform(
+      'var foo =\n' +
+      '    // First comment\n' +
+      '    ""Firstname: "" + fname + ' +
+      '    // Second comment\n' +
+      '    "" Middlename: "" + mname +' +
+      '    // Third comment\n' +
+      '    "" Lastname: "" + lname;'
+    ).toReturn(
+      'var foo =\n' +
+      '    // First comment\n' +
+      '    // Second comment\n' +
+      '    // Third comment\n' +
+      '    `Firstname: ${fname} Middlename: ${mname} Lastname: ${lname}`;'
+    );
+  })",steel
+/test/transform/templateTest.js,Unknown Test,"{'column': 2, 'line': 137}","it('should transform nested concatenation', () => {
+    expectTransform(
+      '"""" + (() => ""a"" + 2)'
+    ).toReturn(
+      '`${() => `a${2}`}`'
+    );
+  })",steel
+/test/transform/restSpreadTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('should support object rest in destructuring', () => {
+    expectTransform(
+      'var { foo, ...other } = bar;'
+    ).toReturn(
+      'const { foo, ...other } = bar;'
+    );
+  })",steel
+/test/transform/restSpreadTest.js,Unknown Test,"{'column': 2, 'line': 13}","it('should support object spread', () => {
+    expectTransform(
+      'var foo = { bar, ...other };'
+    ).toReturn(
+      'const foo = { bar, ...other };'
+    );
+  })",steel
+/test/transform/objShorthandTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('should convert matching key-value entries to shorthand notation', () => {
+    expectTransform('({foo: foo})').toReturn('({foo})');
+  })",steel
+/test/transform/objShorthandTest.js,Unknown Test,"{'column': 2, 'line': 9}","it('should not convert non-matching key-value entries to shorthand notation', () => {
+    expectNoChange('({foo: bar})');
+  })",steel
+/test/transform/objShorthandTest.js,Unknown Test,"{'column': 2, 'line': 13}","it('should not convert numeric properties to shorthands', () => {
+    expectNoChange('({10: 10})');
+  })",steel
+/test/transform/objShorthandTest.js,Unknown Test,"{'column': 2, 'line': 22}","it('should not convert string properties to shorthands', () => {
+    expectNoChange('({""foo"": foo})');
+  })",steel
+/test/transform/objMethodTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('should convert a function inside an object to method', () => {
+    expectTransform(
+      '({\n' +
+      '  someMethod: function(a, b, c) {\n' +
+      '    return a + b + c;\n' +
+      '  }\n' +
+      '});'
+    ).toReturn(
+      '({\n' +
+      '  someMethod(a, b, c) {\n' +
+      '    return a + b + c;\n' +
+      '  }\n' +
+      '});'
+    ).withoutWarnings();
+  })",steel
+/test/transform/objMethodTest.js,Unknown Test,"{'column': 2, 'line': 21}","it('should ignore non-function properties of object', () => {
+    expectTransform(
+      '({\n' +
+      '  foo: 123,\n' +
+      '  method1: function() {\n' +
+      '  },\n' +
+      '  bar: [],\n' +
+      '  method2: function() {\n' +
+      '  },\n' +
+      '});'
+    ).toReturn(
+      '({\n' +
+      '  foo: 123,\n' +
+      '  method1() {\n' +
+      '  },\n' +
+      '  bar: [],\n' +
+      '  method2() {\n' +
+      '  },\n' +
+      '});'
+    ).withoutWarnings();
+  })",steel
+/test/transform/objMethodTest.js,Unknown Test,"{'column': 2, 'line': 43}","it('should convert function properties in nested object literal', () => {
+    expectTransform(
+      '({\n' +
+      '  nested: {\n' +
+      '    method: function() {\n' +
+      '    }\n' +
+      '  }\n' +
+      '});'
+    ).toReturn(
+      '({\n' +
+      '  nested: {\n' +
+      '    method() {\n' +
+      '    }\n' +
+      '  }\n' +
+      '});'
+    ).withoutWarnings();
+  })",steel
+/test/transform/objMethodTest.js,Unknown Test,"{'column': 2, 'line': 61}","it('should not convert named function expressions', () => {
+    expectNoChange(
+      '({\n' +
+      '  foo: function foo() {\n' +
+      '    return foo();\n' +
+      '  }\n' +
+      '});'
+    ).withWarnings([
+      {line: 2, msg: 'Unable to transform named function', type: 'obj-method'}
+    ]);
+  })",steel
+/test/transform/objMethodTest.js,Unknown Test,"{'column': 2, 'line': 73}","it('should not convert computed properties', () => {
+    expectNoChange(
+      '({\n' +
+      '  [""foo"" + count]: function() {\n' +
+      '  }\n' +
+      '});'
+    ).withoutWarnings();
+  })",steel
+/test/transform/objMethodTest.js,Unknown Test,"{'column': 2, 'line': 82}","it('should not convert string properties', () => {
+    expectNoChange(
+      '({\n' +
+      '  ""foo"": function() {\n' +
+      '  }\n' +
+      '});'
+    ).withoutWarnings();
+  })",steel
+/test/transform/objMethodTest.js,Unknown Test,"{'column': 2, 'line': 91}","it('should not convert numeric properties', () => {
+    expectNoChange(
+      '({\n' +
+      '  123: function() {\n' +
+      '  }\n' +
+      '});'
+    ).withoutWarnings();
+  })",steel
+/test/transform/noStrictTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('should remove statement with ""use strict"" string', () => {
+    expectTransform('""use strict"";').toReturn('');
+    expectTransform('\'use strict\';').toReturn('');
+  })",steel
+/test/transform/noStrictTest.js,Unknown Test,"{'column': 2, 'line': 10}","it('should remove the whole line where ""use strict"" used to be', () => {
+    expectTransform(
+      '""use strict"";\n' +
+      'foo();'
+    ).toReturn(
+      'foo();'
+    );
+
+    expectTransform(
+      'foo();\n' +
+      '""use strict"";\n' +
+      'bar();'
+    ).toReturn(
+      'foo();\n' +
+      'bar();'
+    );
+  })",steel
+/test/transform/noStrictTest.js,Unknown Test,"{'column': 2, 'line': 28}","it('should not remove comments before ""use strict""', () => {
+    expectTransform(
+      '// comment\n' +
+      '""use strict"";\n' +
+      'bar();'
+    ).toReturn(
+      '// comment\n' +
+      'bar();'
+    );
+  })",steel
+/test/transform/noStrictTest.js,Unknown Test,"{'column': 2, 'line': 39}","it('should preserve comments when no other code besides ""use strict""', () => {
+    expectTransform(
+      '// some comment\n' +
+      '""use strict"";'
+    ).toReturn(
+      '// some comment\n'
+    );
+  })",steel
+/test/transform/noStrictTest.js,Unknown Test,"{'column': 2, 'line': 48}","it('should keep ""use strict"" used inside other code', () => {
+    expectNoChange('x = ""use strict"";');
+    expectNoChange('foo(""use strict"");');
+  })",steel
+/test/transform/multiVarTest.js,Unknown Test,"{'column': 4, 'line': 6}","it('should not change anything', () => {
+      expectTransform(
+        'var x;'
+      ).toReturn(
+        'var x;'
+      );
+    })",steel
+/test/transform/multiVarTest.js,Unknown Test,"{'column': 4, 'line': 16}","it('should split into separate declarations', () => {
+      expectTransform(
+        'var x,y;'
+      ).toReturn(
+        'var x;\n' +
+        'var y;'
+      );
+    })",steel
+/test/transform/multiVarTest.js,Unknown Test,"{'column': 4, 'line': 27}","it('should split into separate declarations', () => {
+      expectTransform(
+        'var x,y=100;'
+      ).toReturn(
+        'var x;\n' +
+        'var y=100;'
+      );
+    })",steel
+/test/transform/multiVarTest.js,Unknown Test,"{'column': 4, 'line': 38}","it('should split into separate declarations', () => {
+      expectTransform(
+        'var x,y=100;\n' +
+        'let a,b=123;\n' +
+        'const c=12,d=234'
+      ).toReturn(
+        'var x;\n' +
+        'var y=100;\n' +
+        'let a;\n' +
+        'let b=123;\n' +
+        'const c=12;\n' +
+        'const d=234;'
+      );
+    })",steel
+/test/transform/multiVarTest.js,Unknown Test,"{'column': 4, 'line': 55}","it('should split into separate declarations', () => {
+      expectTransform(
+        'var x,y=100;// hello'
+      ).toReturn(
+        'var x;// hello\n' +
+        'var y=100;'
+      );
+    })",steel
+/test/transform/multiVarTest.js,Unknown Test,"{'column': 4, 'line': 66}","it('should split into separate declarations(comment before declaration)', () => {
+      expectTransform(
+        '/* hello */var x,y=100;'
+      ).toReturn(
+        '/* hello */var x;\n' +
+        'var y=100;'
+      );
+    })",steel
+/test/transform/multiVarTest.js,Unknown Test,"{'column': 4, 'line': 75}","it('should split into separate declarations(comment after declaration)', () => {
+      expectTransform(
+        'var x,y=100;/* hello */'
+      ).toReturn(
+        'var x;/* hello */\n' +
+        'var y=100;'
+      );
+    })",steel
+/test/transform/multiVarTest.js,Unknown Test,"{'column': 4, 'line': 84}","it('should split into separate declarations(comment inside declaration)', () => {
+      expectTransform(
+        'var x,/* hello */y=100;'
+      ).toReturn(
+        'var x;\n' +
+        'var /* hello */y=100;'
+      );
+    })",steel
+/test/transform/multiVarTest.js,Unknown Test,"{'column': 4, 'line': 95}","it('should split into separate declarations', () => {
+      expectTransform(
+        'switch (nr) {\n' +
+        '  case 1:\n' +
+        '    var a=1, b=2;\n' +
+        '}'
+      ).toReturn(
+        'switch (nr) {\n' +
+        '  case 1:\n' +
+        '    var a=1;\n' +
+        '    var b=2;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/multiVarTest.js,Unknown Test,"{'column': 4, 'line': 112}","it('should not split in for-loop head', () => {
+      expectNoChange(
+        'for (var i=0,j=0; i<j; i++) j++;'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to split var statement in a ForStatement', type: 'multi-var'}
+      ]);
+    })",steel
+/test/transform/multiVarTest.js,Unknown Test,"{'column': 4, 'line': 120}","it('should not split when not in block statement', () => {
+      expectNoChange(
+        'if (true) var a=1, b=2;'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to split var statement in a IfStatement', type: 'multi-var'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 6}","it('should use let when never used afterwards', () => {
+      expectTransform(
+        'var x;'
+      ).toReturn(
+        'let x;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 14}","it('should use let when assigned aftwerwards', () => {
+      expectTransform(
+        'var x;\n' +
+        'x = 6;'
+      ).toReturn(
+        'let x;\n' +
+        'x = 6;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 26}","it('should use const when never used afterwards', () => {
+      expectTransform(
+        'var x = 2;'
+      ).toReturn(
+        'const x = 2;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 34}","it('should use const when only referenced afterwards', () => {
+      expectTransform(
+        'var x = 2;\n' +
+        'foo(x);'
+      ).toReturn(
+        'const x = 2;\n' +
+        'foo(x);'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 44}","it('should use let when re-assigned afterwards', () => {
+      expectTransform(
+        'var x = 5;\n' +
+        'x = 6;'
+      ).toReturn(
+        'let x = 5;\n' +
+        'x = 6;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 54}","it('should use let when updated aftwerwards', () => {
+      expectTransform(
+        'var x = 5;\n' +
+        'x++;'
+      ).toReturn(
+        'let x = 5;\n' +
+        'x++;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 64}","it('should handle variables names identical to Object prototype methods', () => {
+      expectTransform(
+        'var constructor = 1;\n' +
+        'var toString = 1;\n' +
+        'var valueOf = 1;\n' +
+        'var hasOwnProperty = 1;'
+      ).toReturn(
+        'const constructor = 1;\n' +
+        'const toString = 1;\n' +
+        'const valueOf = 1;\n' +
+        'const hasOwnProperty = 1;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 80}","it('should use const when not referenced afterwards', () => {
+      expectTransform(
+        'var x = 1, y = 2;'
+      ).toReturn(
+        'const x = 1, y = 2;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 88}","it('should use let when assigned to afterwards', () => {
+      expectTransform(
+        'var x = 1, y = 2;\n' +
+        'x = 3;\n' +
+        'y = 4;'
+      ).toReturn(
+        'let x = 1, y = 2;\n' +
+        'x = 3;\n' +
+        'y = 4;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 100}","it('should use let when initially unassigned but assigned afterwards', () => {
+      expectTransform(
+        'var x, y;\n' +
+        'x = 3;\n' +
+        'y = 4;'
+      ).toReturn(
+        'let x, y;\n' +
+        'x = 3;\n' +
+        'y = 4;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 112}","it('should split to let & const when only some vars assigned to afterwards', () => {
+      expectTransform(
+        'var x = 1, y = 2;\n' +
+        'y = 4;'
+      ).toReturn(
+        'const x = 1;\n' +
+        'let y = 2;\n' +
+        'y = 4;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 123}","it('should split to let & var when only some vars are block-scoped', () => {
+      expectTransform(
+        'if (true) {\n' +
+        '  var x = 1, y = 2;\n' +
+        '  x = 10;\n' +
+        '}\n' +
+        'y = 20;'
+      ).toReturn(
+        'if (true) {\n' +
+        '  let x = 1;\n' +
+        '  var y = 2;\n' +
+        '  x = 10;\n' +
+        '}\n' +
+        'y = 20;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 140}","it('should split to let & const inside switch case', () => {
+      expectTransform(
+        'switch (nr) {\n' +
+        'case 15:\n' +
+        '  var x = 1, y = 2;\n' +
+        '  x++;\n' +
+        '}'
+      ).toReturn(
+        'switch (nr) {\n' +
+        'case 15:\n' +
+        '  let x = 1;\n' +
+        '  const y = 2;\n' +
+        '  x++;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 157}","it('should use let when both let & const in for-loop head', () => {
+      expectTransform(
+        'for (var i=0, len=arr.length; i<len; i++) {}'
+      ).toReturn(
+        'for (let i=0, len=arr.length; i<len; i++) {}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 165}","it('should use var in multi-variable declaration when a variable was previously initialized', () => {
+      expectTransform(
+        'var x;\n' +
+        'var x, y;'
+      ).toReturn(
+        'var x;\n' +
+        'var x;\n' +
+        'let y;'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'},
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 179}","it('should use var in multi-variable declaration when a variable was previously initialized in the function parameters', () => {
+      expectTransform(
+        'function func(x) {\n' +
+         '  var x, y;\n' +
+        '}'
+      ).toReturn(
+        'function func(x) {\n' +
+         '  var x;\n' +
+         '  let y;\n' +
+        '}'
+      ).withWarnings([
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 194}","it('should use var in multi-variable declaration in a for head when a variable was previously initialized in the function parameters', () => {
+      expectNoChange(
+        'function func(x) {\n' +
+        '  for (var x, y;;) {}\n' +
+        '}'
+      ).withWarnings([
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 204}","it('should not use let in a for head when previously initialized with var', () => {
+      expectNoChange(
+        'var x;\n' +
+        'for (var x;;);'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'},
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 214}","it('should not use let in multi-variable declaration in a for head when previously initialized with var', () => {
+      expectNoChange(
+        'var x;\n' +
+        'for (var y, x;;);'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'},
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 224}","it('should not use let in multi-variable declaration in a for head when previously initialized with var and other variable is initialized', () => {
+      expectNoChange(
+        'var x;\n' +
+        'for (var y = 1, x;;);'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'},
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 236}","it('should not transform var directly within if-statement body', () => {
+      expectNoChange(
+        'if (true) var x = 1;'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 244}","it('should not transform var directly within else-side of if-statement body', () => {
+      expectNoChange(
+        'if (true); else var x = 1;'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 252}","it('should not transform var directly within for-loop body', () => {
+      expectNoChange(
+        'for (item in array) var x = 1;'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 260}","it('should not transform var directly within for-in-loop body', () => {
+      expectNoChange(
+        'for (item in array) var x = 1;'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 268}","it('should not transform var directly within for-of-loop body', () => {
+      expectNoChange(
+        'for (item of array) var x = 1;'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 276}","it('should not transform var directly within while-loop body', () => {
+      expectNoChange(
+        'while (true) var x = 1;'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 284}","it('should not transform var directly within do-while-loop body', () => {
+      expectNoChange(
+        'do var x = 1; while (true)'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 294}","it('should use const when not referenced afterwards', () => {
+      expectTransform(
+        'var [x, y] = [1, 2];\n' +
+        'var {foo, bar} = {foo: 1, bar: 2};'
+      ).toReturn(
+        'const [x, y] = [1, 2];\n' +
+        'const {foo, bar} = {foo: 1, bar: 2};'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 304}","it('should use let when assigned to afterwards', () => {
+      expectTransform(
+        'var [x, y] = [1, 2];\n' +
+        'x = 3;\n' +
+        'y = 4;'
+      ).toReturn(
+        'let [x, y] = [1, 2];\n' +
+        'x = 3;\n' +
+        'y = 4;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 316}","it('should use let when only some vars assigned to afterwards', () => {
+      expectTransform(
+        'var [x, y] = [1, 2];\n' +
+        'y = 4;'
+      ).toReturn(
+        'let [x, y] = [1, 2];\n' +
+        'y = 4;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 326}","it('should use var when only some vars are block-scoped', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  var [x, y] = [1, 2];\n' +
+        '  x = 10;\n' +
+        '}\n' +
+        'y = 20;'
+      ).withWarnings([
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 339}","it('should not choke for ignored array values', () => {
+      expectTransform(
+        'var [, x, y] = [1, 2, 3];\n' +
+        'y = 2;\n' +
+        'console.log(x);'
+      ).toReturn(
+        'let [, x, y] = [1, 2, 3];\n' +
+        'y = 2;\n' +
+        'console.log(x);'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 353}","it('should use let when variable re-declared inside it', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        'function foo() { var a = 1; }\n' +
+        'a = 2;'
+      ).toReturn(
+        'let a = 0;\n' +
+        'function foo() { const a = 1; }\n' +
+        'a = 2;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 365}","it('should use let when variable assigned inside it', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        'function foo() { a = 1; }'
+      ).toReturn(
+        'let a = 0;\n' +
+        'function foo() { a = 1; }'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 375}","it('should use const when variable referenced inside it', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        'function foo() { bar(a); }'
+      ).toReturn(
+        'const a = 0;\n' +
+        'function foo() { bar(a); }'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 385}","it('should use const when variable redeclared as parameter', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        'function foo(a) { a = 1; }'
+      ).toReturn(
+        'const a = 0;\n' +
+        'function foo(a) { a = 1; }'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 395}","it('should work with anonymous function declaration', () => {
+      expectTransform(
+        'export default function () { var a = 1; }'
+      ).toReturn(
+        'export default function () { const a = 1; }'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 405}","it('should use let when variable re-declared inside it', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        '() => { var a = 1; };\n' +
+        'a = 2;'
+      ).toReturn(
+        'let a = 0;\n' +
+        '() => { const a = 1; };\n' +
+        'a = 2;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 417}","it('should use let when variable assigned inside it', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        '() => { a = 1; };'
+      ).toReturn(
+        'let a = 0;\n' +
+        '() => { a = 1; };'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 427}","it('should use const when variable referenced inside it', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        '() => { bar(a); };'
+      ).toReturn(
+        'const a = 0;\n' +
+        '() => { bar(a); };'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 437}","it('should use const when variable redeclared as parameter', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        '(a) => a = 1;'
+      ).toReturn(
+        'const a = 0;\n' +
+        '(a) => a = 1;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 449}","it('should use const when variable redeclared as parameter', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        'function foo({a}) { a = 1; };'
+      ).toReturn(
+        'const a = 0;\n' +
+        'function foo({a}) { a = 1; };'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 461}","it('should use let when variable assigned in it', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        'if (true) { a = 1; }'
+      ).toReturn(
+        'let a = 0;\n' +
+        'if (true) { a = 1; }'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 471}","it('should use const when variable referenced in it', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        'if (true) { foo(a); }'
+      ).toReturn(
+        'const a = 0;\n' +
+        'if (true) { foo(a); }'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 481}","it('should use let when variable only assigned inside a single block', () => {
+      expectTransform(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '  a = 2;\n' +
+        '}'
+      ).toReturn(
+        'if (true) {\n' +
+        '  let a = 1;\n' +
+        '  a = 2;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 495}","it('should use const when variable only referenced inside a single block', () => {
+      expectTransform(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '  foo(a);\n' +
+        '}'
+      ).toReturn(
+        'if (true) {\n' +
+        '  const a = 1;\n' +
+        '  foo(a);\n' +
+        '}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 509}","it('should use let when variable assigned inside further nested block', () => {
+      expectTransform(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '  if (false) { a = 2; }\n' +
+        '}'
+      ).toReturn(
+        'if (true) {\n' +
+        '  let a = 1;\n' +
+        '  if (false) { a = 2; }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 523}","it('should use const when variable referenced inside further nested block', () => {
+      expectTransform(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '  if (false) { foo(a); }\n' +
+        '}'
+      ).toReturn(
+        'if (true) {\n' +
+        '  const a = 1;\n' +
+        '  if (false) { foo(a); }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 537}","it('should ignore variable declared inside a block but assigned outside', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '}\n' +
+        'a += 1;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 546}","it('should ignore variable declared inside a block but referenced outside', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '}\n' +
+        'foo(a);'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 555}","it('should ignore variable declared inside a block but referenced through computed property outside', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  var x = 0;\n' +
+        '}\n' +
+        'foo[x]++;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 564}","it('should use const when variable name used in object property outside the block', () => {
+      expectTransform(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '}\n' +
+        'obj.a = 2;\n' +
+        'x = {a: 2};'
+      ).toReturn(
+        'if (true) {\n' +
+        '  const a = 1;\n' +
+        '}\n' +
+        'obj.a = 2;\n' +
+        'x = {a: 2};'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 580}","it('should use const when variable name used as function expression name outside the block', () => {
+      expectTransform(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '}\n' +
+        'fn = function a() {}'
+      ).toReturn(
+        'if (true) {\n' +
+        '  const a = 1;\n' +
+        '}\n' +
+        'fn = function a() {}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 594}","it('should use const when variable name used as function parameter name outside the block', () => {
+      expectTransform(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '}\n' +
+        'function fn(a) {}'
+      ).toReturn(
+        'if (true) {\n' +
+        '  const a = 1;\n' +
+        '}\n' +
+        'function fn(a) {}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 608}","it('should use const when variable name used as arrow-function parameter name outside the block', () => {
+      expectTransform(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '}\n' +
+        'fn = (a) => {};'
+      ).toReturn(
+        'if (true) {\n' +
+        '  const a = 1;\n' +
+        '}\n' +
+        'fn = (a) => {};'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 622}","it('should use const when variable name used as destructured function parameter name outside the block', () => {
+      expectTransform(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '}\n' +
+        'function fn({a}) {}'
+      ).toReturn(
+        'if (true) {\n' +
+        '  const a = 1;\n' +
+        '}\n' +
+        'function fn({a}) {}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 636}","it('should ignore variable referenced in function body outside the block', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '}\n' +
+        'fn = function() { return a; }'
+      ).withWarnings([
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 647}","it('should ignore variable referenced in shorthand arrow-function body outside the block', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '}\n' +
+        'fn = () => a;'
+      ).withWarnings([
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 658}","it('should ignore variable referenced in variable declaration outside the block', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '}\n' +
+        'const foo = a;'
+      ).withWarnings([
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 671}","it('should convert var in for-loop head to let', () => {
+      expectTransform(
+        'for (var i=0; i<10; i++) { foo(i); }'
+      ).toReturn(
+        'for (let i=0; i<10; i++) { foo(i); }'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 679}","it('should convert var in for-in head to const', () => {
+      expectTransform(
+        'for (var key in obj) { foo(key); }'
+      ).toReturn(
+        'for (const key in obj) { foo(key); }'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 687}","it('should convert var in for-of head to const', () => {
+      expectTransform(
+        'for (var item of array) { foo(item); }'
+      ).toReturn(
+        'for (const item of array) { foo(item); }'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 695}","it('should ignore var in for-loop head that is referenced outside the loop', () => {
+      expectNoChange(
+        'for (var i=0; i<10; i++) {}\n' +
+        'foo(i);'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 704}","it('should ignore var in for-in-loop head that is referenced outside the loop', () => {
+      expectNoChange(
+        'for (var key in obj) {}\n' +
+        'foo(key);'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 713}","it('should ignore var in for-of-loop head that is referenced outside the loop', () => {
+      expectNoChange(
+        'for (var item of array) {}\n' +
+        'foo(item);'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 725}","it('should ignore', () => {
+      expectNoChange(
+        'a = 1;\n' +
+        'var a = 2;'
+      ).withWarnings([
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 734}","it('should ignore when similar variable in outer scope', () => {
+      expectTransform(
+        'var a = 0;\n' +
+        'function foo() {\n' +
+        '  a = 1;\n' +
+        '  var a = 2;\n' +
+        '}'
+      ).toReturn(
+        'const a = 0;\n' +
+        'function foo() {\n' +
+        '  a = 1;\n' +
+        '  var a = 2;\n' +
+        '}'
+      ).withWarnings([
+        {line: 4, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 754}","it('should ignore', () => {
+      expectNoChange(
+        'foo(a);\n' +
+        'var a = 2;'
+      ).withWarnings([
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 765}","it('should ignore', () => {
+      expectNoChange(
+        'var a = 1;\n' +
+        'var a = 2;'
+      ).withWarnings([
+        {line: 1, msg: 'Unable to transform var', type: 'let'},
+        {line: 2, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 775}","it('should ignore when declarations in different blocks', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  var a = 1;\n' +
+        '}\n' +
+        'if (true) {\n' +
+        '  var a;\n' +
+        '  foo(a);\n' +
+        '}'
+      ).withWarnings([
+        {line: 2, msg: 'Unable to transform var', type: 'let'},
+        {line: 5, msg: 'Unable to transform var', type: 'let'}
+      ]);
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 790}","it('should ignore when re-declaring of function parameter', () => {
+      expectNoChange(
+        'function foo(a) {\n' +
+        '  var a = 1;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 798}","it('should ignore when re-declaring of destructured function parameter', () => {
+      expectNoChange(
+        'function foo({a}) {\n' +
+        '  var a = 1;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 806}","it('should ignore when re-declaring of function expression name', () => {
+      expectNoChange(
+        '(function foo(a) {\n' +
+        '  var foo;\n' +
+        '  return foo;\n' +
+        '})();'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 815}","it('should allow re-declaring of function declaration name', () => {
+      expectTransform(
+        'function foo(a) {\n' +
+        '  var foo;\n' +
+        '  return foo;\n' +
+        '}'
+      ).toReturn(
+        'function foo(a) {\n' +
+        '  let foo;\n' +
+        '  return foo;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 831}","it('should use let when array destructuring used', () => {
+      expectTransform(
+        'var foo = 1;\n' +
+        '[foo] = [1, 2, 3];'
+      ).toReturn(
+        'let foo = 1;\n' +
+        '[foo] = [1, 2, 3];'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 841}","it('should use let when object destructuring used', () => {
+      expectTransform(
+        'var foo = 1;\n' +
+        '({foo} = {foo: 2});'
+      ).toReturn(
+        'let foo = 1;\n' +
+        '({foo} = {foo: 2});'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 851}","it('should use let when nested destructuring used', () => {
+      expectTransform(
+        'var foo = 1;\n' +
+        '[{foo}] = [{foo: 2}];'
+      ).toReturn(
+        'let foo = 1;\n' +
+        '[{foo}] = [{foo: 2}];'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 861}","it('should use let for all variables modified through destructuring', () => {
+      expectTransform(
+        'var a = 1;\n' +
+        'var b = 1;\n' +
+        'var c = 1;\n' +
+        '[a, {foo: c}] = [3, {foo: 2}];'
+      ).toReturn(
+        'let a = 1;\n' +
+        'const b = 1;\n' +
+        'let c = 1;\n' +
+        '[a, {foo: c}] = [3, {foo: 2}];'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 875}","it('should use const when name is used as property key in object destructor', () => {
+      expectTransform(
+        'var foo = 1;\n' +
+        '({foo: a} = {foo: 2});'
+      ).toReturn(
+        'const foo = 1;\n' +
+        '({foo: a} = {foo: 2});'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 891}","it('should not convert existing let to const', () => {
+      expectNoChange(
+        'let x = 1;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 897}","it('should not convert existing const to var', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  const x = 1;\n' +
+        '} else {\n' +
+        '  const x = 2;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 907}","it('should not convert existing let to var', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  let x = 1;\n' +
+        '} else {\n' +
+        '  let x = 2;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 920}","it('should not throw error for assignment to undeclared variable', () => {
+      expectNoChange('x = 2;');
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 924}","it('should not throw error for assignment to object property', () => {
+      expectNoChange('this.y = 5;');
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 928}","it('should use const when similarly-named property is assigned to', () => {
+      expectTransform(
+        'var x = 2;\n' +
+        'b.x += 1;'
+      ).toReturn(
+        'const x = 2;\n' +
+        'b.x += 1;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 938}","it('should use const when similarly-named property is updated', () => {
+      expectTransform(
+        'var x = 2;\n' +
+        'b.x++;'
+      ).toReturn(
+        'const x = 2;\n' +
+        'b.x++;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 950}","it('should preserve comment line', () => {
+      expectTransform(
+        '// comment line\n' +
+        'var x = 42;'
+      ).toReturn(
+        '// comment line\n' +
+        'const x = 42;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 960}","it('should preserve trailing comment', () => {
+      expectTransform(
+        'var x = 42; // trailing comment'
+      ).toReturn(
+        'const x = 42; // trailing comment'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 968}","it('should preserve comment before var broken up to let & const', () => {
+      // For some reason Recast creates an additional line-break after const.
+      // Unsure whether it's a bug in Recast or problem with how we preserve
+      // comments.
+      expectTransform(
+        '// comment line\n' +
+        'var x = 1, y = 2;\n' +
+        'y = 3;'
+      ).toReturn(
+        '// comment line\n' +
+        'const x = 1;\n' +
+        '\n' +
+        'let y = 2;\n' +
+        'y = 3;'
+      );
+    })",steel
+/test/transform/letTest.js,Unknown Test,"{'column': 4, 'line': 985}","it('should preserve comment between var broken up to let & const', () => {
+      // This is another weird behavior of Recast.
+      // The comment gets preserved, but placed in pretty strange spot.
+      expectTransform(
+        '// comment line\n' +
+        'var x = 1, // comment\n' +
+        '    y = 2;\n' +
+        'y = 3;'
+      ).toReturn(
+        '// comment line\n' +
+        'const // comment\n' +
+        'x = 1;\n' +
+        '\n' +
+        'let y = 2;\n' +
+        'y = 3;'
+      );
+    })",steel
+/test/transform/jsxTest.js,Unknown Test,"{'column': 2, 'line': 17}","it('should support self-closing element', () => {
+    expectTransform(
+      'var foo = <div/>;'
+    ).toReturn(
+      'const foo = <div/>;'
+    );
+  })",steel
+/test/transform/jsxTest.js,Unknown Test,"{'column': 2, 'line': 25}","it('should support attributes', () => {
+    expectTransform(
+      'var foo = <div foo=""hello"" bar={2}/>;'
+    ).toReturn(
+      'const foo = <div foo=""hello"" bar={2}/>;'
+    );
+  })",steel
+/test/transform/jsxTest.js,Unknown Test,"{'column': 2, 'line': 33}","it('should support spread attributes', () => {
+    expectTransform(
+      'var foo = <div {...attrs}/>;'
+    ).toReturn(
+      'const foo = <div {...attrs}/>;'
+    );
+  })",steel
+/test/transform/jsxTest.js,Unknown Test,"{'column': 2, 'line': 41}","it('should support nested elements', () => {
+    expectTransform(
+      'var foo = <div>\n' +
+      '    <Foo/>\n' +
+      '    <Bar/>\n' +
+      '</div>;'
+    ).toReturn(
+      'const foo = <div>\n' +
+      '    <Foo/>\n' +
+      '    <Bar/>\n' +
+      '</div>;'
+    );
+  })",steel
+/test/transform/jsxTest.js,Unknown Test,"{'column': 2, 'line': 55}","it('should support member-expressions as element name', () => {
+    expectTransform(
+      'var foo = <Foo.bar/>;'
+    ).toReturn(
+      'const foo = <Foo.bar/>;'
+    );
+  })",steel
+/test/transform/jsxTest.js,Unknown Test,"{'column': 2, 'line': 63}","it('should support XML namespaces', () => {
+    expectTransform(
+      'var foo = <xml:foo/>;'
+    ).toReturn(
+      'const foo = <xml:foo/>;'
+    );
+  })",steel
+/test/transform/jsxTest.js,Unknown Test,"{'column': 2, 'line': 71}","it('should support content', () => {
+    expectTransform(
+      'var foo = <div>Hello {a + b}</div>;'
+    ).toReturn(
+      'const foo = <div>Hello {a + b}</div>;'
+    );
+  })",steel
+/test/transform/jsxTest.js,Unknown Test,"{'column': 2, 'line': 79}","it('should support empty content expressions', () => {
+    expectTransform(
+      'var foo = <div> {/* some comments */} </div>;'
+    ).toReturn(
+      'const foo = <div> {/* some comments */} </div>;'
+    );
+  })",steel
+/test/transform/jsxTest.js,Unknown Test,"{'column': 2, 'line': 87}","it('should support JSX fragments', () => {
+    expectTransform(
+      'var foo = <>{a}</>;'
+    ).toReturn(
+      'const foo = <>{a}</>;'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('should replace !== -1 with includes()', () => {
+    expectTransform(
+      'if (array.indexOf(foo) !== -1) { /* */ }'
+    ).toReturn(
+      'if (array.includes(foo)) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 13}","it('should NOT transform !== 0', () => {
+    expectNoChange(
+      'if (array.indexOf(foo) !== 0) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 19}","it('should replace === -1 with !includes()', () => {
+    expectTransform(
+      'if (array.indexOf(foo) === -1) { /* */ }'
+    ).toReturn(
+      'if (!array.includes(foo)) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 27}","it('should NOT transform === 0', () => {
+    expectNoChange(
+      'if (array.indexOf(foo) === 0) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 33}","it('should replace != -1 with includes()', () => {
+    expectTransform(
+      'if (array.indexOf(foo) != -1) { /* */ }'
+    ).toReturn(
+      'if (array.includes(foo)) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 41}","it('should NOT transform != 0', () => {
+    expectNoChange(
+      'if (array.indexOf(foo) != 0) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 47}","it('should replace == -1 with !includes()', () => {
+    expectTransform(
+      'if (array.indexOf(foo) == -1) { /* */ }'
+    ).toReturn(
+      'if (!array.includes(foo)) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 55}","it('should NOT transform == 0', () => {
+    expectNoChange(
+      'if (array.indexOf(foo) == 0) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 61}","it('should replace > -1 with includes()', () => {
+    expectTransform(
+      'if (array.indexOf(foo) > -1) { /* */ }'
+    ).toReturn(
+      'if (array.includes(foo)) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 69}","it('should NOT transform > 0', () => {
+    expectNoChange(
+      'if (array.indexOf(foo) > 0) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 75}","it('should NOT transform >= -1', () => {
+    expectNoChange(
+      'if (array.indexOf(foo) >= -1) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 81}","it('should replace >= 0 with includes()', () => {
+    expectTransform(
+      'if (array.indexOf(foo) >= 0) { /* */ }'
+    ).toReturn(
+      'if (array.includes(foo)) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 89}","it('should NOT transform < -1', () => {
+    expectNoChange(
+      'if (array.indexOf(foo) < -1) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 95}","it('should replace < 0 with !includes()', () => {
+    expectTransform(
+      'if (array.indexOf(foo) < 0) { /* */ }'
+    ).toReturn(
+      'if (!array.includes(foo)) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 103}","it('should NOT transform <= -1', () => {
+    expectNoChange(
+      'if (array.indexOf(foo) <= -1) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 2, 'line': 109}","it('should NOT transform <= 0', () => {
+    expectNoChange(
+      'if (array.indexOf(foo) <= 0) { /* */ }'
+    );
+  })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 4, 'line': 116}","it('should transform -1 !== indexOf()', () => {
+      expectTransform(
+        'if (-1 !== array.indexOf(foo)) { /* */ }'
+      ).toReturn(
+        'if (array.includes(foo)) { /* */ }'
+      );
+    })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 4, 'line': 124}","it('should transform -1 === indexOf()', () => {
+      expectTransform(
+        'if (-1 === array.indexOf(foo)) { /* */ }'
+      ).toReturn(
+        'if (!array.includes(foo)) { /* */ }'
+      );
+    })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 4, 'line': 132}","it('should transform -1 < indexOf()', () => {
+      expectTransform(
+        'if (-1 < array.indexOf(foo)) { /* */ }'
+      ).toReturn(
+        'if (array.includes(foo)) { /* */ }'
+      );
+    })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 4, 'line': 140}","it('should transform 0 <= indexOf()', () => {
+      expectTransform(
+        'if (0 <= array.indexOf(foo)) { /* */ }'
+      ).toReturn(
+        'if (array.includes(foo)) { /* */ }'
+      );
+    })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 4, 'line': 148}","it('should transform 0 > indexOf()', () => {
+      expectTransform(
+        'if (0 > array.indexOf(foo)) { /* */ }'
+      ).toReturn(
+        'if (!array.includes(foo)) { /* */ }'
+      );
+    })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 4, 'line': 156}","it('should NOT transform 0 >= indexOf()', () => {
+      expectNoChange(
+        'if (0 >= array.indexOf(foo)) { /* */ }'
+      );
+    })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 4, 'line': 164}","it('should allow complex array expression', () => {
+      expectTransform(
+        'if ([1,2,3].indexOf(foo) !== -1) { /* */ }'
+      ).toReturn(
+        'if ([1,2,3].includes(foo)) { /* */ }'
+      );
+    })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 4, 'line': 172}","it('should allow complex string expression', () => {
+      expectTransform(
+        'if ((""foo"" + ""bar"").indexOf(foo) !== -1) { /* */ }'
+      ).toReturn(
+        'if ((""foo"" + ""bar"").includes(foo)) { /* */ }'
+      );
+    })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 4, 'line': 180}","it('should allow complex searchElement expression', () => {
+      expectTransform(
+        'if (array.indexOf(a + b + c) !== -1) { /* */ }'
+      ).toReturn(
+        'if (array.includes(a + b + c)) { /* */ }'
+      );
+    })",steel
+/test/transform/includesTest.js,Unknown Test,"{'column': 4, 'line': 188}","it('should NOT transform indexOf() with multiple parameters', () => {
+      expectNoChange(
+        'if (array.indexOf(a, b) !== -1) { /* */ }'
+      );
+    })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 4, 'line': 6}","it('should use the existing alias as loop variable', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; i++) {\n' +
+        '  let item = array[i];\n' +
+        '  console.log(item);\n' +
+        '}'
+      ).toReturn(
+        'for (let item of array) {\n' +
+        '  console.log(item);\n' +
+        '}'
+      );
+    })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 4, 'line': 19}","it('should work with different variables and long for-loop body', () => {
+      expectTransform(
+        'for (let idx=0; idx < fruitList.length; idx++) {\n' +
+        '  let fruit = fruitList[idx];\n' +
+        '  let price = getCurrentPrice(fruit);\n' +
+        '  if (price > fruit.standardPrice) {\n' +
+        '    sell(fruit, price);\n' +
+        '  }\n' +
+        '}'
+      ).toReturn(
+        'for (let fruit of fruitList) {\n' +
+        '  let price = getCurrentPrice(fruit);\n' +
+        '  if (price > fruit.standardPrice) {\n' +
+        '    sell(fruit, price);\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 4, 'line': 38}","it('should support complex expressions for array', () => {
+      expectTransform(
+        'for (let i=0; i < store[current].fruits.length; i++) {\n' +
+        '  let item = store[current].fruits[i];\n' +
+        '  console.log(item);\n' +
+        '}'
+      ).toReturn(
+        'for (let item of store[current].fruits) {\n' +
+        '  console.log(item);\n' +
+        '}'
+      );
+    })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 4, 'line': 51}","it('should preserve original const-kind of loop variable', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; i++) {\n' +
+        '  const item = array[i];\n' +
+        '  console.log(item);\n' +
+        '}'
+      ).toReturn(
+        'for (const item of array) {\n' +
+        '  console.log(item);\n' +
+        '}'
+      );
+    })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 4, 'line': 64}","it('should transform ++i loop-increment', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; ++i) {\n' +
+        '  let item = array[i];\n' +
+        '  console.log(item);\n' +
+        '}'
+      ).toReturn(
+        'for (let item of array) {\n' +
+        '  console.log(item);\n' +
+        '}'
+      );
+    })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 4, 'line': 77}","it('should transform i+=1 loop-increment', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; i+=1) {\n' +
+        '  let item = array[i];\n' +
+        '  console.log(item);\n' +
+        '}'
+      ).toReturn(
+        'for (let item of array) {\n' +
+        '  console.log(item);\n' +
+        '}'
+      );
+    })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 4, 'line': 90}","it('should transform when index identifier used as object literal key', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; i++) {\n' +
+        '  let item = array[i];\n' +
+        '  console.log(item, {i: 123});\n' +
+        '}'
+      ).toReturn(
+        'for (let item of array) {\n' +
+        '  console.log(item, {i: 123});\n' +
+        '}'
+      );
+    })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 4, 'line': 103}","it('should transform when index identifier used as object property', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; i++) {\n' +
+        '  let item = array[i];\n' +
+        '  console.log(item.i);\n' +
+        '}'
+      ).toReturn(
+        'for (let item of array) {\n' +
+        '  console.log(item.i);\n' +
+        '}'
+      );
+    })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 117}","it('when index variable used in loop body', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  let item = array[i];\n' +
+          '  console.log(item, i);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Index variable used in for-loop body', type: 'for-of'}
+        ]);
+      })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 128}","it('when index variable used inside a function in loop body', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  let item = array[i];\n' +
+          '  callback(function(){ return i; });\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Index variable used in for-loop body', type: 'for-of'}
+        ]);
+      })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 139}","it('when loop variable defined with var', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  var item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Only for-loops with let/const can be transformed (use let transform first)', type: 'for-of'}
+        ]);
+      })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 150}","it('when loop index variable defined with var', () => {
+        expectNoChange(
+          'for (var i=0; i < array.length; i++) {\n' +
+          '  let item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Only for-loops with let/const can be transformed (use let transform first)', type: 'for-of'}
+        ]);
+      })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 161}","it('when loop initializes several variables', () => {
+        expectNoChange(
+          'for (let i=0, j=0; i < array.length; i++) {\n' +
+          '  let item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-of'}
+        ]);
+      })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 172}","it('when loop runs backwards', () => {
+        expectNoChange(
+          'for (let i = array.length-1; i >= 0; i--) {\n' +
+          '  let item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-of'}
+        ]);
+      })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 183}","it('when elements taken from different array', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  let item = otherArray[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-of'}
+        ]);
+      })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 194}","it('when elements taken from different index', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  let item = array[otherIndex];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-of'}
+        ]);
+      })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 205}","it('when incrementing a different index', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; otherIndex++) {\n' +
+          '  let item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-of'}
+        ]);
+      })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 216}","it('when comparing a different index', () => {
+        expectNoChange(
+          'for (let i=0; otherIndex < array.length; i++) {\n' +
+          '  let item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-of'}
+        ]);
+      })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 227}","it('when variable declaration is not the first one in loop body', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  const x = 1;\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item, x);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-of'}
+        ]);
+      })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 241}","it('should preserve for-loop comments', () => {
+        expectTransform(
+          '// Some comments\n' +
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  let item = array[i];\n' +
+          '  console.log(item.i);\n' +
+          '}'
+        ).toReturn(
+          '// Some comments\n' +
+          'for (let item of array) {\n' +
+          '  console.log(item.i);\n' +
+          '}'
+        );
+      })",steel
+/test/transform/forOfTest.js,Unknown Test,"{'column': 6, 'line': 256}","it('should preserve loop variable comments', () => {
+        expectTransform(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  // Some comments\n' +
+          '  let item = array[i];\n' +
+          '  console.log(item.i);\n' +
+          '}'
+        ).toReturn(
+          '// Some comments\n' +
+          'for (let item of array) {\n' +
+          '  console.log(item.i);\n' +
+          '}'
+        );
+      })",steel
+/test/transform/forEachTest.js,Conditional Test Logic,"{'line': 166, 'column': 30, 'index': 5172}","describe('should transform when loop contains', () => {
+      it('break inside switch statement', () => {
+        expectTransform(
+          'for (let i=0; i < xs.length; i++) {\n' +
+          '  const x = xs[i];\n' +
+          '  switch (x % 2) {\n' +
+          '    case 0:\n' +
+          '      console.log(""even"");\n' +
+          '      break;\n' +
+          '    default:\n' +
+          '      console.log(""odd"");\n' +
+          '  }\n' +
+          '}'
+        ).toReturn(
+          'xs.forEach(x => {\n' +
+          '  switch (x % 2) {\n' +
+          '    case 0:\n' +
+          '      console.log(""even"");\n' +
+          '      break;\n' +
+          '    default:\n' +
+          '      console.log(""odd"");\n' +
+          '  }\n' +
+          '});'
+        );
+      });
+
+      // Ignore break and continue inside all kinds of nested loops
+      LOOP_TYPES.forEach(({name, begin, end}) => {
+        ['break', 'continue'].forEach((keyword) => {
+          it(`${keyword} inside nested ${name} loop`, () => {
+            expectTransform(
+              'for (let i = 0; i < array.length; i++) {\n' +
+              '  const x = array[i];\n' +
+              `  ${begin}\n` +
+              `    ${keyword};\n` +
+              `  ${end}\n` +
+              '}'
+            ).toReturn(
+              'array.forEach(x => {\n' +
+              `  ${begin}\n` +
+              `    ${keyword};\n` +
+              `  ${end}\n` +
+              '});'
+            );
+          });
+        });
+      });
+    })",steel
+/test/transform/forEachTest.js,Conditional Test Logic,"{'line': 188, 'column': 28, 'index': 5817}","describe('should not transform', () => {
+      ['break', 'continue'].forEach((keyword) => {
+        const keywordMsg = capitalize(keyword);
+
+        it(`when loop itself contains a ${keyword} statement`, () => {
+          expectNoChange(
+            'for (let i=0; i < array.length; i++) {\n' +
+            '  const item = array[i];\n' +
+            `  ${keyword};\n` +
+            '}'
+          ).withWarnings([
+            {line: 3, msg: `${keywordMsg} statement used in for-loop body`, type: 'for-each'}
+          ]);
+        });
+
+        it('when loop itself contains a ${keyword} statement with label', () => {
+          expectNoChange(
+            'loop1:\n' +
+            'for (let i=0; i < array.length; i++) {\n' +
+            '  const item = array[i];\n' +
+            `  ${keyword} loop1;\n` +
+            '}'
+          ).withWarnings([
+            {line: 4, msg: `${keywordMsg} statement with label used in for-loop body`, type: 'for-each'}
+          ]);
+        });
+
+        it(`when loop itself contains a ${keyword} statement with label inside switch`, () => {
+          expectNoChange(
+            'loop1:\n' +
+            'for (let i=0; i < array.length; i++) {\n' +
+            '  const item = array[i];\n' +
+            '  switch (item) {\n' +
+            '  case 1:\n' +
+            '    console.log(item);\n' +
+            `    ${keyword} loop1;\n` +
+            '  }\n' +
+            '}'
+          ).withWarnings([
+            {line: 7, msg: `${keywordMsg} statement with label used in for-loop body`, type: 'for-each'}
+          ]);
+        });
+
+        // Watch out for break/continue with label inside all nested loops
+        LOOP_TYPES.forEach(({name, begin, end}) => {
+          it(`when nested ${name} loop contains a ${keyword} statement with label`, () => {
+            expectNoChange(
+              'loop1:\n' +
+              'for (let i = 0; i < xs.length; i++) {\n' +
+              '  const x = xs[i];\n' +
+              '  loop2:\n' +
+              `  ${begin}\n` +
+              `    ${keyword} loop1;\n` +
+              `  ${end}\n` +
+              '}'
+            ).withWarnings([
+              {line: 6, msg: `${keywordMsg} statement with label used in for-loop body`, type: 'for-each'},
+              {line: 5, msg: 'Unable to transform for loop', type: 'for-each'},
+              // Only expect the second warning in case of for-loop
+            ].filter((warnings, i) => name === 'for' || i === 0));
+          });
+        });
+      });
+
+      it('when loop index variable defined with var', () => {
+        expectNoChange(
+          'for (var i=0; i < array.length; i++) {\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Only for-loops with indexes declared as let can be transformed (use let transform first)', type: 'for-each'}
+        ]);
+      });
+
+      it('when loop array item variable defined with var', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  var item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Only for-loops with const array items can be transformed (use let transform first)', type: 'for-each'}
+        ]);
+      });
+
+      it('when loop array item variable defined with let', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  let item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Only for-loops with const array items can be transformed (use let transform first)', type: 'for-each'}
+        ]);
+      });
+
+      it('when loop initializes several variables', () => {
+        expectNoChange(
+          'for (let i=0, j=0; i < array.length; i++) {\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      });
+
+      it('when loop runs backwards', () => {
+        expectNoChange(
+          'for (let i = array.length-1; i >= 0; i--) {\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      });
+
+      it('when elements taken from different array', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  const item = otherArray[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      });
+
+      it('when elements taken from different index', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  const item = array[otherIndex];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      });
+
+      it('when incrementing a different index', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; otherIndex++) {\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      });
+
+      it('when comparing a different index', () => {
+        expectNoChange(
+          'for (let i=0; otherIndex < array.length; i++) {\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      });
+
+      it('when variable declaration is not the first one in loop body', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  const x = 1;\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item, x);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      });
+    })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 4, 'line': 15}","it('should use the existing alias as loop variable', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; i++) {\n' +
+        '  const item = array[i];\n' +
+        '  console.log(item);\n' +
+        '}'
+      ).toReturn(
+        'array.forEach(item => {\n' +
+        '  console.log(item);\n' +
+        '});'
+      );
+    })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 4, 'line': 28}","it('should work with different variables and long for-loop body', () => {
+      expectTransform(
+        'for (let idx=0; idx < fruitList.length; idx++) {\n' +
+        '  const fruit = fruitList[idx];\n' +
+        '  const price = getCurrentPrice(fruit);\n' +
+        '  if (price > fruit.standardPrice) {\n' +
+        '    sell(fruit, price);\n' +
+        '  }\n' +
+        '}'
+      ).toReturn(
+        'fruitList.forEach(fruit => {\n' +
+        '  const price = getCurrentPrice(fruit);\n' +
+        '  if (price > fruit.standardPrice) {\n' +
+        '    sell(fruit, price);\n' +
+        '  }\n' +
+        '});'
+      );
+    })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 4, 'line': 47}","it('should support complex expressions for array', () => {
+      expectTransform(
+        'for (let i=0; i < store[current].fruits.length; i++) {\n' +
+        '  const item = store[current].fruits[i];\n' +
+        '  console.log(item);\n' +
+        '}'
+      ).toReturn(
+        'store[current].fruits.forEach(item => {\n' +
+        '  console.log(item);\n' +
+        '});'
+      );
+    })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 4, 'line': 60}","it('should transform ++i loop-increment', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; ++i) {\n' +
+        '  const item = array[i];\n' +
+        '  console.log(item);\n' +
+        '}'
+      ).toReturn(
+        'array.forEach(item => {\n' +
+        '  console.log(item);\n' +
+        '});'
+      );
+    })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 4, 'line': 73}","it('should transform i+=1 loop-increment', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; i+=1) {\n' +
+        '  const item = array[i];\n' +
+        '  console.log(item);\n' +
+        '}'
+      ).toReturn(
+        'array.forEach(item => {\n' +
+        '  console.log(item);\n' +
+        '});'
+      );
+    })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 4, 'line': 86}","it('should transform when the array itself is used in the loop body', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; i++) {\n' +
+        '  const item = array[i];\n' +
+        '  console.log(array);\n' +
+        '}'
+      ).toReturn(
+        'array.forEach(item => {\n' +
+        '  console.log(array);\n' +
+        '});'
+      );
+    })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 4, 'line': 99}","it('should transform without index parameter when index identifier used as object literal key', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; i++) {\n' +
+        '  const item = array[i];\n' +
+        '  console.log(item, {i: 123});\n' +
+        '}'
+      ).toReturn(
+        'array.forEach(item => {\n' +
+        '  console.log(item, {i: 123});\n' +
+        '});'
+      );
+    })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 4, 'line': 112}","it('should transform without index parameter when index identifier used as object property', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; i++) {\n' +
+        '  const item = array[i];\n' +
+        '  console.log(item.i);\n' +
+        '}'
+      ).toReturn(
+        'array.forEach(item => {\n' +
+        '  console.log(item.i);\n' +
+        '});'
+      );
+    })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 4, 'line': 125}","it('should transform with index parameter when index variable used in loop body', () => {
+      expectTransform(
+        'for (let i=0; i < array.length; i++) {\n' +
+        '  const item = array[i];\n' +
+        '  console.log(item, i);\n' +
+        '}'
+      ).toReturn(
+        'array.forEach((item, i) => {\n' +
+        '  console.log(item, i);\n' +
+        '});'
+      );
+    })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 139}","it('break inside switch statement', () => {
+        expectTransform(
+          'for (let i=0; i < xs.length; i++) {\n' +
+          '  const x = xs[i];\n' +
+          '  switch (x % 2) {\n' +
+          '    case 0:\n' +
+          '      console.log(""even"");\n' +
+          '      break;\n' +
+          '    default:\n' +
+          '      console.log(""odd"");\n' +
+          '  }\n' +
+          '}'
+        ).toReturn(
+          'xs.forEach(x => {\n' +
+          '  switch (x % 2) {\n' +
+          '    case 0:\n' +
+          '      console.log(""even"");\n' +
+          '      break;\n' +
+          '    default:\n' +
+          '      console.log(""odd"");\n' +
+          '  }\n' +
+          '});'
+        );
+      })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 8, 'line': 202}","it('when loop itself contains a ${keyword} statement with label', () => {
+          expectNoChange(
+            'loop1:\n' +
+            'for (let i=0; i < array.length; i++) {\n' +
+            '  const item = array[i];\n' +
+            `  ${keyword} loop1;\n` +
+            '}'
+          ).withWarnings([
+            {line: 4, msg: `${keywordMsg} statement with label used in for-loop body`, type: 'for-each'}
+          ]);
+        })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 251}","it('when loop index variable defined with var', () => {
+        expectNoChange(
+          'for (var i=0; i < array.length; i++) {\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Only for-loops with indexes declared as let can be transformed (use let transform first)', type: 'for-each'}
+        ]);
+      })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 262}","it('when loop array item variable defined with var', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  var item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Only for-loops with const array items can be transformed (use let transform first)', type: 'for-each'}
+        ]);
+      })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 273}","it('when loop array item variable defined with let', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  let item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Only for-loops with const array items can be transformed (use let transform first)', type: 'for-each'}
+        ]);
+      })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 284}","it('when loop initializes several variables', () => {
+        expectNoChange(
+          'for (let i=0, j=0; i < array.length; i++) {\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 295}","it('when loop runs backwards', () => {
+        expectNoChange(
+          'for (let i = array.length-1; i >= 0; i--) {\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 306}","it('when elements taken from different array', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  const item = otherArray[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 317}","it('when elements taken from different index', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  const item = array[otherIndex];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 328}","it('when incrementing a different index', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; otherIndex++) {\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 339}","it('when comparing a different index', () => {
+        expectNoChange(
+          'for (let i=0; otherIndex < array.length; i++) {\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 350}","it('when variable declaration is not the first one in loop body', () => {
+        expectNoChange(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  const x = 1;\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item, x);\n' +
+          '}'
+        ).withWarnings([
+          {line: 1, msg: 'Unable to transform for loop', type: 'for-each'}
+        ]);
+      })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 364}","it('should preserve for-loop comments', () => {
+        expectTransform(
+          '// Some comments\n' +
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item.i);\n' +
+          '}'
+        ).toReturn(
+          '// Some comments\n' +
+          'array.forEach(item => {\n' +
+          '  console.log(item.i);\n' +
+          '});'
+        );
+      })",steel
+/test/transform/forEachTest.js,Unknown Test,"{'column': 6, 'line': 379}","it('should preserve loop variable comments', () => {
+        expectTransform(
+          'for (let i=0; i < array.length; i++) {\n' +
+          '  // Some comments\n' +
+          '  const item = array[i];\n' +
+          '  console.log(item.i);\n' +
+          '}'
+        ).toReturn(
+          '// Some comments\n' +
+          'array.forEach(item => {\n' +
+          '  console.log(item.i);\n' +
+          '});'
+        );
+      })",steel
+/test/transform/exponentTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('should convert Math.pow()', () => {
+    expectTransform(
+      'result = Math.pow(a, b);'
+    ).toReturn(
+      'result = a ** b;'
+    );
+  })",steel
+/test/transform/exponentTest.js,Unknown Test,"{'column': 2, 'line': 13}","it('should parenthesize arguments when needed', () => {
+    expectTransform(
+      'result = Math.pow(a + 1, b + 2);'
+    ).toReturn(
+      'result = (a + 1) ** (b + 2);'
+    );
+  })",steel
+/test/transform/exponentTest.js,Unknown Test,"{'column': 2, 'line': 21}","it('should parenthesize multiplication', () => {
+    expectTransform(
+      'Math.pow(x * 2, 2);'
+    ).toReturn(
+      '(x * 2) ** 2;'
+    );
+  })",steel
+/test/transform/exponentTest.js,Unknown Test,"{'column': 2, 'line': 29}","it('should not convert Math.pow() without exactly two arguments', () => {
+    expectNoChange('Math.pow();');
+    expectNoChange('Math.pow(1);');
+    expectNoChange('Math.pow(1, 2, 3);');
+  })",steel
+/test/transform/ecmaVersionTest.js,Unknown Test,"{'column': 2, 'line': 17}","it('supports optional catch binding in ECMAScript 2019', () => {
+    expectNoChange('try { ohNo(); } catch { console.log(""error!""); }');
+  })",steel
+/test/transform/ecmaVersionTest.js,Unknown Test,"{'column': 2, 'line': 21}","it('supports optional chaining in ECMAScript 2020', () => {
+    expectNoChange('foo?.bar();');
+  })",steel
+/test/transform/ecmaVersionTest.js,Unknown Test,"{'column': 2, 'line': 25}","it('supports numeric separators in ECMAScript 2021', () => {
+    expectNoChange('const nr = 10_000_000;');
+  })",steel
+/test/transform/ecmaVersionTest.js,Unknown Test,"{'column': 2, 'line': 29}","it('supports private class fields ECMAScript 2022', () => {
+    expectNoChange('class Foo { #field = 42; #method() {} }');
+  })",steel
+/test/transform/destructParamTest.js,Ignored Test,"{'line': 144, 'column': 5, 'index': 3595}","it.skip('should not transform second param when this results in conflict', () => {
+    expectTransform(
+      'function fn(a, b) {\n' +
+      '  console.log(a.foo, b.foo);\n' +
+      '}'
+    ).toReturn(
+      'function fn({foo}, b) {\n' +
+      '  console.log(foo, b.foo);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Ignored Test,"{'line': 156, 'column': 5, 'index': 3899}","it.skip('should not perform second transform when it results in conflict', () => {
+    expectTransform(
+      'function fn(a) {\n' +
+      '  console.log(a.foo);\n' +
+      '  function fn(b) {\n' +
+      '    console.log(a.foo, b.foo);\n' +
+      '  }\n' +
+      '}'
+    ).toReturn(
+      'function fn({foo}) {\n' +
+      '  console.log(foo);\n' +
+      '  function fn(b) {\n' +
+      '    console.log(foo, b.foo);\n' +
+      '  }\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('should transform when only props are accessed', () => {
+    expectTransform(
+      'function fn(cfg) {\n' +
+      '  console.log(cfg.foo, cfg.bar);\n' +
+      '}'
+    ).toReturn(
+      'function fn({foo, bar}) {\n' +
+      '  console.log(foo, bar);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 17}","it('should transform when the same prop accessed multiple times', () => {
+    expectTransform(
+      'function fn(cfg) {\n' +
+      '  console.log(cfg.foo, cfg.bar, cfg.foo);\n' +
+      '}'
+    ).toReturn(
+      'function fn({foo, bar}) {\n' +
+      '  console.log(foo, bar, foo);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 29}","it('should not transform when re-defined as variable', () => {
+    expectNoChange(
+      'function fn(cfg) {\n' +
+      '  var cfg;\n' +
+      '  console.log(cfg.foo, cfg.bar);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 38}","it('should not transform when is used without props-access', () => {
+    expectNoChange(
+      'function fn(cfg) {\n' +
+      '  console.log(cfg, cfg.foo, cfg.bar);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 46}","it('should not transform computed props-access', () => {
+    expectNoChange(
+      'function fn(cfg) {\n' +
+      '  console.log(cfg, cfg[""foo-hoo""], cfg[""bar-haa""]);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 54}","it('should not transform when props are assigned', () => {
+    expectNoChange(
+      'function fn(cfg) {\n' +
+      '  cfg.foo = 1;\n' +
+      '  console.log(cfg.foo, cfg.bar);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 63}","it('should not transform when props are updated', () => {
+    expectNoChange(
+      'function fn(cfg) {\n' +
+      '  cfg.foo++;\n' +
+      '  console.log(cfg.foo, cfg.bar);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 72}","it('should not transform when props are methods', () => {
+    expectNoChange(
+      'function fn(cfg) {\n' +
+      '  console.log(cfg.foo(), cfg.bar);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 80}","it('should not transform when props are keywords', () => {
+    expectNoChange(
+      'function fn(cfg) {\n' +
+      '  console.log(cfg.let, cfg.for);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 88}","it('should not transform when param with name of prop already exists', () => {
+    expectNoChange(
+      'function fn(cfg, bar) {\n' +
+      '  console.log(cfg.foo, cfg.bar);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 96}","it('should not transform when variable with name of prop already exists', () => {
+    expectNoChange(
+      'function fn(cfg) {\n' +
+      '  var foo = 10;\n' +
+      '  console.log(cfg.foo, cfg.bar);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 105}","it('should not transform when import with name of prop already exists', () => {
+    expectNoChange(
+      'import foo from ""./myFooModule"";\n' +
+      'function fn(cfg) {\n' +
+      '  console.log(cfg.foo, cfg.bar);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 114}","it('should not transform when shadowing a global variable', () => {
+    expectNoChange(
+      'function fn(cfg) {\n' +
+      '  console.log(cfg.window);\n' +
+      '  window.open(""_blank"");\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 123}","it('should not transform when shadowing a global variable in separate function', () => {
+    expectNoChange(
+      'function fn(cfg) {\n' +
+      '  function fn1() {\n' +
+      '    console.log(cfg.window);\n' +
+      '  }\n' +
+      '  function fn2() {\n' +
+      '    window.open(""_blank"");\n' +
+      '  }\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 136}","it('should not transform already destructed param', () => {
+    expectNoChange(
+      'function fn({cfg, cfg2}) {\n' +
+      '  console.log(cfg.foo, cfg.bar);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 174}","it('should transform when MAX_PROPS props', () => {
+    expectTransform(
+      'function fn(cfg) {\n' +
+      '  console.log(cfg.p1, cfg.p2, cfg.p3, cfg.p4);\n' +
+      '}'
+    ).toReturn(
+      'function fn({p1, p2, p3, p4}) {\n' +
+      '  console.log(p1, p2, p3, p4);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/destructParamTest.js,Unknown Test,"{'column': 2, 'line': 186}","it('should not transform more than MAX_PROPS props', () => {
+    expectNoChange(
+      'function fn(cfg) {\n' +
+      '  console.log(cfg.p1, cfg.p2, cfg.p3, cfg.p4, cfg.p5);\n' +
+      '}'
+    ).withWarnings([
+      {line: 1, msg: '5 different props found, will not transform more than 4', type: 'destruct-param'}
+    ]);
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 6}","it('should work for simple case', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = a || 2;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 2) {}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 16}","it('should work for different types of parameters', () => {
+      expectTransform(
+        'function x(a, b, c) {\n' +
+        '  a = a || ""salam"";\n' +
+        '  b = b || {};\n' +
+        '  c = c || [];\n' +
+        '}'
+      ).toReturn(
+        'function x(a = ""salam"", b = {}, c = []) {}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 28}","it('should not work when variable not in left of ||', () => {
+      expectNoChange(
+        'function x(a) {\n' +
+        '  a = 10 || a;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 38}","it('should work for simple case', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = a ? a : 4;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 48}","it('should work for different types of parameters', () => {
+      expectTransform(
+        'function x(a, b, c) {\n' +
+        '  a = a ? a : ""salam"";\n' +
+        '  b = b ? b : {};\n' +
+        '  c = c ? c : [];\n' +
+        '}'
+      ).toReturn(
+        'function x(a = ""salam"", b = {}, c = []) {}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 60}","it('should not work when variable in alternate position', () => {
+      expectNoChange(
+        'function x(a) {\n' +
+        '  a = a ? 5 : a;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 70}","it('should work for ===', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = a === undefined ? 4 : a;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 80}","it('should work for !==', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = a !== undefined ? a : 4;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 90}","it('should work for ==', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = a == undefined ? 4 : a;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 100}","it('should work for !=', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = a != undefined ? a : 4;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 110}","it('should not work for other operators (like >)', () => {
+      expectNoChange(
+        'function x(a) {\n' +
+        '  a = a > undefined ? a : 4;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 118}","it('should not work for === when variable in wrong location', () => {
+      expectNoChange(
+        'function x(a) {\n' +
+        '  a = a === undefined ? a : 5;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 126}","it('should not work for !== when variable in wrong location', () => {
+      expectNoChange(
+        'function x(a) {\n' +
+        '  a = a !== undefined ? 5 : a;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 136}","it('should work for ===', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = typeof a === ""undefined"" ? 4 : a;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 146}","it('should work for !==', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = typeof a !== ""undefined"" ? a : 4;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 156}","it('should work for ==', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = typeof a == ""undefined"" ? 4 : a;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 166}","it('should work for !=', () => {
+      expectTransform(
+        'function x(a) {\n' +
+        '  a = typeof a != ""undefined"" ? a : 4;\n' +
+        '}'
+      ).toReturn(
+        'function x(a = 4) {}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 176}","it('should not work for other operators (like >)', () => {
+      expectNoChange(
+        'function x(a) {\n' +
+        '  a = typeof a > undefined ? a : 4;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 184}","it('should not work for === when variable in wrong location', () => {
+      expectNoChange(
+        'function x(a) {\n' +
+        '  a = typeof a === ""undefined"" ? a : 5;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 4, 'line': 192}","it('should not work for !== when variable in wrong location', () => {
+      expectNoChange(
+        'function x(a) {\n' +
+        '  a = typeof a !== ""undefined"" ? 5 : a;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 201}","it('should work when only some parameters have defaults', () => {
+    expectTransform(
+      'function x(a, b, c) {\n' +
+      '  b = b || 3;\n' +
+      '}'
+    ).toReturn(
+      'function x(a, b = 3, c) {}'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 211}","it('should work for multiple functions', () => {
+    expectTransform(
+      'function x(a) { a = a || 2; }\n' +
+      'function y(a) { a = a || 3; }'
+    ).toReturn(
+      'function x(a = 2) {}\n' +
+      'function y(a = 3) {}'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 221}","it('should work for nested functions with similar parameter names', () => {
+    expectTransform(
+      'function x(a) {\n' +
+      '  function y(a) {\n' +
+      '    a = a || 3;\n' +
+      '  }\n' +
+      '  a = a || 2;\n' +
+      '}'
+    ).toReturn(
+      'function x(a) {\n' +
+      '  function y(a = 3) {}\n' +
+      '  a = a || 2;\n' +
+      '}'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 237}","it('should ignore parameters modified before assigning default', () => {
+    expectNoChange(
+      'function x(a) {\n' +
+      '  a = foo();\n' +
+      '  a = a || 2;\n' +
+      '}'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 246}","it('should ignore parameters when any other code executed before assigning default', () => {
+    expectNoChange(
+      'function x(a) {\n' +
+      '  foo();\n' +
+      '  a = a || 2;\n' +
+      '  function foo() {\n' +
+      '    a++;\n' +
+      '  }\n' +
+      '}'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 258}","it('should work for function expressions', () => {
+    expectTransform(
+      'foo(function(a) {\n' +
+      '  a = a || 2;\n' +
+      '});'
+    ).toReturn(
+      'foo(function(a = 2) {});'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 268}","it('should work for arrow functions', () => {
+    expectTransform(
+      'foo((a) => {\n' +
+      '  a = a || 2;\n' +
+      '});'
+    ).toReturn(
+      'foo((a = 2) => {});'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 278}","it('should preserve existing default parameters', () => {
+    expectNoChange(
+      'function x(a = ""salam"", b = {}, c = []) {}'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 284}","it('should not override existing default parameters', () => {
+    expectNoChange(
+      'function x(a=25) {\n' +
+      '  a = a || 2;\n' +
+      '}'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 293}","it('should preserve long parameter lists as is when there are no defaults', () => {
+    expectNoChange(
+      'function foo(variable1, variable2, variable3, variable4, variable5, variable6, variable7, variable8) {}'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 301}","it('should not work when default value is next parameter', () => {
+    expectNoChange(
+      'function f(a, b) { a = a || b }'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 307}","it('should not work when default value contains next parameter', () => {
+    expectNoChange(
+      'function f(a, b) { a = a || foo(1/b+2) }'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 313}","it('should not work when default value contains the parameter itself', () => {
+    expectNoChange(
+      'function f(a, b) { a = a || foo(1/a+2) }'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 319}","it('should work OK when default value is previous parameter', () => {
+    expectTransform(
+      'function f(a, b) { b = b || a }'
+    ).toReturn(
+      'function f(a, b = a) {}'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 327}","it('should not work when default value is next destructured parameter', () => {
+    expectNoChange(
+      'function f(a, [{b}]) { a = a || b }'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 333}","it('should not work when default value is next param with a default', () => {
+    expectNoChange(
+      'function f(a, b = 1) { a = a || b }'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 339}","it('should not work when default value is next destructured param with a default', () => {
+    expectNoChange(
+      'function f(a, {b = 1}) { a = a || b }'
+    );
+  })",steel
+/test/transform/defaultParamTest.js,Unknown Test,"{'column': 2, 'line': 345}","it('should skip transform if function body type is not a BlockStatement', () => {
+    expectNoChange(
+      'const f = (a) => a'
+    );
+  })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('should not convert functions without prototype assignment to class', () => {
+    expectNoChange(
+      'function myFunc() {\n' +
+      '}'
+    ).withoutWarnings();
+  })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 2, 'line': 12}","it('should warn about functions that are named like classes', () => {
+    expectNoChange(
+      'function MyClass() {\n' +
+      '}'
+    ).withWarnings([
+      {line: 1, msg: 'Function MyClass looks like class, but has no prototype', type: 'class'}
+    ]);
+  })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 2, 'line': 21}","it('should convert static function declarations with assignment to static class methods', () => {
+    expectTransform(
+      'function MyClass() {\n' +
+      '}\n' +
+      'MyClass.method = function(a, b) {\n' +
+      '};'
+    ).toReturn(
+      'class MyClass {\n' +
+      '  static method(a, b) {\n' +
+      '  }\n' +
+      '}'
+    );
+  })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 2, 'line': 35}","it('should convert static function declarations with static class methods and prototype assignment', () => {
+    expectTransform(
+      'function MyClass() {\n' +
+      '}\n' +
+      'MyClass.method = function(a, b) {\n' +
+      '};\n' +
+      'MyClass.prototype.fn = function(a, b) {\n' +
+      '};'
+    ).toReturn(
+      'class MyClass {\n' +
+      '  static method(a, b) {\n' +
+      '  }\n\n' +
+      '  fn(a, b) {\n' +
+      '  }\n' +
+      '}'
+    );
+  })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 2, 'line': 53}","it('should ignore anonymous function declaration', () => {
+    expectNoChange(
+      'export default function () {}'
+    );
+  })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 60}","it('should convert to class (when function declaration used)', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype.method = function(a, b) {\n' +
+        '};'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  method(a, b) {\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 74}","it('should convert to class (when function variable used)', () => {
+      expectTransform(
+        'var MyClass = function() {\n' +
+        '};\n' +
+        'MyClass.prototype.method = function() {\n' +
+        '};'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  method() {\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 88}","it('should not convert arrow-function to class', () => {
+      expectNoChange(
+        'var MyClass = () => {\n' +
+        '  this.foo = 10;\n' +
+        '};\n' +
+        'MyClass.prototype.method = () => {\n' +
+        '  return this.foo;\n' +
+        '};'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 99}","it('should not convert arrow-function to method when it uses this', () => {
+      expectNoChange(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype.method = () => {\n' +
+        '  return this.foo;\n' +
+        '};'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 109}","it('should not convert arrow-function to method when it uses this inside nested arrow-function', () => {
+      expectNoChange(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype.method = () => {\n' +
+        '  return () => { this.foo(); };\n' +
+        '};'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 119}","it('should convert arrow-function to method when it does not use this', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype.method = () => {\n' +
+        '  return foo;\n' +
+        '};'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  method() {\n' +
+        '    return foo;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 135}","it('should convert shorthand arrow-function to method when it does not use this', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype.method = () => foo;'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  method() {\n' +
+        '    return foo;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 149}","it('should convert non-empty function to constructor method', () => {
+      expectTransform(
+        'function MyClass(a, b) {\n' +
+        '  this.params = [a, b];\n' +
+        '}\n' +
+        'MyClass.prototype.method = function(ma, mb) {\n' +
+        '};'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  constructor(a, b) {\n' +
+        '    this.params = [a, b];\n' +
+        '  }\n' +
+        '\n' +
+        '  method(ma, mb) {\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 168}","it('should preserve ""async"" keyword when converting methods', () => {
+      expectTransform(
+        'function MyClass(a, b) {\n' +
+        '  this.params = [a, b];\n' +
+        '}\n' +
+        'MyClass.prototype.method = async function(ma, mb) {\n' +
+        '};'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  constructor(a, b) {\n' +
+        '    this.params = [a, b];\n' +
+        '  }\n' +
+        '\n' +
+        '  async method(ma, mb) {\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 187}","it('should not convert non-anonymous functions to methods', () => {
+      expectNoChange(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype.method = method;\n' +
+        'function method(a, b) {\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 197}","it('should ignore non-function assignments to prototype', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype.count = 10;\n' +
+        'MyClass.prototype.method = function() {\n' +
+        '};\n' +
+        'MyClass.prototype.hash = {foo: ""bar""};'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  method() {\n' +
+        '  }\n' +
+        '}\n' +
+        '\n' +
+        'MyClass.prototype.count = 10;\n' +
+        'MyClass.prototype.hash = {foo: ""bar""};'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 218}","it('should transform plain functions to methods', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = {\n' +
+        '  methodA: function(a) {\n' +
+        '  },\n' +
+        '  methodB: function(b) {\n' +
+        '  }\n' +
+        '};'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  methodA(a) {\n' +
+        '  }\n' +
+        '\n' +
+        '  methodB(b) {\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 239}","it('should move over ES6 methods', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = {\n' +
+        '  methodA(a) {\n' +
+        '  },\n' +
+        '  methodB(b) {\n' +
+        '  }\n' +
+        '};'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  methodA(a) {\n' +
+        '  }\n' +
+        '\n' +
+        '  methodB(b) {\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 260}","it('should move over getters/setters', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = {\n' +
+        '  get methodA() {\n' +
+        '  },\n' +
+        '  set methodB(b) {\n' +
+        '  }\n' +
+        '};'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  get methodA() {\n' +
+        '  }\n' +
+        '\n' +
+        '  set methodB(b) {\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 281}","it('should ignore when it contains non-functions', () => {
+      expectNoChange(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = {\n' +
+        '  method: function(a) {\n' +
+        '  },\n' +
+        '  foo: 10\n' +
+        '};'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 293}","it('should ignore when it contains arrow-functions that use this', () => {
+      expectNoChange(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = {\n' +
+        '  method: () => this.foo,\n' +
+        '};'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 303}","it('should transform when it contains arrow-functions that do not use this', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = {\n' +
+        '  method: () => foo,\n' +
+        '};'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  method() {\n' +
+        '    return foo;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 319}","it('should preserve ""async"" when converting arrow-functions', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = {\n' +
+        '  method: async () => foo,\n' +
+        '};'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  async method() {\n' +
+        '    return foo;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 337}","it('should convert setters and getters', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperties(MyClass.prototype, {\n' +
+        '  /** This is an accessor */\n' +
+        '  someAccessor: {\n' +
+        '    get: function () {\n' +
+        '      return this._some;\n' +
+        '    },\n' +
+        '    set: function (value) {\n' +
+        '      this._some = value;\n' +
+        '    }\n' +
+        '  },' +
+        '  /** This is a different accessor */\n' +
+        '  otherAccessor: {\n' +
+        '    get: function () {\n' +
+        '      return this._other;\n' +
+        '    },\n' +
+        '    set: function (value) {\n' +
+        '      this._other = value;\n' +
+        '    }\n' +
+        '  }' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  /** This is an accessor */\n' +
+        '  get someAccessor() {\n' +
+        '    return this._some;\n' +
+        '  }\n' +
+        '\n' +
+        '  set someAccessor(value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '\n' +
+        '  /** This is a different accessor */\n' +
+        '  get otherAccessor() {\n' +
+        '    return this._other;\n' +
+        '  }\n' +
+        '\n' +
+        '  set otherAccessor(value) {\n' +
+        '    this._other = value;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 384}","it('should convert satic setters and getters', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperties(MyClass, {\n' +
+        '  /** This is an accessor */\n' +
+        '  someAccessor: {\n' +
+        '    get: function () {\n' +
+        '      return this._some;\n' +
+        '    },\n' +
+        '    set: function (value) {\n' +
+        '      this._some = value;\n' +
+        '    }\n' +
+        '  },' +
+        '  /** This is a different accessor */\n' +
+        '  otherAccessor: {\n' +
+        '    get: function () {\n' +
+        '      return this._other;\n' +
+        '    },\n' +
+        '    set: function (value) {\n' +
+        '      this._other = value;\n' +
+        '    }\n' +
+        '  }' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  /** This is an accessor */\n' +
+        '  static get someAccessor() {\n' +
+        '    return this._some;\n' +
+        '  }\n' +
+        '\n' +
+        '  static set someAccessor(value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '\n' +
+        '  /** This is a different accessor */\n' +
+        '  static get otherAccessor() {\n' +
+        '    return this._other;\n' +
+        '  }\n' +
+        '\n' +
+        '  static set otherAccessor(value) {\n' +
+        '    this._other = value;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 431}","it('should ignore other options when converting get/set', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperties(MyClass.prototype, {\n' +
+        '  someAccessor: {\n' +
+        '    configurable: true,\n' +
+        '    enumerable: true,\n' +
+        '    set: function (value) {\n' +
+        '      this._some = value;\n' +
+        '    }\n' +
+        '  },\n' +
+        '  /** This is a different accessor */\n' +
+        '  otherAccessor: {\n' +
+        '    get: function () {\n' +
+        '      return this._other;\n' +
+        '    },\n' +
+        '  }' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  set someAccessor(value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '\n' +
+        '  /** This is a different accessor */\n' +
+        '  get otherAccessor() {\n' +
+        '    return this._other;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 464}","it('should ignore non-function property', () => {
+      expectNoChange(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperties(MyClass.prototype, {\n' +
+        '  propName: {\n' +
+        '    value: 10,\n' +
+        '    configurable: true,\n' +
+        '    writable: true\n' +
+        '  }\n' +
+        '});'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 478}","it('should ignore non-function property even when mixed', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperties(MyClass.prototype, {\n' +
+        '  propName: {\n' +
+        '    value: 10,\n' +
+        '    configurable: true,\n' +
+        '    writable: true\n' +
+        '  },\n' +
+        '  /** This is a different accessor */\n' +
+        '  otherAccessor: {\n' +
+        '    get: function () {\n' +
+        '      return this._other;\n' +
+        '    },\n' +
+        '  }' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  /** This is a different accessor */\n' +
+        '  get otherAccessor() {\n' +
+        '    return this._other;\n' +
+        '  }\n' +
+        '}\n' +
+        '\n' +
+        'Object.defineProperties(MyClass.prototype, {\n' +
+        '  propName: {\n' +
+        '    value: 10,\n' +
+        '    configurable: true,\n' +
+        '    writable: true\n' +
+        '  }\n' +
+        '});'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 513}","it('should transform arrow-function that does not use this', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperties(MyClass.prototype, {\n' +
+        '  getter: {\n' +
+        '    get: () => something\n' +
+        '  }\n' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  get getter() {\n' +
+        '    return something;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 531}","it('should transform arrow-function that does not use this when mixed', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperties(MyClass.prototype, {\n' +
+        '  getter: {\n' +
+        '    get: () => something\n' +
+        '  },\n' +
+        '  /** This is a different accessor */\n' +
+        '  otherAccessor: {\n' +
+        '    get: function () {\n' +
+        '      return this._other;\n' +
+        '    },\n' +
+        '  }\n' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  get getter() {\n' +
+        '    return something;\n' +
+        '  }\n' +
+        '\n' +
+        '  /** This is a different accessor */\n' +
+        '  get otherAccessor() {\n' +
+        '    return this._other;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 560}","it('should ignore arrow-function that uses this', () => {
+      expectNoChange(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperties(MyClass.prototype, {\n' +
+        '  getter: {\n' +
+        '    get: () => this.something\n' +
+        '  }\n' +
+        '});'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 572}","it('should ignore arrow-function that uses this when mixed', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperties(MyClass.prototype, {\n' +
+        '  getter: {\n' +
+        '    get: () => this.something\n' +
+        '  },\n' +
+        '  /** This is a different accessor */\n' +
+        '  otherAccessor: {\n' +
+        '    get: function () {\n' +
+        '      return this._other;\n' +
+        '    },\n' +
+        '  }\n' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  /** This is a different accessor */\n' +
+        '  get otherAccessor() {\n' +
+        '    return this._other;\n' +
+        '  }\n' +
+        '}\n' +
+        '\n' +
+        'Object.defineProperties(MyClass.prototype, {\n' +
+        '  getter: {\n' +
+        '    get: () => this.something\n' +
+        '  }\n' +
+        '});'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 605}","it('should convert setters and getters', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        '/** This is an accessor */\n' +
+        'Object.defineProperty(MyClass.prototype, ""someAccessor"", {\n' +
+        '  get: function () {\n' +
+        '    return this._some;\n' +
+        '  },\n' +
+        '  set: function (value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  /** This is an accessor */\n' +
+        '  get someAccessor() {\n' +
+        '    return this._some;\n' +
+        '  }\n' +
+        '\n' +
+        '  set someAccessor(value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 632}","it('should convert static setters and getters', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        '/** This is an accessor */\n' +
+        'Object.defineProperty(MyClass, ""someAccessor"", {\n' +
+        '  get: function () {\n' +
+        '    return this._some;\n' +
+        '  },\n' +
+        '  set: function (value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  /** This is an accessor */\n' +
+        '  static get someAccessor() {\n' +
+        '    return this._some;\n' +
+        '  }\n' +
+        '\n' +
+        '  static set someAccessor(value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 659}","it('should ignore other options when converting get/set', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperty(MyClass.prototype, ""someAccessor"", {\n' +
+        '  configurable: true,\n' +
+        '  enumerable: true,\n' +
+        '  set: function (value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  set someAccessor(value) {\n' +
+        '    this._some = value;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 679}","it('should ignore non-function property', () => {
+      expectNoChange(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperty(MyClass.prototype, ""propName"", {\n' +
+        '  value: 10,\n' +
+        '  configurable: true,\n' +
+        '  writable: true\n' +
+        '});'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 691}","it('should transform arrow-function that does not use this', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperty(MyClass.prototype, ""getter"", {\n' +
+        '  get: () => something\n' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  get getter() {\n' +
+        '    return something;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 707}","it('should ignore arrow-function that uses this', () => {
+      expectNoChange(
+        'function MyClass() {\n' +
+        '}\n' +
+        'Object.defineProperty(MyClass.prototype, ""getter"", {\n' +
+        '  get: () => this.something\n' +
+        '});'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 719}","it('should preserve class comments', () => {
+      expectTransform(
+        '/** My nice class. */\n' +
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype.method = function(a, b) {\n' +
+        '};'
+      ).toReturn(
+        '/** My nice class. */\n' +
+        'class MyClass {\n' +
+        '  method(a, b) {\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 735}","it('should preserve method comments', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        '/** My nice method. */\n' +
+        'MyClass.prototype.method = function(a, b) {\n' +
+        '};'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  /** My nice method. */\n' +
+        '  method(a, b) {\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 751}","it('should preserve class with constructor comments', () => {
+      expectTransform(
+        '/** My nice class. */\n' +
+        'function MyClass() {\n' +
+        '  this.foo = 1;\n' +
+        '}\n' +
+        'MyClass.prototype.method = function(a, b) {\n' +
+        '};'
+      ).toReturn(
+        '/** My nice class. */\n' +
+        'class MyClass {\n' +
+        '  constructor() {\n' +
+        '    this.foo = 1;\n' +
+        '  }\n' +
+        '\n' +
+        '  method(a, b) {\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 772}","it('should preserve multiple comments in various places', () => {
+      expectTransform(
+        '// My class\n' +
+        '// it is nice\n' +
+        'function MyClass() {\n' +
+        '}\n' +
+        '// comment after constructor-function\n' +
+        '\n' +
+        '// Look me, a method!\n' +
+        '// it is nice too\n' +
+        'MyClass.prototype.method = function(a, b) {\n' +
+        '};\n' +
+        '// and even some comments in here'
+      ).toReturn(
+        '// My class\n' +
+        '// it is nice\n' +
+        'class MyClass {\n' +
+        '  // comment after constructor-function\n' +
+        '\n' +
+        '  // Look me, a method!\n' +
+        '  // it is nice too\n' +
+        '  method(a, b) {\n' +
+        '  }\n' +
+        '  // and even some comments in here\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 800}","it('should preserve prototype = {} comments', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        '// comment before\n' +
+        'MyClass.prototype = {\n' +
+        '  // comment A\n' +
+        '  methodA: function() {},\n' +
+        '  // comment B\n' +
+        '  methodB: function() {}\n' +
+        '};\n'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  // comment before\n' +
+        '  // comment A\n' +
+        '  methodA() {}\n' +
+        '\n' +
+        '  // comment B\n' +
+        '  methodB() {}\n' +
+        '}\n'
+      );
+    })",steel
+/test/transform/classTest.js,Unknown Test,"{'column': 4, 'line': 823}","it('should preserve Object.defineProperty comments', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        '// Comment before\n' +
+        'Object.defineProperty(MyClass.prototype, ""someAccessor"", {\n' +
+        '  // Getter comment\n' +
+        '  get: function() {},\n' +
+        '  // Setter comment\n' +
+        '  set: function() {}\n' +
+        '});'
+      ).toReturn(
+        'class MyClass {\n' +
+        '  // Comment before\n' +
+        '  // Getter comment\n' +
+        '  get someAccessor() {}\n' +
+        '\n' +
+        '  // Setter comment\n' +
+        '  set someAccessor() {}\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 6}","it('determines a function is a class when util.inherits() is used', () => {
+      expectTransform(
+        'var util2 = require(""util"");\n' +
+        'function MyClass() {\n' +
+        '}\n' +
+        'util2.inherits(MyClass, ParentClass);'
+      ).toReturn(
+        'var util2 = require(""util"");\n' +
+        'class MyClass extends ParentClass {}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 18}","it('tracks assignment of require(""util"").inherits', () => {
+      expectTransform(
+        'var inherits2 = require(""util"").inherits;\n' +
+        'function MyClass() {\n' +
+        '}\n' +
+        'inherits2(MyClass, ParentClass);'
+      ).toReturn(
+        'var inherits2 = require(""util"").inherits;\n' +
+        'class MyClass extends ParentClass {}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 30}","it('supports import from ""util""', () => {
+      expectTransform(
+        'import util from ""util"";\n' +
+        'function MyClass() {\n' +
+        '}\n' +
+        'util.inherits(MyClass, ParentClass);'
+      ).toReturn(
+        'import util from ""util"";\n' +
+        'class MyClass extends ParentClass {}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 42}","it('ignores import of anything else than ""util""', () => {
+      expectNoChange(
+        'import util from ""./util"";\n' +
+        'function MyClass() {\n' +
+        '}\n' +
+        'util.inherits(MyClass, ParentClass);'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 51}","it('ignores named imports from ""util""', () => {
+      expectNoChange(
+        'import {util} from ""util"";\n' +
+        'function MyClass() {\n' +
+        '}\n' +
+        'util.inherits(MyClass, ParentClass);'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 60}","it('preserves inheritance when the inherited class is a member expression', () => {
+      expectTransform(
+        'var util = require(""util"");\n' +
+        'function MyClass() {\n' +
+        '}\n' +
+        'util.inherits(MyClass, Foo.Bar.ParentClass);'
+      ).toReturn(
+        'var util = require(""util"");\n' +
+        'class MyClass extends Foo.Bar.ParentClass {}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 72}","it('ignores require(""util"") which is not top-level', () => {
+      expectNoChange(
+        'function foo() {\n' +
+        '  var util = require(""util"");\n' +
+        '}\n' +
+        'function MyClass() {\n' +
+        '}\n' +
+        'util.inherits(MyClass, Foo.Bar.ParentClass);'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 83}","it('ignores util.inherits() when not from require(""util"")', () => {
+      expectNoChange(
+        'var util = require(""./util"");\n' +
+        'function MyClass() {\n' +
+        '}\n' +
+        'util.inherits(MyClass, ParentClass);'
+      );
+      expectNoChange(
+        'var inherits = require(""./util"").inherits;\n' +
+        'function MyClass() {\n' +
+        '}\n' +
+        'inherits(MyClass, ParentClass);'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 100}","it('determines a function is a class', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = new ParentClass();'
+      ).toReturn(
+        'class MyClass extends ParentClass {}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 110}","it('discards the prototype.constructor assignment', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = new ParentClass();\n' +
+        'MyClass.prototype.constructor = MyClass;'
+      ).toReturn(
+        'class MyClass extends ParentClass {}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 121}","it('ignores bogus prototype.constructor assignments', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = new ParentClass();\n' +
+        'ParentClass.prototype.constructor = MyClass;\n' +
+        'MyClass.prototype.constructor = ParentClass;'
+      ).toReturn(
+        'class MyClass extends ParentClass {}\n' +
+        'ParentClass.prototype.constructor = MyClass;\n' +
+        'MyClass.prototype.constructor = ParentClass;'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 135}","it('does not detect inheritance from prototype.constructor assignment alone', () => {
+      expectNoChange(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype.constructor = MyClass;'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 145}","it('determines a function is a class', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = Object.create(ParentClass.prototype);'
+      ).toReturn(
+        'class MyClass extends ParentClass {}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 155}","it('discards the prototype.constructor assignment', () => {
+      expectTransform(
+        'function MyClass() {\n' +
+        '}\n' +
+        'MyClass.prototype = Object.create(ParentClass.prototype);\n' +
+        'MyClass.prototype.constructor = MyClass;'
+      ).toReturn(
+        'class MyClass extends ParentClass {}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 168}","it('converts ParentClass.call(this, args...) to super()', () => {
+      expectTransform(
+        'function MyClass(name) {\n' +
+        '  ParentClass.call(this, name);\n' +
+        '  this.name = name;\n' +
+        '}\n' +
+        'MyClass.prototype = new ParentClass();'
+      ).toReturn(
+        'class MyClass extends ParentClass {\n' +
+        '  constructor(name) {\n' +
+        '    super(name);\n' +
+        '    this.name = name;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 185}","it('does not convert ParentClass.call(args...) without this to super() ', () => {
+      expectTransform(
+        'function MyClass(name) {\n' +
+        '  ParentClass.call(null, name);\n' +
+        '  this.name = name;\n' +
+        '}\n' +
+        'MyClass.prototype = new ParentClass();'
+      ).toReturn(
+        'class MyClass extends ParentClass {\n' +
+        '  constructor(name) {\n' +
+        '    ParentClass.call(null, name);\n' +
+        '    this.name = name;\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 202}","it('converts nested ParentClass.call(this, args...) in constructor to super()', () => {
+      expectTransform(
+        'function MyClass(name) {\n' +
+        '  if (true)\n' +
+        '    ParentClass.call(this);\n' +
+        '}\n' +
+        'MyClass.prototype = new ParentClass();'
+      ).toReturn(
+        'class MyClass extends ParentClass {\n' +
+        '  constructor(name) {\n' +
+        '    if (true)\n' +
+        '      super();\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 221}","it('converts ParentClass.prototype.foo.call(this, args...) to super.foo()', () => {
+      expectTransform(
+        'function MyClass(name) {\n' +
+        '}\n' +
+        'MyClass.prototype = new ParentClass();\n' +
+        'MyClass.prototype.foo = function(a, b, c) {\n' +
+        '  ParentClass.prototype.foo.call(this, a, b, c);\n' +
+        '  this.doSomethingElse();\n' +
+        '};'
+      ).toReturn(
+        'class MyClass extends ParentClass {\n' +
+        '  foo(a, b, c) {\n' +
+        '    super.foo(a, b, c);\n' +
+        '    this.doSomethingElse();\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 240}","it('converts nested ParentClass.prototype.foo.call(this, args...) to super.foo()', () => {
+      expectTransform(
+        'function MyClass(name) {\n' +
+        '}\n' +
+        'MyClass.prototype = new ParentClass();\n' +
+        'MyClass.prototype.bar = function() {\n' +
+        '  if (someCondition)\n' +
+        '    ParentClass.prototype.foo.call(this);\n' +
+        '};'
+      ).toReturn(
+        'class MyClass extends ParentClass {\n' +
+        '  bar() {\n' +
+        '    if (someCondition)\n' +
+        '      super.foo();\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/classInheritanceTest.js,Unknown Test,"{'column': 4, 'line': 259}","it('does not convert SomeOtherClass.prototype.foo.call(this, args...) to super.foo()', () => {
+      expectTransform(
+        'function MyClass(name) {\n' +
+        '}\n' +
+        'MyClass.prototype = new ParentClass();\n' +
+        'MyClass.prototype.foo = function() {\n' +
+        '  SomeOtherClass.prototype.foo.call(this);\n' +
+        '};'
+      ).toReturn(
+        'class MyClass extends ParentClass {\n' +
+        '  foo() {\n' +
+        '    SomeOtherClass.prototype.foo.call(this);\n' +
+        '  }\n' +
+        '}'
+      );
+    })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('should convert simple callbacks', () => {
+    expectTransform(
+      'setTimeout(function() { return 2; });'
+    ).toReturn('setTimeout(() => { return 2; });');
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 11}","it('should convert callbacks with a single argument', () => {
+    expectTransform(
+      'a(function(b) { return b; });'
+    ).toReturn('a(b => { return b; });');
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 17}","it('should convert callbacks with multiple arguments', () => {
+    expectTransform(
+      'a(function(b, c) { return b; });'
+    ).toReturn(
+      'a((b, c) => { return b; });'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 25}","it('should preserve async on anonymous function expression with no argument', () => {
+    expectTransform(
+      'f = async function() { return 1; };'
+    ).toReturn(
+      'f = async () => { return 1; };'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 33}","it('should preserve async on anonymous function expression with single argument', () => {
+    expectTransform(
+      'f = async function(a) { return a; };'
+    ).toReturn(
+      'f = async a => { return a; };'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 41}","it('should preserve async on anonymous function assignment with multiple arguments', () => {
+    expectTransform(
+      'f = async function(a,b) { return a; };'
+    ).toReturn(
+      'f = async (a, b) => { return a; };'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 49}","it('should preserve async on immediate function invocation', () => {
+    expectTransform(
+      '(async function () { await foo(); }());'
+    ).toReturn(
+      '(async () => { await foo(); })();'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 57}","it('should preserve async on immediate function invocation with arguments', () => {
+    expectTransform(
+      '(async function (a) { await foo(a); }());'
+    ).toReturn(
+      '(async a => { await foo(a); })();'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 65}","it('should convert function assignment', () => {
+    expectTransform(
+      'x = function () { foo(); };'
+    ).toReturn(
+      'x = () => { foo(); };'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 74}","it('should convert immediate function invocation', () => {
+    expectTransform(
+      '(function () { foo(); }());'
+    ).toReturn(
+      '(() => { foo(); })();'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 82}","it('should convert returning of a function', () => {
+    expectTransform(
+      'function foo () { return function() { foo(); }; }'
+    ).toReturn(
+      'function foo () { return () => { foo(); }; }'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 90}","it('should convert functions using `this` keyword inside a nested function', () => {
+    expectTransform(
+      'a(function () { return function() { this; }; });'
+    ).toReturn(
+      'a(() => { return function() { this; }; });'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 98}","it('should convert functions using `arguments` inside a nested function', () => {
+    expectTransform(
+      'a(function () { return function() { arguments; }; });'
+    ).toReturn(
+      'a(() => { return function() { arguments; }; });'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 106}","it('should preserve default parameters', () => {
+    expectTransform(
+      'foo(function (a=1, b=2, c) { });'
+    ).toReturn(
+      'foo((a=1, b=2, c) => { });'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 114}","it('should preserve rest parameters', () => {
+    expectTransform(
+      'foo(function (x, ...xs) { });'
+    ).toReturn(
+      'foo((x, ...xs) => { });'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 122}","it('should preserve code after return statement', () => {
+    expectTransform(
+      'a(function() {\n' +
+      '  return func;\n' +
+      '  function func() {}\n' +
+      '});'
+    ).toReturn(
+      'a(() => {\n' +
+      '  return func;\n' +
+      '  function func() {}\n' +
+      '});'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 136}","it('should not convert function declarations', () => {
+    expectNoChange('function foo() {};');
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 140}","it('should not convert named function expressions', () => {
+    expectNoChange('f = function fact(n) { return n * fact(n-1); };');
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 144}","it('should not convert generators', () => {
+    expectNoChange('f = function* (n) { };');
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 148}","it('should not convert functions using `this` keyword', () => {
+    expectNoChange('a(function () { this; });');
+    expectNoChange('a(function () { this.x = 2; });');
+    expectNoChange('a(function () { this.bar(); });');
+    expectNoChange('a(function () { foo(this); });');
+    expectNoChange('a(function () { foo(this.bar); });');
+    expectNoChange('a(function () { return this; });');
+    expectNoChange('a(function () { if (x) foo(this); });');
+    expectNoChange('a(function () { for (x of foo) { bar(this); } });');
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 159}","it('should not convert functions using `arguments`', () => {
+    expectNoChange('a(function () { arguments; });').withWarnings([
+      {line: 1, msg: 'Can not use arguments in arrow function', type: 'arrow'}
+    ]);
+    expectNoChange('a(function () { foo(arguments); });').withWarnings([
+      {line: 1, msg: 'Can not use arguments in arrow function', type: 'arrow'}
+    ]);
+    expectNoChange('a(function () { return arguments[0] + 1; });').withWarnings([
+      {line: 1, msg: 'Can not use arguments in arrow function', type: 'arrow'}
+    ]);
+    expectNoChange('a(function () { return Array.slice.apply(arguments); });').withWarnings([
+      {line: 1, msg: 'Can not use arguments in arrow function', type: 'arrow'}
+    ]);
+    expectNoChange('a(function () { if (x) foo(arguments); });').withWarnings([
+      {line: 1, msg: 'Can not use arguments in arrow function', type: 'arrow'}
+    ]);
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 177}","it('should not convert object methods', () => {
+    expectNoChange('({foo() {}});');
+    expectNoChange('({foo: function() {}});');
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 182}","it('should not convert class methods', () => {
+    expectNoChange(
+      'class Foo {\n' +
+      '  bar() {}\n' +
+      '}'
+    );
+  })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 4, 'line': 191}","it('should convert this-using functions', () => {
+      expectTransform(
+        'a(function (a, b=2, ...c) { this.x = 3; }.bind(this));'
+      ).toReturn(
+        'a((a, b=2, ...c) => { this.x = 3; });'
+      );
+    })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 4, 'line': 199}","it('should convert immediately returning functions', () => {
+      expectTransform(
+        'a(function () { return 123; }.bind(this));'
+      ).toReturn(
+        'a(() => { return 123; });'
+      );
+    })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 4, 'line': 207}","it('should convert object members', () => {
+      expectTransform(
+        '({foo: function() { this.x = 3; }.bind(this)});'
+      ).toReturn(
+        '({foo: () => { this.x = 3; }});'
+      );
+    })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 4, 'line': 215}","it('should not convert functions using `arguments`', () => {
+      expectNoChange('a(function () { arguments; }.bind(this));').withWarnings([
+        {line: 1, msg: 'Can not use arguments in arrow function', type: 'arrow'}
+      ]);
+    })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 4, 'line': 221}","it('should not convert generator functions', () => {
+      expectNoChange('a(function* () { }.bind(this));');
+    })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 4, 'line': 225}","it('should not convert named function expressions', () => {
+      expectNoChange('a(function foo() { });');
+    })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 4, 'line': 229}","it('should not convert when arguments also bound', () => {
+      expectNoChange('a(function(a,b,c) { return this; }.bind(this, 1, 2, 3));');
+    })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 4, 'line': 235}","it('get parentheses added around the arrow function when needed', () => {
+      expectTransform(
+        'x = function(a) { return a; }.call(null, 1);'
+      ).toReturn(
+        'x = (a => { return a; }).call(null, 1);'
+      );
+    })",steel
+/test/transform/arrowTest.js,Unknown Test,"{'column': 2, 'line': 244}","it('should preserve comments', () => {
+    expectTransform(
+      'a(\n' +
+      '  // comment before\n' +
+      '  function(b) {\n' +
+      '    return b;\n' +
+      '  }\n' +
+      '  // comment after\n' +
+      ');'
+    ).toReturn(
+      'a(\n' +
+      '  // comment before\n' +
+      '  b => {\n' +
+      '    return b;\n' +
+      '  }\n' +
+      '  // comment after\n' +
+      ');'
+    );
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('should convert basic arrow function', () => {
+    expectTransform(
+      'a(() => { return 123; });'
+    ).toReturn(
+      'a(() => 123);'
+    );
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 13}","it('should convert arrow function inside variable declaration', () => {
+    expectTransform(
+      'const a = () => { return 123; }'
+    ).toReturn(
+      'const a = () => 123'
+    );
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 21}","it('should convert arrow function inside object', () => {
+    expectTransform(
+      '({ foo: () => { return 123; } })'
+    ).toReturn(
+      '({ foo: () => 123 })'
+    );
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 29}","it('should convert nested arrow functions', () => {
+    expectTransform(
+      'a(() => { return () => { const b = c => { return c; } }; })'
+    ).toReturn(
+      'a(() => () => { const b = c => c })'
+    );
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 41}","it('should convert arrow function using `this` keyword', () => {
+    expectTransform(
+      'function Foo() {\n' +
+      '  setTimeout(() => { return this; });\n' +
+      '}'
+    ).toReturn(
+      'function Foo() {\n' +
+      '  setTimeout(() => this);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 53}","it('should convert arrow function using `arguments` keyword', () => {
+    expectTransform(
+      'function func() {\n' +
+      '  setTimeout(() => { return arguments; });\n' +
+      '}'
+    ).toReturn(
+      'function func() {\n' +
+      '  setTimeout(() => arguments);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 65}","it('should convert returning an object', () => {
+    expectTransform(
+      'var f = a => { return {a: 1}; };'
+    ).toReturn(
+      'var f = a => ({\n' +
+      '  a: 1\n' +
+      '});'
+    );
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 75}","it('should convert returning an object property access', () => {
+    expectTransform(
+      'var f = (a) => { return {a: 1}[a]; };'
+    ).toReturn(
+      'var f = a => ({\n' +
+      '  a: 1\n' +
+      '})[a];'
+    );
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 85}","it('should convert return statements inside a parenthesized arrow function', () => {
+    expectTransform(
+      'const x = (a => { return a; }).call(null, 1);'
+    ).toReturn(
+      'const x = (a => a).call(null, 1);'
+    );
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 93}","it('should preserve comments', () => {
+    expectTransform(
+      'a(b => {\n' +
+      '  // comment\n' +
+      '  return b;\n' +
+      '});'
+    ).toReturn(
+      'a(b => // comment\n' +
+      'b);'
+    );
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 105}","it('should not convert arrow functions without return keyword', () => {
+    expectNoChange('a(() => {});');
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 109}","it('should not convert empty return', () => {
+    expectNoChange(
+      'var f = () => { return; };'
+    );
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 115}","it('should not convert return statements from non-arrow function', () => {
+    expectNoChange('const a = function(b) { return b; };');
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 119}","it('should not convert return statements from non-arrow function inside a nested arrow function', () => {
+    expectNoChange('const a = b => { const c = function(d) { return d; } };');
+  })",steel
+/test/transform/arrowReturnTest.js,Unknown Test,"{'column': 2, 'line': 123}","it('should preserve code after return statement', () => {
+    expectNoChange(
+      'a(() => {\n' +
+      '  return func;\n' +
+      '  function func() {}\n' +
+      '});'
+    );
+  })",steel
+/test/transform/argSpreadTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('should convert basic obj.fn.apply()', () => {
+    expectTransform(
+      'obj.fn.apply(obj, someArray);'
+    ).toReturn(
+      'obj.fn(...someArray);'
+    );
+  })",steel
+/test/transform/argSpreadTest.js,Unknown Test,"{'column': 2, 'line': 13}","it('should convert this.method.apply()', () => {
+    expectTransform(
+      'this.method.apply(this, someArray);'
+    ).toReturn(
+      'this.method(...someArray);'
+    );
+  })",steel
+/test/transform/argSpreadTest.js,Unknown Test,"{'column': 2, 'line': 21}","it('should not convert obj.fn.apply() without obj as parameter', () => {
+    expectNoChange('obj.fn.apply(otherObj, someArray);');
+    expectNoChange('obj.fn.apply(undefined, someArray);');
+    expectNoChange('obj.fn.apply(null, someArray);');
+    expectNoChange('obj.fn.apply(this, someArray);');
+    expectNoChange('obj.fn.apply({}, someArray);');
+  })",steel
+/test/transform/argSpreadTest.js,Unknown Test,"{'column': 2, 'line': 29}","it('should convert plain fn.apply()', () => {
+    expectTransform('fn.apply(undefined, someArray);').toReturn('fn(...someArray);');
+    expectTransform('fn.apply(null, someArray);').toReturn('fn(...someArray);');
+  })",steel
+/test/transform/argSpreadTest.js,Unknown Test,"{'column': 2, 'line': 34}","it('should not convert plain fn.apply() when actual object used as this parameter', () => {
+    expectNoChange('fn.apply(obj, someArray);');
+    expectNoChange('fn.apply(this, someArray);');
+    expectNoChange('fn.apply({}, someArray);');
+  })",steel
+/test/transform/argSpreadTest.js,Unknown Test,"{'column': 2, 'line': 40}","it('should convert obj.fn.apply() with array expression', () => {
+    expectTransform(
+      'obj.fn.apply(obj, [1, 2, 3]);'
+    ).toReturn(
+      'obj.fn(...[1, 2, 3]);'
+    );
+  })",steel
+/test/transform/argSpreadTest.js,Unknown Test,"{'column': 2, 'line': 48}","it('should convert <long-expression>.fn.apply()', () => {
+    expectTransform(
+      'foo[bar+1].baz.fn.apply(foo[bar+1].baz, someArray);'
+    ).toReturn(
+      'foo[bar+1].baz.fn(...someArray);'
+    );
+  })",steel
+/test/transform/argSpreadTest.js,Unknown Test,"{'column': 2, 'line': 56}","it('should convert <literal>.fn.apply()', () => {
+    expectTransform(
+      '[].fn.apply([], someArray);'
+    ).toReturn(
+      '[].fn(...someArray);'
+    );
+  })",steel
+/test/transform/argSpreadTest.js,Unknown Test,"{'column': 2, 'line': 64}","it('should convert obj[fn].apply()', () => {
+    expectTransform(
+      'obj[fn].apply(obj, someArray);'
+    ).toReturn(
+      'obj[fn](...someArray);'
+    );
+  })",steel
+/test/transform/argRestTest.js,Unknown Test,"{'column': 2, 'line': 5}","it('does not replace arguments outside a function', () => {
+    expectNoChange(
+      'console.log(arguments);'
+    );
+  })",steel
+/test/transform/argRestTest.js,Unknown Test,"{'column': 2, 'line': 11}","it('replaces arguments in function declaration', () => {
+    expectTransform(
+      'function foo() {\n' +
+      '  console.log(arguments);\n' +
+      '}'
+    ).toReturn(
+      'function foo(...args) {\n' +
+      '  console.log(args);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/argRestTest.js,Unknown Test,"{'column': 2, 'line': 23}","it('replaces arguments in function expression', () => {
+    expectTransform(
+      'var foo = function() {\n' +
+      '  console.log(arguments);\n' +
+      '};'
+    ).toReturn(
+      'var foo = function(...args) {\n' +
+      '  console.log(args);\n' +
+      '};'
+    );
+  })",steel
+/test/transform/argRestTest.js,Unknown Test,"{'column': 2, 'line': 35}","it('replaces arguments in class method', () => {
+    expectTransform(
+      'class Foo {\n' +
+      '  bar() {\n' +
+      '    console.log(arguments);\n' +
+      '  }\n' +
+      '}'
+    ).toReturn(
+      'class Foo {\n' +
+      '  bar(...args) {\n' +
+      '    console.log(args);\n' +
+      '  }\n' +
+      '}'
+    );
+  })",steel
+/test/transform/argRestTest.js,Unknown Test,"{'column': 2, 'line': 53}","it('does not replace arguments in arrow function', () => {
+    expectNoChange(
+      'var foo = () => console.log(arguments);'
+    );
+  })",steel
+/test/transform/argRestTest.js,Unknown Test,"{'column': 2, 'line': 59}","it('replaces arguments in nested arrow function', () => {
+    expectTransform(
+      'function foo() {\n' +
+      '  var bar = () => console.log(arguments);\n' +
+      '}'
+    ).toReturn(
+      'function foo(...args) {\n' +
+      '  var bar = () => console.log(args);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/argRestTest.js,Unknown Test,"{'column': 2, 'line': 72}","it('does not replace arguments when args variable already exists', () => {
+    expectNoChange(
+      'function foo() {\n' +
+      '  var args = [];\n' +
+      '  console.log(arguments);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/argRestTest.js,Unknown Test,"{'column': 2, 'line': 81}","it('does not replace arguments when args variable exists in parent scope', () => {
+    expectNoChange(
+      'var args = [];\n' +
+      'function foo() {\n' +
+      '  console.log(args, arguments);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/argRestTest.js,Unknown Test,"{'column': 2, 'line': 90}","it('does not replace arguments when args variable exists in parent function param', () => {
+    expectNoChange(
+      'function parent(args) {\n' +
+      '  function foo() {\n' +
+      '    console.log(args, arguments);\n' +
+      '  }\n' +
+      '}'
+    );
+  })",steel
+/test/transform/argRestTest.js,Unknown Test,"{'column': 2, 'line': 100}","it('does not replace arguments when args variable exists in child block scope that uses arguments', () => {
+    expectNoChange(
+      'function foo() {\n' +
+      '  if (true) {\n' +
+      '    const args = 0;\n' +
+      '    console.log(arguments);\n' +
+      '  }\n' +
+      '}'
+    );
+  })",steel
+/test/transform/argRestTest.js,Unknown Test,"{'column': 2, 'line': 111}","it('does not replace arguments in function declaration with existing formal params', () => {
+    expectNoChange(
+      'function foo(a, b ,c) {\n' +
+      '  console.log(arguments);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/argRestTest.js,Unknown Test,"{'column': 2, 'line': 119}","it('does not add ...args to function that does not use arguments', () => {
+    expectNoChange(
+      'function foo() {\n' +
+      '  console.log(a, b, c);\n' +
+      '}'
+    );
+  })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 6}","it('should convert basic var/let/const with require()', () => {
+      expectTransform('var   foo = require(""foo"");').toReturn('import foo from ""foo"";');
+      expectTransform('const foo = require(""foo"");').toReturn('import foo from ""foo"";');
+      expectTransform('let   foo = require(""foo"");').toReturn('import foo from ""foo"";');
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 12}","it('should do nothing with var that contains no require()', () => {
+      expectNoChange('var foo = ""bar"";');
+      expectNoChange('var foo;');
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 17}","it('should do nothing with require() that does not have a single string argument', () => {
+      expectNoChange('var foo = require();');
+      expectNoChange('var foo = require(""foo"", {});');
+      expectNoChange('var foo = require(bar);');
+      expectNoChange('var foo = require(123);');
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 24}","it('should convert var with multiple require() calls', () => {
+      expectTransform(
+        'var foo = require(""foo""), bar = require(""bar"");'
+      ).toReturn(
+        'import foo from ""foo"";\n' +
+        'import bar from ""bar"";'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 33}","it('should convert var/let/const with intermixed require() calls and normal initializations', () => {
+      expectTransform(
+        'var foo = require(""foo""), bar = 15;'
+      ).toReturn(
+        'import foo from ""foo"";\n' +
+        'var bar = 15;'
+      );
+
+      expectTransform(
+        'let abc, foo = require(""foo"")'
+      ).toReturn(
+        'let abc;\n' +
+        'import foo from ""foo"";'
+      );
+
+      expectTransform(
+        'const greeting = ""hello"", foo = require(""foo"");'
+      ).toReturn(
+        'const greeting = ""hello"";\n' +
+        'import foo from ""foo"";'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 58}","it('does not need to preserve combined variable declarations', () => {
+      expectTransform(
+        'var foo = require(""foo""), bar = 1, baz = 2;'
+      ).toReturn(
+        'import foo from ""foo"";\n' +
+        'var bar = 1;\n' +
+        'var baz = 2;'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 68}","it('should ignore require calls inside statements', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  var foo = require(""foo"");\n' +
+        '}'
+      ).withWarnings([
+        {line: 2, msg: 'import can only be at root level', type: 'commonjs'}
+      ]);
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 78}","it('should treat require().default as default import', () => {
+      expectTransform(
+        'var foo = require(""foolib"").default;'
+      ).toReturn(
+        'import foo from ""foolib"";'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 86}","it('should treat {default: foo} destructuring as default import', () => {
+      expectTransform(
+        'var {default: foo} = require(""foolib"");'
+      ).toReturn(
+        'import foo from ""foolib"";'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 94}","it('should recognize default import inside several destructurings', () => {
+      expectTransform(
+        'var {default: foo, bar: bar} = require(""foolib"");'
+      ).toReturn(
+        'import foo, {bar} from ""foolib"";'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 104}","it('should convert foo = require().foo to named import', () => {
+      expectTransform(
+        'var foo = require(""foolib"").foo;'
+      ).toReturn(
+        'import {foo} from ""foolib"";'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 112}","it('should convert bar = require().foo to aliased named import', () => {
+      expectTransform(
+        'var bar = require(""foolib"").foo;'
+      ).toReturn(
+        'import {foo as bar} from ""foolib"";'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 120}","it('should convert simple object destructuring to named import', () => {
+      expectTransform(
+        'var {foo} = require(""foolib"");'
+      ).toReturn(
+        'import {foo} from ""foolib"";'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 128}","it('should convert aliased object destructuring to named import', () => {
+      expectTransform(
+        'var {foo: bar} = require(""foolib"");'
+      ).toReturn(
+        'import {foo as bar} from ""foolib"";'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 136}","it('should convert multi-field object destructurings to named imports', () => {
+      expectTransform(
+        'var {foo, bar: myBar, baz} = require(""foolib"");'
+      ).toReturn(
+        'import {foo, bar as myBar, baz} from ""foolib"";'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 144}","it('should ignore array destructuring', () => {
+      expectNoChange(
+        'var [a, b, c] = require(""foolib"");'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 150}","it('should ignore nested object destructuring', () => {
+      expectNoChange(
+        'var {foo: {bar}} = require(""foolib"");'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 156}","it('should ignore destructuring of require().foo', () => {
+      expectNoChange(
+        'var {foo} = require(""foolib"").foo;'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 164}","it('should preserve comments before var declaration', () => {
+      expectTransform(
+        '// Comments\n' +
+        'var foo = require(""foo"");'
+      ).toReturn(
+        '// Comments\n' +
+        'import foo from ""foo"";'
+      );
+    })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 2, 'line': 177}","it('should not convert assignment of require() call', () => {
+    expectNoChange('foo = require(""foo"");');
+  })",steel
+/test/transform/commonjs/importCommonjsTest.js,Unknown Test,"{'column': 2, 'line': 181}","it('should not convert unassigned require() call', () => {
+    expectNoChange('require(""foo"");');
+  })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 6}","it('should convert module.exports assignment to default export', () => {
+      expectTransform('module.exports = 123;').toReturn('export default 123;');
+      expectTransform('module.exports = function() {};').toReturn('export default function() {};');
+      expectTransform('module.exports = x => x;').toReturn('export default x => x;');
+      expectTransform('module.exports = class {};').toReturn('export default class {};');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 13}","it('should not convert assignment to exports', () => {
+      expectNoChange('exports = function() {};');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 17}","it('should not convert weird assignment to module.exports', () => {
+      expectNoChange('module.exports += function() {};');
+      expectNoChange('module.exports -= function() {};');
+      expectNoChange('module.exports *= function() {};');
+      expectNoChange('module.exports /= function() {};');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 26}","it('should not convert assignment to module[""exports""]', () => {
+      expectNoChange('module[""exports""] = function() {};');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 30}","it('should ignore module.exports inside statements', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  module.exports = function() {};\n' +
+        '}'
+      ).withWarnings([
+        {line: 2, msg: 'export can only be at root level', type: 'commonjs'}
+      ]);
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 42}","it('should convert module.exports.foo = function () {}', () => {
+      expectTransform('module.exports.foo = function () {};').toReturn('export function foo() {}');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 46}","it('should convert exports.foo = function () {}', () => {
+      expectTransform('exports.foo = function () {};').toReturn('export function foo() {}');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 50}","it('should convert exports.foo = function foo() {}', () => {
+      expectTransform('exports.foo = function foo() {};').toReturn('export function foo() {}');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 54}","it('should ignore function export when function name does not match with exported name', () => {
+      expectNoChange('exports.foo = function bar() {};');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 58}","it('should convert exports.foo = arrow function', () => {
+      expectTransform(
+        'exports.foo = () => {\n' +
+        '  return 1;\n' +
+        '};'
+      ).toReturn(
+        'export function foo() {\n' +
+        '  return 1;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 70}","it('should convert exports.foo = arrow function short form', () => {
+      expectTransform(
+        'exports.foo = x => x;'
+      ).toReturn(
+        'export function foo(x) {\n' +
+        '  return x;\n' +
+        '}'
+      );
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 80}","it('should convert exports.Foo = class {};', () => {
+      expectTransform('exports.Foo = class {};').toReturn('export class Foo {}');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 84}","it('should convert exports.Foo = class Foo {};', () => {
+      expectTransform('exports.Foo = class Foo {};').toReturn('export class Foo {}');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 88}","it('should ignore class export when class name does not match with exported name', () => {
+      expectNoChange('exports.Foo = class Bar {};');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 92}","it('should convert exports.foo = foo;', () => {
+      expectTransform('exports.foo = foo;').toReturn('export {foo};');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 96}","it('should convert exports.foo = bar;', () => {
+      expectTransform('exports.foo = bar;').toReturn('export {bar as foo};');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 100}","it('should export undefined & NaN like any other identifier', () => {
+      expectTransform('exports.foo = undefined;').toReturn('export {undefined as foo};');
+      expectTransform('exports.foo = NaN;').toReturn('export {NaN as foo};');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 105}","it('should convert exports.foo = <literal> to export var', () => {
+      expectTransform('exports.foo = 123;').toReturn('export var foo = 123;');
+      expectTransform('exports.foo = {a: 1, b: 2};').toReturn('export var foo = {a: 1, b: 2};');
+      expectTransform('exports.foo = [1, 2, 3];').toReturn('export var foo = [1, 2, 3];');
+      expectTransform('exports.foo = ""Hello"";').toReturn('export var foo = ""Hello"";');
+      expectTransform('exports.foo = null;').toReturn('export var foo = null;');
+      expectTransform('exports.foo = true;').toReturn('export var foo = true;');
+      expectTransform('exports.foo = false;').toReturn('export var foo = false;');
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 115}","it('should ignore exports.foo inside statements', () => {
+      expectNoChange(
+        'if (true) {\n' +
+        '  exports.foo = function() {};\n' +
+        '}'
+      );
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 125}","it('should preserve comments before default export', () => {
+      expectTransform(
+        '// Comments\n' +
+        'module.exports = function() {};'
+      ).toReturn(
+        '// Comments\n' +
+        'export default function() {};'
+      );
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 135}","it('should preserve comments before named function export', () => {
+      expectTransform(
+        '// Comments\n' +
+        'exports.foo = function() {};'
+      ).toReturn(
+        '// Comments\n' +
+        'export function foo() {}'
+      );
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 145}","it('should preserve comments before named class export', () => {
+      expectTransform(
+        '// Comments\n' +
+        'exports.Foo = class {};'
+      ).toReturn(
+        '// Comments\n' +
+        'export class Foo {}'
+      );
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 155}","it('should preserve comments before identifier export', () => {
+      expectTransform(
+        '// Comments\n' +
+        'exports.foo = foo;'
+      ).toReturn(
+        '// Comments\n' +
+        'export {foo};'
+      );
+    })",steel
+/test/transform/commonjs/exportCommonjsTest.js,Unknown Test,"{'column': 4, 'line': 165}","it('should preserve comments before named literal value export', () => {
+      expectTransform(
+        '// Comments\n' +
+        'exports.FOO = 123;'
+      ).toReturn(
+        '// Comments\n' +
+        'export var FOO = 123;'
+      );
+    })",steel
+/system-test/binTest.js,Conditional Test Logic,"{'line': 21, 'column': 4, 'index': 557}","afterEach(() => {
+    fs.unlinkSync(INPUT_FILE);
+    if (fs.existsSync(OUTPUT_FILE)) {
+      fs.unlinkSync(OUTPUT_FILE);
+    }
+  })",steel
+/system-test/binTest.js,Mystery Guest,"{'column': 15, 'line': 33}","it('transforms input file to output file', done => {
+      exec(`node ./bin/index.js -t let,arrow ${INPUT_FILE} -o ${OUTPUT_FILE}`, (error, stdout, stderr) => {
+        expect(error).to.equal(null); // eslint-disable-line no-null/no-null
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('');
+
+        expect(fs.readFileSync(OUTPUT_FILE).toString()).to.equal(
+          'const foo = 10;\n' +
+          '[1, 2, 3].map(x => { return x*x });'
+        );
+        done();
+      });
+    })",steel
+/system-test/binTest.js,Mystery Guest,"{'column': 15, 'line': 49}","it('reads STDIN and writes STDOUT', done => {
+      exec(`node ./bin/index.js -t let,arrow < ${INPUT_FILE} > ${OUTPUT_FILE}`, (error, stdout, stderr) => {
+        expect(error).to.equal(null); // eslint-disable-line no-null/no-null
+        expect(stderr).to.equal('');
+        expect(stdout).to.equal('');
+
+        expect(fs.readFileSync(OUTPUT_FILE).toString()).to.equal(
+          'const foo = 10;\n' +
+          '[1, 2, 3].map(x => { return x*x });'
+        );
+        done();
+      });
+    })",steel
+/system-test/binTest.js,Mystery Guest,"{'column': 15, 'line': 65}","it('exits with error message', done => {
+      exec(`node ./bin/index.js --transform blah ${INPUT_FILE}`, (error, stdout, stderr) => {
+        expect(error).not.to.equal(null); // eslint-disable-line no-null/no-null
+        expect(stderr).to.equal('Unknown transform ""blah"".\n');
+        expect(stdout).to.equal('');
+
+        expect(fs.existsSync(OUTPUT_FILE)).to.equal(false);
+        done();
+      });
+    })",steel

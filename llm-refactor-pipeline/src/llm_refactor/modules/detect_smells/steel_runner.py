@@ -108,9 +108,8 @@ def _convert_steel_json_to_csv(json_path: Path, output_csv: Path, console: Conso
 
                 for item in items:
                     smell_lines = item.get('start', {})
-                    line = smell_lines.get('line', 'Unknown') if isinstance(smell_lines, dict) else smell_lines
                     frame = item.get('frame', 'Unknown')
-                    csv_data.append([file_name, smell_type, line, frame])
+                    csv_data.append([file_name, smell_type, smell_lines, frame])
 
         with open(output_csv, 'w', newline='', encoding='utf-8') as csv_file:
             writer = csv.writer(csv_file)
