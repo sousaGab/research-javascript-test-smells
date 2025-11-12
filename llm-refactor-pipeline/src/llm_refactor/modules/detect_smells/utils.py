@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
 from .snuts_runner import run_snuts
 from .steel_runner import run_steel
+from .concatenate_csv import concatenate_smell_csvs
 
 
 # ============================================================================
@@ -119,10 +120,14 @@ def process_single_repository(
         result["steel_success"] = steel_success
         result["steel_message"] = steel_msg
 
-    # Create CSV file
-    csv_path = repo_folder / "smells.csv"
-    csv_success, csv_msg = create_csv_file(csv_path, csv_headers, force)
-    result["csv_created"] = csv_success
+        # Concatenate CSV files from both tools
+        csv_success, csv_msg = concatenate_smell_csvs(repo_folder, repo_name, repos_dir)
+        result["csv_created"] = csv_success
+    else:
+        # If repos_dir not provided, create empty CSV
+        csv_path = repo_folder / "smells.csv"
+        csv_success, csv_msg = create_csv_file(csv_path, csv_headers, force)
+        result["csv_created"] = csv_success
 
     # Determine overall status
     if folder_success and csv_success:
