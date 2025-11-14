@@ -1,0 +1,94 @@
+# Chart.js Unit Test Configuration
+
+## Test Overview
+
+**Total Tests**: 1,687
+- Regular unit tests (test/specs/*.tests.js): ~760
+- Fixture-based visual tests (test/fixtures/**): ~900+
+
+## Running Unit Tests
+
+### Quick Start
+```bash
+# Run all unit tests (fast, no coverage)
+pnpm test:unit
+
+# Run all unit tests with coverage
+pnpm test:unit:coverage
+
+# Run specific tests matching a pattern
+pnpm test:unit -- bar
+
+# Using the shell script
+./run-unit-tests.sh
+./run-unit-tests.sh --coverage
+./run-unit-tests.sh --grep bar
+```
+
+## Known Issues
+
+### Not All Tests Execute
+When running with multiple browsers (Firefox + Chrome), you may see:
+- Firefox: Executes ~750/1687 tests
+- Chrome: Executes ~662/1687 tests
+- **Total: Only ~1,412/1,687 tests (missing ~275)**
+
+**Root Causes:**
+1. Jasmine randomization enabled (random test order per run)
+2. Coverage collection overhead slows execution
+3. Browser-specific timeouts or disconnections
+4. Tests may be timing out in certain browsers
+
+**Solutions:**
+1. **Run single browser**: Use `--browsers chrome` (default in test:unit)
+2. **Disable coverage for speed**: Use `test:unit` instead of `test:unit:coverage`
+3. **Increase timeout**: Add to karma.conf.cjs:
+   ```javascript
+   browserNoActivityTimeout: 60000,  // 60 seconds
+   captureTimeout: 120000,           // 2 minutes
+   ```
+
+### Running All Tests Reliably
+
+To ensure ALL 1,687 tests execute:
+
+1. **Single browser mode** (recommended):
+   ```bash
+   pnpm test:unit
+   ```
+
+2. **Without coverage** (faster):
+   Remove `--coverage` flag to reduce overhead
+
+3. **Check execution count**:
+   Look for "Executed X of 1687" in output - X should equal 1687
+
+4. **Multiple browsers sequentially**:
+   ```bash
+   pnpm test:unit -- --browsers chrome
+   pnpm test:unit -- --browsers firefox
+   ```
+
+## Test Structure
+
+- `test/specs/` - Standard Jasmine unit tests
+- `test/fixtures/` - Visual regression test fixtures
+- `test/integration/` - Integration tests (NOT run by test:unit)
+- `test/types/` - TypeScript type tests (NOT run by test:unit)
+
+## Debugging
+
+### View detailed output
+```bash
+pnpm test:unit 2>&1 | tee test-output.log
+```
+
+### Check which tests run
+```bash
+pnpm test:unit 2>&1 | grep "" | wc -l  # Count passing tests
+```
+
+### Run specific test file
+```bash
+pnpm test:unit -- controller.bar
+```
