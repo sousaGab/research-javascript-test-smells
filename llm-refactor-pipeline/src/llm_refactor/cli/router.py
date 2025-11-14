@@ -8,6 +8,7 @@ This is the central hub that connects CLI input to module execution.
 from typing import Dict, Callable, Tuple, Optional
 from llm_refactor.modules import hello_world
 from llm_refactor.modules import detect_smells
+from llm_refactor.modules import run_tests
 
 
 class CommandRouter:
@@ -30,6 +31,12 @@ class CommandRouter:
             command="detect_smells",
             handler=detect_smells.execute,
             description="Execute Detect Smells module"
+        )
+
+        self.register(
+            command="run_tests",
+            handler=run_tests.execute,
+            description="Execute Run Tests module"
         )
 
     def register(self, command: str, handler: Callable, description: str):
