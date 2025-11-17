@@ -163,6 +163,65 @@ def ensure_directory_exists(path: Path) -> Tuple[bool, str]:
         return False, f"Error creating directory: {str(e)}"
 
 
+def extract_coverage_summary(output: str) -> Optional[str]:
+    """
+    Extract coverage summary from test output.
+
+    Args:
+        output: Combined test output
+
+    Returns:
+        Coverage summary text or None if not found
+    """
+    import re
+
+    # Look for coverage summary pattern
+    coverage_pattern = r"={20,}.*?Coverage summary.*?={20,}.*?\n(.*?)={20,}"
+    match = re.search(coverage_pattern, output, re.DOTALL)
+
+    if match:
+        return match.group(0).strip()
+
+    # Alternative pattern for simpler coverage output
+    alt_pattern = r"(Statements\s+:.*?\nBranches\s+:.*?\nFunctions\s+:.*?\nLines\s+:.*?)(?:\n|$)"
+    match = re.search(alt_pattern, output, re.DOTALL)
+
+    if match:
+        return match.group(0).strip()
+
+    return None
+
+
+def extract_test_results(output: str) -> Optional[str]:
+    """
+    Extract test results summary from test output.
+    Finds the LAST occurrence to get the final results, not intermediate ones.
+
+    Args:
+        output: Combined test output
+
+    Returns:
+        Test results text or None if not found
+    """
+    import re
+
+    # Look for test results pattern (Jest, Mocha, etc.)
+    # We use findall to get ALL matches, then take the last one
+    patterns = [
+        r"(Test Suites:.*?\nTests:.*?\nSnapshots:.*?\nTime:.*?)(?:\n|$)",
+        r"(Tests:.*?passing.*?)(?:\n|$)",
+        r"(\d+\s+passing.*?)(?:\n|$)",
+    ]
+
+    for pattern in patterns:
+        matches = re.findall(pattern, output, re.DOTALL | re.IGNORECASE)
+        if matches:
+            # Return the LAST match (final results)
+            return matches[-1].strip()
+
+    return None
+
+
 def save_test_output(
     output_dir: Path,
     repo_name: str,
@@ -173,7 +232,7 @@ def save_test_output(
     force: bool = False
 ) -> Tuple[bool, str]:
     """
-    Save test output to a text file.
+    Save test output to two files: summary and full output.
 
     Args:
         output_dir: Base output directory
@@ -185,7 +244,7 @@ def save_test_output(
         force: Force overwrite if file exists
 
     Returns:
-        Tuple of (success, message)
+        Tuple of (success, message with both file paths)
     """
     try:
         # Create repository output directory
@@ -194,16 +253,55 @@ def save_test_output(
         if not dir_success:
             return False, dir_msg
 
-        # Create output file with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = repo_output_dir / f"test_output_{timestamp}.txt"
+        # Create files without timestamp
+        summary_file = repo_output_dir / "test_summary.txt"
+        full_output_file = repo_output_dir / "test_output.txt"
 
         # Check if we should overwrite
-        if output_file.exists() and not force:
-            return False, "Output file already exists (use --force to overwrite)"
+        if (summary_file.exists() or full_output_file.exists()) and not force:
+            return False, "Output files already exist (use --force to overwrite)"
 
-        # Build output content
-        content_lines = [
+        # Combine stdout and stderr
+        combined_output = ""
+        if stdout:
+            combined_output += stdout
+        if stderr:
+            if combined_output:
+                combined_output += "\n"
+            combined_output += stderr
+
+        if not combined_output:
+            combined_output = "(no output)"
+
+        # Extract coverage and test results
+        coverage_summary = extract_coverage_summary(combined_output)
+        test_results = extract_test_results(combined_output)
+
+        # Build summary content (no header, just the data)
+        summary_lines = []
+
+        if coverage_summary:
+            summary_lines.extend([
+                coverage_summary,
+                "",
+            ])
+        else:
+            summary_lines.extend([
+                "(Coverage information not available)",
+                "",
+            ])
+
+        if test_results:
+            summary_lines.extend([
+                test_results,
+            ])
+        else:
+            summary_lines.extend([
+                "(Test results not available)",
+            ])
+
+        # Build full output content
+        full_output_lines = [
             "=" * 80,
             f"Test Execution Report: {repo_name}",
             "=" * 80,
@@ -212,21 +310,19 @@ def save_test_output(
             f"Status: {'SUCCESS' if success else 'FAILED'}",
             "=" * 80,
             "",
-            "STDOUT:",
+            "OUTPUT:",
             "-" * 80,
-            stdout if stdout else "(no output)",
-            "",
-            "STDERR:",
+            combined_output,
             "-" * 80,
-            stderr if stderr else "(no errors)",
             "",
             "=" * 80,
         ]
 
-        content = "\n".join(content_lines)
-        output_file.write_text(content, encoding="utf-8")
+        # Write both files
+        summary_file.write_text("\n".join(summary_lines), encoding="utf-8")
+        full_output_file.write_text("\n".join(full_output_lines), encoding="utf-8")
 
-        return True, str(output_file)
+        return True, f"Summary: {summary_file}\nFull output: {full_output_file}"
 
     except Exception as e:
         return False, f"Error saving output: {str(e)}"
@@ -334,14 +430,20 @@ def process_single_repository(
             console.print(
                 f"✓ [bold green]SUCCESS:[/bold green] All tests passed for [bold cyan]{repo_name}[/bold cyan]"
             )
-            console.print(f"  Output saved to: [dim]{save_result}[/dim]")
+            # Display both file paths
+            file_lines = save_result.split('\n')
+            for line in file_lines:
+                console.print(f"  [dim]{line}[/dim]")
         else:
             result["status"] = "warning"
             result["message"] = "⚠ Tests failed (output saved)"
             console.print(
                 f"⚠ [bold yellow]WARNING:[/bold yellow] Tests failed for [bold cyan]{repo_name}[/bold cyan], but output was saved"
             )
-            console.print(f"  Output saved to: [dim]{save_result}[/dim]")
+            # Display both file paths
+            file_lines = save_result.split('\n')
+            for line in file_lines:
+                console.print(f"  [dim]{line}[/dim]")
     else:
         result["status"] = "error"
         result["message"] = f"✗ {save_result}"
@@ -401,7 +503,10 @@ def build_processing_list(results: List[Dict]) -> str:
     for result in results:
         lines.append(f"  {result['message']:<35} {result['repo']}")
         if result.get("output_file"):
-            lines.append(f"    → Output: {result['output_file']}")
+            # Handle multi-line output (summary + full output paths)
+            output_files = result['output_file'].split('\n')
+            for output_line in output_files:
+                lines.append(f"    → {output_line}")
     return "\n".join(lines)
 
 
@@ -455,9 +560,6 @@ def format_processing_results(
 
     # Processing results
     output_lines.append(build_processing_list(results))
-
-    # Summary
-    output_lines.append(build_summary_section(stats))
 
     return "\n".join(output_lines)
 
