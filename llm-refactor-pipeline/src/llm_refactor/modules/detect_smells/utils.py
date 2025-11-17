@@ -216,12 +216,6 @@ def format_processing_results(
     # Summary
     output_lines.append(build_summary_section(stats))
 
-    # Footer
-    output_lines.append(f"\nOutput location: {output_dir}")
-    output_lines.append("\nNext steps:")
-    output_lines.append("  - Run smell detection tool on each repository")
-    output_lines.append("  - Results will be saved to {repo_name}/smells.csv")
-
     return "\n".join(output_lines)
 
 

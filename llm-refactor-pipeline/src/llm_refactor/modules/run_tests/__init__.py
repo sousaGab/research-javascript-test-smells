@@ -1,8 +1,8 @@
 """
 Run tests module.
 
-This module orchestrates the setup of directory structure and CSV files
-for run tests across all repositories.
+This module provides functionality to execute tests across multiple repositories.
+Each repository should have a .run_tests file containing the test command.
 """
 
 from .run_tests import execute, RunTestsModule, run_test_module
