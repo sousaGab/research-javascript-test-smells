@@ -9,6 +9,7 @@ from typing import Dict, Callable, Tuple, Optional
 from llm_refactor.modules import hello_world
 from llm_refactor.modules import detect_smells
 from llm_refactor.modules import run_tests
+from llm_refactor.modules import database_module
 
 
 class CommandRouter:
@@ -37,6 +38,12 @@ class CommandRouter:
             command="run_tests",
             handler=run_tests.execute,
             description="Execute Run Tests module"
+        )
+
+        self.register(
+            command="db",
+            handler=database_module.execute,
+            description="Database operations (db help for commands)"
         )
 
     def register(self, command: str, handler: Callable, description: str):
