@@ -1970,36 +1970,6 @@ file,type,line,method,source
     numPopstates = 0;
     window.addEventListener(""popstate"", popstateListener);
   })",snuts
-/spec/apps/unmount-times-out-dies/unmount-times-out-dies.spec.js,GeneralFixture,"{'startLine':24,'endLine':24}","beforeEach(() => {
-    location.hash = ""#"";
-
-    errs = [];
-    singleSpa.addErrorHandler(handleError);
-
-    return import(""./unmount-times-out-dies.app.js"")
-      .then((app) => (myApp = app))
-      .then((app) => app.reset());
-  })",snuts
-/spec/apps/unmount-times-out/unmount-times-out.spec.js,GeneralFixture,"{'startLine':22,'endLine':22}","beforeEach(() => {
-    errs = [];
-    singleSpa.addErrorHandler(handleError);
-
-    location.hash = ""#"";
-
-    return import(""./unmount-times-out.app.js"")
-      .then((app) => (myApp = app))
-      .then((app) => app.reset());
-  })",snuts
-/spec/apps/unmount-rejects/unmount-rejects.spec.js,GeneralFixture,"{'startLine':24,'endLine':24}","beforeEach(() => {
-    location.hash = ""#"";
-
-    errs = [];
-    singleSpa.addErrorHandler(handleError);
-
-    return import(""./unmount-rejects.app.js"")
-      .then((app) => (myApp = app))
-      .then((app) => app.reset());
-  })",snuts
 /spec/apps/warning-timeouts/warning-timeouts.spec.js,GeneralFixture,"{'startLine':19,'endLine':19}","beforeAll(() => {
     singleSpa.registerApplication(
       ""warning-timeouts"",
@@ -2090,6 +2060,36 @@ file,type,line,method,source
     await controlledAppChange();
     expect(singleSpa.getAppStatus(""warning-timeouts"")).toEqual(""NOT_MOUNTED"");
     expect(errs.length).toBe(0);
+  })",snuts
+/spec/apps/unmount-times-out-dies/unmount-times-out-dies.spec.js,GeneralFixture,"{'startLine':24,'endLine':24}","beforeEach(() => {
+    location.hash = ""#"";
+
+    errs = [];
+    singleSpa.addErrorHandler(handleError);
+
+    return import(""./unmount-times-out-dies.app.js"")
+      .then((app) => (myApp = app))
+      .then((app) => app.reset());
+  })",snuts
+/spec/apps/unmount-times-out/unmount-times-out.spec.js,GeneralFixture,"{'startLine':22,'endLine':22}","beforeEach(() => {
+    errs = [];
+    singleSpa.addErrorHandler(handleError);
+
+    location.hash = ""#"";
+
+    return import(""./unmount-times-out.app.js"")
+      .then((app) => (myApp = app))
+      .then((app) => app.reset());
+  })",snuts
+/spec/apps/unmount-rejects/unmount-rejects.spec.js,GeneralFixture,"{'startLine':24,'endLine':24}","beforeEach(() => {
+    location.hash = ""#"";
+
+    errs = [];
+    singleSpa.addErrorHandler(handleError);
+
+    return import(""./unmount-rejects.app.js"")
+      .then((app) => (myApp = app))
+      .then((app) => app.reset());
   })",snuts
 /spec/apps/register-with-object/register-with-object.spec.js,GeneralFixture,"{'startLine':33,'endLine':33}","beforeEach(() => {
     location.hash = ""#not-register-with-object"";
@@ -2929,6 +2929,120 @@ file,type,line,method,source
       expect(profilesAfter.length).toBe(1);
       expect(profilesAfter[0].operationSucceeded).toBe(true);
     })",snuts
+/spec/apps/partial-rerouting/partial-rerouting.spec.js,VerboseStatement,"{'startLine':14,'endLine':60}","it(""shouldn't bootstrap and mount app if the route has been changed while app was loading, but if the user navigates back it should be bootstrapped and mounted successfully"", async () => {
+    const activeHash = ""#partial-rerouting"";
+
+    let bootstrapped = false;
+    let mounted = false;
+    let unmounted = false;
+
+    const app = {
+      async bootstrap() {
+        bootstrapped = true;
+      },
+      async mount() {
+        mounted = true;
+      },
+      async unmount() {
+        unmounted = true;
+      },
+    };
+
+    singleSpa.registerApplication(
+      ""partial-rerouting"",
+      () => delay().then(() => app),
+      (location) => location.hash === activeHash
+    );
+
+    location.hash = activeHash;
+
+    const promise = singleSpa.triggerAppChange();
+
+    singleSpa.navigateToUrl(""#another-url"");
+    await Promise.all([singleSpa.triggerAppChange(), promise]);
+
+    expect(bootstrapped).toBeFalsy();
+    expect(mounted).toBeFalsy();
+    expect(unmounted).toBeFalsy();
+
+    singleSpa.navigateToUrl(activeHash);
+    await singleSpa.triggerAppChange();
+
+    expect(bootstrapped).toBeTruthy();
+    expect(mounted).toBeTruthy();
+
+    singleSpa.navigateToUrl(""#another-url"");
+    await singleSpa.triggerAppChange();
+
+    expect(unmounted).toBeTruthy();
+  })",snuts
+/spec/apps/partial-rerouting/partial-rerouting.spec.js,VerboseStatement,"{'startLine':62,'endLine':128}","it(""should bootstrap and mount second app succcessfully, but should skip bootstrapping and mounting first app if the route has been changed"", async () => {
+    let firstAppBootstrapped = false,
+      firstAppMounted = false,
+      firstAppUnmounted = false;
+
+    const firstApp = {
+      async bootstrap() {
+        firstAppBootstrapped = true;
+      },
+      async mount() {
+        firstAppMounted = true;
+      },
+      async unmount() {
+        firstAppUnmounted = true;
+      },
+    };
+
+    let secondAppBootstrapped = false,
+      secondAppMounted = false,
+      secondAppUnmounted = false;
+
+    const secondApp = {
+      async bootstrap() {
+        secondAppBootstrapped = true;
+      },
+      async mount() {
+        secondAppMounted = true;
+      },
+      async unmount() {
+        secondAppUnmounted = true;
+      },
+    };
+
+    const firstAppActiveHash = ""#first-app"";
+    const secondAppActiveHash = ""#second-app"";
+
+    singleSpa.registerApplication(
+      ""first-app"",
+      () => delay().then(() => firstApp),
+      (location) => location.hash === firstAppActiveHash
+    );
+
+    singleSpa.registerApplication(
+      ""second-app"",
+      () => Promise.resolve(secondApp),
+      (location) => location.hash === secondAppActiveHash
+    );
+
+    location.hash = firstAppActiveHash;
+
+    const promise = singleSpa.triggerAppChange();
+
+    singleSpa.navigateToUrl(secondAppActiveHash);
+    await Promise.all([singleSpa.triggerAppChange(), promise]);
+
+    expect(firstAppBootstrapped).toBeFalsy();
+    expect(secondAppBootstrapped).toBeTruthy();
+    expect(secondAppMounted).toBeTruthy();
+    expect(secondAppUnmounted).toBeFalsy();
+
+    singleSpa.navigateToUrl(firstAppActiveHash);
+    await singleSpa.triggerAppChange();
+
+    expect(secondAppUnmounted).toBeTruthy();
+    expect(firstAppBootstrapped).toBeTruthy();
+    expect(firstAppMounted).toBeTruthy();
+  })",snuts
 /spec/apps/no-object-prototype/no-object-prototype.spec.js,NonFunctionalStatement,"{'startLine':11,'endLine':11}","beforeAll(() => {
     // ES Modules don't have the Object prototype, but should still work as applications
     const app = Object.create(null);
@@ -3004,16 +3118,6 @@ file,type,line,method,source
       .then((app) => (myApp = app))
       .then((app) => app.reset());
   })",snuts
-/spec/apps/mount-fails/mount-fails.spec.js,GeneralFixture,"{'startLine':24,'endLine':24}","beforeEach(() => {
-    location.hash = `#`;
-
-    errs = [];
-    singleSpa.addErrorHandler(handleError);
-
-    return import(""./mount-fails.app.js"")
-      .then((app) => (myApp = app))
-      .then((app) => app.reset());
-  })",snuts
 /spec/apps/mount-rejects/mount-rejects.spec.js,GeneralFixture,"{'startLine':24,'endLine':24}","beforeEach(() => {
     location.hash = `#`;
 
@@ -3021,6 +3125,16 @@ file,type,line,method,source
     singleSpa.addErrorHandler(handleError);
 
     return import(""./mount-rejects.app.js"")
+      .then((app) => (myApp = app))
+      .then((app) => app.reset());
+  })",snuts
+/spec/apps/mount-fails/mount-fails.spec.js,GeneralFixture,"{'startLine':24,'endLine':24}","beforeEach(() => {
+    location.hash = `#`;
+
+    errs = [];
+    singleSpa.addErrorHandler(handleError);
+
+    return import(""./mount-fails.app.js"")
       .then((app) => (myApp = app))
       .then((app) => app.reset());
   })",snuts
@@ -3178,128 +3292,6 @@ file,type,line,method,source
 
     jest.spyOn(console, ""warn"");
   })",snuts
-/spec/apps/partial-rerouting/partial-rerouting.spec.js,VerboseStatement,"{'startLine':14,'endLine':60}","it(""shouldn't bootstrap and mount app if the route has been changed while app was loading, but if the user navigates back it should be bootstrapped and mounted successfully"", async () => {
-    const activeHash = ""#partial-rerouting"";
-
-    let bootstrapped = false;
-    let mounted = false;
-    let unmounted = false;
-
-    const app = {
-      async bootstrap() {
-        bootstrapped = true;
-      },
-      async mount() {
-        mounted = true;
-      },
-      async unmount() {
-        unmounted = true;
-      },
-    };
-
-    singleSpa.registerApplication(
-      ""partial-rerouting"",
-      () => delay().then(() => app),
-      (location) => location.hash === activeHash
-    );
-
-    location.hash = activeHash;
-
-    const promise = singleSpa.triggerAppChange();
-
-    singleSpa.navigateToUrl(""#another-url"");
-    await Promise.all([singleSpa.triggerAppChange(), promise]);
-
-    expect(bootstrapped).toBeFalsy();
-    expect(mounted).toBeFalsy();
-    expect(unmounted).toBeFalsy();
-
-    singleSpa.navigateToUrl(activeHash);
-    await singleSpa.triggerAppChange();
-
-    expect(bootstrapped).toBeTruthy();
-    expect(mounted).toBeTruthy();
-
-    singleSpa.navigateToUrl(""#another-url"");
-    await singleSpa.triggerAppChange();
-
-    expect(unmounted).toBeTruthy();
-  })",snuts
-/spec/apps/partial-rerouting/partial-rerouting.spec.js,VerboseStatement,"{'startLine':62,'endLine':128}","it(""should bootstrap and mount second app succcessfully, but should skip bootstrapping and mounting first app if the route has been changed"", async () => {
-    let firstAppBootstrapped = false,
-      firstAppMounted = false,
-      firstAppUnmounted = false;
-
-    const firstApp = {
-      async bootstrap() {
-        firstAppBootstrapped = true;
-      },
-      async mount() {
-        firstAppMounted = true;
-      },
-      async unmount() {
-        firstAppUnmounted = true;
-      },
-    };
-
-    let secondAppBootstrapped = false,
-      secondAppMounted = false,
-      secondAppUnmounted = false;
-
-    const secondApp = {
-      async bootstrap() {
-        secondAppBootstrapped = true;
-      },
-      async mount() {
-        secondAppMounted = true;
-      },
-      async unmount() {
-        secondAppUnmounted = true;
-      },
-    };
-
-    const firstAppActiveHash = ""#first-app"";
-    const secondAppActiveHash = ""#second-app"";
-
-    singleSpa.registerApplication(
-      ""first-app"",
-      () => delay().then(() => firstApp),
-      (location) => location.hash === firstAppActiveHash
-    );
-
-    singleSpa.registerApplication(
-      ""second-app"",
-      () => Promise.resolve(secondApp),
-      (location) => location.hash === secondAppActiveHash
-    );
-
-    location.hash = firstAppActiveHash;
-
-    const promise = singleSpa.triggerAppChange();
-
-    singleSpa.navigateToUrl(secondAppActiveHash);
-    await Promise.all([singleSpa.triggerAppChange(), promise]);
-
-    expect(firstAppBootstrapped).toBeFalsy();
-    expect(secondAppBootstrapped).toBeTruthy();
-    expect(secondAppMounted).toBeTruthy();
-    expect(secondAppUnmounted).toBeFalsy();
-
-    singleSpa.navigateToUrl(firstAppActiveHash);
-    await singleSpa.triggerAppChange();
-
-    expect(secondAppUnmounted).toBeTruthy();
-    expect(firstAppBootstrapped).toBeTruthy();
-    expect(firstAppMounted).toBeTruthy();
-  })",snuts
-/spec/apps/invalid-unload/invalid-unload.spec.js,GeneralFixture,"{'startLine':24,'endLine':24}","beforeEach(() => {
-    location.hash = """";
-
-    errs = [];
-    singleSpa.addErrorHandler(handleError);
-
-    return singleSpa.triggerAppChange();
-  })",snuts
 /spec/apps/invalid-unmount/invalid-unmount.spec.js,GeneralFixture,"{'startLine':24,'endLine':24}","beforeEach(() => {
     location.hash = ""#"";
 
@@ -3309,6 +3301,14 @@ file,type,line,method,source
     return import(""./invalid-unmount.app.js"")
       .then((app) => (myApp = app))
       .then((app) => app.reset());
+  })",snuts
+/spec/apps/invalid-unload/invalid-unload.spec.js,GeneralFixture,"{'startLine':24,'endLine':24}","beforeEach(() => {
+    location.hash = """";
+
+    errs = [];
+    singleSpa.addErrorHandler(handleError);
+
+    return singleSpa.triggerAppChange();
   })",snuts
 /spec/apps/invalid-no-unmount/invalid-no-unmount.spec.js,GeneralFixture,"{'startLine':25,'endLine':25}","beforeEach(() => {
     location.hash = activeHash;
@@ -3372,6 +3372,16 @@ file,type,line,method,source
       .then((app) => (myApp = app))
       .then((app) => app.reset());
   })",snuts
+/spec/apps/bootstrap-times-out-dies/bootstrap-times-out-dies.spec.js,GeneralFixture,"{'startLine':23,'endLine':23}","beforeEach(() => {
+    location.hash = ""#"";
+
+    errs = [];
+    singleSpa.addErrorHandler(handleError);
+
+    return import(""./bootstrap-times-out-dies.app.js"")
+      .then((app) => (myApp = app))
+      .then((app) => app.reset());
+  })",snuts
 /spec/apps/bootstrap-times-out/bootstrap-times-out.spec.js,GeneralFixture,"{'startLine':23,'endLine':23}","beforeEach(() => {
     location.hash = ""#"";
 
@@ -3396,16 +3406,6 @@ file,type,line,method,source
       );
       expect(errs.length).toBe(0);
     });
-  })",snuts
-/spec/apps/bootstrap-times-out-dies/bootstrap-times-out-dies.spec.js,GeneralFixture,"{'startLine':23,'endLine':23}","beforeEach(() => {
-    location.hash = ""#"";
-
-    errs = [];
-    singleSpa.addErrorHandler(handleError);
-
-    return import(""./bootstrap-times-out-dies.app.js"")
-      .then((app) => (myApp = app))
-      .then((app) => app.reset());
   })",snuts
 /spec/apps/bootstrap-rejects/bootstrap-rejects.spec.js,GeneralFixture,"{'startLine':21,'endLine':21}","beforeEach(() => {
     errs = [];

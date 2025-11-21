@@ -1928,134 +1928,6 @@ file,type,line,method,source
       wait: false,
     });
   })",snuts
-/test/cli/basic.test.js,AnonymousTest,"{'startLine':24,'endLine':33}","it(""should work"", async () => {
-      const { exitCode, stderr } = await testBin([
-        // Ideally it should be empty to test without arguments, unfortunately it takes 8080 port and other test can failed
-        ""--port"",
-        port,
-      ]);
-
-      expect(exitCode).toBe(0);
-      expect(normalizeStderr(stderr, { ipv6: true })).toMatchSnapshot(""stderr"");
-    })",snuts
-/test/cli/basic.test.js,ConditionalTestLogic,"{'startLine':91,'endLine':95}","it(""should exit the process when SIGINT is detected"", (done) => {
-      const cliPath = path.resolve(
-        __dirname,
-        ""../../bin/webpack-dev-server.js"",
-      );
-      const examplePath = path.resolve(
-        __dirname,
-        ""../../examples/client/web-socket-url"",
-      );
-      const cp = execa(""node"", [""--port"", port, cliPath], { cwd: examplePath });
-
-      cp.stdout.on(""data"", (data) => {
-        const bits = data.toString();
-
-        if (/main.js/.test(bits)) {
-          expect(cp.pid).not.toBe(0);
-
-          cp.kill(""SIGINT"");
-        }
-      });
-
-      cp.on(""exit"", () => {
-        done();
-      });
-    })",snuts
-/test/cli/basic.test.js,ConditionalTestLogic,"{'startLine':114,'endLine':118}","it(""should exit the process when SIGINT is detected, even before the compilation is done"", (done) => {
-      const cliPath = path.resolve(
-        __dirname,
-        ""../../bin/webpack-dev-server.js"",
-      );
-      const cwd = path.resolve(__dirname, ""../fixtures/cli"");
-      const cp = execa(""node"", [""--port"", port, cliPath], { cwd });
-
-      let killed = false;
-
-      cp.stdout.on(""data"", () => {
-        if (!killed) {
-          expect(cp.pid).not.toBe(0);
-
-          cp.kill(""SIGINT"");
-        }
-
-        killed = true;
-      });
-
-      cp.on(""exit"", () => {
-        done();
-      });
-    })",snuts
-/test/cli/basic.test.js,ConditionalTestLogic,"{'startLine':148,'endLine':153}","it(""should exit the process when stdin ends if --watch-options-stdin"", (done) => {
-      const cliPath = path.resolve(
-        __dirname,
-        ""../../bin/webpack-dev-server.js"",
-      );
-      const examplePath = path.resolve(
-        __dirname,
-        ""../../examples/client/web-socket-url"",
-      );
-      const cp = execa(
-        ""node"",
-        [cliPath, ""--port"", port, ""--watch-options-stdin""],
-        {
-          cwd: examplePath,
-        },
-      );
-
-      cp.stdout.on(""data"", (data) => {
-        const bits = data.toString();
-
-        if (/main.js/.test(bits)) {
-          expect(cp.pid).not.toBe(0);
-
-          cp.stdin.write(""hello"");
-          cp.stdin.end(""world"");
-        }
-      });
-
-      cp.on(""exit"", () => {
-        done();
-      });
-    })",snuts
-/test/cli/basic.test.js,ConditionalTestLogic,"{'startLine':184,'endLine':189}","it(""should exit the process when stdin ends if --watch-options-stdin, even before the compilation is done"", (done) => {
-      const cliPath = path.resolve(
-        __dirname,
-        ""../../bin/webpack-dev-server.js"",
-      );
-      const cwd = path.resolve(__dirname, ""../fixtures/cli"");
-      const cp = execa(
-        ""node"",
-        [cliPath, ""--port"", port, ""--watch-options-stdin""],
-        { cwd },
-      );
-
-      let killed = false;
-
-      cp.on(""error"", (error) => {
-        done(error);
-      });
-
-      cp.stdin.on(""error"", (error) => {
-        done(error);
-      });
-
-      cp.stdout.on(""data"", () => {
-        if (!killed) {
-          expect(cp.pid).not.toBe(0);
-
-          cp.stdin.write(""hello"");
-          cp.stdin.end(""world"");
-        }
-
-        killed = true;
-      });
-
-      cp.on(""exit"", () => {
-        done();
-      });
-    })",snuts
 /test/e2e/web-socket-communication.test.js,ConditionalTestLogic,"{'startLine':195,'endLine':197}","it('should work and do heartbeat using (""ws"" web socket server)', async () => {
     WebsocketServer.heartbeatInterval = 100;
 
@@ -8375,6 +8247,134 @@ file,type,line,method,source
         });
       }).not.toThrow();
     })",snuts
+/test/cli/basic.test.js,AnonymousTest,"{'startLine':24,'endLine':33}","it(""should work"", async () => {
+      const { exitCode, stderr } = await testBin([
+        // Ideally it should be empty to test without arguments, unfortunately it takes 8080 port and other test can failed
+        ""--port"",
+        port,
+      ]);
+
+      expect(exitCode).toBe(0);
+      expect(normalizeStderr(stderr, { ipv6: true })).toMatchSnapshot(""stderr"");
+    })",snuts
+/test/cli/basic.test.js,ConditionalTestLogic,"{'startLine':91,'endLine':95}","it(""should exit the process when SIGINT is detected"", (done) => {
+      const cliPath = path.resolve(
+        __dirname,
+        ""../../bin/webpack-dev-server.js"",
+      );
+      const examplePath = path.resolve(
+        __dirname,
+        ""../../examples/client/web-socket-url"",
+      );
+      const cp = execa(""node"", [""--port"", port, cliPath], { cwd: examplePath });
+
+      cp.stdout.on(""data"", (data) => {
+        const bits = data.toString();
+
+        if (/main.js/.test(bits)) {
+          expect(cp.pid).not.toBe(0);
+
+          cp.kill(""SIGINT"");
+        }
+      });
+
+      cp.on(""exit"", () => {
+        done();
+      });
+    })",snuts
+/test/cli/basic.test.js,ConditionalTestLogic,"{'startLine':114,'endLine':118}","it(""should exit the process when SIGINT is detected, even before the compilation is done"", (done) => {
+      const cliPath = path.resolve(
+        __dirname,
+        ""../../bin/webpack-dev-server.js"",
+      );
+      const cwd = path.resolve(__dirname, ""../fixtures/cli"");
+      const cp = execa(""node"", [""--port"", port, cliPath], { cwd });
+
+      let killed = false;
+
+      cp.stdout.on(""data"", () => {
+        if (!killed) {
+          expect(cp.pid).not.toBe(0);
+
+          cp.kill(""SIGINT"");
+        }
+
+        killed = true;
+      });
+
+      cp.on(""exit"", () => {
+        done();
+      });
+    })",snuts
+/test/cli/basic.test.js,ConditionalTestLogic,"{'startLine':148,'endLine':153}","it(""should exit the process when stdin ends if --watch-options-stdin"", (done) => {
+      const cliPath = path.resolve(
+        __dirname,
+        ""../../bin/webpack-dev-server.js"",
+      );
+      const examplePath = path.resolve(
+        __dirname,
+        ""../../examples/client/web-socket-url"",
+      );
+      const cp = execa(
+        ""node"",
+        [cliPath, ""--port"", port, ""--watch-options-stdin""],
+        {
+          cwd: examplePath,
+        },
+      );
+
+      cp.stdout.on(""data"", (data) => {
+        const bits = data.toString();
+
+        if (/main.js/.test(bits)) {
+          expect(cp.pid).not.toBe(0);
+
+          cp.stdin.write(""hello"");
+          cp.stdin.end(""world"");
+        }
+      });
+
+      cp.on(""exit"", () => {
+        done();
+      });
+    })",snuts
+/test/cli/basic.test.js,ConditionalTestLogic,"{'startLine':184,'endLine':189}","it(""should exit the process when stdin ends if --watch-options-stdin, even before the compilation is done"", (done) => {
+      const cliPath = path.resolve(
+        __dirname,
+        ""../../bin/webpack-dev-server.js"",
+      );
+      const cwd = path.resolve(__dirname, ""../fixtures/cli"");
+      const cp = execa(
+        ""node"",
+        [cliPath, ""--port"", port, ""--watch-options-stdin""],
+        { cwd },
+      );
+
+      let killed = false;
+
+      cp.on(""error"", (error) => {
+        done(error);
+      });
+
+      cp.stdin.on(""error"", (error) => {
+        done(error);
+      });
+
+      cp.stdout.on(""data"", () => {
+        if (!killed) {
+          expect(cp.pid).not.toBe(0);
+
+          cp.stdin.write(""hello"");
+          cp.stdin.end(""world"");
+        }
+
+        killed = true;
+      });
+
+      cp.on(""exit"", () => {
+        done();
+      });
+    })",snuts
 /test/client/clients/WebsocketClient.test.js,GeneralFixture,"{'startLine':31,'endLine':31}","beforeAll((done) => {
     // eslint-disable-next-line new-cap
     const app = new express();
@@ -8429,8 +8429,8 @@ file,type,line,method,source
 /test/fixtures/reload-config-2/webpack.config.js,NonFunctionalStatement,"{'startLine':25,'endLine':25}",Unknown,snuts
 /test/fixtures/reload-config/webpack.config.js,NonFunctionalStatement,"{'startLine':24,'endLine':24}",Unknown,snuts
 /test/fixtures/provide-plugin-ws-config/webpack.config.js,NonFunctionalStatement,"{'startLine':17,'endLine':17}",Unknown,snuts
-/test/fixtures/provide-plugin-default/webpack.config.js,NonFunctionalStatement,"{'startLine':17,'endLine':17}",Unknown,snuts
 /test/fixtures/provide-plugin-sockjs-config/webpack.config.js,NonFunctionalStatement,"{'startLine':17,'endLine':17}",Unknown,snuts
+/test/fixtures/provide-plugin-default/webpack.config.js,NonFunctionalStatement,"{'startLine':17,'endLine':17}",Unknown,snuts
 /test/fixtures/provide-plugin-custom/webpack.config.js,NonFunctionalStatement,"{'startLine':17,'endLine':17}",Unknown,snuts
 /test/fixtures/overlay-config/webpack.config.js,NonFunctionalStatement,"{'startLine':16,'endLine':16}",Unknown,snuts
 /test/fixtures/overlay-config/trusted-types.webpack.config.js,NonFunctionalStatement,"{'startLine':17,'endLine':17}",Unknown,snuts
