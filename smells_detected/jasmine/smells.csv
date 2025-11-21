@@ -1,10 +1,4 @@
 file,type,line,method,source
-/spec/performance/performance_test.js,AnonymousTest,"{'startLine':3,'endLine':5}","it('should pass', function() {
-      expect(true).toBe(true);
-    })",snuts
-/spec/performance/performance_test.js,AnonymousTest,"{'startLine':6,'endLine':8}","it('should fail', function() {
-      expect(true).toBe(false);
-    })",snuts
 /spec/core/integration/AsymmetricEqualityTestersSpec.js,AnonymousTest,"{'startLine':3,'endLine':28}","it('passes', async function() {
       const env = new jasmineUnderTest.Env();
       env.it('a spec', function() {
@@ -19243,6 +19237,1154 @@ file,type,line,method,source
     return new Promise(function() {});
   }
 })",snuts
+/spec/core/matchers/toThrowErrorSpec.js,IdenticalTestDescription,"{'startLine':305,'endLine':321}","it('fails if thrown is a type of Error and the expected is a different Error', function() {
+      const matchersUtil = {
+          equals: jasmine.createSpy('delegated-equal').and.returnValue(false),
+          pp: jasmineUnderTest.makePrettyPrinter()
+        },
+        matcher = jasmineUnderTest.matchers.toThrowError(matchersUtil),
+        fn = function() {
+          throw new TypeError('foo');
+        };
+
+      const result = matcher.compare(fn, TypeError, /bar/);
+
+      expect(result.pass).toBe(false);
+      expect(result.message()).toEqual(
+        ""Expected function to throw TypeError with a message matching /bar/, but it threw TypeError with message 'foo'.""
+      );
+    })",snuts
+/spec/core/matchers/toThrowErrorSpec.js,ConditionalTestLogic,"{'startLine':84,'endLine':86}","it('passes if thrown is an instanceof Error regardless of global that contains its constructor', function() {
+      if (isNotRunningInBrowser()) {
+        pending('This test only runs in browsers.');
+      }
+
+      const matcher = jasmineUnderTest.matchers.toThrowError();
+      iframe = document.body.appendChild(document.createElement('iframe'));
+      iframe.src = 'about:blank';
+      const iframeDocument = iframe.contentWindow.document;
+
+      iframeDocument.body.appendChild(
+        iframeDocument.createElement('script')
+      ).textContent = ""function method() { throw new Error('foo'); }"";
+
+      const result = matcher.compare(iframe.contentWindow.method);
+      expect(result.pass).toBe(true);
+      expect(result.message).toEqual(
+        'Expected function not to throw an Error, but it threw Error.'
+      );
+    })",snuts
+/spec/core/matchers/toHaveSpyInteractionsSpec.js,NonFunctionalStatement,"{'startLine':62,'endLine':62}","it('fails when only non-observed spy object interactions are interacted', function() {
+    let matcher = jasmineUnderTest.matchers.toHaveSpyInteractions();
+    let spyObj = jasmineUnderTest
+      .getEnv()
+      .createSpyObj('NewClass', ['spyA', 'spyB']);
+    spyObj.otherMethod = function() {};
+
+    spyObj.otherMethod();
+
+    let result = matcher.compare(spyObj);
+    expect(result.pass).toBe(false);
+    expect(result.message).toContain(
+      'Expected spy object spies to have been called'
+    );
+  })",snuts
+/spec/core/matchers/toHaveSpyInteractionsSpec.js,NonFunctionalStatement,"{'startLine':106,'endLine':106}","it('throws an error if the spy object has no spies', function() {
+    let matcher = jasmineUnderTest.matchers.toHaveSpyInteractions();
+    const spyObj = jasmineUnderTest
+      .getEnv()
+      .createSpyObj('NewClass', ['notSpy']);
+    // Removing spy since spy objects cannot be created without spies.
+    spyObj.notSpy = function() {};
+
+    expect(function() {
+      matcher.compare(spyObj);
+    }).toThrowError(
+      Error,
+      /Expected a spy object with spies, but object has no spies/
+    );
+  })",snuts
+/spec/core/matchers/toHaveNoOtherSpyInteractionsSpec.js,NonFunctionalStatement,"{'startLine':77,'endLine':77}","it('passes when only non-observed spy object interactions are interacted', function() {
+    let matcher = jasmineUnderTest.matchers.toHaveNoOtherSpyInteractions();
+    let spyObj = jasmineUnderTest
+      .getEnv()
+      .createSpyObj('NewClass', ['spyA', 'spyB']);
+    spyObj.otherMethod = function() {};
+
+    spyObj.otherMethod();
+
+    let result = matcher.compare(spyObj);
+    expect(result.pass).toBeTrue();
+    expect(result.message).toEqual(
+      ""Expected a spy object to have other spy interactions but it didn't.""
+    );
+  })",snuts
+/spec/core/matchers/toHaveNoOtherSpyInteractionsSpec.js,NonFunctionalStatement,"{'startLine':121,'endLine':121}","it('throws an error if the spy object has no spies', function() {
+    let matcher = jasmineUnderTest.matchers.toHaveNoOtherSpyInteractions();
+    const spyObj = jasmineUnderTest
+      .getEnv()
+      .createSpyObj('mySpyObj', ['notSpy']);
+    // Removing spy since spy objects cannot be created without spies.
+    spyObj.notSpy = function() {};
+
+    expect(function() {
+      matcher.compare(spyObj);
+    }).toThrowError(
+      Error,
+      /Expected an object with spies, but object has no spies/
+    );
+  })",snuts
+/spec/core/matchers/toHaveBeenCalledWithSpec.js,NonFunctionalStatement,"{'startLine':90,'endLine':90}","it('throws an exception when the actual is not a spy', function() {
+    const matcher = jasmineUnderTest.matchers.toHaveBeenCalledWith({
+        pp: jasmineUnderTest.makePrettyPrinter()
+      }),
+      fn = function() {};
+
+    expect(function() {
+      matcher.compare(fn);
+    }).toThrowError(/Expected a spy, but got Function./);
+  })",snuts
+/spec/core/matchers/toHaveBeenCalledTimesSpec.js,NonFunctionalStatement,"{'startLine':52,'endLine':52}","it('throws an exception when the actual is not a spy', function() {
+    const matcher = jasmineUnderTest.matchers.toHaveBeenCalledTimes({
+        pp: jasmineUnderTest.makePrettyPrinter()
+      }),
+      fn = function() {};
+
+    expect(function() {
+      matcher.compare(fn);
+    }).toThrowError(/Expected a spy, but got Function./);
+  })",snuts
+/spec/core/matchers/toHaveBeenCalledSpec.js,NonFunctionalStatement,"{'startLine':27,'endLine':27}","it('throws an exception when the actual is not a spy', function() {
+    const matcher = jasmineUnderTest.matchers.toHaveBeenCalled({
+        pp: jasmineUnderTest.makePrettyPrinter()
+      }),
+      fn = function() {};
+
+    expect(function() {
+      matcher.compare(fn);
+    }).toThrowError(Error, /Expected a spy, but got Function./);
+  })",snuts
+/spec/core/matchers/toHaveBeenCalledOnceWithSpec.js,NonFunctionalStatement,"{'startLine':102,'endLine':102}","it('throws an exception when the actual is not a spy', function() {
+    const pp = jasmineUnderTest.makePrettyPrinter(),
+      util = new jasmineUnderTest.MatchersUtil({ pp: pp }),
+      matcher = jasmineUnderTest.matchers.toHaveBeenCalledOnceWith(util),
+      fn = function() {};
+
+    expect(function() {
+      matcher.compare(fn);
+    }).toThrowError(/Expected a spy, but got Function./);
+  })",snuts
+/spec/core/matchers/toHaveBeenCalledBeforeSpec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}","it('throws an exception when the actual is not a spy', function() {
+    const matcher = jasmineUnderTest.matchers.toHaveBeenCalledBefore({
+        pp: jasmineUnderTest.makePrettyPrinter()
+      }),
+      fn = function() {},
+      spy = new jasmineUnderTest.Env().createSpy('a spy');
+
+    expect(function() {
+      matcher.compare(fn, spy);
+    }).toThrowError(Error, /Expected a spy, but got Function./);
+  })",snuts
+/spec/core/matchers/toHaveBeenCalledBeforeSpec.js,NonFunctionalStatement,"{'startLine':19,'endLine':19}","it('throws an exception when the expected is not a spy', function() {
+    const matcher = jasmineUnderTest.matchers.toHaveBeenCalledBefore({
+        pp: jasmineUnderTest.makePrettyPrinter()
+      }),
+      spy = new jasmineUnderTest.Env().createSpy('a spy'),
+      fn = function() {};
+
+    expect(function() {
+      matcher.compare(spy, fn);
+    }).toThrowError(Error, /Expected a spy, but got Function./);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,AnonymousTest,"{'startLine':134,'endLine':140}","it('pretty-prints properties', function() {
+    const actual = { x: { y: 'foo bar' } },
+      expected = { x: {} },
+      message = 'Expected $.x not to have properties\n' + ""    y: 'foo bar'"";
+
+    expect(compareEquals(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,SensitiveEquality,"{'startLine':33,'endLine':33}","it('works with custom equality testers', function() {
+    const tester = function(a, b) {
+        return a.toString() === b.toString();
+      },
+      matchersUtil = new jasmineUnderTest.MatchersUtil({
+        customTesters: [tester]
+      }),
+      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil);
+
+    const result = matcher.compare(1, '1');
+
+    expect(result.pass).toBe(true);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,ConditionalTestLogic,"{'startLine':144,'endLine':146}","it('uses custom object formatters to pretty-print simple properties', function() {
+    function formatter(x) {
+      if (typeof x === 'number') {
+        return '|' + x + '|';
+      }
+    }
+
+    const actual = { x: { y: 1, z: 2, f: 4 } },
+      expected = { x: { y: 1, z: 2, g: 3 } },
+      pp = jasmineUnderTest.makePrettyPrinter([formatter]),
+      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: pp }),
+      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil),
+      message =
+        'Expected $.x to have properties\n' +
+        '    g: |3|\n' +
+        'Expected $.x not to have properties\n' +
+        '    f: |4|';
+
+    expect(matcher.compare(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,ConditionalTestLogic,"{'startLine':165,'endLine':167}","it('uses custom object formatters to show simple values in diffs', function() {
+    function formatter(x) {
+      if (typeof x === 'number') {
+        return '|' + x + '|';
+      }
+    }
+
+    const actual = [{ foo: 4 }],
+      expected = [{ foo: 5 }],
+      prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]),
+      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: prettyPrinter }),
+      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil),
+      message = 'Expected $[0].foo = |4| to equal |5|.';
+
+    expect(matcher.compare(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,ConditionalTestLogic,"{'startLine':182,'endLine':184}","it('uses custom object formatters to show more complex objects diffs', function() {
+    function formatter(x) {
+      if (x.hasOwnProperty('a')) {
+        return '[thing with a=' + x.a + ', b=' + x.b + ']';
+      }
+    }
+
+    const actual = [
+        {
+          foo: { a: 1, b: 2 },
+          bar: 'should not be pretty printed'
+        }
+      ],
+      expected = [
+        {
+          foo: { a: 5, b: 2 },
+          bar: ""shouldn't be pretty printed""
+        }
+      ],
+      prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]),
+      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: prettyPrinter }),
+      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil),
+      message =
+        'Expected $[0].foo = [thing with a=1, b=2] to equal [thing with a=5, b=2].\n' +
+        ""Expected $[0].bar = 'should not be pretty printed' to equal 'shouldn't be pretty printed'."";
+
+    expect(matcher.compare(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,ConditionalTestLogic,"{'startLine':385,'endLine':387}","it('uses custom object formatters for the value but not the type when reporting objects with different constructors', function() {
+    function Foo() {}
+    function Bar() {}
+    function formatter(x) {
+      if (x instanceof Foo || x instanceof Bar) {
+        return '|' + x + '|';
+      }
+    }
+
+    const actual = { x: new Foo() },
+      expected = { x: new Bar() },
+      message = 'Expected $.x to be a kind of Bar, but was |[object Object]|.',
+      pp = jasmineUnderTest.makePrettyPrinter([formatter]),
+      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: pp }),
+      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil);
+
+    expect(matcher.compare(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,ConditionalTestLogic,"{'startLine':935,'endLine':937}","it('uses custom object formatters when the actual array is longer', function() {
+      function formatter(x) {
+        if (typeof x === 'number') {
+          return '|' + x + '|';
+        }
+      }
+
+      const actual = [1, 1, 2, 3, 5],
+        expected = [1, 1, 2, 3],
+        pp = jasmineUnderTest.makePrettyPrinter([formatter]),
+        matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: pp }),
+        matcher = jasmineUnderTest.matchers.toEqual(matchersUtil),
+        message =
+          'Expected $.length = |5| to equal |4|.\n' +
+          'Unexpected $[4] = |5| in array.';
+
+      expect(matcher.compare(actual, expected).message).toEqual(message);
+    })",snuts
+/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':371,'endLine':371}","it('reports mismatches between objects with different constructors', function() {
+    function Foo() {}
+    function Bar() {}
+
+    const actual = { x: new Foo() },
+      expected = { x: new Bar() },
+      message = 'Expected $.x to be a kind of Bar, but was Foo({  }).';
+
+    expect(compareEquals(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':372,'endLine':372}","it('reports mismatches between objects with different constructors', function() {
+    function Foo() {}
+    function Bar() {}
+
+    const actual = { x: new Foo() },
+      expected = { x: new Bar() },
+      message = 'Expected $.x to be a kind of Bar, but was Foo({  }).';
+
+    expect(compareEquals(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':382,'endLine':382}","it('uses custom object formatters for the value but not the type when reporting objects with different constructors', function() {
+    function Foo() {}
+    function Bar() {}
+    function formatter(x) {
+      if (x instanceof Foo || x instanceof Bar) {
+        return '|' + x + '|';
+      }
+    }
+
+    const actual = { x: new Foo() },
+      expected = { x: new Bar() },
+      message = 'Expected $.x to be a kind of Bar, but was |[object Object]|.',
+      pp = jasmineUnderTest.makePrettyPrinter([formatter]),
+      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: pp }),
+      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil);
+
+    expect(matcher.compare(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':383,'endLine':383}","it('uses custom object formatters for the value but not the type when reporting objects with different constructors', function() {
+    function Foo() {}
+    function Bar() {}
+    function formatter(x) {
+      if (x instanceof Foo || x instanceof Bar) {
+        return '|' + x + '|';
+      }
+    }
+
+    const actual = { x: new Foo() },
+      expected = { x: new Bar() },
+      message = 'Expected $.x to be a kind of Bar, but was |[object Object]|.',
+      pp = jasmineUnderTest.makePrettyPrinter([formatter]),
+      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: pp }),
+      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil);
+
+    expect(matcher.compare(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':401,'endLine':401}","it('reports type mismatches at the root level', function() {
+    function Foo() {}
+    function Bar() {}
+
+    const actual = new Foo(),
+      expected = new Bar(),
+      message = 'Expected object to be a kind of Bar, but was Foo({  }).';
+
+    expect(compareEquals(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':402,'endLine':402}","it('reports type mismatches at the root level', function() {
+    function Foo() {}
+    function Bar() {}
+
+    const actual = new Foo(),
+      expected = new Bar(),
+      message = 'Expected object to be a kind of Bar, but was Foo({  }).';
+
+    expect(compareEquals(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':461,'endLine':461}","it('reports mismatches between Functions', function() {
+    const actual = { x: function() {} };
+    const expected = { x: function() {} };
+    const message = ""Expected $.x = Function 'x' to equal Function 'x'."";
+
+    expect(compareEquals(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':462,'endLine':462}","it('reports mismatches between Functions', function() {
+    const actual = { x: function() {} };
+    const expected = { x: function() {} };
+    const message = ""Expected $.x = Function 'x' to equal Function 'x'."";
+
+    expect(compareEquals(actual, expected).message).toEqual(message);
+  })",snuts
+/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':1173,'endLine':1173}","it('Fails if Symbol compared to Function', function() {
+      const sym = Symbol('foo');
+      const f = function func() {};
+
+      expect(sym).not.toEqual(f);
+    })",snuts
+/spec/core/matchers/toEqualSpec.js,SubOptimalAssert,"{'startLine':1155,'endLine':1155}","it('Fails if Symbol compared to Undefined', function() {
+      const sym = Symbol('foo');
+
+      expect(sym).not.toEqual(undefined);
+    })",snuts
+/spec/core/matchers/toEqualSpec.js,SubOptimalAssert,"{'startLine':1161,'endLine':1161}","it('Fails if Symbol compared to null', function() {
+      const sym = Symbol('foo');
+
+      expect(sym).not.toEqual(null);
+    })",snuts
+/spec/core/matchers/toContainSpec.js,SensitiveEquality,"{'startLine':15,'endLine':15}","it('works with custom equality testers', function() {
+    const tester = function(a, b) {
+        return a.toString() === b.toString();
+      },
+      matchersUtil = new jasmineUnderTest.MatchersUtil({
+        customTesters: [tester]
+      }),
+      matcher = jasmineUnderTest.matchers.toContain(matchersUtil);
+
+    const result = matcher.compare(['1', '2'], 2);
+    expect(result.pass).toBe(true);
+  })",snuts
+/spec/core/matchers/toBeTruthySpec.js,NonFunctionalStatement,"{'startLine':21,'endLine':21}","it(""passes for 'truthy' values"", function() {
+    const matcher = jasmineUnderTest.matchers.toBeTruthy();
+    let result;
+
+    result = matcher.compare(true);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(1);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare('foo');
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare({});
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare([]);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(function() {});
+    expect(result.pass).toBe(true);
+  })",snuts
+/spec/core/matchers/toBeTruthySpec.js,VerboseStatement,"{'startLine':2,'endLine':23}","it(""passes for 'truthy' values"", function() {
+    const matcher = jasmineUnderTest.matchers.toBeTruthy();
+    let result;
+
+    result = matcher.compare(true);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(1);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare('foo');
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare({});
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare([]);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(function() {});
+    expect(result.pass).toBe(true);
+  })",snuts
+/spec/core/matchers/toBeTruthySpec.js,VerboseStatement,"{'startLine':25,'endLine':46}","it(""fails for 'falsy' values"", function() {
+    const matcher = jasmineUnderTest.matchers.toBeTruthy();
+    let result;
+
+    result = matcher.compare(false);
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare(0);
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare('');
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare(null);
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare(undefined);
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare(void 0);
+    expect(result.pass).toBe(false);
+  })",snuts
+/spec/core/matchers/toBeInstanceOfSpec.js,NonFunctionalStatement,"{'startLine':95,'endLine':95}","it('passes for a function', function() {
+      const fn = function() {};
+
+      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
+      const result = matcher.compare(fn, Function);
+      expect(result).toEqual({
+        pass: true,
+        message:
+          'Expected instance of Function not to be an instance of Function'
+      });
+    })",snuts
+/spec/core/matchers/toBeInstanceOfSpec.js,NonFunctionalStatement,"{'startLine':122,'endLine':122}","describe('when expecting Object', function() {
+    function Animal() {}
+
+    it('passes for any object', function() {
+      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
+      const result = matcher.compare({ foo: 'bar' }, Object);
+      expect(result).toEqual({
+        pass: true,
+        message: 'Expected instance of Object not to be an instance of Object'
+      });
+    });
+
+    it('passes for an Error object', function() {
+      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
+      const result = matcher.compare(new Error('example'), Object);
+      expect(result).toEqual({
+        pass: true,
+        message: 'Expected instance of Error not to be an instance of Object'
+      });
+    });
+
+    it('passes for a user-defined class', function() {
+      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
+      const result = matcher.compare(new Animal(), Object);
+      expect(result).toEqual({
+        pass: true,
+        message: 'Expected instance of Animal not to be an instance of Object'
+      });
+    });
+
+    it('fails for a non-object', function() {
+      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
+      const result = matcher.compare('foo', Object);
+      expect(result).toEqual({
+        pass: false,
+        message: 'Expected instance of String to be an instance of Object'
+      });
+    });
+
+    it('passes for objects with no constructor', function() {
+      const object = Object.create(null);
+
+      const matcher = jasmineUnderTest.matchers.toBeInstanceOf({
+        pp: jasmineUnderTest.makePrettyPrinter()
+      });
+      const result = matcher.compare(object, Object);
+      expect(result).toEqual({
+        pass: true,
+        message:
+          'Expected instance of null({  }) not to be an instance of Object'
+      });
+    });
+  })",snuts
+/spec/core/matchers/toBeInstanceOfSpec.js,NonFunctionalStatement,"{'startLine':177,'endLine':177}","describe('when expecting a user-defined class', function() {
+    // Base class
+    function Animal() {}
+
+    // Subclasses, defined using syntax that is as old as possible
+    function Dog() {
+      Animal.call(this);
+    }
+    Dog.prototype = new Animal();
+    Dog.prototype.constructor = Dog;
+
+    function Cat() {
+      Animal.call(this);
+    }
+    Cat.prototype = new Animal();
+    Cat.prototype.constructor = Cat;
+
+    it('passes for instances of that class', function() {
+      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
+      const result = matcher.compare(new Animal(), Animal);
+      expect(result).toEqual({
+        pass: true,
+        message: 'Expected instance of Animal not to be an instance of Animal'
+      });
+    });
+
+    it('passes for instances of a subclass', function() {
+      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
+      const result = matcher.compare(new Cat(), Animal);
+      expect(result).toEqual({
+        pass: true,
+        message: 'Expected instance of Cat not to be an instance of Animal'
+      });
+    });
+
+    it('does not pass for sibling classes', function() {
+      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
+      const result = matcher.compare(new Dog(), Cat);
+      expect(result).toEqual({
+        pass: false,
+        message: 'Expected instance of Dog to be an instance of Cat'
+      });
+    });
+  })",snuts
+/spec/core/matchers/toBeFalsySpec.js,NonFunctionalStatement,"{'startLine':44,'endLine':44}","it(""fails for 'truthy' values"", function() {
+    const matcher = jasmineUnderTest.matchers.toBeFalsy();
+    let result;
+
+    result = matcher.compare(true);
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare(1);
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare('foo');
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare({});
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare([]);
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare(function() {});
+    expect(result.pass).toBe(false);
+  })",snuts
+/spec/core/matchers/toBeFalsySpec.js,VerboseStatement,"{'startLine':2,'endLine':23}","it(""passes for 'falsy' values"", function() {
+    const matcher = jasmineUnderTest.matchers.toBeFalsy();
+    let result;
+
+    result = matcher.compare(false);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(0);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare('');
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(null);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(undefined);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(void 0);
+    expect(result.pass).toBe(true);
+  })",snuts
+/spec/core/matchers/toBeFalsySpec.js,VerboseStatement,"{'startLine':25,'endLine':46}","it(""fails for 'truthy' values"", function() {
+    const matcher = jasmineUnderTest.matchers.toBeFalsy();
+    let result;
+
+    result = matcher.compare(true);
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare(1);
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare('foo');
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare({});
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare([]);
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare(function() {});
+    expect(result.pass).toBe(false);
+  })",snuts
+/spec/core/matchers/toBeCloseToSpec.js,VerboseStatement,"{'startLine':27,'endLine':48}","it('accepts an optional precision argument', function() {
+    const matcher = jasmineUnderTest.matchers.toBeCloseTo();
+    let result;
+
+    result = matcher.compare(0, 0.1, 0);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(0, 0.5, 0);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(0, 0.0001, 3);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(0, 0.0005, 3);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(0, 0.00001, 4);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(0, 0.00005, 4);
+    expect(result.pass).toBe(true);
+  })",snuts
+/spec/core/matchers/toBeCloseToSpec.js,VerboseStatement,"{'startLine':72,'endLine':98}","it('rounds expected values', function() {
+    const matcher = jasmineUnderTest.matchers.toBeCloseTo();
+    let result;
+
+    result = matcher.compare(1.23, 1.229);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(1.23, 1.226);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(1.23, 1.225);
+    expect(result.pass).toBe(true);
+
+    result = matcher.compare(1.23, 1.235);
+    expect(result.pass).toBe(true);
+
+    // 1.2249999 will be rounded to 1.225
+    result = matcher.compare(1.23, 1.2249999);
+    expect(result.pass).toBe(true);
+
+    // 1.2249999 will be rounded to 1.224
+    result = matcher.compare(1.23, 1.2244999);
+    expect(result.pass).toBe(false);
+
+    result = matcher.compare(1.23, 1.234);
+    expect(result.pass).toBe(true);
+  })",snuts
+/spec/core/matchers/nothingSpec.js,AnonymousTest,"{'startLine':2,'endLine':7}","it('should pass', function() {
+    const matcher = jasmineUnderTest.matchers.nothing(),
+      result = matcher.compare();
+
+    expect(result.pass).toBe(true);
+  })",snuts
+/spec/core/matchers/matchersUtilSpec.js,IdenticalTestDescription,"{'startLine':455,'endLine':461}","it('passes for two empty Objects', function() {
+        const matchersUtil = new jasmineUnderTest.MatchersUtil({
+          customTesters: [tester],
+          pp: function() {}
+        });
+        expect(matchersUtil.equals({}, {})).toBe(true);
+      })",snuts
+/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}","it('exposes the injected pretty-printer as .pp', function() {
+    const pp = function() {},
+      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: pp });
+
+    expect(matchersUtil.pp).toBe(pp);
+  })",snuts
+/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':166,'endLine':166}","it('fails for objects with different constructors', function() {
+      const matchersUtil = new jasmineUnderTest.MatchersUtil();
+      function One() {}
+      function Two() {}
+
+      expect(matchersUtil.equals(new One(), new Two())).toBe(false);
+    })",snuts
+/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':167,'endLine':167}","it('fails for objects with different constructors', function() {
+      const matchersUtil = new jasmineUnderTest.MatchersUtil();
+      function One() {}
+      function Two() {}
+
+      expect(matchersUtil.equals(new One(), new Two())).toBe(false);
+    })",snuts
+/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':253,'endLine':253}","it('passes for equivalent Promises (GitHub issue #1314)', function() {
+      const p1 = new Promise(function() {}),
+        p2 = new Promise(function() {}),
+        matchersUtil = new jasmineUnderTest.MatchersUtil();
+
+      expect(matchersUtil.equals(p1, p1)).toBe(true);
+      expect(matchersUtil.equals(p1, p2)).toBe(false);
+    })",snuts
+/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':254,'endLine':254}","it('passes for equivalent Promises (GitHub issue #1314)', function() {
+      const p1 = new Promise(function() {}),
+        p2 = new Promise(function() {}),
+        matchersUtil = new jasmineUnderTest.MatchersUtil();
+
+      expect(matchersUtil.equals(p1, p1)).toBe(true);
+      expect(matchersUtil.equals(p1, p2)).toBe(false);
+    })",snuts
+/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':439,'endLine':439}","it('passes when a custom equality matcher returns true', function() {
+      const tester = function() {
+          return true;
+        },
+        matchersUtil = new jasmineUnderTest.MatchersUtil({
+          customTesters: [tester],
+          pp: function() {}
+        });
+
+      expect(matchersUtil.equals(1, 2)).toBe(true);
+    })",snuts
+/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':458,'endLine':458}","it('passes for two empty Objects', function() {
+        const matchersUtil = new jasmineUnderTest.MatchersUtil({
+          customTesters: [tester],
+          pp: function() {}
+        });
+        expect(matchersUtil.equals({}, {})).toBe(true);
+      })",snuts
+/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':470,'endLine':470}","it('fails for equivalents when a custom equality matcher returns false', function() {
+      const tester = function() {
+          return false;
+        },
+        matchersUtil = new jasmineUnderTest.MatchersUtil({
+          customTesters: [tester],
+          pp: function() {}
+        });
+
+      expect(matchersUtil.equals(1, 1)).toBe(false);
+    })",snuts
+/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':487,'endLine':487}","it('passes for an asymmetric equality tester that returns true when a custom equality tester return false', function() {
+      const asymmetricTester = {
+          asymmetricMatch: function() {
+            return true;
+          }
+        },
+        symmetricTester = function() {
+          return false;
+        },
+        matchersUtil = new jasmineUnderTest.MatchersUtil({
+          customTesters: [symmetricTester()],
+          pp: function() {}
+        });
+
+      expect(matchersUtil.equals(asymmetricTester, true)).toBe(true);
+      expect(matchersUtil.equals(true, asymmetricTester)).toBe(true);
+    })",snuts
+/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':1024,'endLine':1024}","it('uses custom equality testers if actual is an Array', function() {
+      const customTester = function() {
+          return true;
+        },
+        matchersUtil = new jasmineUnderTest.MatchersUtil({
+          customTesters: [customTester],
+          pp: function() {}
+        });
+
+      expect(matchersUtil.contains([1, 2], 3)).toBe(true);
+    })",snuts
+/spec/core/matchers/matchersUtilSpec.js,VerboseStatement,"{'startLine':293,'endLine':313}","it('fails for DOM nodes with different attributes or child nodes', function() {
+        const matchersUtil = new jasmineUnderTest.MatchersUtil();
+        const a = document.createElement('div');
+        a.setAttribute('test-attr', 'attr-value');
+        a.appendChild(document.createTextNode('test'));
+
+        const b = document.createElement('div');
+        b.setAttribute('test-attr', 'attr-value2');
+        b.appendChild(document.createTextNode('test'));
+
+        expect(matchersUtil.equals(a, b)).toBe(false);
+
+        b.setAttribute('test-attr', 'attr-value');
+        expect(matchersUtil.equals(a, b)).toBe(true);
+
+        b.appendChild(document.createTextNode('2'));
+        expect(matchersUtil.equals(a, b)).toBe(false);
+
+        a.appendChild(document.createTextNode('2'));
+        expect(matchersUtil.equals(a, b)).toBe(true);
+      })",snuts
+/spec/core/matchers/matchersUtilSpec.js,VerboseStatement,"{'startLine':553,'endLine':576}","it('passes when comparing identical sets with different insertion order and complex elements 1', function() {
+      const matchersUtil = new jasmineUnderTest.MatchersUtil();
+      const setA1 = new Set();
+      setA1.add(['a', 3]);
+      setA1.add([6, 1]);
+      const setA2 = new Set();
+      setA1.add(['y', 3]);
+      setA1.add([6, 1]);
+      const setA = new Set();
+      setA.add(setA1);
+      setA.add(setA2);
+
+      const setB1 = new Set();
+      setB1.add([6, 1]);
+      setB1.add(['a', 3]);
+      const setB2 = new Set();
+      setB1.add([6, 1]);
+      setB1.add(['y', 3]);
+      const setB = new Set();
+      setB.add(setB1);
+      setB.add(setB2);
+
+      expect(matchersUtil.equals(setA, setB)).toBe(true);
+    })",snuts
+/spec/core/matchers/MismatchTreeSpec.js,NonFunctionalStatement,"{'startLine':141,'endLine':141}","describe('MismatchTree', function() {
+  describe('#add', function() {
+    describe('When the path is empty', function() {
+      it('flags the root node as mismatched', function() {
+        const tree = new jasmineUnderTest.MismatchTree();
+        tree.add(new jasmineUnderTest.ObjectPath([]));
+        expect(tree.isMismatch).toBe(true);
+      });
+    });
+
+    describe('When the path is not empty', function() {
+      it('flags the node as mismatched', function() {
+        const tree = new jasmineUnderTest.MismatchTree();
+
+        tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']));
+
+        expect(tree.child('a').child('b').isMismatch).toBe(true);
+      });
+
+      it('does not flag ancestors as mismatched', function() {
+        const tree = new jasmineUnderTest.MismatchTree();
+
+        tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']));
+
+        expect(tree.isMismatch).toBe(false);
+        expect(tree.child('a').isMismatch).toBe(false);
+      });
+    });
+
+    it('stores the formatter on only the target node', function() {
+      const tree = new jasmineUnderTest.MismatchTree();
+
+      tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']), formatter);
+
+      expect(tree.formatter).toBeFalsy();
+      expect(tree.child('a').formatter).toBeFalsy();
+      expect(tree.child('a').child('b').formatter).toBe(formatter);
+    });
+
+    it('stores the path to the node', function() {
+      const tree = new jasmineUnderTest.MismatchTree();
+
+      tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']), formatter);
+
+      expect(tree.child('a').child('b').path.components).toEqual(['a', 'b']);
+    });
+  });
+
+  describe('#traverse', function() {
+    it('calls the callback for all nodes that are or contain mismatches', function() {
+      const tree = new jasmineUnderTest.MismatchTree();
+      tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']), formatter);
+      tree.add(new jasmineUnderTest.ObjectPath(['c']));
+      const visit = jasmine.createSpy('visit').and.returnValue(true);
+
+      tree.traverse(visit);
+
+      expect(visit).toHaveBeenCalledWith(
+        new jasmineUnderTest.ObjectPath([]),
+        false,
+        undefined
+      );
+      expect(visit).toHaveBeenCalledWith(
+        new jasmineUnderTest.ObjectPath(['a']),
+        false,
+        undefined
+      );
+      expect(visit).toHaveBeenCalledWith(
+        new jasmineUnderTest.ObjectPath(['a', 'b']),
+        true,
+        formatter
+      );
+      expect(visit).toHaveBeenCalledWith(
+        new jasmineUnderTest.ObjectPath(['c']),
+        true,
+        undefined
+      );
+    });
+
+    it('does not call the callback if there are no mismatches', function() {
+      const tree = new jasmineUnderTest.MismatchTree();
+      const visit = jasmine.createSpy('visit');
+
+      tree.traverse(visit);
+
+      expect(visit).not.toHaveBeenCalled();
+    });
+
+    it('visits parents before children', function() {
+      const tree = new jasmineUnderTest.MismatchTree();
+      tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']));
+      const visited = [];
+
+      tree.traverse(function(path) {
+        visited.push(path);
+        return true;
+      });
+
+      expect(visited).toEqual([
+        new jasmineUnderTest.ObjectPath([]),
+        new jasmineUnderTest.ObjectPath(['a']),
+        new jasmineUnderTest.ObjectPath(['a', 'b'])
+      ]);
+    });
+
+    it('visits children in the order they were recorded', function() {
+      const tree = new jasmineUnderTest.MismatchTree();
+      tree.add(new jasmineUnderTest.ObjectPath(['length']));
+      tree.add(new jasmineUnderTest.ObjectPath([1]));
+      const visited = [];
+
+      tree.traverse(function(path) {
+        visited.push(path);
+        return true;
+      });
+
+      expect(visited).toEqual([
+        new jasmineUnderTest.ObjectPath([]),
+        new jasmineUnderTest.ObjectPath(['length']),
+        new jasmineUnderTest.ObjectPath([1])
+      ]);
+    });
+
+    it('does not visit children if the callback returns falsy', function() {
+      const tree = new jasmineUnderTest.MismatchTree();
+      tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']));
+      const visited = [];
+
+      tree.traverse(function(path) {
+        visited.push(path);
+        return path.depth() === 0;
+      });
+
+      expect(visited).toEqual([
+        new jasmineUnderTest.ObjectPath([]),
+        new jasmineUnderTest.ObjectPath(['a'])
+      ]);
+    });
+  });
+
+  function formatter() {}
+})",snuts
+/spec/core/matchers/DiffBuilderSpec.js,ConditionalTestLogic,"{'startLine':111,'endLine':113}","it('uses custom object formatters on leaf nodes', function() {
+    const formatter = function(x) {
+      if (typeof x === 'number') {
+        return '[number:' + x + ']';
+      }
+    };
+    const prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]);
+    const diffBuilder = new jasmineUnderTest.DiffBuilder({
+      prettyPrinter: prettyPrinter
+    });
+
+    diffBuilder.setRoots(5, 4);
+    diffBuilder.recordMismatch();
+
+    expect(diffBuilder.getMessage()).toEqual(
+      'Expected [number:5] to equal [number:4].'
+    );
+  })",snuts
+/spec/core/matchers/DiffBuilderSpec.js,ConditionalTestLogic,"{'startLine':130,'endLine':132}","it('uses custom object formatters on non leaf nodes', function() {
+    const formatter = function(x) {
+      if (x.hasOwnProperty('a')) {
+        return '[thing with a=' + x.a + ', b=' + JSON.stringify(x.b) + ']';
+      }
+    };
+    const prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]);
+    const diffBuilder = new jasmineUnderTest.DiffBuilder({
+      prettyPrinter: prettyPrinter
+    });
+    const expectedMsg =
+      'Expected $[0].foo = [thing with a=1, b={""x"":42}] to equal [thing with a=1, b={""x"":43}].\n' +
+      ""Expected $[0].bar = 'yes' to equal 'no'."";
+
+    diffBuilder.setRoots(
+      [{ foo: { a: 1, b: { x: 42 } }, bar: 'yes' }],
+      [{ foo: { a: 1, b: { x: 43 } }, bar: 'no' }]
+    );
+
+    diffBuilder.withPath(0, function() {
+      diffBuilder.withPath('foo', function() {
+        diffBuilder.withPath('b', function() {
+          diffBuilder.withPath('x', function() {
+            diffBuilder.recordMismatch();
+          });
+        });
+      });
+
+      diffBuilder.withPath('bar', function() {
+        diffBuilder.recordMismatch();
+      });
+    });
+
+    expect(diffBuilder.getMessage()).toEqual(expectedMsg);
+  })",snuts
+/spec/core/matchers/DiffBuilderSpec.js,ConditionalTestLogic,"{'startLine':166,'endLine':168}","it('handles cases where only the expected has a custom object formatter', function() {
+    const formatter = function(x) {
+      if (typeof x === 'number') {
+        return '[number:' + x + ']';
+      }
+    };
+    const prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]);
+    const diffBuilder = new jasmineUnderTest.DiffBuilder({
+      prettyPrinter: prettyPrinter
+    });
+
+    diffBuilder.setRoots('five', 4);
+    diffBuilder.recordMismatch();
+
+    expect(diffBuilder.getMessage()).toEqual(
+      ""Expected 'five' to equal [number:4].""
+    );
+  })",snuts
+/spec/core/matchers/DiffBuilderSpec.js,ConditionalTestLogic,"{'startLine':185,'endLine':187}","it('handles cases where only the actual has a custom object formatter', function() {
+    const formatter = function(x) {
+      if (typeof x === 'number') {
+        return '[number:' + x + ']';
+      }
+    };
+    const prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]);
+    const diffBuilder = new jasmineUnderTest.DiffBuilder({
+      prettyPrinter: prettyPrinter
+    });
+
+    diffBuilder.setRoots(5, 'four');
+    diffBuilder.recordMismatch();
+
+    expect(diffBuilder.getMessage()).toEqual(
+      ""Expected [number:5] to equal 'four'.""
+    );
+  })",snuts
+/spec/core/matchers/DiffBuilderSpec.js,ConditionalTestLogic,"{'startLine':204,'endLine':206}","it('handles complex cases where only one side has a custom object formatter', function() {
+    const formatter = function(x) {
+      if (typeof x === 'number') {
+        return '[number:' + x + ']';
+      }
+    };
+    const prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]);
+    const diffBuilder = new jasmineUnderTest.DiffBuilder({
+      prettyPrinter: prettyPrinter
+    });
+
+    diffBuilder.setRoots(5, { foo: 'bar', fnord: { graults: ['wombat'] } });
+    diffBuilder.recordMismatch();
+
+    expect(diffBuilder.getMessage()).toEqual(
+      ""Expected [number:5] to equal Object({ foo: 'bar', fnord: Object({ graults: [ 'wombat' ] }) }).""
+    );
+  })",snuts
+/spec/core/matchers/DiffBuilderSpec.js,NonFunctionalStatement,"{'startLine':74,'endLine':74}","it('uses the injected pretty-printer', function() {
+    const prettyPrinter = function(val) {
+        return '|' + val + '|';
+      },
+      diffBuilder = new jasmineUnderTest.DiffBuilder({
+        prettyPrinter: prettyPrinter
+      });
+    prettyPrinter.customFormat_ = function() {};
+
+    diffBuilder.setRoots({ foo: 'actual' }, { foo: 'expected' });
+    diffBuilder.withPath('foo', function() {
+      diffBuilder.recordMismatch();
+    });
+
+    expect(diffBuilder.getMessage()).toEqual(
+      'Expected $.foo = |actual| to equal |expected|.'
+    );
+  })",snuts
+/spec/core/matchers/DiffBuilderSpec.js,NonFunctionalStatement,"{'startLine':88,'endLine':88}","it('passes the injected pretty-printer to the diff formatter', function() {
+    const diffFormatter = jasmine.createSpy('diffFormatter'),
+      prettyPrinter = function() {},
+      diffBuilder = new jasmineUnderTest.DiffBuilder({
+        prettyPrinter: prettyPrinter
+      });
+    prettyPrinter.customFormat_ = function() {};
+
+    diffBuilder.setRoots({ x: 'bar' }, { x: 'foo' });
+    diffBuilder.withPath('x', function() {
+      diffBuilder.recordMismatch(diffFormatter);
+    });
+
+    diffBuilder.getMessage();
+
+    expect(diffFormatter).toHaveBeenCalledWith(
+      'bar',
+      'foo',
+      jasmine.anything(),
+      prettyPrinter
+    );
+  })",snuts
+/spec/core/matchers/DiffBuilderSpec.js,NonFunctionalStatement,"{'startLine':92,'endLine':92}","it('passes the injected pretty-printer to the diff formatter', function() {
+    const diffFormatter = jasmine.createSpy('diffFormatter'),
+      prettyPrinter = function() {},
+      diffBuilder = new jasmineUnderTest.DiffBuilder({
+        prettyPrinter: prettyPrinter
+      });
+    prettyPrinter.customFormat_ = function() {};
+
+    diffBuilder.setRoots({ x: 'bar' }, { x: 'foo' });
+    diffBuilder.withPath('x', function() {
+      diffBuilder.recordMismatch(diffFormatter);
+    });
+
+    diffBuilder.getMessage();
+
+    expect(diffFormatter).toHaveBeenCalledWith(
+      'bar',
+      'foo',
+      jasmine.anything(),
+      prettyPrinter
+    );
+  })",snuts
 /spec/core/integration/SpecRunningSpec.js,AnonymousTest,"{'startLine':33,'endLine':70}","it('nested suites', async function() {
     let foo = 0;
     let bar = 0;
@@ -29173,1154 +30315,6 @@ file,type,line,method,source
 
     expect(any.asymmetricMatch(new Thing())).toBe(true);
   })",snuts
-/spec/core/matchers/toThrowErrorSpec.js,IdenticalTestDescription,"{'startLine':305,'endLine':321}","it('fails if thrown is a type of Error and the expected is a different Error', function() {
-      const matchersUtil = {
-          equals: jasmine.createSpy('delegated-equal').and.returnValue(false),
-          pp: jasmineUnderTest.makePrettyPrinter()
-        },
-        matcher = jasmineUnderTest.matchers.toThrowError(matchersUtil),
-        fn = function() {
-          throw new TypeError('foo');
-        };
-
-      const result = matcher.compare(fn, TypeError, /bar/);
-
-      expect(result.pass).toBe(false);
-      expect(result.message()).toEqual(
-        ""Expected function to throw TypeError with a message matching /bar/, but it threw TypeError with message 'foo'.""
-      );
-    })",snuts
-/spec/core/matchers/toThrowErrorSpec.js,ConditionalTestLogic,"{'startLine':84,'endLine':86}","it('passes if thrown is an instanceof Error regardless of global that contains its constructor', function() {
-      if (isNotRunningInBrowser()) {
-        pending('This test only runs in browsers.');
-      }
-
-      const matcher = jasmineUnderTest.matchers.toThrowError();
-      iframe = document.body.appendChild(document.createElement('iframe'));
-      iframe.src = 'about:blank';
-      const iframeDocument = iframe.contentWindow.document;
-
-      iframeDocument.body.appendChild(
-        iframeDocument.createElement('script')
-      ).textContent = ""function method() { throw new Error('foo'); }"";
-
-      const result = matcher.compare(iframe.contentWindow.method);
-      expect(result.pass).toBe(true);
-      expect(result.message).toEqual(
-        'Expected function not to throw an Error, but it threw Error.'
-      );
-    })",snuts
-/spec/core/matchers/toHaveSpyInteractionsSpec.js,NonFunctionalStatement,"{'startLine':62,'endLine':62}","it('fails when only non-observed spy object interactions are interacted', function() {
-    let matcher = jasmineUnderTest.matchers.toHaveSpyInteractions();
-    let spyObj = jasmineUnderTest
-      .getEnv()
-      .createSpyObj('NewClass', ['spyA', 'spyB']);
-    spyObj.otherMethod = function() {};
-
-    spyObj.otherMethod();
-
-    let result = matcher.compare(spyObj);
-    expect(result.pass).toBe(false);
-    expect(result.message).toContain(
-      'Expected spy object spies to have been called'
-    );
-  })",snuts
-/spec/core/matchers/toHaveSpyInteractionsSpec.js,NonFunctionalStatement,"{'startLine':106,'endLine':106}","it('throws an error if the spy object has no spies', function() {
-    let matcher = jasmineUnderTest.matchers.toHaveSpyInteractions();
-    const spyObj = jasmineUnderTest
-      .getEnv()
-      .createSpyObj('NewClass', ['notSpy']);
-    // Removing spy since spy objects cannot be created without spies.
-    spyObj.notSpy = function() {};
-
-    expect(function() {
-      matcher.compare(spyObj);
-    }).toThrowError(
-      Error,
-      /Expected a spy object with spies, but object has no spies/
-    );
-  })",snuts
-/spec/core/matchers/toHaveNoOtherSpyInteractionsSpec.js,NonFunctionalStatement,"{'startLine':77,'endLine':77}","it('passes when only non-observed spy object interactions are interacted', function() {
-    let matcher = jasmineUnderTest.matchers.toHaveNoOtherSpyInteractions();
-    let spyObj = jasmineUnderTest
-      .getEnv()
-      .createSpyObj('NewClass', ['spyA', 'spyB']);
-    spyObj.otherMethod = function() {};
-
-    spyObj.otherMethod();
-
-    let result = matcher.compare(spyObj);
-    expect(result.pass).toBeTrue();
-    expect(result.message).toEqual(
-      ""Expected a spy object to have other spy interactions but it didn't.""
-    );
-  })",snuts
-/spec/core/matchers/toHaveNoOtherSpyInteractionsSpec.js,NonFunctionalStatement,"{'startLine':121,'endLine':121}","it('throws an error if the spy object has no spies', function() {
-    let matcher = jasmineUnderTest.matchers.toHaveNoOtherSpyInteractions();
-    const spyObj = jasmineUnderTest
-      .getEnv()
-      .createSpyObj('mySpyObj', ['notSpy']);
-    // Removing spy since spy objects cannot be created without spies.
-    spyObj.notSpy = function() {};
-
-    expect(function() {
-      matcher.compare(spyObj);
-    }).toThrowError(
-      Error,
-      /Expected an object with spies, but object has no spies/
-    );
-  })",snuts
-/spec/core/matchers/toHaveBeenCalledWithSpec.js,NonFunctionalStatement,"{'startLine':90,'endLine':90}","it('throws an exception when the actual is not a spy', function() {
-    const matcher = jasmineUnderTest.matchers.toHaveBeenCalledWith({
-        pp: jasmineUnderTest.makePrettyPrinter()
-      }),
-      fn = function() {};
-
-    expect(function() {
-      matcher.compare(fn);
-    }).toThrowError(/Expected a spy, but got Function./);
-  })",snuts
-/spec/core/matchers/toHaveBeenCalledTimesSpec.js,NonFunctionalStatement,"{'startLine':52,'endLine':52}","it('throws an exception when the actual is not a spy', function() {
-    const matcher = jasmineUnderTest.matchers.toHaveBeenCalledTimes({
-        pp: jasmineUnderTest.makePrettyPrinter()
-      }),
-      fn = function() {};
-
-    expect(function() {
-      matcher.compare(fn);
-    }).toThrowError(/Expected a spy, but got Function./);
-  })",snuts
-/spec/core/matchers/toHaveBeenCalledSpec.js,NonFunctionalStatement,"{'startLine':27,'endLine':27}","it('throws an exception when the actual is not a spy', function() {
-    const matcher = jasmineUnderTest.matchers.toHaveBeenCalled({
-        pp: jasmineUnderTest.makePrettyPrinter()
-      }),
-      fn = function() {};
-
-    expect(function() {
-      matcher.compare(fn);
-    }).toThrowError(Error, /Expected a spy, but got Function./);
-  })",snuts
-/spec/core/matchers/toHaveBeenCalledOnceWithSpec.js,NonFunctionalStatement,"{'startLine':102,'endLine':102}","it('throws an exception when the actual is not a spy', function() {
-    const pp = jasmineUnderTest.makePrettyPrinter(),
-      util = new jasmineUnderTest.MatchersUtil({ pp: pp }),
-      matcher = jasmineUnderTest.matchers.toHaveBeenCalledOnceWith(util),
-      fn = function() {};
-
-    expect(function() {
-      matcher.compare(fn);
-    }).toThrowError(/Expected a spy, but got Function./);
-  })",snuts
-/spec/core/matchers/toHaveBeenCalledBeforeSpec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}","it('throws an exception when the actual is not a spy', function() {
-    const matcher = jasmineUnderTest.matchers.toHaveBeenCalledBefore({
-        pp: jasmineUnderTest.makePrettyPrinter()
-      }),
-      fn = function() {},
-      spy = new jasmineUnderTest.Env().createSpy('a spy');
-
-    expect(function() {
-      matcher.compare(fn, spy);
-    }).toThrowError(Error, /Expected a spy, but got Function./);
-  })",snuts
-/spec/core/matchers/toHaveBeenCalledBeforeSpec.js,NonFunctionalStatement,"{'startLine':19,'endLine':19}","it('throws an exception when the expected is not a spy', function() {
-    const matcher = jasmineUnderTest.matchers.toHaveBeenCalledBefore({
-        pp: jasmineUnderTest.makePrettyPrinter()
-      }),
-      spy = new jasmineUnderTest.Env().createSpy('a spy'),
-      fn = function() {};
-
-    expect(function() {
-      matcher.compare(spy, fn);
-    }).toThrowError(Error, /Expected a spy, but got Function./);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,AnonymousTest,"{'startLine':134,'endLine':140}","it('pretty-prints properties', function() {
-    const actual = { x: { y: 'foo bar' } },
-      expected = { x: {} },
-      message = 'Expected $.x not to have properties\n' + ""    y: 'foo bar'"";
-
-    expect(compareEquals(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,SensitiveEquality,"{'startLine':33,'endLine':33}","it('works with custom equality testers', function() {
-    const tester = function(a, b) {
-        return a.toString() === b.toString();
-      },
-      matchersUtil = new jasmineUnderTest.MatchersUtil({
-        customTesters: [tester]
-      }),
-      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil);
-
-    const result = matcher.compare(1, '1');
-
-    expect(result.pass).toBe(true);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,ConditionalTestLogic,"{'startLine':144,'endLine':146}","it('uses custom object formatters to pretty-print simple properties', function() {
-    function formatter(x) {
-      if (typeof x === 'number') {
-        return '|' + x + '|';
-      }
-    }
-
-    const actual = { x: { y: 1, z: 2, f: 4 } },
-      expected = { x: { y: 1, z: 2, g: 3 } },
-      pp = jasmineUnderTest.makePrettyPrinter([formatter]),
-      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: pp }),
-      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil),
-      message =
-        'Expected $.x to have properties\n' +
-        '    g: |3|\n' +
-        'Expected $.x not to have properties\n' +
-        '    f: |4|';
-
-    expect(matcher.compare(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,ConditionalTestLogic,"{'startLine':165,'endLine':167}","it('uses custom object formatters to show simple values in diffs', function() {
-    function formatter(x) {
-      if (typeof x === 'number') {
-        return '|' + x + '|';
-      }
-    }
-
-    const actual = [{ foo: 4 }],
-      expected = [{ foo: 5 }],
-      prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]),
-      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: prettyPrinter }),
-      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil),
-      message = 'Expected $[0].foo = |4| to equal |5|.';
-
-    expect(matcher.compare(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,ConditionalTestLogic,"{'startLine':182,'endLine':184}","it('uses custom object formatters to show more complex objects diffs', function() {
-    function formatter(x) {
-      if (x.hasOwnProperty('a')) {
-        return '[thing with a=' + x.a + ', b=' + x.b + ']';
-      }
-    }
-
-    const actual = [
-        {
-          foo: { a: 1, b: 2 },
-          bar: 'should not be pretty printed'
-        }
-      ],
-      expected = [
-        {
-          foo: { a: 5, b: 2 },
-          bar: ""shouldn't be pretty printed""
-        }
-      ],
-      prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]),
-      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: prettyPrinter }),
-      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil),
-      message =
-        'Expected $[0].foo = [thing with a=1, b=2] to equal [thing with a=5, b=2].\n' +
-        ""Expected $[0].bar = 'should not be pretty printed' to equal 'shouldn't be pretty printed'."";
-
-    expect(matcher.compare(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,ConditionalTestLogic,"{'startLine':385,'endLine':387}","it('uses custom object formatters for the value but not the type when reporting objects with different constructors', function() {
-    function Foo() {}
-    function Bar() {}
-    function formatter(x) {
-      if (x instanceof Foo || x instanceof Bar) {
-        return '|' + x + '|';
-      }
-    }
-
-    const actual = { x: new Foo() },
-      expected = { x: new Bar() },
-      message = 'Expected $.x to be a kind of Bar, but was |[object Object]|.',
-      pp = jasmineUnderTest.makePrettyPrinter([formatter]),
-      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: pp }),
-      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil);
-
-    expect(matcher.compare(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,ConditionalTestLogic,"{'startLine':935,'endLine':937}","it('uses custom object formatters when the actual array is longer', function() {
-      function formatter(x) {
-        if (typeof x === 'number') {
-          return '|' + x + '|';
-        }
-      }
-
-      const actual = [1, 1, 2, 3, 5],
-        expected = [1, 1, 2, 3],
-        pp = jasmineUnderTest.makePrettyPrinter([formatter]),
-        matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: pp }),
-        matcher = jasmineUnderTest.matchers.toEqual(matchersUtil),
-        message =
-          'Expected $.length = |5| to equal |4|.\n' +
-          'Unexpected $[4] = |5| in array.';
-
-      expect(matcher.compare(actual, expected).message).toEqual(message);
-    })",snuts
-/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':371,'endLine':371}","it('reports mismatches between objects with different constructors', function() {
-    function Foo() {}
-    function Bar() {}
-
-    const actual = { x: new Foo() },
-      expected = { x: new Bar() },
-      message = 'Expected $.x to be a kind of Bar, but was Foo({  }).';
-
-    expect(compareEquals(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':372,'endLine':372}","it('reports mismatches between objects with different constructors', function() {
-    function Foo() {}
-    function Bar() {}
-
-    const actual = { x: new Foo() },
-      expected = { x: new Bar() },
-      message = 'Expected $.x to be a kind of Bar, but was Foo({  }).';
-
-    expect(compareEquals(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':382,'endLine':382}","it('uses custom object formatters for the value but not the type when reporting objects with different constructors', function() {
-    function Foo() {}
-    function Bar() {}
-    function formatter(x) {
-      if (x instanceof Foo || x instanceof Bar) {
-        return '|' + x + '|';
-      }
-    }
-
-    const actual = { x: new Foo() },
-      expected = { x: new Bar() },
-      message = 'Expected $.x to be a kind of Bar, but was |[object Object]|.',
-      pp = jasmineUnderTest.makePrettyPrinter([formatter]),
-      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: pp }),
-      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil);
-
-    expect(matcher.compare(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':383,'endLine':383}","it('uses custom object formatters for the value but not the type when reporting objects with different constructors', function() {
-    function Foo() {}
-    function Bar() {}
-    function formatter(x) {
-      if (x instanceof Foo || x instanceof Bar) {
-        return '|' + x + '|';
-      }
-    }
-
-    const actual = { x: new Foo() },
-      expected = { x: new Bar() },
-      message = 'Expected $.x to be a kind of Bar, but was |[object Object]|.',
-      pp = jasmineUnderTest.makePrettyPrinter([formatter]),
-      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: pp }),
-      matcher = jasmineUnderTest.matchers.toEqual(matchersUtil);
-
-    expect(matcher.compare(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':401,'endLine':401}","it('reports type mismatches at the root level', function() {
-    function Foo() {}
-    function Bar() {}
-
-    const actual = new Foo(),
-      expected = new Bar(),
-      message = 'Expected object to be a kind of Bar, but was Foo({  }).';
-
-    expect(compareEquals(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':402,'endLine':402}","it('reports type mismatches at the root level', function() {
-    function Foo() {}
-    function Bar() {}
-
-    const actual = new Foo(),
-      expected = new Bar(),
-      message = 'Expected object to be a kind of Bar, but was Foo({  }).';
-
-    expect(compareEquals(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':461,'endLine':461}","it('reports mismatches between Functions', function() {
-    const actual = { x: function() {} };
-    const expected = { x: function() {} };
-    const message = ""Expected $.x = Function 'x' to equal Function 'x'."";
-
-    expect(compareEquals(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':462,'endLine':462}","it('reports mismatches between Functions', function() {
-    const actual = { x: function() {} };
-    const expected = { x: function() {} };
-    const message = ""Expected $.x = Function 'x' to equal Function 'x'."";
-
-    expect(compareEquals(actual, expected).message).toEqual(message);
-  })",snuts
-/spec/core/matchers/toEqualSpec.js,NonFunctionalStatement,"{'startLine':1173,'endLine':1173}","it('Fails if Symbol compared to Function', function() {
-      const sym = Symbol('foo');
-      const f = function func() {};
-
-      expect(sym).not.toEqual(f);
-    })",snuts
-/spec/core/matchers/toEqualSpec.js,SubOptimalAssert,"{'startLine':1155,'endLine':1155}","it('Fails if Symbol compared to Undefined', function() {
-      const sym = Symbol('foo');
-
-      expect(sym).not.toEqual(undefined);
-    })",snuts
-/spec/core/matchers/toEqualSpec.js,SubOptimalAssert,"{'startLine':1161,'endLine':1161}","it('Fails if Symbol compared to null', function() {
-      const sym = Symbol('foo');
-
-      expect(sym).not.toEqual(null);
-    })",snuts
-/spec/core/matchers/toContainSpec.js,SensitiveEquality,"{'startLine':15,'endLine':15}","it('works with custom equality testers', function() {
-    const tester = function(a, b) {
-        return a.toString() === b.toString();
-      },
-      matchersUtil = new jasmineUnderTest.MatchersUtil({
-        customTesters: [tester]
-      }),
-      matcher = jasmineUnderTest.matchers.toContain(matchersUtil);
-
-    const result = matcher.compare(['1', '2'], 2);
-    expect(result.pass).toBe(true);
-  })",snuts
-/spec/core/matchers/toBeTruthySpec.js,NonFunctionalStatement,"{'startLine':21,'endLine':21}","it(""passes for 'truthy' values"", function() {
-    const matcher = jasmineUnderTest.matchers.toBeTruthy();
-    let result;
-
-    result = matcher.compare(true);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(1);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare('foo');
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare({});
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare([]);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(function() {});
-    expect(result.pass).toBe(true);
-  })",snuts
-/spec/core/matchers/toBeTruthySpec.js,VerboseStatement,"{'startLine':2,'endLine':23}","it(""passes for 'truthy' values"", function() {
-    const matcher = jasmineUnderTest.matchers.toBeTruthy();
-    let result;
-
-    result = matcher.compare(true);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(1);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare('foo');
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare({});
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare([]);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(function() {});
-    expect(result.pass).toBe(true);
-  })",snuts
-/spec/core/matchers/toBeTruthySpec.js,VerboseStatement,"{'startLine':25,'endLine':46}","it(""fails for 'falsy' values"", function() {
-    const matcher = jasmineUnderTest.matchers.toBeTruthy();
-    let result;
-
-    result = matcher.compare(false);
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare(0);
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare('');
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare(null);
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare(undefined);
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare(void 0);
-    expect(result.pass).toBe(false);
-  })",snuts
-/spec/core/matchers/toBeInstanceOfSpec.js,NonFunctionalStatement,"{'startLine':95,'endLine':95}","it('passes for a function', function() {
-      const fn = function() {};
-
-      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
-      const result = matcher.compare(fn, Function);
-      expect(result).toEqual({
-        pass: true,
-        message:
-          'Expected instance of Function not to be an instance of Function'
-      });
-    })",snuts
-/spec/core/matchers/toBeInstanceOfSpec.js,NonFunctionalStatement,"{'startLine':122,'endLine':122}","describe('when expecting Object', function() {
-    function Animal() {}
-
-    it('passes for any object', function() {
-      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
-      const result = matcher.compare({ foo: 'bar' }, Object);
-      expect(result).toEqual({
-        pass: true,
-        message: 'Expected instance of Object not to be an instance of Object'
-      });
-    });
-
-    it('passes for an Error object', function() {
-      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
-      const result = matcher.compare(new Error('example'), Object);
-      expect(result).toEqual({
-        pass: true,
-        message: 'Expected instance of Error not to be an instance of Object'
-      });
-    });
-
-    it('passes for a user-defined class', function() {
-      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
-      const result = matcher.compare(new Animal(), Object);
-      expect(result).toEqual({
-        pass: true,
-        message: 'Expected instance of Animal not to be an instance of Object'
-      });
-    });
-
-    it('fails for a non-object', function() {
-      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
-      const result = matcher.compare('foo', Object);
-      expect(result).toEqual({
-        pass: false,
-        message: 'Expected instance of String to be an instance of Object'
-      });
-    });
-
-    it('passes for objects with no constructor', function() {
-      const object = Object.create(null);
-
-      const matcher = jasmineUnderTest.matchers.toBeInstanceOf({
-        pp: jasmineUnderTest.makePrettyPrinter()
-      });
-      const result = matcher.compare(object, Object);
-      expect(result).toEqual({
-        pass: true,
-        message:
-          'Expected instance of null({  }) not to be an instance of Object'
-      });
-    });
-  })",snuts
-/spec/core/matchers/toBeInstanceOfSpec.js,NonFunctionalStatement,"{'startLine':177,'endLine':177}","describe('when expecting a user-defined class', function() {
-    // Base class
-    function Animal() {}
-
-    // Subclasses, defined using syntax that is as old as possible
-    function Dog() {
-      Animal.call(this);
-    }
-    Dog.prototype = new Animal();
-    Dog.prototype.constructor = Dog;
-
-    function Cat() {
-      Animal.call(this);
-    }
-    Cat.prototype = new Animal();
-    Cat.prototype.constructor = Cat;
-
-    it('passes for instances of that class', function() {
-      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
-      const result = matcher.compare(new Animal(), Animal);
-      expect(result).toEqual({
-        pass: true,
-        message: 'Expected instance of Animal not to be an instance of Animal'
-      });
-    });
-
-    it('passes for instances of a subclass', function() {
-      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
-      const result = matcher.compare(new Cat(), Animal);
-      expect(result).toEqual({
-        pass: true,
-        message: 'Expected instance of Cat not to be an instance of Animal'
-      });
-    });
-
-    it('does not pass for sibling classes', function() {
-      const matcher = jasmineUnderTest.matchers.toBeInstanceOf();
-      const result = matcher.compare(new Dog(), Cat);
-      expect(result).toEqual({
-        pass: false,
-        message: 'Expected instance of Dog to be an instance of Cat'
-      });
-    });
-  })",snuts
-/spec/core/matchers/toBeFalsySpec.js,NonFunctionalStatement,"{'startLine':44,'endLine':44}","it(""fails for 'truthy' values"", function() {
-    const matcher = jasmineUnderTest.matchers.toBeFalsy();
-    let result;
-
-    result = matcher.compare(true);
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare(1);
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare('foo');
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare({});
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare([]);
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare(function() {});
-    expect(result.pass).toBe(false);
-  })",snuts
-/spec/core/matchers/toBeFalsySpec.js,VerboseStatement,"{'startLine':2,'endLine':23}","it(""passes for 'falsy' values"", function() {
-    const matcher = jasmineUnderTest.matchers.toBeFalsy();
-    let result;
-
-    result = matcher.compare(false);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(0);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare('');
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(null);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(undefined);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(void 0);
-    expect(result.pass).toBe(true);
-  })",snuts
-/spec/core/matchers/toBeFalsySpec.js,VerboseStatement,"{'startLine':25,'endLine':46}","it(""fails for 'truthy' values"", function() {
-    const matcher = jasmineUnderTest.matchers.toBeFalsy();
-    let result;
-
-    result = matcher.compare(true);
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare(1);
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare('foo');
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare({});
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare([]);
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare(function() {});
-    expect(result.pass).toBe(false);
-  })",snuts
-/spec/core/matchers/toBeCloseToSpec.js,VerboseStatement,"{'startLine':27,'endLine':48}","it('accepts an optional precision argument', function() {
-    const matcher = jasmineUnderTest.matchers.toBeCloseTo();
-    let result;
-
-    result = matcher.compare(0, 0.1, 0);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(0, 0.5, 0);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(0, 0.0001, 3);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(0, 0.0005, 3);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(0, 0.00001, 4);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(0, 0.00005, 4);
-    expect(result.pass).toBe(true);
-  })",snuts
-/spec/core/matchers/toBeCloseToSpec.js,VerboseStatement,"{'startLine':72,'endLine':98}","it('rounds expected values', function() {
-    const matcher = jasmineUnderTest.matchers.toBeCloseTo();
-    let result;
-
-    result = matcher.compare(1.23, 1.229);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(1.23, 1.226);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(1.23, 1.225);
-    expect(result.pass).toBe(true);
-
-    result = matcher.compare(1.23, 1.235);
-    expect(result.pass).toBe(true);
-
-    // 1.2249999 will be rounded to 1.225
-    result = matcher.compare(1.23, 1.2249999);
-    expect(result.pass).toBe(true);
-
-    // 1.2249999 will be rounded to 1.224
-    result = matcher.compare(1.23, 1.2244999);
-    expect(result.pass).toBe(false);
-
-    result = matcher.compare(1.23, 1.234);
-    expect(result.pass).toBe(true);
-  })",snuts
-/spec/core/matchers/nothingSpec.js,AnonymousTest,"{'startLine':2,'endLine':7}","it('should pass', function() {
-    const matcher = jasmineUnderTest.matchers.nothing(),
-      result = matcher.compare();
-
-    expect(result.pass).toBe(true);
-  })",snuts
-/spec/core/matchers/matchersUtilSpec.js,IdenticalTestDescription,"{'startLine':455,'endLine':461}","it('passes for two empty Objects', function() {
-        const matchersUtil = new jasmineUnderTest.MatchersUtil({
-          customTesters: [tester],
-          pp: function() {}
-        });
-        expect(matchersUtil.equals({}, {})).toBe(true);
-      })",snuts
-/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}","it('exposes the injected pretty-printer as .pp', function() {
-    const pp = function() {},
-      matchersUtil = new jasmineUnderTest.MatchersUtil({ pp: pp });
-
-    expect(matchersUtil.pp).toBe(pp);
-  })",snuts
-/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':166,'endLine':166}","it('fails for objects with different constructors', function() {
-      const matchersUtil = new jasmineUnderTest.MatchersUtil();
-      function One() {}
-      function Two() {}
-
-      expect(matchersUtil.equals(new One(), new Two())).toBe(false);
-    })",snuts
-/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':167,'endLine':167}","it('fails for objects with different constructors', function() {
-      const matchersUtil = new jasmineUnderTest.MatchersUtil();
-      function One() {}
-      function Two() {}
-
-      expect(matchersUtil.equals(new One(), new Two())).toBe(false);
-    })",snuts
-/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':253,'endLine':253}","it('passes for equivalent Promises (GitHub issue #1314)', function() {
-      const p1 = new Promise(function() {}),
-        p2 = new Promise(function() {}),
-        matchersUtil = new jasmineUnderTest.MatchersUtil();
-
-      expect(matchersUtil.equals(p1, p1)).toBe(true);
-      expect(matchersUtil.equals(p1, p2)).toBe(false);
-    })",snuts
-/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':254,'endLine':254}","it('passes for equivalent Promises (GitHub issue #1314)', function() {
-      const p1 = new Promise(function() {}),
-        p2 = new Promise(function() {}),
-        matchersUtil = new jasmineUnderTest.MatchersUtil();
-
-      expect(matchersUtil.equals(p1, p1)).toBe(true);
-      expect(matchersUtil.equals(p1, p2)).toBe(false);
-    })",snuts
-/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':439,'endLine':439}","it('passes when a custom equality matcher returns true', function() {
-      const tester = function() {
-          return true;
-        },
-        matchersUtil = new jasmineUnderTest.MatchersUtil({
-          customTesters: [tester],
-          pp: function() {}
-        });
-
-      expect(matchersUtil.equals(1, 2)).toBe(true);
-    })",snuts
-/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':458,'endLine':458}","it('passes for two empty Objects', function() {
-        const matchersUtil = new jasmineUnderTest.MatchersUtil({
-          customTesters: [tester],
-          pp: function() {}
-        });
-        expect(matchersUtil.equals({}, {})).toBe(true);
-      })",snuts
-/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':470,'endLine':470}","it('fails for equivalents when a custom equality matcher returns false', function() {
-      const tester = function() {
-          return false;
-        },
-        matchersUtil = new jasmineUnderTest.MatchersUtil({
-          customTesters: [tester],
-          pp: function() {}
-        });
-
-      expect(matchersUtil.equals(1, 1)).toBe(false);
-    })",snuts
-/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':487,'endLine':487}","it('passes for an asymmetric equality tester that returns true when a custom equality tester return false', function() {
-      const asymmetricTester = {
-          asymmetricMatch: function() {
-            return true;
-          }
-        },
-        symmetricTester = function() {
-          return false;
-        },
-        matchersUtil = new jasmineUnderTest.MatchersUtil({
-          customTesters: [symmetricTester()],
-          pp: function() {}
-        });
-
-      expect(matchersUtil.equals(asymmetricTester, true)).toBe(true);
-      expect(matchersUtil.equals(true, asymmetricTester)).toBe(true);
-    })",snuts
-/spec/core/matchers/matchersUtilSpec.js,NonFunctionalStatement,"{'startLine':1024,'endLine':1024}","it('uses custom equality testers if actual is an Array', function() {
-      const customTester = function() {
-          return true;
-        },
-        matchersUtil = new jasmineUnderTest.MatchersUtil({
-          customTesters: [customTester],
-          pp: function() {}
-        });
-
-      expect(matchersUtil.contains([1, 2], 3)).toBe(true);
-    })",snuts
-/spec/core/matchers/matchersUtilSpec.js,VerboseStatement,"{'startLine':293,'endLine':313}","it('fails for DOM nodes with different attributes or child nodes', function() {
-        const matchersUtil = new jasmineUnderTest.MatchersUtil();
-        const a = document.createElement('div');
-        a.setAttribute('test-attr', 'attr-value');
-        a.appendChild(document.createTextNode('test'));
-
-        const b = document.createElement('div');
-        b.setAttribute('test-attr', 'attr-value2');
-        b.appendChild(document.createTextNode('test'));
-
-        expect(matchersUtil.equals(a, b)).toBe(false);
-
-        b.setAttribute('test-attr', 'attr-value');
-        expect(matchersUtil.equals(a, b)).toBe(true);
-
-        b.appendChild(document.createTextNode('2'));
-        expect(matchersUtil.equals(a, b)).toBe(false);
-
-        a.appendChild(document.createTextNode('2'));
-        expect(matchersUtil.equals(a, b)).toBe(true);
-      })",snuts
-/spec/core/matchers/matchersUtilSpec.js,VerboseStatement,"{'startLine':553,'endLine':576}","it('passes when comparing identical sets with different insertion order and complex elements 1', function() {
-      const matchersUtil = new jasmineUnderTest.MatchersUtil();
-      const setA1 = new Set();
-      setA1.add(['a', 3]);
-      setA1.add([6, 1]);
-      const setA2 = new Set();
-      setA1.add(['y', 3]);
-      setA1.add([6, 1]);
-      const setA = new Set();
-      setA.add(setA1);
-      setA.add(setA2);
-
-      const setB1 = new Set();
-      setB1.add([6, 1]);
-      setB1.add(['a', 3]);
-      const setB2 = new Set();
-      setB1.add([6, 1]);
-      setB1.add(['y', 3]);
-      const setB = new Set();
-      setB.add(setB1);
-      setB.add(setB2);
-
-      expect(matchersUtil.equals(setA, setB)).toBe(true);
-    })",snuts
-/spec/core/matchers/MismatchTreeSpec.js,NonFunctionalStatement,"{'startLine':141,'endLine':141}","describe('MismatchTree', function() {
-  describe('#add', function() {
-    describe('When the path is empty', function() {
-      it('flags the root node as mismatched', function() {
-        const tree = new jasmineUnderTest.MismatchTree();
-        tree.add(new jasmineUnderTest.ObjectPath([]));
-        expect(tree.isMismatch).toBe(true);
-      });
-    });
-
-    describe('When the path is not empty', function() {
-      it('flags the node as mismatched', function() {
-        const tree = new jasmineUnderTest.MismatchTree();
-
-        tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']));
-
-        expect(tree.child('a').child('b').isMismatch).toBe(true);
-      });
-
-      it('does not flag ancestors as mismatched', function() {
-        const tree = new jasmineUnderTest.MismatchTree();
-
-        tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']));
-
-        expect(tree.isMismatch).toBe(false);
-        expect(tree.child('a').isMismatch).toBe(false);
-      });
-    });
-
-    it('stores the formatter on only the target node', function() {
-      const tree = new jasmineUnderTest.MismatchTree();
-
-      tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']), formatter);
-
-      expect(tree.formatter).toBeFalsy();
-      expect(tree.child('a').formatter).toBeFalsy();
-      expect(tree.child('a').child('b').formatter).toBe(formatter);
-    });
-
-    it('stores the path to the node', function() {
-      const tree = new jasmineUnderTest.MismatchTree();
-
-      tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']), formatter);
-
-      expect(tree.child('a').child('b').path.components).toEqual(['a', 'b']);
-    });
-  });
-
-  describe('#traverse', function() {
-    it('calls the callback for all nodes that are or contain mismatches', function() {
-      const tree = new jasmineUnderTest.MismatchTree();
-      tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']), formatter);
-      tree.add(new jasmineUnderTest.ObjectPath(['c']));
-      const visit = jasmine.createSpy('visit').and.returnValue(true);
-
-      tree.traverse(visit);
-
-      expect(visit).toHaveBeenCalledWith(
-        new jasmineUnderTest.ObjectPath([]),
-        false,
-        undefined
-      );
-      expect(visit).toHaveBeenCalledWith(
-        new jasmineUnderTest.ObjectPath(['a']),
-        false,
-        undefined
-      );
-      expect(visit).toHaveBeenCalledWith(
-        new jasmineUnderTest.ObjectPath(['a', 'b']),
-        true,
-        formatter
-      );
-      expect(visit).toHaveBeenCalledWith(
-        new jasmineUnderTest.ObjectPath(['c']),
-        true,
-        undefined
-      );
-    });
-
-    it('does not call the callback if there are no mismatches', function() {
-      const tree = new jasmineUnderTest.MismatchTree();
-      const visit = jasmine.createSpy('visit');
-
-      tree.traverse(visit);
-
-      expect(visit).not.toHaveBeenCalled();
-    });
-
-    it('visits parents before children', function() {
-      const tree = new jasmineUnderTest.MismatchTree();
-      tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']));
-      const visited = [];
-
-      tree.traverse(function(path) {
-        visited.push(path);
-        return true;
-      });
-
-      expect(visited).toEqual([
-        new jasmineUnderTest.ObjectPath([]),
-        new jasmineUnderTest.ObjectPath(['a']),
-        new jasmineUnderTest.ObjectPath(['a', 'b'])
-      ]);
-    });
-
-    it('visits children in the order they were recorded', function() {
-      const tree = new jasmineUnderTest.MismatchTree();
-      tree.add(new jasmineUnderTest.ObjectPath(['length']));
-      tree.add(new jasmineUnderTest.ObjectPath([1]));
-      const visited = [];
-
-      tree.traverse(function(path) {
-        visited.push(path);
-        return true;
-      });
-
-      expect(visited).toEqual([
-        new jasmineUnderTest.ObjectPath([]),
-        new jasmineUnderTest.ObjectPath(['length']),
-        new jasmineUnderTest.ObjectPath([1])
-      ]);
-    });
-
-    it('does not visit children if the callback returns falsy', function() {
-      const tree = new jasmineUnderTest.MismatchTree();
-      tree.add(new jasmineUnderTest.ObjectPath(['a', 'b']));
-      const visited = [];
-
-      tree.traverse(function(path) {
-        visited.push(path);
-        return path.depth() === 0;
-      });
-
-      expect(visited).toEqual([
-        new jasmineUnderTest.ObjectPath([]),
-        new jasmineUnderTest.ObjectPath(['a'])
-      ]);
-    });
-  });
-
-  function formatter() {}
-})",snuts
-/spec/core/matchers/DiffBuilderSpec.js,ConditionalTestLogic,"{'startLine':111,'endLine':113}","it('uses custom object formatters on leaf nodes', function() {
-    const formatter = function(x) {
-      if (typeof x === 'number') {
-        return '[number:' + x + ']';
-      }
-    };
-    const prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]);
-    const diffBuilder = new jasmineUnderTest.DiffBuilder({
-      prettyPrinter: prettyPrinter
-    });
-
-    diffBuilder.setRoots(5, 4);
-    diffBuilder.recordMismatch();
-
-    expect(diffBuilder.getMessage()).toEqual(
-      'Expected [number:5] to equal [number:4].'
-    );
-  })",snuts
-/spec/core/matchers/DiffBuilderSpec.js,ConditionalTestLogic,"{'startLine':130,'endLine':132}","it('uses custom object formatters on non leaf nodes', function() {
-    const formatter = function(x) {
-      if (x.hasOwnProperty('a')) {
-        return '[thing with a=' + x.a + ', b=' + JSON.stringify(x.b) + ']';
-      }
-    };
-    const prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]);
-    const diffBuilder = new jasmineUnderTest.DiffBuilder({
-      prettyPrinter: prettyPrinter
-    });
-    const expectedMsg =
-      'Expected $[0].foo = [thing with a=1, b={""x"":42}] to equal [thing with a=1, b={""x"":43}].\n' +
-      ""Expected $[0].bar = 'yes' to equal 'no'."";
-
-    diffBuilder.setRoots(
-      [{ foo: { a: 1, b: { x: 42 } }, bar: 'yes' }],
-      [{ foo: { a: 1, b: { x: 43 } }, bar: 'no' }]
-    );
-
-    diffBuilder.withPath(0, function() {
-      diffBuilder.withPath('foo', function() {
-        diffBuilder.withPath('b', function() {
-          diffBuilder.withPath('x', function() {
-            diffBuilder.recordMismatch();
-          });
-        });
-      });
-
-      diffBuilder.withPath('bar', function() {
-        diffBuilder.recordMismatch();
-      });
-    });
-
-    expect(diffBuilder.getMessage()).toEqual(expectedMsg);
-  })",snuts
-/spec/core/matchers/DiffBuilderSpec.js,ConditionalTestLogic,"{'startLine':166,'endLine':168}","it('handles cases where only the expected has a custom object formatter', function() {
-    const formatter = function(x) {
-      if (typeof x === 'number') {
-        return '[number:' + x + ']';
-      }
-    };
-    const prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]);
-    const diffBuilder = new jasmineUnderTest.DiffBuilder({
-      prettyPrinter: prettyPrinter
-    });
-
-    diffBuilder.setRoots('five', 4);
-    diffBuilder.recordMismatch();
-
-    expect(diffBuilder.getMessage()).toEqual(
-      ""Expected 'five' to equal [number:4].""
-    );
-  })",snuts
-/spec/core/matchers/DiffBuilderSpec.js,ConditionalTestLogic,"{'startLine':185,'endLine':187}","it('handles cases where only the actual has a custom object formatter', function() {
-    const formatter = function(x) {
-      if (typeof x === 'number') {
-        return '[number:' + x + ']';
-      }
-    };
-    const prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]);
-    const diffBuilder = new jasmineUnderTest.DiffBuilder({
-      prettyPrinter: prettyPrinter
-    });
-
-    diffBuilder.setRoots(5, 'four');
-    diffBuilder.recordMismatch();
-
-    expect(diffBuilder.getMessage()).toEqual(
-      ""Expected [number:5] to equal 'four'.""
-    );
-  })",snuts
-/spec/core/matchers/DiffBuilderSpec.js,ConditionalTestLogic,"{'startLine':204,'endLine':206}","it('handles complex cases where only one side has a custom object formatter', function() {
-    const formatter = function(x) {
-      if (typeof x === 'number') {
-        return '[number:' + x + ']';
-      }
-    };
-    const prettyPrinter = jasmineUnderTest.makePrettyPrinter([formatter]);
-    const diffBuilder = new jasmineUnderTest.DiffBuilder({
-      prettyPrinter: prettyPrinter
-    });
-
-    diffBuilder.setRoots(5, { foo: 'bar', fnord: { graults: ['wombat'] } });
-    diffBuilder.recordMismatch();
-
-    expect(diffBuilder.getMessage()).toEqual(
-      ""Expected [number:5] to equal Object({ foo: 'bar', fnord: Object({ graults: [ 'wombat' ] }) }).""
-    );
-  })",snuts
-/spec/core/matchers/DiffBuilderSpec.js,NonFunctionalStatement,"{'startLine':74,'endLine':74}","it('uses the injected pretty-printer', function() {
-    const prettyPrinter = function(val) {
-        return '|' + val + '|';
-      },
-      diffBuilder = new jasmineUnderTest.DiffBuilder({
-        prettyPrinter: prettyPrinter
-      });
-    prettyPrinter.customFormat_ = function() {};
-
-    diffBuilder.setRoots({ foo: 'actual' }, { foo: 'expected' });
-    diffBuilder.withPath('foo', function() {
-      diffBuilder.recordMismatch();
-    });
-
-    expect(diffBuilder.getMessage()).toEqual(
-      'Expected $.foo = |actual| to equal |expected|.'
-    );
-  })",snuts
-/spec/core/matchers/DiffBuilderSpec.js,NonFunctionalStatement,"{'startLine':88,'endLine':88}","it('passes the injected pretty-printer to the diff formatter', function() {
-    const diffFormatter = jasmine.createSpy('diffFormatter'),
-      prettyPrinter = function() {},
-      diffBuilder = new jasmineUnderTest.DiffBuilder({
-        prettyPrinter: prettyPrinter
-      });
-    prettyPrinter.customFormat_ = function() {};
-
-    diffBuilder.setRoots({ x: 'bar' }, { x: 'foo' });
-    diffBuilder.withPath('x', function() {
-      diffBuilder.recordMismatch(diffFormatter);
-    });
-
-    diffBuilder.getMessage();
-
-    expect(diffFormatter).toHaveBeenCalledWith(
-      'bar',
-      'foo',
-      jasmine.anything(),
-      prettyPrinter
-    );
-  })",snuts
-/spec/core/matchers/DiffBuilderSpec.js,NonFunctionalStatement,"{'startLine':92,'endLine':92}","it('passes the injected pretty-printer to the diff formatter', function() {
-    const diffFormatter = jasmine.createSpy('diffFormatter'),
-      prettyPrinter = function() {},
-      diffBuilder = new jasmineUnderTest.DiffBuilder({
-        prettyPrinter: prettyPrinter
-      });
-    prettyPrinter.customFormat_ = function() {};
-
-    diffBuilder.setRoots({ x: 'bar' }, { x: 'foo' });
-    diffBuilder.withPath('x', function() {
-      diffBuilder.recordMismatch(diffFormatter);
-    });
-
-    diffBuilder.getMessage();
-
-    expect(diffFormatter).toHaveBeenCalledWith(
-      'bar',
-      'foo',
-      jasmine.anything(),
-      prettyPrinter
-    );
-  })",snuts
 /spec/core/matchers/async/toBePendingSpec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}","it('passes if the actual promise is pending', function() {
     const matchersUtil = new jasmineUnderTest.MatchersUtil(),
       matcher = jasmineUnderTest.asyncMatchers.toBePending(matchersUtil),
@@ -30330,121 +30324,12 @@ file,type,line,method,source
       expect(result).toEqual(jasmine.objectContaining({ pass: true }));
     });
   })",snuts
-/spec/performance/performance_test.js,Conditional Test Logic,"{'line': 2, 'column': 2, 'index': 39}","describe('performance', function() {
-  for (let i = 0; i < 10000; i++) {
-    it('should pass', function() {
+/spec/performance/performance_test.js,AnonymousTest,"{'startLine':3,'endLine':5}","it('should pass', function() {
       expect(true).toBe(true);
-    });
-    it('should fail', function() {
+    })",snuts
+/spec/performance/performance_test.js,AnonymousTest,"{'startLine':6,'endLine':8}","it('should fail', function() {
       expect(true).toBe(false);
-    });
-  }
-})",steel
-/spec/performance/performance_test.js,Redundant Assertion,"{'column': 6, 'line': 4}","it('should pass', function() {
-      expect(true).toBe(true);
-    })",steel
-/spec/performance/performance_test.js,Redundant Assertion,"{'column': 6, 'line': 7}","it('should fail', function() {
-      expect(true).toBe(false);
-    })",steel
-/spec/performance/large_object_test.js,Conditional Test Logic,"{'line': 9, 'column': 4, 'index': 186}","describe('Printing a big object', function() {
-  function rand(upper) {
-    return Math.round(upper * Math.random());
-  }
-
-  function generateObject(level) {
-    const object = {};
-
-    for (let i = 0; i < 50; i++) {
-      const decide = rand(2);
-      switch (decide) {
-        case 0:
-          object['cycle' + i] = object;
-          break;
-        case 1:
-          object['number' + i] = rand(100);
-          break;
-        case 2:
-          if (level < 3) {
-            object['nesting' + i] = generateObject(level + 1);
-          }
-          break;
-      }
-    }
-
-    return object;
-  }
-
-  it('takes a reasonable amount of time', function() {
-    const bigObject = generateObject(0);
-    expect(jasmineUnderTest.pp(bigObject)).toMatch(/cycle/);
-  });
-})",steel
-/spec/performance/large_object_test.js,Conditional Test Logic,"{'line': 11, 'column': 6, 'index': 253}","describe('Printing a big object', function() {
-  function rand(upper) {
-    return Math.round(upper * Math.random());
-  }
-
-  function generateObject(level) {
-    const object = {};
-
-    for (let i = 0; i < 50; i++) {
-      const decide = rand(2);
-      switch (decide) {
-        case 0:
-          object['cycle' + i] = object;
-          break;
-        case 1:
-          object['number' + i] = rand(100);
-          break;
-        case 2:
-          if (level < 3) {
-            object['nesting' + i] = generateObject(level + 1);
-          }
-          break;
-      }
-    }
-
-    return object;
-  }
-
-  it('takes a reasonable amount of time', function() {
-    const bigObject = generateObject(0);
-    expect(jasmineUnderTest.pp(bigObject)).toMatch(/cycle/);
-  });
-})",steel
-/spec/performance/large_object_test.js,Conditional Test Logic,"{'line': 19, 'column': 10, 'index': 447}","describe('Printing a big object', function() {
-  function rand(upper) {
-    return Math.round(upper * Math.random());
-  }
-
-  function generateObject(level) {
-    const object = {};
-
-    for (let i = 0; i < 50; i++) {
-      const decide = rand(2);
-      switch (decide) {
-        case 0:
-          object['cycle' + i] = object;
-          break;
-        case 1:
-          object['number' + i] = rand(100);
-          break;
-        case 2:
-          if (level < 3) {
-            object['nesting' + i] = generateObject(level + 1);
-          }
-          break;
-      }
-    }
-
-    return object;
-  }
-
-  it('takes a reasonable amount of time', function() {
-    const bigObject = generateObject(0);
-    expect(jasmineUnderTest.pp(bigObject)).toMatch(/cycle/);
-  });
-})",steel
+    })",snuts
 /spec/core/SpecSpec.js,Duplicate Assert,"{'line': 368, 'column': 6, 'index': 10954}","it('adds the messages to the result', function() {
       const timer = jasmine.createSpyObj('timer', ['start', 'elapsed']);
       const spec = new jasmineUnderTest.Spec({
