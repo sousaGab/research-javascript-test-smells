@@ -34,7 +34,7 @@ class Repository(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False, unique=True)
     url = Column(String)
-    stars = Column(Integer)
+    stars = Column(Integer, nullable=True, default=None)
     language = Column(String, default='JavaScript')
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
