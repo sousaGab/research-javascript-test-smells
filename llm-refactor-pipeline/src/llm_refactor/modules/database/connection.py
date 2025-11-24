@@ -111,7 +111,7 @@ class ResearchDB:
             if not version:
                 version = SchemaVersion(
                     version='1.0.0',
-                    description='Initial schema: 8 tables for test smell research'
+                    description='Initial schema: 9 tables for test smell research'
                 )
                 session.add(version)
                 session.commit()
@@ -209,7 +209,8 @@ class ResearchDB:
             'schema_version',
             'repositories',
             'files',
-            'baseline_smell_detections',
+            'detected_smells',
+            'study_smells',
             'experiments',
             'smell_detection_results',
             'code_metrics',
