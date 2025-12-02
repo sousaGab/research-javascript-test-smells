@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from .models import (
-    Repository, File, BaselineSmellDetection, Experiment,
+    Repository, File, DetectedSmells, StudySmells, Experiment,
     SmellDetectionResult, CodeMetric, TestResult, AIResponse
 )
 
@@ -186,16 +186,16 @@ def get_or_create_file(session: Session, repository_id: int, path: str,
 
 
 # =============================================================================
-# BASELINE SMELL DETECTIONS
+# DETECTED SMELLS (All smells found in repository)
 # =============================================================================
 
-def create_baseline_smell(session: Session, file_id: int, smell_type: str,
+def create_detected_smell(session: Session, file_id: int, smell_type: str,
                          line_numbers: Optional[str] = None,
                          severity: Optional[str] = None,
                          code_snippet: Optional[str] = None,
-                         detection_tool: Optional[str] = None) -> BaselineSmellDetection:
+                         detection_tool: Optional[str] = None) -> DetectedSmells:
     """
-    Create a baseline smell detection record.
+    Create a detected smell record (from initial repository scan).
 
     Args:
         session: Database session
@@ -204,12 +204,12 @@ def create_baseline_smell(session: Session, file_id: int, smell_type: str,
         line_numbers: JSON string of line numbers (optional)
         severity: Severity level (optional)
         code_snippet: Code snippet showing the smell (optional)
-        detection_tool: Tool used for detection (e.g., 'steel', 'snutsjs')
+        detection_tool: Tool used for detection (e.g., 'steel', 'tsDetect')
 
     Returns:
-        BaselineSmellDetection: Created smell detection object
+        DetectedSmells: Created smell detection object
     """
-    smell = BaselineSmellDetection(
+    smell = DetectedSmells(
         file_id=file_id,
         smell_type=smell_type,
         line_numbers=line_numbers,
@@ -222,19 +222,61 @@ def create_baseline_smell(session: Session, file_id: int, smell_type: str,
     return smell
 
 
-def get_baseline_smell(session: Session, smell_id: int) -> Optional[BaselineSmellDetection]:
-    """Get a baseline smell detection by ID."""
-    return session.query(BaselineSmellDetection).filter_by(id=smell_id).first()
+def get_detected_smells_by_file(session: Session, file_id: int) -> List[DetectedSmells]:
+    """Get all detected smells for a file."""
+    return session.query(DetectedSmells).filter_by(file_id=file_id).all()
 
 
-def get_baseline_smells_by_file(session: Session, file_id: int) -> List[BaselineSmellDetection]:
-    """Get all baseline smells for a file."""
-    return session.query(BaselineSmellDetection).filter_by(file_id=file_id).all()
+# =============================================================================
+# STUDY SMELLS (Smells selected for experiments)
+# =============================================================================
+
+def create_study_smell(session: Session, file_id: int, smell_type: str,
+                      line_numbers: Optional[str] = None,
+                      severity: Optional[str] = None,
+                      code_snippet: Optional[str] = None,
+                      detection_tool: Optional[str] = None) -> StudySmells:
+    """
+    Create a study smell record (selected for refactoring experiments).
+
+    Args:
+        session: Database session
+        file_id: File ID
+        smell_type: Type of smell (e.g., 'Assertion Roulette')
+        line_numbers: JSON string of line numbers (optional)
+        severity: Severity level (optional)
+        code_snippet: Code snippet showing the smell (optional)
+        detection_tool: Tool used for detection (e.g., 'steel', 'tsDetect')
+
+    Returns:
+        StudySmells: Created study smell object
+    """
+    smell = StudySmells(
+        file_id=file_id,
+        smell_type=smell_type,
+        line_numbers=line_numbers,
+        severity=severity,
+        code_snippet=code_snippet,
+        detection_tool=detection_tool
+    )
+    session.add(smell)
+    session.flush()
+    return smell
 
 
-def get_baseline_smells_by_type(session: Session, smell_type: str) -> List[BaselineSmellDetection]:
-    """Get all baseline smells of a specific type."""
-    return session.query(BaselineSmellDetection).filter_by(smell_type=smell_type).all()
+def get_study_smell(session: Session, smell_id: int) -> Optional[StudySmells]:
+    """Get a study smell by ID."""
+    return session.query(StudySmells).filter_by(id=smell_id).first()
+
+
+def get_study_smells_by_file(session: Session, file_id: int) -> List[StudySmells]:
+    """Get all study smells for a file."""
+    return session.query(StudySmells).filter_by(file_id=file_id).all()
+
+
+def get_study_smells_by_type(session: Session, smell_type: str) -> List[StudySmells]:
+    """Get all study smells of a specific type."""
+    return session.query(StudySmells).filter_by(smell_type=smell_type).all()
 
 
 # =============================================================================
@@ -242,7 +284,7 @@ def get_baseline_smells_by_type(session: Session, smell_type: str) -> List[Basel
 # =============================================================================
 
 def create_experiment(session: Session,
-                     baseline_smell_id: int,
+                     study_smell_id: int,
                      file_id: int,
                      ai_tool: str,
                      original_code: str,
@@ -258,7 +300,7 @@ def create_experiment(session: Session,
 
     Args:
         session: Database session
-        baseline_smell_id: ID of the baseline smell being addressed
+        study_smell_id: ID of the study smell being addressed
         file_id: File ID
         ai_tool: AI tool used (e.g., 'Claude', 'GPT-4')
         original_code: Original code before refactoring
@@ -274,7 +316,7 @@ def create_experiment(session: Session,
         Experiment: Created experiment object
     """
     experiment = Experiment(
-        baseline_smell_id=baseline_smell_id,
+        study_smell_id=study_smell_id,
         file_id=file_id,
         ai_tool=ai_tool,
         ai_model_version=ai_model_version,
@@ -626,7 +668,8 @@ def get_statistics(session: Session) -> Dict[str, Any]:
     stats = {
         'repositories': session.query(Repository).count(),
         'files': session.query(File).count(),
-        'baseline_smells': session.query(BaselineSmellDetection).count(),
+        'detected_smells': session.query(DetectedSmells).count(),
+        'study_smells': session.query(StudySmells).count(),
         'experiments': session.query(Experiment).count(),
         'smell_results': session.query(SmellDetectionResult).count(),
         'code_metrics': session.query(CodeMetric).count(),

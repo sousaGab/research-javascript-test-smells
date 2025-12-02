@@ -65,7 +65,7 @@ def cmd_init(args: str = "") -> str:
         # Validate schema
         is_valid, missing = db.validate_schema()
         if is_valid:
-            result += f"✓ Schema validated: All 9 tables created\n"
+            result += f"✓ Schema validated: All 10 tables created\n"
         else:
             result += f"⚠️  Schema validation failed. Missing tables: {missing}\n"
 
@@ -116,7 +116,8 @@ def cmd_stats(args: str = "") -> str:
         result += "=" * 60 + "\n"
         result += f"Repositories: {stats['repositories']}\n"
         result += f"Files: {stats['files']}\n"
-        result += f"Baseline Smells: {stats['baseline_smells']}\n"
+        result += f"Detected Smells: {stats['detected_smells']}\n"
+        result += f"Study Smells: {stats['study_smells']}\n"
         result += f"Experiments: {stats['experiments']}\n"
         result += f"  ├─ Successful: {stats['experiments_successful']}\n"
         result += f"  └─ Failed: {stats['experiments_failed']}\n"
@@ -278,7 +279,7 @@ def cmd_list_experiments(args: str = "") -> str:
                 result += f"    File: {file_obj.path}\n"
 
             # Get smell info
-            smell = session.query(crud.BaselineSmellDetection).filter_by(id=exp.baseline_smell_id).first()
+            smell = session.query(crud.StudySmells).filter_by(id=exp.study_smell_id).first()
             if smell:
                 result += f"    Smell: {smell.smell_type}\n"
 
@@ -337,7 +338,7 @@ def cmd_get_experiment(args: str = "") -> str:
             result += f"File: {file_obj.path}\n"
 
         # Smell info
-        smell = session.query(crud.BaselineSmellDetection).filter_by(id=exp.baseline_smell_id).first()
+        smell = session.query(crud.StudySmells).filter_by(id=exp.study_smell_id).first()
         if smell:
             result += f"Target Smell: {smell.smell_type}\n"
 

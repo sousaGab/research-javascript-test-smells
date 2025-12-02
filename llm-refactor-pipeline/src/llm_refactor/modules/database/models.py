@@ -34,7 +34,7 @@ class Repository(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False, unique=True)
     url = Column(String)
-    stars = Column(Integer)
+    stars = Column(Integer, nullable=True, default=None)
     language = Column(String, default='JavaScript')
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -61,18 +61,19 @@ class File(Base):
 
     # Relationships
     repository = relationship("Repository", back_populates="files")
-    baseline_smells = relationship("BaselineSmellDetection", back_populates="file", cascade="all, delete-orphan")
+    detected_smells = relationship("DetectedSmells", back_populates="file", cascade="all, delete-orphan")
+    study_smells = relationship("StudySmells", back_populates="file", cascade="all, delete-orphan")
     experiments = relationship("Experiment", back_populates="file", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<File(id={self.id}, repository_id={self.repository_id}, path='{self.path}')>"
 
 
-class BaselineSmellDetection(Base):
-    """Baseline smell detection results (before any refactoring)."""
-    __tablename__ = 'baseline_smell_detections'
+class DetectedSmells(Base):
+    """All smells detected in repository (complete initial scan)."""
+    __tablename__ = 'detected_smells'
     __table_args__ = (
-        UniqueConstraint('file_id', 'smell_type', 'line_numbers', name='uq_file_smell_lines'),
+        UniqueConstraint('file_id', 'smell_type', 'line_numbers', name='uq_detected_file_smell_lines'),
     )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -82,14 +83,37 @@ class BaselineSmellDetection(Base):
     severity = Column(String)
     code_snippet = Column(Text)
     detected_at = Column(DateTime, default=datetime.utcnow)
-    detection_tool = Column(String)  # 'steel', 'snutsjs'
+    detection_tool = Column(String)  # 'steel', 'tsDetect'
 
     # Relationships
-    file = relationship("File", back_populates="baseline_smells")
-    experiments = relationship("Experiment", back_populates="baseline_smell", cascade="all, delete-orphan")
+    file = relationship("File", back_populates="detected_smells")
 
     def __repr__(self):
-        return f"<BaselineSmellDetection(id={self.id}, smell_type='{self.smell_type}', file_id={self.file_id})>"
+        return f"<DetectedSmells(id={self.id}, smell_type='{self.smell_type}', file_id={self.file_id})>"
+
+
+class StudySmells(Base):
+    """Smells selected for refactoring experiments (curated subset)."""
+    __tablename__ = 'study_smells'
+    __table_args__ = (
+        UniqueConstraint('file_id', 'smell_type', 'line_numbers', name='uq_study_file_smell_lines'),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    file_id = Column(Integer, ForeignKey('files.id', ondelete='CASCADE'), nullable=False)
+    smell_type = Column(String, nullable=False)
+    line_numbers = Column(Text)  # JSON array as string
+    severity = Column(String)
+    code_snippet = Column(Text)
+    selected_at = Column(DateTime, default=datetime.utcnow)
+    detection_tool = Column(String)  # 'steel', 'tsDetect'
+
+    # Relationships
+    file = relationship("File", back_populates="study_smells")
+    experiments = relationship("Experiment", back_populates="study_smell", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<StudySmells(id={self.id}, smell_type='{self.smell_type}', file_id={self.file_id})>"
 
 
 class Experiment(Base):
@@ -97,7 +121,7 @@ class Experiment(Base):
     __tablename__ = 'experiments'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    baseline_smell_id = Column(Integer, ForeignKey('baseline_smell_detections.id', ondelete='CASCADE'), nullable=False)
+    study_smell_id = Column(Integer, ForeignKey('study_smells.id', ondelete='CASCADE'), nullable=False)
     file_id = Column(Integer, ForeignKey('files.id', ondelete='CASCADE'), nullable=False)
     experiment_date = Column(DateTime, default=datetime.utcnow)
 
@@ -129,7 +153,7 @@ class Experiment(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    baseline_smell = relationship("BaselineSmellDetection", back_populates="experiments")
+    study_smell = relationship("StudySmells", back_populates="experiments")
     file = relationship("File", back_populates="experiments")
     smell_results = relationship("SmellDetectionResult", back_populates="experiment", cascade="all, delete-orphan")
     metrics = relationship("CodeMetric", back_populates="experiment", cascade="all, delete-orphan")
