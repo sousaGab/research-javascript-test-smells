@@ -46,5 +46,6 @@ export default {
   },
   testEnvironment: "jsdom",
   testRunner: "jest-jasmine2",
-  reporters: [["jest-silent-reporter", { "useDots": true }]]
+  reporters: [["jest-silent-reporter", { "useDots": true }],
+  "summary"]
 }
