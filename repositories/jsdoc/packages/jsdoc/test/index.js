@@ -18,6 +18,7 @@ import { config, Env } from '@jsdoc/core';
 import { Dictionary } from '@jsdoc/tag';
 import Jasmine from 'jasmine';
 import ConsoleReporter from 'jasmine-console-reporter';
+import JestLikeReporter from './jest-like-reporter.js';
 
 const DEFAULT_CONFIG = config.defaultConfig;
 const SCHEMA_SPEC = 'packages/jsdoc/test/specs/validate.js';
@@ -32,15 +33,21 @@ const SPEC_FILES = [
 export default function test() {
   const env = new Env();
   const jasmine = new Jasmine();
-  const reporter = new ConsoleReporter({
-    beep: false,
-    verbosity: {
-      disabled: false,
-      pending: false,
-      specs: false,
-      summary: true,
-    },
-  });
+  // Use the Jest-like reporter by default for a concise summary that resembles
+  // Jest output. To fall back to the console reporter, set
+  // `USE_CONSOLE_REPORTER=1` in the environment.
+  const useConsole = !!process.env.USE_CONSOLE_REPORTER;
+  const reporter = useConsole
+    ? new ConsoleReporter({
+        beep: false,
+        verbosity: {
+          disabled: false,
+          pending: false,
+          specs: false,
+          summary: true,
+        },
+      })
+    : new JestLikeReporter();
 
   // Treat an unhandled promise rejection as an error.
   process.on('unhandledRejection', (e) => {
