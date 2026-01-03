@@ -1,0 +1,4401 @@
+file,type,line,method,source
+/__tests__/unit.js,AnonymousTest,"{'startLine':225,'endLine':247}","test('content-type application/json', () => {
+    const binaryMimeTypes = []
+    const multiValueHeaders = { 'content-type': ['application/json'] }
+    const body = JSON.stringify({ hello: 'world' })
+    const response = new ServerlessResponse(200, multiValueHeaders, body)
+    return new Promise(
+      (resolve, reject) => {
+        const contextResolver = getContextResolver(resolve, reject)
+        serverlessExpressTransport.forwardResponse({
+          binaryMimeTypes,
+          response,
+          resolver: contextResolver,
+          eventSource: apiGatewayEventSource,
+          log
+        })
+      }
+    ).then(successResponse => expect(successResponse).toEqual({
+      statusCode: 200,
+      body: body,
+      multiValueHeaders,
+      isBase64Encoded: false
+    }))
+  })",snuts
+/__tests__/unit.js,AnonymousTest,"{'startLine':299,'endLine':312}","test('CONTEXT (specified)', () => {
+    return new Promise(
+      (resolve, reject) => {
+        const context = new MockContext(resolve, reject)
+        const contextResolver = makeResolver({
+          context,
+          resolutionMode: 'CONTEXT'
+        })
+
+        return contextResolver.succeed({
+          response: 'success'
+        })
+      }).then(successResponse => expect(successResponse).toEqual('success'))
+  })",snuts
+/__tests__/unit.js,AnonymousTest,"{'startLine':314,'endLine':326}","test('CALLBACK', () => {
+    const callback = (e, response) => response
+    const callbackResolver = makeResolver({
+      callback,
+      resolutionMode: 'CALLBACK',
+      context: {}
+    })
+    const successResponse = callbackResolver.succeed({
+      response: 'success'
+    })
+
+    expect(successResponse).toEqual('success')
+  })",snuts
+/__tests__/unit.js,AnonymousTest,"{'startLine':328,'endLine':345}","test('PROMISE', () => {
+    return new Promise((resolve, reject) => {
+      const promise = {
+        resolve,
+        reject
+      }
+      const promiseResolver = makeResolver({
+        promise,
+        resolutionMode: 'PROMISE'
+      })
+
+      return promiseResolver.succeed({
+        response: 'success'
+      })
+    }).then(successResponse => {
+      expect(successResponse).toEqual('success')
+    })
+  })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':35,'endLine':65}","test('GET HTML', async () => {
+    app.set('view engine', 'ejs')
+    app.engine('.ejs', ejs)
+    app.set('views', path.join(jestHelpersPath, 'views'))
+    router.get('/', (req, res) => {
+      const { event } = serverlessExpress.getCurrentInvoke()
+      const eventPath = event.path || event.rawPath || event.Records[0].cf.request.uri
+      res.render('index', {
+        path: eventPath
+      })
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/',
+      httpMethod: 'GET'
+    })
+    const response = await serverlessExpressInstance(event)
+    const expected = '<!DOCTYPE html><html><body>/</body></html>'
+    expect(response.body).toEqual(expected)
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      multiValueHeaders: {
+        'content-length': ['42'],
+        'content-type': ['text/html; charset=utf-8'],
+        etag: ['W/""2a-wmySkjN5My1aqVauhBIBaC50kxs""']
+      }
+    })
+    delete response.body
+    delete expectedResponse.body
+    expect(response).toEqual(expectedResponse)
+  })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':67,'endLine':104}","test('GET JSON', async () => {
+    const multiValueQueryStringParameters = {
+      singleNormal: ['1'],
+      singleSpecial: ['hello world!'],
+      arr: ['a', 'b', 'hello world~']
+    }
+    const queryStringParameters = {
+      singleNormal: '1',
+      singleSpecial: 'hello world!',
+      arr: 'hello world~'
+    }
+    router.get('/users', (req, res) => {
+      const { singleNormal, singleSpecial, arr } = req.query
+      res.set('X-Custom-Header', singleNormal)
+      res.json({ singleNormal, singleSpecial, arr })
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/users',
+      httpMethod: 'GET',
+      queryStringParameters,
+      multiValueQueryStringParameters
+    })
+    const response = await serverlessExpressInstance(event)
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: JSON.stringify({
+        ...queryStringParameters,
+        arr: multiValueQueryStringParameters.arr
+      }),
+      multiValueHeaders: {
+        'content-length': ['82'],
+        etag: ['W/""52-QR4hWttXm/4xeZPYy7nze/EjYXg""'],
+        'x-custom-header': ['1']
+      }
+    })
+    expect(response).toEqual(expectedResponse)
+  })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':217,'endLine':237}","test('GET 404', async () => {
+    router.get('/users/:userId', (req, res) => {
+      res.status(404).json({ id: req.params.userId })
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/users/3',
+      httpMethod: 'GET'
+    })
+    const response = await serverlessExpressInstance(event)
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: JSON.stringify({ id: '3' }),
+      multiValueHeaders: {
+        'content-length': ['10'],
+        etag: ['W/""a-lfm5LdsGBlIttC0+rnSiywX9+Wc""']
+      },
+      statusCode: 404
+    })
+    expect(response).toEqual(expectedResponse)
+  })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':239,'endLine':304}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':306,'endLine':332}","test('POST JSON', async () => {
+    const name = 'Squidward'
+    router.use(bodyParser.json())
+    router.post('/users', (req, res) => {
+      res.status(201).json({ data: { name: req.body.name } })
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/users',
+      httpMethod: 'POST',
+      body: `{""name"": ""${name}""}`,
+      multiValueHeaders: {
+        'content-type': ['application/json']
+      }
+    })
+    const response = await serverlessExpressInstance(event)
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: JSON.stringify({ data: { name } }),
+      multiValueHeaders: {
+        'content-length': ['29'],
+        etag: ['W/""1d-9ERga12t1e/5eBdg3k9zfIvAfWo""']
+      },
+      statusCode: 201
+    })
+    expect(response).toEqual(expectedResponse)
+  })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':334,'endLine':354}","test('DELETE JSON', async () => {
+    router.delete('/users/:id', (req, res) => {
+      res.json([])
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/users/1',
+      httpMethod: 'DELETE'
+    })
+    const response = await serverlessExpressInstance(event)
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: '[]',
+      multiValueHeaders: {
+        'content-length': ['2'],
+        etag: ['W/""2-l9Fw4VUO7kr8CvBlt4zaMCqXZ0w""']
+      },
+      statusCode: 200
+    })
+    expect(response).toEqual(expectedResponse)
+  })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':356,'endLine':385}","test('PUT JSON', async () => {
+    const name = 'Spongebob'
+    router.use(bodyParser.json())
+    router.put('/users/:id', (req, res) => {
+      res.json({
+        id: req.params.id,
+        ...req.body
+      })
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/users/2',
+      httpMethod: 'PUT',
+      body: JSON.stringify({ name }),
+      multiValueHeaders: {
+        'content-type': ['application/json']
+      }
+    })
+    const response = await serverlessExpressInstance(event)
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: JSON.stringify({ id: '2', name }),
+      multiValueHeaders: {
+        'content-length': ['29'],
+        etag: ['W/""1d-S5aeqkgQbnSMqjyXJrRTGxN4UiY""']
+      },
+      statusCode: 200
+    })
+    expect(response).toEqual(expectedResponse)
+  })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':432,'endLine':503}","test('set-cookie', async () => {
+    const now = new Date(2022, 7, 11, 3, 30, 30)
+    const maxAge = 3000
+    const expires = new Date(+now + maxAge)
+    const expectedExpires = expires.toUTCString()
+
+    jest.useFakeTimers('modern')
+    jest.setSystemTime(now)
+
+    router.get('/cookie', (req, res) => {
+      res.cookie('Zoo', 'boo', { domain: 'mafoo.com', secure: true, httpOnly: true, sameSite: 'Strict', maxAge })
+      res.cookie('Foo', 'bar', { domain: 'example.com', secure: true, httpOnly: true, sameSite: 'Strict' })
+      res.cookie('Fizz', 'buzz')
+      res.json({})
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/cookie',
+      httpMethod: 'GET'
+    })
+    const response = await serverlessExpressInstance(event)
+
+    const expectedSetCookieHeaders = [
+      `Zoo=boo; Max-Age=3; Domain=mafoo.com; Path=/; Expires=${expectedExpires}; HttpOnly; Secure; SameSite=Strict`,
+      'Foo=bar; Domain=example.com; Path=/; HttpOnly; Secure; SameSite=Strict',
+      'Fizz=buzz; Path=/'
+    ]
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: '{}',
+      cookies: expectedSetCookieHeaders,
+      multiValueHeaders: {
+        'set-cookie': expectedSetCookieHeaders,
+        'content-length': ['2'],
+        etag: ['W/""2-vyGp6PvFo4RvsFtPoIWeCReyIC8""']
+      },
+      statusCode: 200
+    })
+
+    jest.useRealTimers()
+
+    switch (eventSourceName) {
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.cookies = [
+          {
+            domain: 'mafoo.com',
+            httpOnly: true,
+            name: 'Zoo',
+            path: '/',
+            sameSite: 'Strict',
+            secure: true,
+            value: 'boo',
+            maxAge: maxAge / 1000,
+            expires
+          },
+          {
+            domain: 'example.com',
+            httpOnly: true,
+            name: 'Foo',
+            path: '/',
+            sameSite: 'Strict',
+            secure: true,
+            value: 'bar'
+          },
+          { name: 'Fizz', path: '/', value: 'buzz' }
+        ]
+        break
+    }
+
+    expect(response).toEqual(expectedResponse)
+  })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':524,'endLine':557}","test('custom logger', async () => {
+      app = express()
+      router = express.Router()
+      app.use('/', router)
+      router.get('/users', (req, res) => {
+        res.json({})
+      })
+      const event = makeEvent({
+        eventSourceName,
+        path: '/users',
+        httpMethod: 'GET'
+      })
+      const customLogger = {
+        error: jest.fn(),
+        warn: jest.fn(),
+        info: jest.fn(),
+        verbose: jest.fn(),
+        debug: jest.fn()
+      }
+      serverlessExpressInstance = serverlessExpress({ app, log: customLogger })
+      await serverlessExpressInstance(event)
+
+      expect(customLogger.debug.mock.calls.length).toBe(6)
+
+      // TODO: test log levels
+      // customLogger.level = 'error'
+      // customLogger.debug.mockClear()
+      // customLogger.debug.mockReset()
+      // customLogger.debug = jest.fn()
+
+      // serverlessExpressInstance = serverlessExpress({ app, log: customLogger })
+      // await serverlessExpressInstance(event)
+      // expect(customLogger.debug.mock.calls.length).toBe(0)
+    })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':559,'endLine':647}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':687,'endLine':718}","test('legacy/deprecated createServer', async () => {
+    const serverlessExpressMiddleware = require('../src/middleware')
+    app = express()
+    router = express.Router()
+    app.use('/', router)
+    router.use(serverlessExpressMiddleware.eventContext())
+    router.get('/users', (req, res) => {
+      const { event } = req.apiGateway
+      const eventPath = event.path || event.rawPath || event.Records[0].cf.request.uri
+      res.json({
+        path: eventPath
+      })
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/users',
+      httpMethod: 'GET'
+    })
+    const binaryMimeTypes = []
+    const server = serverlessExpress.createServer(app, null, binaryMimeTypes)
+    const response = await serverlessExpress.proxy(server, event)
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: JSON.stringify({ path: '/users' }),
+      multiValueHeaders: {
+        'content-length': ['17'],
+        etag: ['W/""11-eM8YArY+qNwdvTL2ppeAaFc4Oq8""']
+      },
+      statusCode: 200
+    })
+    expect(response).toEqual(expectedResponse)
+  })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':720,'endLine':746}","test('legacy/deprecated handler', async () => {
+    const serverlessExpressMiddleware = require('../src/middleware')
+    router.use(serverlessExpressMiddleware.eventContext())
+    router.get('/users', (req, res) => {
+      const { event } = req.apiGateway
+      const eventPath = event.path || event.rawPath || event.Records[0].cf.request.uri
+      res.json({
+        path: eventPath
+      })
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/users',
+      httpMethod: 'GET'
+    })
+    const response = await serverlessExpressInstance.handler(event)
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: JSON.stringify({ path: '/users' }),
+      multiValueHeaders: {
+        'content-length': ['17'],
+        etag: ['W/""11-eM8YArY+qNwdvTL2ppeAaFc4Oq8""']
+      },
+      statusCode: 200
+    })
+    expect(response).toEqual(expectedResponse)
+  })",snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':748,'endLine':774}","test('legacy/deprecated proxy', async () => {
+    const serverlessExpressMiddleware = require('../src/middleware')
+    router.use(serverlessExpressMiddleware.eventContext())
+    router.get('/users', (req, res) => {
+      const { event } = req.apiGateway
+      const eventPath = event.path || event.rawPath || event.Records[0].cf.request.uri
+      res.json({
+        path: eventPath
+      })
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/users',
+      httpMethod: 'GET'
+    })
+    const response = await serverlessExpressInstance.proxy({ event })
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: JSON.stringify({ path: '/users' }),
+      multiValueHeaders: {
+        'content-length': ['17'],
+        etag: ['W/""11-eM8YArY+qNwdvTL2ppeAaFc4Oq8""']
+      },
+      statusCode: 200
+    })
+    expect(response).toEqual(expectedResponse)
+  })",snuts
+/__tests__/integration.js,OvercommentedTest,"{'startLine':524,'endLine':557}","test('custom logger', async () => {
+      app = express()
+      router = express.Router()
+      app.use('/', router)
+      router.get('/users', (req, res) => {
+        res.json({})
+      })
+      const event = makeEvent({
+        eventSourceName,
+        path: '/users',
+        httpMethod: 'GET'
+      })
+      const customLogger = {
+        error: jest.fn(),
+        warn: jest.fn(),
+        info: jest.fn(),
+        verbose: jest.fn(),
+        debug: jest.fn()
+      }
+      serverlessExpressInstance = serverlessExpress({ app, log: customLogger })
+      await serverlessExpressInstance(event)
+
+      expect(customLogger.debug.mock.calls.length).toBe(6)
+
+      // TODO: test log levels
+      // customLogger.level = 'error'
+      // customLogger.debug.mockClear()
+      // customLogger.debug.mockReset()
+      // customLogger.debug = jest.fn()
+
+      // serverlessExpressInstance = serverlessExpress({ app, log: customLogger })
+      // await serverlessExpressInstance(event)
+      // expect(customLogger.debug.mock.calls.length).toBe(0)
+    })",snuts
+/__tests__/integration.js,SubOptimalAssert,"{'startLine':546,'endLine':546}","test('custom logger', async () => {
+      app = express()
+      router = express.Router()
+      app.use('/', router)
+      router.get('/users', (req, res) => {
+        res.json({})
+      })
+      const event = makeEvent({
+        eventSourceName,
+        path: '/users',
+        httpMethod: 'GET'
+      })
+      const customLogger = {
+        error: jest.fn(),
+        warn: jest.fn(),
+        info: jest.fn(),
+        verbose: jest.fn(),
+        debug: jest.fn()
+      }
+      serverlessExpressInstance = serverlessExpress({ app, log: customLogger })
+      await serverlessExpressInstance(event)
+
+      expect(customLogger.debug.mock.calls.length).toBe(6)
+
+      // TODO: test log levels
+      // customLogger.level = 'error'
+      // customLogger.debug.mockClear()
+      // customLogger.debug.mockReset()
+      // customLogger.debug = jest.fn()
+
+      // serverlessExpressInstance = serverlessExpress({ app, log: customLogger })
+      // await serverlessExpressInstance(event)
+      // expect(customLogger.debug.mock.calls.length).toBe(0)
+    })",snuts
+/__tests__/integration.js,VerboseStatement,"{'startLine':432,'endLine':503}","test('set-cookie', async () => {
+    const now = new Date(2022, 7, 11, 3, 30, 30)
+    const maxAge = 3000
+    const expires = new Date(+now + maxAge)
+    const expectedExpires = expires.toUTCString()
+
+    jest.useFakeTimers('modern')
+    jest.setSystemTime(now)
+
+    router.get('/cookie', (req, res) => {
+      res.cookie('Zoo', 'boo', { domain: 'mafoo.com', secure: true, httpOnly: true, sameSite: 'Strict', maxAge })
+      res.cookie('Foo', 'bar', { domain: 'example.com', secure: true, httpOnly: true, sameSite: 'Strict' })
+      res.cookie('Fizz', 'buzz')
+      res.json({})
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/cookie',
+      httpMethod: 'GET'
+    })
+    const response = await serverlessExpressInstance(event)
+
+    const expectedSetCookieHeaders = [
+      `Zoo=boo; Max-Age=3; Domain=mafoo.com; Path=/; Expires=${expectedExpires}; HttpOnly; Secure; SameSite=Strict`,
+      'Foo=bar; Domain=example.com; Path=/; HttpOnly; Secure; SameSite=Strict',
+      'Fizz=buzz; Path=/'
+    ]
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: '{}',
+      cookies: expectedSetCookieHeaders,
+      multiValueHeaders: {
+        'set-cookie': expectedSetCookieHeaders,
+        'content-length': ['2'],
+        etag: ['W/""2-vyGp6PvFo4RvsFtPoIWeCReyIC8""']
+      },
+      statusCode: 200
+    })
+
+    jest.useRealTimers()
+
+    switch (eventSourceName) {
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.cookies = [
+          {
+            domain: 'mafoo.com',
+            httpOnly: true,
+            name: 'Zoo',
+            path: '/',
+            sameSite: 'Strict',
+            secure: true,
+            value: 'boo',
+            maxAge: maxAge / 1000,
+            expires
+          },
+          {
+            domain: 'example.com',
+            httpOnly: true,
+            name: 'Foo',
+            path: '/',
+            sameSite: 'Strict',
+            secure: true,
+            value: 'bar'
+          },
+          { name: 'Fizz', path: '/', value: 'buzz' }
+        ]
+        break
+    }
+
+    expect(response).toEqual(expectedResponse)
+  })",snuts
+/__tests__/integration.js,VerboseStatement,"{'startLine':559,'endLine':647}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",snuts
+/__tests__/unit.js,Ignored Test,"{'line': 175, 'column': 9, 'index': 5830}","describe.skip('forwardResponse: content-type encoding', () => {
+  test('content-type header missing', async (done) => {
+    const binaryMimeTypes = []
+    const multiValueHeaders = { foo: ['bar'] }
+    const { requestResponse } = await getReqRes(multiValueHeaders)
+    const response = new ServerlessResponse(requestResponse.request)
+    return new Promise(
+      (resolve, reject) => {
+        const contextResolver = getContextResolver(resolve, reject)
+        serverlessExpressTransport.forwardResponse({
+          binaryMimeTypes,
+          response,
+          resolver: contextResolver,
+          eventSource: apiGatewayEventSource,
+          log
+        })
+      }
+    ).then(successResponse => expect(successResponse).toEqual({
+      statusCode: 200,
+      body: 'Hello serverless!',
+      multiValueHeaders,
+      isBase64Encoded: false
+    }))
+      .then(() => done())
+  })
+
+  test('content-type image/jpeg base64 encoded', () => {
+    const binaryMimeTypes = ['image/jpeg']
+    const multiValueHeaders = { 'content-type': ['image/jpeg'] }
+    const body = 'hello world'
+    const response = new ServerlessResponse(200, multiValueHeaders, body)
+    return new Promise(
+      (resolve, reject) => {
+        const contextResolver = getContextResolver(resolve, reject)
+        serverlessExpressTransport.forwardResponse({
+          binaryMimeTypes,
+          response,
+          resolver: contextResolver,
+          eventSource: apiGatewayEventSource,
+          log
+        })
+      }
+    ).then(successResponse => expect(successResponse).toEqual({
+      statusCode: 200,
+      body: Buffer.from(body).toString('base64'),
+      multiValueHeaders,
+      isBase64Encoded: true
+    }))
+  })
+
+  test('content-type application/json', () => {
+    const binaryMimeTypes = []
+    const multiValueHeaders = { 'content-type': ['application/json'] }
+    const body = JSON.stringify({ hello: 'world' })
+    const response = new ServerlessResponse(200, multiValueHeaders, body)
+    return new Promise(
+      (resolve, reject) => {
+        const contextResolver = getContextResolver(resolve, reject)
+        serverlessExpressTransport.forwardResponse({
+          binaryMimeTypes,
+          response,
+          resolver: contextResolver,
+          eventSource: apiGatewayEventSource,
+          log
+        })
+      }
+    ).then(successResponse => expect(successResponse).toEqual({
+      statusCode: 200,
+      body: body,
+      multiValueHeaders,
+      isBase64Encoded: false
+    }))
+  })
+
+  test('wildcards in binary types array', () => {
+    const binaryMimeTypes = ['image/*']
+    const multiValueHeaders = { 'content-type': ['image/jpeg'] }
+    const body = 'hello world'
+    const response = new ServerlessResponse(200, multiValueHeaders, body)
+    return new Promise(
+      (resolve, reject) => {
+        const contextResolver = getContextResolver(resolve, reject)
+        serverlessExpressTransport.forwardResponse({
+          binaryMimeTypes,
+          response,
+          resolver: contextResolver,
+          eventSource: apiGatewayEventSource,
+          log
+        })
+      }
+    ).then(successResponse => expect(successResponse).toEqual({
+      statusCode: 200,
+      body: Buffer.from(body).toString('base64'),
+      multiValueHeaders,
+      isBase64Encoded: true
+    }))
+  })
+
+  test('extensions in binary types array', () => {
+    const binaryMimeTypes = ['.png']
+    const multiValueHeaders = { 'content-type': ['image/png'] }
+    const body = 'hello world'
+    const response = new ServerlessResponse(200, multiValueHeaders, body)
+    return new Promise(
+      (resolve, reject) => {
+        const contextResolver = getContextResolver(resolve, reject)
+        serverlessExpressTransport.forwardResponse({
+          binaryMimeTypes,
+          response,
+          resolver: contextResolver,
+          eventSource: apiGatewayEventSource,
+          log
+        })
+      }
+    ).then(successResponse => expect(successResponse).toEqual({
+      statusCode: 200,
+      body: Buffer.from(body).toString('base64'),
+      multiValueHeaders,
+      isBase64Encoded: true
+    }))
+  })
+})",steel
+/__tests__/unit.js,Lazy Test,"{'line': 303, 'column': 32, 'index': 10118}","test('CONTEXT (specified)', () => {
+    return new Promise(
+      (resolve, reject) => {
+        const context = new MockContext(resolve, reject)
+        const contextResolver = makeResolver({
+          context,
+          resolutionMode: 'CONTEXT'
+        })
+
+        return contextResolver.succeed({
+          response: 'success'
+        })
+      }).then(successResponse => expect(successResponse).toEqual('success'))
+  })",steel
+/__tests__/unit.js,Lazy Test,"{'line': 316, 'column': 29, 'index': 10468}","test('CALLBACK', () => {
+    const callback = (e, response) => response
+    const callbackResolver = makeResolver({
+      callback,
+      resolutionMode: 'CALLBACK',
+      context: {}
+    })
+    const successResponse = callbackResolver.succeed({
+      response: 'success'
+    })
+
+    expect(successResponse).toEqual('success')
+  })",steel
+/__tests__/unit.js,Lazy Test,"{'line': 334, 'column': 30, 'index': 10866}","test('PROMISE', () => {
+    return new Promise((resolve, reject) => {
+      const promise = {
+        resolve,
+        reject
+      }
+      const promiseResolver = makeResolver({
+        promise,
+        resolutionMode: 'PROMISE'
+      })
+
+      return promiseResolver.succeed({
+        response: 'success'
+      })
+    }).then(successResponse => {
+      expect(successResponse).toEqual('success')
+    })
+  })",steel
+/__tests__/integration.js,Conditional Test Logic,"{'line': 267, 'column': 4, 'index': 8183}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Conditional Test Logic,"{'line': 473, 'column': 4, 'index': 14728}","test('set-cookie', async () => {
+    const now = new Date(2022, 7, 11, 3, 30, 30)
+    const maxAge = 3000
+    const expires = new Date(+now + maxAge)
+    const expectedExpires = expires.toUTCString()
+
+    jest.useFakeTimers('modern')
+    jest.setSystemTime(now)
+
+    router.get('/cookie', (req, res) => {
+      res.cookie('Zoo', 'boo', { domain: 'mafoo.com', secure: true, httpOnly: true, sameSite: 'Strict', maxAge })
+      res.cookie('Foo', 'bar', { domain: 'example.com', secure: true, httpOnly: true, sameSite: 'Strict' })
+      res.cookie('Fizz', 'buzz')
+      res.json({})
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/cookie',
+      httpMethod: 'GET'
+    })
+    const response = await serverlessExpressInstance(event)
+
+    const expectedSetCookieHeaders = [
+      `Zoo=boo; Max-Age=3; Domain=mafoo.com; Path=/; Expires=${expectedExpires}; HttpOnly; Secure; SameSite=Strict`,
+      'Foo=bar; Domain=example.com; Path=/; HttpOnly; Secure; SameSite=Strict',
+      'Fizz=buzz; Path=/'
+    ]
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: '{}',
+      cookies: expectedSetCookieHeaders,
+      multiValueHeaders: {
+        'set-cookie': expectedSetCookieHeaders,
+        'content-length': ['2'],
+        etag: ['W/""2-vyGp6PvFo4RvsFtPoIWeCReyIC8""']
+      },
+      statusCode: 200
+    })
+
+    jest.useRealTimers()
+
+    switch (eventSourceName) {
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.cookies = [
+          {
+            domain: 'mafoo.com',
+            httpOnly: true,
+            name: 'Zoo',
+            path: '/',
+            sameSite: 'Strict',
+            secure: true,
+            value: 'boo',
+            maxAge: maxAge / 1000,
+            expires
+          },
+          {
+            domain: 'example.com',
+            httpOnly: true,
+            name: 'Foo',
+            path: '/',
+            sameSite: 'Strict',
+            secure: true,
+            value: 'bar'
+          },
+          { name: 'Fizz', path: '/', value: 'buzz' }
+        ]
+        break
+    }
+
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Conditional Test Logic,"{'line': 517, 'column': 6, 'index': 15686}","beforeEach(() => {
+      const mockMethods = [
+        'error',
+        'info',
+        'warn',
+        'log',
+        'debug'
+      ]
+
+      for (const method of mockMethods) { mocks.push(jest.spyOn(global.console, method).mockImplementation()) }
+    })",steel
+/__tests__/integration.js,Conditional Test Logic,"{'line': 521, 'column': 6, 'index': 15828}","afterEach(() => {
+      for (const mock of mocks) mock.mockRestore()
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 281, 'column': 8, 'index': 8873}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 281, 'column': 8, 'index': 8873}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 282, 'column': 8, 'index': 8930}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 282, 'column': 8, 'index': 8930}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 287, 'column': 8, 'index': 9134}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 287, 'column': 8, 'index': 9134}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 288, 'column': 8, 'index': 9191}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 288, 'column': 8, 'index': 9191}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 567, 'column': 6, 'index': 17214}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 568, 'column': 6, 'index': 17271}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 568, 'column': 6, 'index': 17271}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 569, 'column': 6, 'index': 17329}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 569, 'column': 6, 'index': 17329}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 570, 'column': 6, 'index': 17386}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 581, 'column': 6, 'index': 17716}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 581, 'column': 6, 'index': 17716}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 582, 'column': 6, 'index': 17774}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 582, 'column': 6, 'index': 17774}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 583, 'column': 6, 'index': 17831}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 586, 'column': 6, 'index': 17928}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 597, 'column': 6, 'index': 18256}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 597, 'column': 6, 'index': 18256}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 598, 'column': 6, 'index': 18314}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 601, 'column': 6, 'index': 18411}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 604, 'column': 6, 'index': 18506}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 615, 'column': 6, 'index': 18857}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 618, 'column': 6, 'index': 18954}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 621, 'column': 6, 'index': 19049}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 624, 'column': 6, 'index': 19144}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 635, 'column': 6, 'index': 19485}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 638, 'column': 6, 'index': 19582}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 641, 'column': 6, 'index': 19677}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 644, 'column': 6, 'index': 19772}","test('custom levels', () => {
+      const loggerError = serverlessExpressLogger({ level: 'error' })
+
+      loggerError.error('error')
+      loggerError.info('nocall')
+      loggerError.warn('nocall')
+      loggerError.debug('nocall')
+      loggerError.verbose('nocall')
+      expect(global.console.warn).not.toHaveBeenCalled()
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error'
+      })
+
+      const loggerWarn = serverlessExpressLogger({ level: 'warn' })
+
+      loggerWarn.error('error2')
+      loggerWarn.warn('warn2')
+      loggerWarn.info('nocall')
+      loggerWarn.debug('nocall')
+      loggerWarn.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.info).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error2'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn2'
+      })
+
+      const loggerInfo = serverlessExpressLogger({ level: 'info' })
+
+      loggerInfo.error('error3')
+      loggerInfo.warn('warn3')
+      loggerInfo.info('info3')
+      loggerInfo.debug('nocall')
+      loggerInfo.verbose('nocall')
+      expect(global.console.debug).not.toHaveBeenCalled()
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error3'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn3'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info3'
+      })
+
+      const loggerVerbose = serverlessExpressLogger({ level: 'verbose' })
+
+      loggerVerbose.error('error4')
+      loggerVerbose.warn('warn4')
+      loggerVerbose.info('info4')
+      loggerVerbose.verbose('verbose4')
+      loggerVerbose.debug('nocall')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error4'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn4'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info4'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'verbose4'
+      })
+
+      const loggerDebug = serverlessExpressLogger({ level: 'debug' })
+
+      loggerDebug.error('error5')
+      loggerDebug.warn('warn5')
+      loggerDebug.info('info5')
+      loggerDebug.verbose('verbose5')
+      loggerDebug.debug('debug5')
+      expect(global.console.error).toHaveBeenLastCalledWith({
+        message: 'error5'
+      })
+      expect(global.console.warn).toHaveBeenLastCalledWith({
+        message: 'warn5'
+      })
+      expect(global.console.info).toHaveBeenLastCalledWith({
+        message: 'info5'
+      })
+      expect(global.console.debug).toHaveBeenLastCalledWith({
+        message: 'debug5'
+      })
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 657, 'column': 6, 'index': 20156}","test('lazy print of logger', async () => {
+      const logger = serverlessExpressLogger({ level: 'debug' })
+
+      logger.debug('simple message')
+      logger.debug('debug', () => '=true', ' works')
+      logger.debug(() => 'debug')
+      logger.debug('array', ['message'])
+
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        1,
+        {
+          message: 'simple message'
+        }
+      )
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        2,
+        {
+          message: 'debug',
+          0: '=true',
+          1: ' works'
+        }
+      )
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        3,
+        {
+          message: 'debug'
+        }
+      )
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        4,
+        {
+          message: 'array',
+          0: ['message']
+        }
+      )
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 663, 'column': 6, 'index': 20291}","test('lazy print of logger', async () => {
+      const logger = serverlessExpressLogger({ level: 'debug' })
+
+      logger.debug('simple message')
+      logger.debug('debug', () => '=true', ' works')
+      logger.debug(() => 'debug')
+      logger.debug('array', ['message'])
+
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        1,
+        {
+          message: 'simple message'
+        }
+      )
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        2,
+        {
+          message: 'debug',
+          0: '=true',
+          1: ' works'
+        }
+      )
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        3,
+        {
+          message: 'debug'
+        }
+      )
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        4,
+        {
+          message: 'array',
+          0: ['message']
+        }
+      )
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 671, 'column': 6, 'index': 20462}","test('lazy print of logger', async () => {
+      const logger = serverlessExpressLogger({ level: 'debug' })
+
+      logger.debug('simple message')
+      logger.debug('debug', () => '=true', ' works')
+      logger.debug(() => 'debug')
+      logger.debug('array', ['message'])
+
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        1,
+        {
+          message: 'simple message'
+        }
+      )
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        2,
+        {
+          message: 'debug',
+          0: '=true',
+          1: ' works'
+        }
+      )
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        3,
+        {
+          message: 'debug'
+        }
+      )
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        4,
+        {
+          message: 'array',
+          0: ['message']
+        }
+      )
+    })",steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 677, 'column': 6, 'index': 20588}","test('lazy print of logger', async () => {
+      const logger = serverlessExpressLogger({ level: 'debug' })
+
+      logger.debug('simple message')
+      logger.debug('debug', () => '=true', ' works')
+      logger.debug(() => 'debug')
+      logger.debug('array', ['message'])
+
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        1,
+        {
+          message: 'simple message'
+        }
+      )
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        2,
+        {
+          message: 'debug',
+          0: '=true',
+          1: ' works'
+        }
+      )
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        3,
+        {
+          message: 'debug'
+        }
+      )
+      expect(global.console.debug).toHaveBeenNthCalledWith(
+        4,
+        {
+          message: 'array',
+          0: ['message']
+        }
+      )
+    })",steel
+/__tests__/integration.js,Ignored Test,"{'line': 423, 'column': 7, 'index': 13127}","test.skip('respondToEventSourceWithError', async () => {
+    const response = await serverlessExpressInstance(null)
+    expect(response).toEqual({
+      statusCode: 500,
+      body: '',
+      multiValueHeaders: {}
+    })
+  })",steel
+/__tests__/integration.js,Magic Number,"{'line': 270, 'column': 63, 'index': 8318}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Magic Number,"{'line': 272, 'column': 75, 'index': 8466}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Magic Number,"{'line': 293, 'column': 53, 'index': 9438}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Magic Number,"{'line': 296, 'column': 65, 'index': 9633}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
+/__tests__/integration.js,Magic Number,"{'line': 546, 'column': 56, 'index': 16539}","test('custom logger', async () => {
+      app = express()
+      router = express.Router()
+      app.use('/', router)
+      router.get('/users', (req, res) => {
+        res.json({})
+      })
+      const event = makeEvent({
+        eventSourceName,
+        path: '/users',
+        httpMethod: 'GET'
+      })
+      const customLogger = {
+        error: jest.fn(),
+        warn: jest.fn(),
+        info: jest.fn(),
+        verbose: jest.fn(),
+        debug: jest.fn()
+      }
+      serverlessExpressInstance = serverlessExpress({ app, log: customLogger })
+      await serverlessExpressInstance(event)
+
+      expect(customLogger.debug.mock.calls.length).toBe(6)
+
+      // TODO: test log levels
+      // customLogger.level = 'error'
+      // customLogger.debug.mockClear()
+      // customLogger.debug.mockReset()
+      // customLogger.debug = jest.fn()
+
+      // serverlessExpressInstance = serverlessExpress({ app, log: customLogger })
+      // await serverlessExpressInstance(event)
+      // expect(customLogger.debug.mock.calls.length).toBe(0)
+    })",steel
+/__tests__/integration.js,Mystery Guest,"{'column': 25, 'line': 252}","test('GET image', async () => {
+    const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
+    router.get('/sam', (req, res) => {
+      res.sendFile(samLogoPath)
+    })
+    const event = makeEvent({
+      eventSourceName,
+      path: '/sam',
+      httpMethod: 'GET'
+    })
+
+    const response = await serverlessExpressInstance(event)
+
+    const samLogoImage = fs.readFileSync(samLogoPath)
+    const samLogoBase64 = Buffer.from(samLogoImage).toString('base64')
+    const expectedResponse = makeResponse({
+      eventSourceName,
+      body: samLogoBase64,
+      multiValueHeaders: {
+        'accept-ranges': ['bytes'],
+        'cache-control': ['public, max-age=0'],
+        'content-length': ['15933'],
+        'content-type': ['image/png']
+      },
+      isBase64Encoded: true
+    }, { shouldConvertContentLengthToInt: true })
+    const etagRegex = /^W\/.*$/
+    const lastModifiedRegex = /^.* GMT$/
+    switch (eventSourceName) {
+      case 'alb':
+      case 'apiGatewayV1':
+        expect(response.multiValueHeaders.etag.length).toEqual(1)
+        expect(response.multiValueHeaders.etag[0]).toMatch(etagRegex)
+        expect(response.multiValueHeaders['last-modified'].length).toEqual(1)
+        expect(response.multiValueHeaders['last-modified'][0]).toMatch(lastModifiedRegex)
+        delete response.multiValueHeaders.etag
+        delete response.multiValueHeaders['last-modified']
+        break
+      case 'azureHttpFunctionV4':
+      case 'azureHttpFunctionV3':
+        expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
+        expectedResponse.isBase64Encoded = false
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'apiGatewayV2':
+        expect(response.headers.etag).toMatch(etagRegex)
+        expect(response.headers['last-modified']).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+      case 'lambdaEdge':
+        expect(response.headers.etag.length).toEqual(1)
+        expect(response.headers.etag[0].key).toMatch('etag')
+        expect(response.headers.etag[0].value).toMatch(etagRegex)
+        expect(response.headers['last-modified'].length).toEqual(1)
+        expect(response.headers['last-modified'][0].key).toMatch('last-modified')
+        expect(response.headers['last-modified'][0].value).toMatch(lastModifiedRegex)
+        delete response.headers.etag
+        delete response.headers['last-modified']
+        break
+    }
+    expect(response).toEqual(expectedResponse)
+  })",steel
