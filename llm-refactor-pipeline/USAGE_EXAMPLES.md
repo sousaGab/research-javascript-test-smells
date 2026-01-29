@@ -2,6 +2,12 @@
 
 ## Starting the Interactive CLI
 
+
+```bash
+# Install 
+pip install -e .
+```
+
 ```bash
 # Method 1: Using the installed command
 llm-refactor

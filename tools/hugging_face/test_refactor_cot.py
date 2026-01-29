@@ -1,3 +1,4 @@
+from click import prompt
 from huggingface_hub import InferenceClient
 import os
 from dotenv import load_dotenv
@@ -7,29 +8,52 @@ def create_chain_of_thought_prompt(input_data):
     smell_description = input_data.get('smellDescription', '')
     refactoring_guidance = input_data.get('refactoringGuidance', '')
     test_code = input_data.get('testCode', '')
-    
+    smell_location = input_data.get('smellLocation', '')
+
     prompt = rf"""
-        You are an expert software engineer specializing in test refactoring. Analyze the test smell and refactor the code following a step-by-step reasoning process.
+		You are an expert in automated test quality and test smell refactoring, with deep knowledge of JavaScript testing frameworks.
+		
+		Your task is to refactor the test code below to remove a specific test smell.
+		
+		IMPORTANT:
+		- Use a step-by-step internal reasoning process to guide your refactoring.
+		- Do NOT explain your reasoning.
+		- Do NOT describe the smell or the steps.
+		- Output ONLY the final refactored JavaScript test code.
+		
+		---
+		
+		### Test Smell Definition
+		{smell_description}
+		
+		### Refactoring Guidance
+		{refactoring_guidance}
+		
+		### Smell Location
+		{smell_location}
+		
+		### Original Test Code
+		```javascript
+		{test_code}
+		### Refactoring Requirements
+		
+		- Preserve the original test behavior and intent.
+		- Replace suboptimal assertions with more specific, expressive, and semantically appropriate assertions.
+		- Improve failure diagnostics and test clarity.
+		- Follow JavaScript testing best practices.
+		
+		---
+		
+		### Output Format (STRICT)
+		
+		Return ONLY the refactored test code, exactly as valid JavaScript:
+		
+		```jsx
+		<refactored test code>
+		```
+		
+		"""
 
-        INPUT:
-        Test Code with Smell:
-        ```javascript
-        {test_code}
-        ```
-
-        Chain of Thought:
-        1. Identify the specific test smell in the code based on: "{smell_description}"
-        2. Analyze why this smell is problematic for test maintenance and readability
-        3. Plan the refactoring approach using: "{refactoring_guidance}"
-        4. Apply the refactoring step-by-step while preserving test behavior
-        5. Verify the refactored code follows best practices
-
-        Output:
-        Provide only the refactored JavaScript test code:
-        ```javascript
-        // Refactored code here
-        ```
-    """
     return prompt
 
 def refactor_test_smell(input_data, model_name="deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"):
