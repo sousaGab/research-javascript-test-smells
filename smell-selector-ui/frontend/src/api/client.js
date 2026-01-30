@@ -1,0 +1,112 @@
+/**
+ * API client for communicating with the FastAPI backend.
+ */
+
+const API_BASE_URL = '/api';
+
+/**
+ * Fetch wrapper with error handling
+ */
+async function fetchAPI(endpoint, options = {}) {
+  const url = `${API_BASE_URL}${endpoint}`;
+
+  const config = {
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+    ...options,
+  };
+
+  try {
+    const response = await fetch(url, config);
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
+      throw new Error(error.detail || `HTTP ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error(`API Error [${endpoint}]:`, error);
+    throw error;
+  }
+}
+
+// =============================================================================
+// REPOSITORIES
+// =============================================================================
+
+export async function getRepositories() {
+  return fetchAPI('/repositories');
+}
+
+// =============================================================================
+// SMELLS
+// =============================================================================
+
+export async function getSmells(filters = {}) {
+  const params = new URLSearchParams();
+
+  if (filters.repo) params.append('repo', filters.repo);
+  if (filters.smell_type) params.append('smell_type', filters.smell_type);
+  if (filters.tool) params.append('tool', filters.tool);
+  if (filters.selected !== undefined) params.append('selected', filters.selected);
+  if (filters.limit) params.append('limit', filters.limit);
+  if (filters.offset) params.append('offset', filters.offset);
+
+  const queryString = params.toString();
+  return fetchAPI(`/smells${queryString ? '?' + queryString : ''}`);
+}
+
+export async function getSmellDetail(smellId) {
+  return fetchAPI(`/smells/${smellId}`);
+}
+
+export async function selectSmell(smellId, data = {}) {
+  return fetchAPI(`/smells/${smellId}/select`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function unselectSmell(smellId) {
+  return fetchAPI(`/smells/${smellId}/unselect`, {
+    method: 'DELETE',
+  });
+}
+
+export async function updateSmellMetadata(smellId, metadata) {
+  return fetchAPI(`/smells/${smellId}/metadata`, {
+    method: 'PATCH',
+    body: JSON.stringify(metadata),
+  });
+}
+
+// =============================================================================
+// STUDY SMELLS
+// =============================================================================
+
+export async function getStudySmells() {
+  return fetchAPI('/study-smells');
+}
+
+// =============================================================================
+// STATISTICS
+// =============================================================================
+
+export async function getStatistics() {
+  return fetchAPI('/stats');
+}
+
+// =============================================================================
+// FILTER OPTIONS
+// =============================================================================
+
+export async function getFilterOptions() {
+  return fetchAPI('/filter-options');
+}
+
+export async function getSmellCatalog() {
+  return fetchAPI('/smell-catalog');
+}

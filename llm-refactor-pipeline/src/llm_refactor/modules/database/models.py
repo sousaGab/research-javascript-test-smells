@@ -62,6 +62,7 @@ class File(Base):
     # Relationships
     repository = relationship("Repository", back_populates="files")
     detected_smells = relationship("DetectedSmells", back_populates="file", cascade="all, delete-orphan")
+    baseline_smell_detections = relationship("BaselineSmellDetections", back_populates="file", cascade="all, delete-orphan")
     study_smells = relationship("StudySmells", back_populates="file", cascade="all, delete-orphan")
     experiments = relationship("Experiment", back_populates="file", cascade="all, delete-orphan")
 
@@ -92,6 +93,30 @@ class DetectedSmells(Base):
         return f"<DetectedSmells(id={self.id}, smell_type='{self.smell_type}', file_id={self.file_id})>"
 
 
+class BaselineSmellDetections(Base):
+    """Baseline smell detections used as starting point for experiments."""
+    __tablename__ = 'baseline_smell_detections'
+    __table_args__ = (
+        UniqueConstraint('file_id', 'smell_type', 'line_numbers', name='uq_file_smell_lines'),
+    )
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    file_id = Column(Integer, ForeignKey('files.id', ondelete='CASCADE'), nullable=False)
+    smell_type = Column(String, nullable=False)
+    line_numbers = Column(Text)  # JSON array as string
+    severity = Column(String)
+    code_snippet = Column(Text)
+    detected_at = Column(DateTime, default=datetime.utcnow)
+    detection_tool = Column(String)  # 'steel', 'tsDetect'
+
+    # Relationships
+    file = relationship("File", back_populates="baseline_smell_detections")
+    experiments = relationship("Experiment", back_populates="baseline_smell", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<BaselineSmellDetections(id={self.id}, smell_type='{self.smell_type}', file_id={self.file_id})>"
+
+
 class StudySmells(Base):
     """Smells selected for refactoring experiments (curated subset)."""
     __tablename__ = 'study_smells'
@@ -110,7 +135,6 @@ class StudySmells(Base):
 
     # Relationships
     file = relationship("File", back_populates="study_smells")
-    experiments = relationship("Experiment", back_populates="study_smell", cascade="all, delete-orphan")
 
     def __repr__(self):
         return f"<StudySmells(id={self.id}, smell_type='{self.smell_type}', file_id={self.file_id})>"
@@ -121,7 +145,7 @@ class Experiment(Base):
     __tablename__ = 'experiments'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    study_smell_id = Column(Integer, ForeignKey('study_smells.id', ondelete='CASCADE'), nullable=False)
+    baseline_smell_id = Column(Integer, ForeignKey('baseline_smell_detections.id', ondelete='CASCADE'), nullable=False)
     file_id = Column(Integer, ForeignKey('files.id', ondelete='CASCADE'), nullable=False)
     experiment_date = Column(DateTime, default=datetime.utcnow)
 
@@ -153,7 +177,7 @@ class Experiment(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    study_smell = relationship("StudySmells", back_populates="experiments")
+    baseline_smell = relationship("BaselineSmellDetections", back_populates="experiments")
     file = relationship("File", back_populates="experiments")
     smell_results = relationship("SmellDetectionResult", back_populates="experiment", cascade="all, delete-orphan")
     metrics = relationship("CodeMetric", back_populates="experiment", cascade="all, delete-orphan")
@@ -286,3 +310,30 @@ class AIResponse(Base):
 
     def __repr__(self):
         return f"<AIResponse(id={self.id}, exp_id={self.experiment_id})>"
+
+
+class SmellUIMetadata(Base):
+    """UI metadata for smell selection and management."""
+    __tablename__ = 'smell_ui_metadata'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    detected_smell_id = Column(Integer, ForeignKey('detected_smells.id', ondelete='CASCADE'), nullable=False)
+
+    # Researcher annotations
+    annotations = Column(Text)
+
+    # Priority for selection (0-5)
+    priority = Column(Integer, default=0)
+
+    # Tags for categorization (JSON array as string)
+    tags = Column(Text)
+
+    # UI status tracking
+    ui_status = Column(String, default='pending')  # 'pending', 'reviewing', 'ready', 'selected'
+
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    def __repr__(self):
+        return f"<SmellUIMetadata(id={self.id}, smell_id={self.detected_smell_id}, status='{self.ui_status}')>"

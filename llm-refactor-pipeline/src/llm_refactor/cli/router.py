@@ -10,6 +10,7 @@ from llm_refactor.modules import hello_world
 from llm_refactor.modules import detect_smells
 from llm_refactor.modules import run_tests
 from llm_refactor.modules import database_module
+from llm_refactor.modules import ui_server
 
 
 class CommandRouter:
@@ -44,6 +45,12 @@ class CommandRouter:
             command="db",
             handler=database_module.execute,
             description="Database operations (db help for commands)"
+        )
+
+        self.register(
+            command="ui",
+            handler=ui_server.execute,
+            description="Start the Smell Selector web UI"
         )
 
     def register(self, command: str, handler: Callable, description: str):

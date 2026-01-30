@@ -1,0 +1,172 @@
+import { useState } from 'react';
+import { useSmells } from './hooks/useSmells';
+import { FilterBar } from './components/FilterBar/FilterBar';
+import './App.css';
+
+function App() {
+  const {
+    smells,
+    repositories,
+    selectedSmell,
+    loading,
+    error,
+    filters,
+    total,
+    selectedCount,
+    loadSmellDetail,
+    selectSmell,
+    unselectSmell,
+    updateMetadata,
+    updateFilters,
+    clearFilters,
+  } = useSmells();
+
+  const [selectedSmellId, setSelectedSmellId] = useState(null);
+
+  const handleSmellClick = async (smell) => {
+    setSelectedSmellId(smell.id);
+    await loadSmellDetail(smell.id);
+  };
+
+  return (
+    <div className="app">
+      <header className="header">
+        <h1>Test Smell Selector</h1>
+        <p>Select and manage test smells for refactoring experiments</p>
+      </header>
+
+      <FilterBar
+        repositories={repositories}
+        filters={filters}
+        onFilterChange={updateFilters}
+        onClearFilters={clearFilters}
+        total={total}
+        selectedCount={selectedCount}
+      />
+
+      <div className="content">
+        {loading && <div className="loading">Loading smells...</div>}
+        {error && <div className="error">Error: {error}</div>}
+
+        {!loading && !error && (
+          <>
+            <div className="smell-list">
+              <h2>Smells ({smells.length})</h2>
+              {smells.length === 0 ? (
+                <div className="empty">
+                  No smells found. Try running smell detection first:
+                  <code>/analyze-smells [repo-name]</code>
+                </div>
+              ) : (
+                <div className="smells">
+                  {smells.map((smell) => (
+                    <div
+                      key={smell.id}
+                      className={`smell-card ${selectedSmellId === smell.id ? 'selected' : ''}`}
+                      onClick={() => handleSmellClick(smell)}
+                    >
+                      <div className="smell-header">
+                        <input
+                          type="checkbox"
+                          checked={smell.is_selected}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            if (smell.is_selected) {
+                              unselectSmell(smell.id);
+                            } else {
+                              selectSmell(smell.id);
+                            }
+                          }}
+                        />
+                        <span className="smell-type">{smell.smell_type}</span>
+                      </div>
+                      <div className="smell-file">
+                        {smell.file.path}:{JSON.parse(smell.line_numbers)[0]}
+                      </div>
+                      <div className="smell-meta">
+                        <span className={`severity severity-${smell.severity || 'unknown'}`}>
+                          {smell.severity || 'N/A'}
+                        </span>
+                        <span className="tool">{smell.detection_tool}</span>
+                        {smell.ui_metadata?.annotations && <span className="has-notes">📝</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="smell-detail">
+              {selectedSmell ? (
+                <>
+                  <h2>Smell Detail</h2>
+                  <div className="detail-content">
+                    <div className="detail-info">
+                      <p><strong>Type:</strong> {selectedSmell.smell_type}</p>
+                      <p><strong>File:</strong> {selectedSmell.file.path}</p>
+                      <p><strong>Lines:</strong> {selectedSmell.line_numbers}</p>
+                      <p><strong>Severity:</strong> {selectedSmell.severity || 'N/A'}</p>
+                      <p><strong>Tool:</strong> {selectedSmell.detection_tool}</p>
+                      <p><strong>Status:</strong> {selectedSmell.is_selected ? '✓ Selected' : 'Not Selected'}</p>
+                    </div>
+
+                    {selectedSmell.full_file_content ? (
+                      <div className="code-preview">
+                        <h3>Code</h3>
+                        <pre>
+                          <code>{selectedSmell.code_snippet || 'No snippet available'}</code>
+                        </pre>
+                      </div>
+                    ) : (
+                      <div className="no-code">
+                        File not found in repositories/
+                      </div>
+                    )}
+
+                    <div className="metadata-section">
+                      <h3>Metadata</h3>
+                      <textarea
+                        placeholder="Add notes about this smell..."
+                        value={selectedSmell.ui_metadata?.annotations || ''}
+                        onChange={(e) => {
+                          updateMetadata(selectedSmell.id, {
+                            annotations: e.target.value
+                          });
+                        }}
+                      />
+
+                      <div className="actions">
+                        <button
+                          className={selectedSmell.is_selected ? 'btn-danger' : 'btn-primary'}
+                          onClick={() => {
+                            if (selectedSmell.is_selected) {
+                              unselectSmell(selectedSmell.id);
+                            } else {
+                              selectSmell(selectedSmell.id, {
+                                annotations: selectedSmell.ui_metadata?.annotations,
+                                priority: selectedSmell.ui_metadata?.priority || 3,
+                                tags: selectedSmell.ui_metadata?.tags || []
+                              });
+                            }
+                          }}
+                        >
+                          {selectedSmell.is_selected ? '✗ Unselect' : '✓ Select for Study'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="no-selection">
+                  Click on a smell to view details
+                </div>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default App;

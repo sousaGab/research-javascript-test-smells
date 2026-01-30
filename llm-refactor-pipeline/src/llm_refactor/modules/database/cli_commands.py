@@ -5,6 +5,8 @@ This module provides user-facing commands that can be called from the CLI.
 Each function returns a formatted string for display to the user.
 """
 
+import csv
+import json
 from typing import Optional
 from pathlib import Path
 from .connection import ResearchDB
@@ -72,6 +74,230 @@ def cmd_init(args: str = "") -> str:
         return result
     else:
         return "✗ Failed to initialize database"
+
+
+def cmd_clear_smells(args: str = "") -> str:
+    """
+    Clear all detected smells and study smells from database.
+
+    Usage: db clear-smells [--keep-repos]
+
+    Options:
+        --keep-repos    Keep repositories and files, only delete smells
+
+    This will delete:
+        - All detected_smells
+        - All study_smells
+        - All smell_ui_metadata
+        - All experiments (if any)
+        - Optionally: repositories and files
+    """
+    keep_repos = "--keep-repos" in args
+
+    db = get_db()
+    session = db.get_session()
+
+    try:
+        from .models import (
+            DetectedSmells, StudySmells, Experiment,
+            Repository, File
+        )
+        from sqlalchemy import text
+
+        # Count before deletion
+        smell_count = session.query(DetectedSmells).count()
+        study_count = session.query(StudySmells).count()
+        repo_count = session.query(Repository).count()
+        file_count = session.query(File).count()
+
+        result = "Clear Smells\n"
+        result += "=" * 60 + "\n"
+        result += f"\nCurrent data:\n"
+        result += f"  Detected Smells: {smell_count}\n"
+        result += f"  Study Smells: {study_count}\n"
+        result += f"  Repositories: {repo_count}\n"
+        result += f"  Files: {file_count}\n"
+        result += "\n⚠️  WARNING: This will permanently delete the data above!\n\n"
+
+        # Delete smell_ui_metadata (via raw SQL since it's not in models)
+        session.execute(text("DELETE FROM smell_ui_metadata"))
+
+        # Delete experiments
+        exp_deleted = session.query(Experiment).delete()
+
+        # Delete study smells
+        study_deleted = session.query(StudySmells).delete()
+
+        # Delete detected smells
+        smells_deleted = session.query(DetectedSmells).delete()
+
+        if not keep_repos:
+            # Delete files and repositories
+            files_deleted = session.query(File).delete()
+            repos_deleted = session.query(Repository).delete()
+        else:
+            files_deleted = 0
+            repos_deleted = 0
+
+        session.commit()
+
+        result += "✓ Deletion completed:\n"
+        result += f"  Detected Smells: {smells_deleted}\n"
+        result += f"  Study Smells: {study_deleted}\n"
+        result += f"  Experiments: {exp_deleted}\n"
+        result += f"  UI Metadata: cleared\n"
+
+        if not keep_repos:
+            result += f"  Files: {files_deleted}\n"
+            result += f"  Repositories: {repos_deleted}\n"
+            result += "\n✓ Database is now empty\n"
+        else:
+            result += f"\n✓ Smells cleared (repositories and files kept)\n"
+
+        result += "\nYou can now import fresh data with:\n"
+        result += "  db import-smells\n"
+
+        return result
+
+    except Exception as e:
+        session.rollback()
+        return f"✗ Error clearing data: {str(e)}"
+    finally:
+        session.close()
+
+
+def cmd_clean(args: str = "") -> str:
+    """
+    Clean ALL data from database (complete reset).
+
+    Usage: db clean [--yes]
+
+    Options:
+        --yes    Skip confirmation (auto-confirm deletion)
+
+    This will delete EVERYTHING:
+        - All detected_smells
+        - All study_smells
+        - All baseline_smell_detections
+        - All smell_ui_metadata
+        - All experiments
+        - All code_metrics
+        - All test_results
+        - All smell_detection_results
+        - All ai_responses
+        - All files
+        - All repositories
+
+    This is a COMPLETE database reset. Use with caution!
+    """
+    auto_confirm = "--yes" in args
+
+    db = get_db()
+    session = db.get_session()
+
+    try:
+        from sqlalchemy import text
+
+        # Count records using raw SQL (more robust than ORM)
+        def count_table(table_name):
+            try:
+                result = session.execute(text(f"SELECT COUNT(*) FROM {table_name}"))
+                return result.scalar() or 0
+            except:
+                return 0
+
+        # Get current counts
+        counts = {
+            'repositories': count_table('repositories'),
+            'files': count_table('files'),
+            'detected_smells': count_table('detected_smells'),
+            'study_smells': count_table('study_smells'),
+            'baseline_smell_detections': count_table('baseline_smell_detections'),
+            'experiments': count_table('experiments'),
+            'code_metrics': count_table('code_metrics'),
+            'test_results': count_table('test_results'),
+            'smell_detection_results': count_table('smell_detection_results'),
+            'ai_responses': count_table('ai_responses'),
+            'smell_ui_metadata': count_table('smell_ui_metadata'),
+        }
+
+        total_records = sum(counts.values())
+
+        result = "DATABASE CLEAN - COMPLETE RESET\n"
+        result += "=" * 60 + "\n"
+        result += "\n⚠️  WARNING: This will PERMANENTLY DELETE ALL DATA!\n\n"
+        result += "Current database contents:\n"
+        result += f"  Repositories: {counts['repositories']}\n"
+        result += f"  Files: {counts['files']}\n"
+        result += f"  Detected Smells: {counts['detected_smells']}\n"
+        result += f"  Study Smells: {counts['study_smells']}\n"
+        result += f"  Baseline Smells: {counts['baseline_smell_detections']}\n"
+        result += f"  Experiments: {counts['experiments']}\n"
+        result += f"  Code Metrics: {counts['code_metrics']}\n"
+        result += f"  Test Results: {counts['test_results']}\n"
+        result += f"  Smell Results: {counts['smell_detection_results']}\n"
+        result += f"  AI Responses: {counts['ai_responses']}\n"
+        result += f"  UI Metadata: {counts['smell_ui_metadata']}\n"
+        result += f"\nTOTAL RECORDS: {total_records}\n"
+
+        if not auto_confirm:
+            result += "\n" + "=" * 60 + "\n"
+            result += "To confirm this action, run:\n"
+            result += "  db clean --yes\n"
+            return result
+
+        result += "\n" + "=" * 60 + "\n"
+        result += "Proceeding with complete database clean...\n\n"
+
+        # Delete in correct order to respect foreign key constraints
+        # Use raw SQL for robustness - works regardless of schema changes
+
+        deleted_counts = {}
+
+        # 1. Delete child tables first (those with foreign keys)
+        tables_to_delete = [
+            'smell_ui_metadata',
+            'ai_responses',
+            'test_results',
+            'smell_detection_results',
+            'code_metrics',
+            'experiments',
+            'study_smells',
+            'baseline_smell_detections',
+            'detected_smells',
+            'files',
+            'repositories',
+        ]
+
+        for table in tables_to_delete:
+            try:
+                delete_result = session.execute(text(f"DELETE FROM {table}"))
+                deleted = delete_result.rowcount
+                deleted_counts[table] = deleted
+
+                # Format table name for display
+                display_name = table.replace('_', ' ').title()
+                result += f"  ✓ {display_name}: {deleted} deleted\n"
+            except Exception as e:
+                result += f"  ⚠ {table}: skipped (table may not exist)\n"
+
+        session.commit()
+
+        result += "\n" + "=" * 60 + "\n"
+        result += "✓ DATABASE COMPLETELY CLEANED\n"
+        result += f"\nDeleted {sum(deleted_counts.values())} total records from {len(deleted_counts)} tables.\n"
+        result += "\nThe database is now empty and ready for fresh data.\n"
+        result += "\nNext steps:\n"
+        result += "  1. Import smells: db import-smells\n"
+        result += "  2. Or re-initialize: db init --force\n"
+
+        return result
+
+    except Exception as e:
+        session.rollback()
+        return f"✗ Error cleaning database: {str(e)}\n\nDatabase rolled back to previous state."
+    finally:
+        session.close()
 
 
 def cmd_status(args: str = "") -> str:
@@ -398,6 +624,219 @@ def cmd_get_experiment(args: str = "") -> str:
 
 
 # =============================================================================
+# SMELL IMPORT COMMANDS
+# =============================================================================
+
+def cmd_import_smells(args: str = "") -> str:
+    """
+    Import detected smells from CSV files in /smells_detected directory.
+
+    Usage: db import-smells [--repo=<name>] [--dry-run]
+
+    Options:
+        --repo=<name>    Only import smells for specific repository
+        --dry-run        Preview what would be imported without saving
+
+    The command scans the smells_detected/ directory for subdirectories.
+    Each subdirectory represents a repository and should contain a smells.csv file.
+
+    CSV format expected:
+        file,type,line,method,source
+        /path/to/file.js,SmellType,{'startLine':10,'endLine':15},"code snippet",tool
+
+    Example: db import-smells
+             db import-smells --repo=redux-offline
+             db import-smells --dry-run
+    """
+    # Parse arguments
+    parts = args.split()
+    params = {}
+    dry_run = False
+
+    for part in parts:
+        if part == '--dry-run':
+            dry_run = True
+        elif '=' in part:
+            key, value = part.split('=', 1)
+            key = key.lstrip('-')
+            params[key] = value
+
+    target_repo = params.get('repo')
+
+    # Find smells_detected directory
+    db = get_db()
+
+    # Get project root (go up from database module to project root)
+    # Path: .../llm-refactor-pipeline/src/llm_refactor/modules/database/cli_commands.py
+    # Need to go up 5 levels: database -> modules -> llm_refactor -> src -> llm-refactor-pipeline -> project root
+    current = Path(__file__).parent
+    project_root = current.parent.parent.parent.parent.parent
+    smells_dir = project_root / "smells_detected"
+
+    if not smells_dir.exists():
+        return f"✗ Error: smells_detected directory not found at {smells_dir}"
+
+    # Scan for repository directories
+    repo_dirs = [d for d in smells_dir.iterdir() if d.is_dir()]
+
+    if not repo_dirs:
+        return f"✗ No repository directories found in {smells_dir}"
+
+    # Filter by target repo if specified
+    if target_repo:
+        repo_dirs = [d for d in repo_dirs if d.name == target_repo]
+        if not repo_dirs:
+            return f"✗ Repository '{target_repo}' not found in smells_detected/"
+
+    result = "Import Smells from CSV\n"
+    result += "=" * 60 + "\n"
+
+    if dry_run:
+        result += "⚠️  DRY RUN MODE - No changes will be saved\n"
+        result += "=" * 60 + "\n"
+
+    session = db.get_session()
+    total_imported = 0
+    total_skipped = 0
+    total_errors = 0
+
+    try:
+        for repo_dir in repo_dirs:
+            csv_file = repo_dir / "smells.csv"
+
+            if not csv_file.exists():
+                result += f"\n⚠️  {repo_dir.name}: No smells.csv found, skipping\n"
+                continue
+
+            result += f"\n📁 {repo_dir.name}\n"
+            result += f"   Reading: {csv_file}\n"
+
+            # Get or create repository
+            repo, created = crud.get_or_create_repository(session, name=repo_dir.name)
+            if created:
+                result += f"   ✓ Created repository: {repo.name} (id={repo.id})\n"
+            else:
+                result += f"   ✓ Found repository: {repo.name} (id={repo.id})\n"
+
+            # Read CSV file
+            try:
+                with open(csv_file, 'r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    rows = list(reader)
+
+                result += f"   Found {len(rows)} smells in CSV\n"
+
+                imported_count = 0
+                skipped_count = 0
+                error_count = 0
+
+                for row in rows:
+                    try:
+                        file_path = row.get('file', '').strip()
+                        smell_type = row.get('type', '').strip()
+                        line_data = row.get('line', '').strip()
+                        code_snippet = row.get('method', '').strip()
+                        detection_tool = row.get('source', '').strip()
+
+                        # Normalize detection tool names
+                        tool_mapping = {
+                            'snuts': 'SNUTSJS',
+                            'steel': 'Steel',
+                        }
+                        detection_tool = tool_mapping.get(detection_tool.lower(), detection_tool)
+
+                        if not file_path or not smell_type:
+                            skipped_count += 1
+                            continue
+
+                        # Parse line data (convert Python dict string to JSON)
+                        line_numbers = None
+                        if line_data:
+                            try:
+                                # Replace single quotes with double quotes for JSON
+                                line_data_json = line_data.replace("'", '"')
+                                line_dict = json.loads(line_data_json)
+                                line_numbers = json.dumps(line_dict)
+                            except json.JSONDecodeError:
+                                # If parsing fails, store as-is
+                                line_numbers = line_data
+
+                        # Get or create file
+                        file_obj, file_created = crud.get_or_create_file(
+                            session,
+                            repository_id=repo.id,
+                            path=file_path,
+                            file_type='test'
+                        )
+
+                        # Check if smell already exists
+                        existing_smells = crud.get_detected_smells_by_file(session, file_obj.id)
+                        smell_exists = any(
+                            s.smell_type == smell_type and
+                            s.line_numbers == line_numbers
+                            for s in existing_smells
+                        )
+
+                        if smell_exists:
+                            skipped_count += 1
+                            continue
+
+                        # Create detected smell
+                        if not dry_run:
+                            crud.create_detected_smell(
+                                session,
+                                file_id=file_obj.id,
+                                smell_type=smell_type,
+                                line_numbers=line_numbers,
+                                code_snippet=code_snippet,
+                                detection_tool=detection_tool
+                            )
+
+                        imported_count += 1
+
+                    except Exception as e:
+                        error_count += 1
+                        result += f"   ✗ Error processing row: {str(e)[:50]}\n"
+
+                result += f"   ✓ Imported: {imported_count} smells\n"
+                if skipped_count > 0:
+                    result += f"   ⊘ Skipped: {skipped_count} (duplicates or invalid)\n"
+                if error_count > 0:
+                    result += f"   ✗ Errors: {error_count}\n"
+
+                total_imported += imported_count
+                total_skipped += skipped_count
+                total_errors += error_count
+
+            except Exception as e:
+                result += f"   ✗ Error reading CSV: {str(e)}\n"
+                total_errors += 1
+
+        # Commit changes
+        if not dry_run:
+            session.commit()
+            result += f"\n{'=' * 60}\n"
+            result += f"✓ Successfully imported {total_imported} smells to database\n"
+        else:
+            session.rollback()
+            result += f"\n{'=' * 60}\n"
+            result += f"DRY RUN: Would import {total_imported} smells\n"
+
+        if total_skipped > 0:
+            result += f"⊘ Skipped {total_skipped} smells (duplicates or invalid)\n"
+        if total_errors > 0:
+            result += f"✗ {total_errors} errors occurred\n"
+
+        return result
+
+    except Exception as e:
+        session.rollback()
+        return f"✗ Import failed: {str(e)}"
+    finally:
+        session.close()
+
+
+# =============================================================================
 # UTILITY COMMANDS
 # =============================================================================
 
@@ -412,8 +851,11 @@ def cmd_help(args: str = "") -> str:
 
     result += "Management:\n"
     result += "  db init [--force]          Initialize database\n"
+    result += "  db clean [--yes]           Clean ALL data (complete reset)\n"
+    result += "  db clear-smells [--keep]   Clear smells only (keep repos)\n"
     result += "  db status                  Show database status\n"
     result += "  db stats                   Show database statistics\n"
+    result += "  db validate-schema         Validate ORM matches database\n"
     result += "  db help                    Show this help\n"
 
     result += "\nRepositories:\n"
@@ -424,23 +866,58 @@ def cmd_help(args: str = "") -> str:
     result += "  db list-experiments        List experiments\n"
     result += "  db get-experiment <id>     Get experiment details\n"
 
+    result += "\nSmell Detection:\n"
+    result += "  db import-smells           Import smells from CSV files\n"
+    result += "  db validate-import         Validate imported smell data\n"
+
     result += "\nExamples:\n"
     result += "  db add-repository --name=dayjs --url=https://github.com/iamkun/dayjs\n"
+    result += "  db clean --yes             Complete database reset\n"
+    result += "  db clear-smells --keep-repos  Clear smells but keep repos\n"
     result += "  db list-experiments --ai-tool=Claude --limit=10\n"
     result += "  db get-experiment 1\n"
+    result += "  db import-smells --repo=redux-offline\n"
+    result += "  db import-smells --dry-run\n"
 
     return result
+
+
+# Import validation commands
+from .test_import import cmd_validate_import
+from .schema_validator import cmd_validate_schema as _validate_schema_internal
+
+
+def cmd_validate_schema(args: str = "") -> str:
+    """
+    Validate that ORM models match database schema.
+
+    Usage: db validate-schema
+
+    This checks if the SQLAlchemy models are in sync with the actual database.
+    """
+    db = get_db()
+    session = db.get_session()
+
+    try:
+        return _validate_schema_internal(session)
+    finally:
+        session.close()
 
 
 # Command registry for routing
 COMMANDS = {
     'init': cmd_init,
+    'clear-smells': cmd_clear_smells,
+    'clean': cmd_clean,
     'status': cmd_status,
     'stats': cmd_stats,
+    'validate-schema': cmd_validate_schema,
     'add-repository': cmd_add_repository,
     'list-repositories': cmd_list_repositories,
     'list-experiments': cmd_list_experiments,
     'get-experiment': cmd_get_experiment,
+    'import-smells': cmd_import_smells,
+    'validate-import': cmd_validate_import,
     'help': cmd_help,
 }
 
