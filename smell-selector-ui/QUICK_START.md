@@ -143,6 +143,23 @@ python -m llm_refactor
 llm-refactor> db import-smells
 ```
 
+### "ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint"
+This error occurs when the database was created before the schema fix. **Solution**:
+
+```bash
+# Fix the database schema (keeps your data)
+sqlite3 ../research_data/research.db
+> CREATE UNIQUE INDEX IF NOT EXISTS uq_ui_metadata_smell
+  ON smell_ui_metadata(detected_smell_id);
+> .quit
+
+# Restart the backend
+cd smell-selector-ui
+./start.sh
+```
+
+**Why this happens**: The `smell_ui_metadata` table needs a UNIQUE constraint on `detected_smell_id` for the selection feature to work properly.
+
 ### "Port already in use"
 ```bash
 # Backend (8001)

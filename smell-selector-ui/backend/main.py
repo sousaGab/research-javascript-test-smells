@@ -85,38 +85,15 @@ def parse_tags(tags_str: Optional[str]) -> List[str]:
 
 def get_or_create_ui_metadata(session: Session, detected_smell_id: int):
     """Get or create UI metadata for a smell."""
-    result = session.execute(
-        text("SELECT * FROM smell_ui_metadata WHERE detected_smell_id = :id"),
-        {"id": detected_smell_id}
-    ).fetchone()
-
-    if result:
-        return {
-            "id": result[0],
-            "annotations": result[2],
-            "priority": result[3],
-            "tags": parse_tags(result[4]),
-            "ui_status": result[5],
-            "updated_at": result[7]
-        }
-
-    # Create default metadata
-    session.execute(
-        text("""
-            INSERT INTO smell_ui_metadata (detected_smell_id, annotations, priority, tags, ui_status)
-            VALUES (:id, NULL, 0, '[]', 'pending')
-        """),
-        {"id": detected_smell_id}
-    )
-    session.commit()
+    metadata, created = crud.get_or_create_ui_metadata(session, detected_smell_id)
 
     return {
-        "id": None,
-        "annotations": None,
-        "priority": 0,
-        "tags": [],
-        "ui_status": "pending",
-        "updated_at": None
+        "id": metadata.id,
+        "annotations": metadata.annotations,
+        "priority": metadata.priority,
+        "tags": parse_tags(metadata.tags),
+        "ui_status": metadata.ui_status,
+        "updated_at": metadata.updated_at
     }
 
 
@@ -443,25 +420,15 @@ async def select_smell_for_study(
         session.add(study_smell)
         session.flush()
 
-        # Update UI metadata
+        # Update UI metadata using CRUD
         tags_json = json.dumps(request.tags) if request.tags else "[]"
-        session.execute(
-            text("""
-                INSERT INTO smell_ui_metadata (detected_smell_id, annotations, priority, tags, ui_status)
-                VALUES (:id, :annotations, :priority, :tags, 'selected')
-                ON CONFLICT(detected_smell_id) DO UPDATE SET
-                    annotations = :annotations,
-                    priority = :priority,
-                    tags = :tags,
-                    ui_status = 'selected',
-                    updated_at = CURRENT_TIMESTAMP
-            """),
-            {
-                "id": smell_id,
-                "annotations": request.annotations,
-                "priority": request.priority,
-                "tags": tags_json
-            }
+        crud.update_ui_metadata(
+            session,
+            smell_id,
+            annotations=request.annotations,
+            priority=request.priority,
+            tags=tags_json,
+            ui_status='selected'
         )
 
         session.commit()
@@ -514,14 +481,11 @@ async def unselect_smell(smell_id: int):
 
         session.delete(study_smell)
 
-        # Update UI metadata status
-        session.execute(
-            text("""
-                UPDATE smell_ui_metadata
-                SET ui_status = 'pending', updated_at = CURRENT_TIMESTAMP
-                WHERE detected_smell_id = :id
-            """),
-            {"id": smell_id}
+        # Update UI metadata status using CRUD
+        crud.update_ui_metadata(
+            session,
+            smell_id,
+            ui_status='pending'
         )
 
         session.commit()
@@ -563,52 +527,32 @@ async def update_smell_metadata(
         if not detected_smell:
             raise HTTPException(status_code=404, detail=f"Smell {smell_id} not found")
 
-        # Build update query
-        updates = []
-        params = {"id": smell_id}
-
-        if request.annotations is not None:
-            updates.append("annotations = :annotations")
-            params["annotations"] = request.annotations
-
-        if request.priority is not None:
-            updates.append("priority = :priority")
-            params["priority"] = request.priority
-
-        if request.tags is not None:
-            updates.append("tags = :tags")
-            params["tags"] = json.dumps(request.tags)
-
-        if request.ui_status is not None:
-            updates.append("ui_status = :ui_status")
-            params["ui_status"] = request.ui_status
-
-        if not updates:
+        # Check if any fields are provided
+        if all(v is None for v in [request.annotations, request.priority, request.tags, request.ui_status]):
             raise HTTPException(status_code=400, detail="No fields to update")
 
-        updates.append("updated_at = CURRENT_TIMESTAMP")
-
-        # Upsert metadata
-        session.execute(
-            text(f"""
-                INSERT INTO smell_ui_metadata (detected_smell_id, annotations, priority, tags, ui_status)
-                VALUES (:id, :annotations, :priority, :tags, :ui_status)
-                ON CONFLICT(detected_smell_id) DO UPDATE SET {', '.join(updates)}
-            """),
-            {
-                "id": smell_id,
-                "annotations": params.get("annotations"),
-                "priority": params.get("priority", 0),
-                "tags": params.get("tags", "[]"),
-                "ui_status": params.get("ui_status", "pending")
-            }
+        # Update metadata using CRUD (handles upsert automatically)
+        tags_json = json.dumps(request.tags) if request.tags is not None else None
+        metadata = crud.update_ui_metadata(
+            session,
+            smell_id,
+            annotations=request.annotations,
+            priority=request.priority,
+            tags=tags_json,
+            ui_status=request.ui_status
         )
 
         session.commit()
 
         # Return updated metadata
-        metadata = get_or_create_ui_metadata(session, smell_id)
-        return metadata
+        return {
+            "id": metadata.id,
+            "annotations": metadata.annotations,
+            "priority": metadata.priority,
+            "tags": parse_tags(metadata.tags),
+            "ui_status": metadata.ui_status,
+            "updated_at": metadata.updated_at
+        }
 
     except HTTPException:
         session.rollback()

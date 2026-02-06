@@ -363,10 +363,17 @@ This launches the refactoring experiment workflow where you can:
 **Schema**:
 - `detected_smells`: All detected smells
 - `study_smells`: Selected smells for study
-- `smell_ui_metadata`: User annotations
+- `smell_ui_metadata`: User annotations (with UNIQUE constraint on detected_smell_id)
 - `experiments`: Refactoring attempts and results
 
 **Technologies**: SQLite, SQLAlchemy ORM
+
+**Database Access**: All components use **unified SQLAlchemy ORM** approach:
+- Models defined in `llm-refactor-pipeline/src/llm_refactor/modules/database/models.py`
+- CRUD operations in `llm-refactor-pipeline/src/llm_refactor/modules/database/crud.py`
+- No raw SQL in application code (except complex analytics queries)
+- Constraints and relationships managed by ORM
+- Easy migration to PostgreSQL if needed
 
 ## Troubleshooting
 
@@ -452,6 +459,26 @@ yarn install
 ```
 
 ### Database Issues
+
+**Problem**: ON CONFLICT error when selecting smells
+
+**Error**: `ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint`
+
+**Solution**:
+```bash
+# Add missing UNIQUE constraint (keeps all data)
+sqlite3 research_data/research.db
+> CREATE UNIQUE INDEX IF NOT EXISTS uq_ui_metadata_smell
+  ON smell_ui_metadata(detected_smell_id);
+> .quit
+
+# Verify the fix
+sqlite3 research_data/research.db
+> .schema smell_ui_metadata
+> .quit
+```
+
+**Why this happens**: Older databases were created before the UNIQUE constraint was added to the `smell_ui_metadata` table. The constraint is required for proper upsert operations.
 
 **Problem**: Database schema errors
 

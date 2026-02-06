@@ -14,9 +14,17 @@ Esta aplicação permite:
 ## 🏗️ Arquitetura
 
 - **Frontend**: React 18 + Vite + CSS Modules
-- **Backend**: FastAPI (Python)
+- **Backend**: FastAPI (Python) + SQLAlchemy ORM
 - **Database**: SQLite (`research_data/research.db`)
 - **Syntax Highlighting**: Prism.js (futuro)
+
+### Database Access Pattern
+O backend utiliza **SQLAlchemy ORM** de forma unificada:
+- ✓ Modelos definidos em `llm-refactor-pipeline/src/llm_refactor/modules/database/models.py`
+- ✓ Operações CRUD em `llm-refactor-pipeline/src/llm_refactor/modules/database/crud.py`
+- ✓ Todas as operações de UI metadata usam funções CRUD (não raw SQL)
+- ✓ Constraints e relacionamentos gerenciados pelo ORM
+- ✓ Facilita migração para PostgreSQL se necessário
 
 ## 🚀 Como Iniciar
 
@@ -311,6 +319,28 @@ ls -la ../../research_data/research.db
 # Aplique migração novamente
 cd backend && python migrate_database.py
 ```
+
+### Erro: "ON CONFLICT clause does not match any PRIMARY KEY or UNIQUE constraint"
+
+Este erro ocorre quando o banco de dados foi criado antes da correção do schema. **Solução**:
+
+```bash
+# Opção 1: Recriar o banco (PERDE DADOS!)
+cd ../llm-refactor-pipeline
+python -m llm_refactor
+llm-refactor> db
+# Selecione "Recreate database from scratch"
+
+# Opção 2: Migração manual (PRESERVA DADOS)
+sqlite3 ../../research_data/research.db
+> CREATE UNIQUE INDEX IF NOT EXISTS uq_ui_metadata_smell
+  ON smell_ui_metadata(detected_smell_id);
+> .quit
+```
+
+**Causa**: A tabela `smell_ui_metadata` precisa de um constraint UNIQUE em `detected_smell_id` para que as operações de upsert (ON CONFLICT) funcionem corretamente.
+
+**Prevenção**: Sempre use a versão mais recente do código ao criar novos bancos de dados. O schema correto está em `llm-refactor-pipeline/src/llm_refactor/modules/database/models.py`.
 
 ### Frontend não conecta à API
 

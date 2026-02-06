@@ -315,6 +315,9 @@ class AIResponse(Base):
 class SmellUIMetadata(Base):
     """UI metadata for smell selection and management."""
     __tablename__ = 'smell_ui_metadata'
+    __table_args__ = (
+        UniqueConstraint('detected_smell_id', name='uq_ui_metadata_smell'),
+    )
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     detected_smell_id = Column(Integer, ForeignKey('detected_smells.id', ondelete='CASCADE'), nullable=False)
