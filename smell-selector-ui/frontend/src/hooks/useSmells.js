@@ -19,16 +19,18 @@ export function useSmells() {
   });
   const [total, setTotal] = useState(0);
   const [selectedCount, setSelectedCount] = useState(0);
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(50);
 
   // Load repositories on mount
   useEffect(() => {
     loadRepositories();
   }, []);
 
-  // Load smells when filters change
+  // Load smells when filters or page change
   useEffect(() => {
     loadSmells();
-  }, [filters]);
+  }, [filters, page]);
 
   const loadRepositories = async () => {
     try {
@@ -50,7 +52,8 @@ export function useSmells() {
       if (filters.tool) cleanFilters.tool = filters.tool;
       if (filters.selected !== null) cleanFilters.selected = filters.selected;
 
-      const data = await api.getSmells({ ...cleanFilters, limit: 100 });
+      const offset = (page - 1) * pageSize;
+      const data = await api.getSmells({ ...cleanFilters, limit: pageSize, offset });
       setSmells(data.smells);
       setTotal(data.total);
       setSelectedCount(data.selected_count);
@@ -120,6 +123,7 @@ export function useSmells() {
 
   const updateFilters = (newFilters) => {
     setFilters((prev) => ({ ...prev, ...newFilters }));
+    setPage(1); // Reset to first page when filters change
   };
 
   const clearFilters = () => {
@@ -129,6 +133,7 @@ export function useSmells() {
       tool: '',
       selected: null,
     });
+    setPage(1); // Reset to first page when clearing filters
   };
 
   return {
@@ -140,6 +145,9 @@ export function useSmells() {
     filters,
     total,
     selectedCount,
+    page,
+    pageSize,
+    totalPages: Math.ceil(total / pageSize),
     setSelectedSmell,
     loadSmellDetail,
     selectSmell,
@@ -147,6 +155,7 @@ export function useSmells() {
     updateMetadata,
     updateFilters,
     clearFilters,
+    setPage,
     refresh: loadSmells,
   };
 }

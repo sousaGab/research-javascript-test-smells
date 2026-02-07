@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useSmells } from './hooks/useSmells';
 import { FilterBar } from './components/FilterBar/FilterBar';
+import { Pagination } from './components/Pagination/Pagination';
 import './App.css';
 
 function App() {
@@ -13,12 +14,16 @@ function App() {
     filters,
     total,
     selectedCount,
+    page,
+    pageSize,
+    totalPages,
     loadSmellDetail,
     selectSmell,
     unselectSmell,
     updateMetadata,
     updateFilters,
     clearFilters,
+    setPage,
   } = useSmells();
 
   const [selectedSmellId, setSelectedSmellId] = useState(null);
@@ -51,48 +56,57 @@ function App() {
         {!loading && !error && (
           <>
             <div className="smell-list">
-              <h2>Smells ({smells.length})</h2>
+              <h2>
+                Smells (showing {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, total)} of {total})
+              </h2>
               {smells.length === 0 ? (
                 <div className="empty">
                   No smells found. Try running smell detection first:
                   <code>/analyze-smells [repo-name]</code>
                 </div>
               ) : (
-                <div className="smells">
-                  {smells.map((smell) => (
-                    <div
-                      key={smell.id}
-                      className={`smell-card ${selectedSmellId === smell.id ? 'selected' : ''}`}
-                      onClick={() => handleSmellClick(smell)}
-                    >
-                      <div className="smell-header">
-                        <input
-                          type="checkbox"
-                          checked={smell.is_selected}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            if (smell.is_selected) {
-                              unselectSmell(smell.id);
-                            } else {
-                              selectSmell(smell.id);
-                            }
-                          }}
-                        />
-                        <span className="smell-type">{smell.smell_type}</span>
+                <>
+                  <div className="smells">
+                    {smells.map((smell) => (
+                      <div
+                        key={smell.id}
+                        className={`smell-card ${selectedSmellId === smell.id ? 'selected' : ''}`}
+                        onClick={() => handleSmellClick(smell)}
+                      >
+                        <div className="smell-header">
+                          <input
+                            type="checkbox"
+                            checked={smell.is_selected}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              if (smell.is_selected) {
+                                unselectSmell(smell.id);
+                              } else {
+                                selectSmell(smell.id);
+                              }
+                            }}
+                          />
+                          <span className="smell-type">{smell.smell_type}</span>
+                        </div>
+                        <div className="smell-file">
+                          {smell.file.path}:{JSON.parse(smell.line_numbers)[0]}
+                        </div>
+                        <div className="smell-meta">
+                          <span className={`severity severity-${smell.severity || 'unknown'}`}>
+                            {smell.severity || 'N/A'}
+                          </span>
+                          <span className="tool">{smell.detection_tool}</span>
+                          {smell.ui_metadata?.annotations && <span className="has-notes">📝</span>}
+                        </div>
                       </div>
-                      <div className="smell-file">
-                        {smell.file.path}:{JSON.parse(smell.line_numbers)[0]}
-                      </div>
-                      <div className="smell-meta">
-                        <span className={`severity severity-${smell.severity || 'unknown'}`}>
-                          {smell.severity || 'N/A'}
-                        </span>
-                        <span className="tool">{smell.detection_tool}</span>
-                        {smell.ui_metadata?.annotations && <span className="has-notes">📝</span>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                  <Pagination
+                    currentPage={page}
+                    totalPages={totalPages}
+                    onPageChange={setPage}
+                  />
+                </>
               )}
             </div>
 
