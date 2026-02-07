@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSmells } from './hooks/useSmells';
 import { FilterBar } from './components/FilterBar/FilterBar';
 import { Pagination } from './components/Pagination/Pagination';
+import { CodeViewer } from './components/CodeViewer/CodeViewer';
 import './App.css';
 
 function App() {
@@ -124,16 +125,14 @@ function App() {
                       <p><strong>Status:</strong> {selectedSmell.is_selected ? '✓ Selected' : 'Not Selected'}</p>
                     </div>
 
-                    {selectedSmell.full_file_content ? (
-                      <div className="code-preview">
-                        <h3>Code</h3>
-                        <pre>
-                          <code>{selectedSmell.code_snippet || 'No snippet available'}</code>
-                        </pre>
-                      </div>
+                    {selectedSmell.code_snippet ? (
+                      <CodeViewer
+                        lineNumbers={selectedSmell.line_numbers}
+                        codeSnippet={selectedSmell.code_snippet}
+                      />
                     ) : (
                       <div className="no-code">
-                        File not found in repositories/
+                        No code snippet available
                       </div>
                     )}
 
