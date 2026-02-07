@@ -83,6 +83,8 @@ class SmellResponse(BaseModel):
     detected_at: datetime
     is_selected: bool = False
     study_smell_id: Optional[int] = None
+    snippet_start_line: Optional[int] = None  # Start line of the method/snippet
+    snippet_end_line: Optional[int] = None    # End line of the method/snippet
     ui_metadata: Optional[UIMetadata] = None
 
     class Config:
