@@ -125,7 +125,7 @@ def concatenate_smell_csvs(output_dir: Path, repo_name: str = '', repos_dir: Pat
                 for row in combined_rows:
                     file_path = row[0]
                     line_data = row[2]
-                    source = row[4]
+                    source = row[6]  # Fixed: source is now at index 6 (was 4)
                     line_number = extract_line_number(line_data, source)
 
                     rows_for_extraction.append({
