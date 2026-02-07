@@ -1,0 +1,85 @@
+"use strict";
+const webpack = require("webpack");
+const fs = require("fs");
+
+// Builds example bundles
+module.exports = {
+  mode: "development",
+  context: __dirname,
+  entry: {},
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        commons: {
+          name: "commons",
+          chunks: "all",
+          minChunks: 1
+        }
+      }
+    }
+  },
+  output: {
+    path: __dirname + "/examples",
+    filename: "[name].js",
+    sourceMapFilename: "[file].map",
+    publicPath: "auto"
+  },
+  module: {
+    rules: [
+      {
+        test: /\.[jt]sx?$/,
+        exclude: /node_modules/,
+        loader: "babel-loader",
+        options: {
+          cacheDirectory: true,
+          presets: [
+            "@babel/preset-env",
+            "@babel/preset-react",
+            "@babel/preset-typescript"
+          ]
+        }
+      }
+    ]
+  },
+  plugins: [
+    new webpack.DefinePlugin({
+      "process.env.STATIC_EXAMPLES": JSON.stringify(true)
+    })
+  ],
+  devServer: {
+    compress: true,
+    port: 4002,
+    open: "/react-grid-layout/examples/00-showcase.html",
+    hot: true,
+    liveReload: true,
+    watchFiles: ["test/examples/**/*", "src/**/*"],
+    client: {
+      overlay: true
+    },
+    static: {
+      directory: ".",
+      publicPath: "/react-grid-layout"
+    },
+    devMiddleware: {
+      writeToDisk: true
+    }
+  },
+  resolve: {
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
+    alias: { "react-grid-layout": __dirname + "/index-dev.js" },
+    extensionAlias: {
+      ".js": [".ts", ".tsx", ".js"],
+      ".mjs": [".mts", ".mjs"]
+    }
+  }
+};
+
+// Load all entry points
+const files = fs
+  .readdirSync(__dirname + "/test/examples")
+  .filter(element => element.match(/^.+\.jsx$/));
+
+for (const file of files) {
+  const module_name = file.replace(/\.jsx$/, "");
+  module.exports.entry[module_name] = "./test/examples/" + file;
+}
