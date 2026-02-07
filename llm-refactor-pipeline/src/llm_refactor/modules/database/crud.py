@@ -193,6 +193,8 @@ def create_detected_smell(session: Session, file_id: int, smell_type: str,
                          line_numbers: Optional[str] = None,
                          severity: Optional[str] = None,
                          code_snippet: Optional[str] = None,
+                         snippet_start_line: Optional[int] = None,
+                         snippet_end_line: Optional[int] = None,
                          detection_tool: Optional[str] = None) -> DetectedSmells:
     """
     Create a detected smell record (from initial repository scan).
@@ -215,6 +217,8 @@ def create_detected_smell(session: Session, file_id: int, smell_type: str,
         line_numbers=line_numbers,
         severity=severity,
         code_snippet=code_snippet,
+        snippet_start_line=snippet_start_line,
+        snippet_end_line=snippet_end_line,
         detection_tool=detection_tool
     )
     session.add(smell)

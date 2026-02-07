@@ -736,6 +736,8 @@ def cmd_import_smells(args: str = "") -> str:
                         smell_type = row.get('type', '').strip()
                         line_data = row.get('line', '').strip()
                         code_snippet = row.get('method', '').strip()
+                        method_start = row.get('methodStart', '').strip()
+                        method_end = row.get('methodEnd', '').strip()
                         detection_tool = row.get('source', '').strip()
 
                         # Normalize detection tool names
@@ -781,6 +783,14 @@ def cmd_import_smells(args: str = "") -> str:
                             skipped_count += 1
                             continue
 
+                        # Parse snippet line numbers
+                        snippet_start = None
+                        snippet_end = None
+                        if method_start and method_start.isdigit():
+                            snippet_start = int(method_start)
+                        if method_end and method_end.isdigit():
+                            snippet_end = int(method_end)
+
                         # Create detected smell
                         if not dry_run:
                             crud.create_detected_smell(
@@ -789,6 +799,8 @@ def cmd_import_smells(args: str = "") -> str:
                                 smell_type=smell_type,
                                 line_numbers=line_numbers,
                                 code_snippet=code_snippet,
+                                snippet_start_line=snippet_start,
+                                snippet_end_line=snippet_end,
                                 detection_tool=detection_tool
                             )
 

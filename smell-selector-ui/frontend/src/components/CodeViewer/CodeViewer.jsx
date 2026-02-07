@@ -1,15 +1,21 @@
 import { useMemo } from 'react';
 import './CodeViewer.css';
 
-export function CodeViewer({ lineNumbers, codeSnippet }) {
+export function CodeViewer({ lineNumbers, codeSnippet, snippetStartLine, snippetEndLine }) {
   const { startLine, endLine, lines } = useMemo(() => {
-    // Parse line numbers from JSON
-    let start = 1;
-    let end = 1;
+    // Use snippet line numbers if available (actual method start/end)
+    // Otherwise fall back to smell line numbers
+    let start = snippetStartLine || 1;
+    let end = snippetEndLine || 1;
 
-    if (lineNumbers) {
+    // If snippet lines not provided, try to get from smell line_numbers
+    if (!snippetStartLine && lineNumbers) {
       try {
-        const parsed = JSON.parse(lineNumbers);
+        // If lineNumbers is already an object, use it directly
+        const parsed = typeof lineNumbers === 'string'
+          ? JSON.parse(lineNumbers)
+          : lineNumbers;
+
         if (parsed.startLine !== undefined) {
           start = parsed.startLine;
         }
@@ -35,7 +41,7 @@ export function CodeViewer({ lineNumbers, codeSnippet }) {
       endLine: end,
       lines: linesWithNumbers,
     };
-  }, [lineNumbers, codeSnippet]);
+  }, [lineNumbers, codeSnippet, snippetStartLine, snippetEndLine]);
 
   if (!codeSnippet || lines.length === 0) {
     return (

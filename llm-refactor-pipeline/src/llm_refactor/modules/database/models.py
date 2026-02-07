@@ -83,6 +83,8 @@ class DetectedSmells(Base):
     line_numbers = Column(Text)  # JSON array as string
     severity = Column(String)
     code_snippet = Column(Text)
+    snippet_start_line = Column(Integer)  # Start line of the code snippet/method
+    snippet_end_line = Column(Integer)  # End line of the code snippet/method
     detected_at = Column(DateTime, default=datetime.utcnow)
     detection_tool = Column(String)  # 'steel', 'tsDetect'
 
@@ -106,6 +108,8 @@ class BaselineSmellDetections(Base):
     line_numbers = Column(Text)  # JSON array as string
     severity = Column(String)
     code_snippet = Column(Text)
+    snippet_start_line = Column(Integer)  # Start line of the code snippet/method
+    snippet_end_line = Column(Integer)  # End line of the code snippet/method
     detected_at = Column(DateTime, default=datetime.utcnow)
     detection_tool = Column(String)  # 'steel', 'tsDetect'
 
@@ -130,6 +134,8 @@ class StudySmells(Base):
     line_numbers = Column(Text)  # JSON array as string
     severity = Column(String)
     code_snippet = Column(Text)
+    snippet_start_line = Column(Integer)  # Start line of the code snippet/method
+    snippet_end_line = Column(Integer)  # End line of the code snippet/method
     selected_at = Column(DateTime, default=datetime.utcnow)
     detection_tool = Column(String)  # 'steel', 'tsDetect'
 

@@ -118,6 +118,8 @@ def smell_to_response(smell_row, session: Session) -> dict:
         "detected_at": smell_row[10],
         "is_selected": bool(smell_row[11]),
         "study_smell_id": smell_row[12],
+        "snippet_start_line": smell_row[13],
+        "snippet_end_line": smell_row[14],
         "ui_metadata": ui_metadata
     }
 
@@ -280,7 +282,9 @@ async def get_smells(
                 ds.detection_tool,
                 ds.detected_at,
                 CASE WHEN ss.id IS NOT NULL THEN 1 ELSE 0 END as is_selected,
-                ss.id as study_smell_id
+                ss.id as study_smell_id,
+                ds.snippet_start_line,
+                ds.snippet_end_line
             FROM detected_smells ds
             JOIN files f ON ds.file_id = f.id
             JOIN repositories r ON f.repository_id = r.id
@@ -334,7 +338,9 @@ async def get_smell_detail(smell_id: int):
                 ds.detection_tool,
                 ds.detected_at,
                 CASE WHEN ss.id IS NOT NULL THEN 1 ELSE 0 END as is_selected,
-                ss.id as study_smell_id
+                ss.id as study_smell_id,
+                ds.snippet_start_line,
+                ds.snippet_end_line
             FROM detected_smells ds
             JOIN files f ON ds.file_id = f.id
             JOIN repositories r ON f.repository_id = r.id

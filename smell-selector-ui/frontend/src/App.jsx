@@ -129,6 +129,8 @@ function App() {
                       <CodeViewer
                         lineNumbers={selectedSmell.line_numbers}
                         codeSnippet={selectedSmell.code_snippet}
+                        snippetStartLine={selectedSmell.snippet_start_line}
+                        snippetEndLine={selectedSmell.snippet_end_line}
                       />
                     ) : (
                       <div className="no-code">

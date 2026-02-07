@@ -78,7 +78,7 @@ def concatenate_smell_csvs(output_dir: Path, repo_name: str = '', repos_dir: Pat
     output_csv = output_dir / "smells.csv"
 
     combined_rows = []
-    headers = ["file", "type", "line", "method", "source"]
+    headers = ["file", "type", "line", "method", "methodStart", "methodEnd", "source"]
 
     try:
         if snuts_csv.exists():
@@ -93,7 +93,9 @@ def concatenate_smell_csvs(output_dir: Path, repo_name: str = '', repos_dir: Pat
                         file_path,
                         row.get('type', ''),
                         parsed_line,
-                        '',
+                        '',  # method - will be filled later
+                        '',  # methodStart - will be filled later
+                        '',  # methodEnd - will be filled later
                         'snuts'
                     ])
             console.print(f"✓ Read {len(combined_rows)} smells from snuts", style="dim")
@@ -109,7 +111,9 @@ def concatenate_smell_csvs(output_dir: Path, repo_name: str = '', repos_dir: Pat
                         file_path,
                         row.get('type', ''),
                         row.get('line', ''),
-                        '',
+                        '',  # method - will be filled later
+                        '',  # methodStart - will be filled later
+                        '',  # methodEnd - will be filled later
                         'steel'
                     ])
             steel_count = len(combined_rows) - steel_count_start
@@ -150,14 +154,20 @@ def concatenate_smell_csvs(output_dir: Path, repo_name: str = '', repos_dir: Pat
                     for i, method_result in enumerate(methods):
                         if i < len(combined_rows):
                             combined_rows[i][3] = method_result.get('method', 'Unknown')
+                            combined_rows[i][4] = method_result.get('start', '')
+                            combined_rows[i][5] = method_result.get('end', '')
                     console.print(f"✓ Extracted {len(methods)} test methods", style="dim")
                 else:
                     console.print(f"⚠ Method extraction failed: {result.stderr}", style="yellow")
                     for row in combined_rows:
                         row[3] = 'Unknown'
+                        row[4] = ''
+                        row[5] = ''
         else:
             for row in combined_rows:
                 row[3] = 'Unknown'
+                row[4] = ''
+                row[5] = ''
 
         with open(output_csv, 'w', newline='', encoding='utf-8') as f:
             writer = csv.writer(f)

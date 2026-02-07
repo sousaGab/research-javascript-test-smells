@@ -81,11 +81,15 @@ async function processRows(rows, repositoriesPath) {
       const result = findParentTestMethod(fullPath, line);
       results.push({
         method: result.method || result.error || 'Unknown',
+        start: result.start || null,
+        end: result.end || null,
         error: result.error || null
       });
     } catch (error) {
       results.push({
         method: 'Error',
+        start: null,
+        end: null,
         error: error.message
       });
     }
