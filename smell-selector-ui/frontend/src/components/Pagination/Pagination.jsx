@@ -52,7 +52,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }) {
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
       >
-        &laquo; Prev
+        &laquo;
       </button>
 
       {getPageNumbers().map((page, index) => (
@@ -76,7 +76,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }) {
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
       >
-        Next &raquo;
+        &raquo;
       </button>
     </div>
   );
