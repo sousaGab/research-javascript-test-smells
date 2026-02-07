@@ -4,10 +4,19 @@ Migration script to add snippet_start_line and snippet_end_line columns
 to detected_smells, study_smells, and baseline_smell_detections tables.
 
 Run this script to update your existing database schema.
+
+Usage:
+    python add_snippet_columns_migration.py
+    python add_snippet_columns_migration.py --db-path=/path/to/research.db
 """
 
 import sqlite3
+import sys
+import argparse
 from pathlib import Path
+
+# Add src directory to path to import ResearchDB
+sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 
 def migrate_database(db_path: Path):
@@ -56,36 +65,91 @@ def migrate_database(db_path: Path):
 
 
 def main():
-    # Find database
-    script_dir = Path(__file__).parent
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(
+        description='Migrate database to add snippet line columns',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+    python add_snippet_columns_migration.py
+    python add_snippet_columns_migration.py --db-path=/custom/path/research.db
+        """
+    )
+    parser.add_argument(
+        '--db-path',
+        type=str,
+        help='Path to research.db file (optional, uses default location if not specified)'
+    )
+    args = parser.parse_args()
 
-    # Try common locations
-    db_locations = [
-        script_dir / "research_data" / "research.db",
-        script_dir / "research.db",
-        script_dir / "smell-selector-ui" / "research.db",
-    ]
-
+    # Try to import and use ResearchDB for consistent path resolution
     db_path = None
-    for location in db_locations:
-        if location.exists():
-            db_path = location
-            break
+    try:
+        from llm_refactor.modules.database.connection import ResearchDB
 
-    if not db_path:
-        print("❌ Could not find research.db")
-        print("\nSearched in:")
-        for loc in db_locations:
-            print(f"  - {loc}")
-        print("\nPlease specify the database path:")
-        user_path = input("Path: ").strip()
-        db_path = Path(user_path)
+        if args.db_path:
+            db = ResearchDB(db_path=args.db_path)
+            print(f"📍 Using specified database path: {args.db_path}")
+        else:
+            db = ResearchDB()
+            print(f"📍 Using default database path: {db.db_path}")
+
+        db_path = db.db_path
+
+    except ImportError as e:
+        print(f"⚠️  Could not import ResearchDB: {e}")
+        print("   Falling back to manual path resolution...")
+
+        # Fallback to manual path finding
+        if args.db_path:
+            db_path = Path(args.db_path)
+        else:
+            script_dir = Path(__file__).parent
+            # Try common locations
+            db_locations = [
+                script_dir / "research_data" / "research.db",
+                script_dir.parent / "research_data" / "research.db",
+                script_dir / "research.db",
+                script_dir / "smell-selector-ui" / "research.db",
+            ]
+
+            for location in db_locations:
+                if location.exists():
+                    db_path = location
+                    print(f"📍 Found database at: {db_path}")
+                    break
+
+    # If still no database found, ask user
+    if not db_path or not db_path.exists():
+        print("\n❌ Could not find research.db")
+        if not args.db_path:
+            print("\nSearched in:")
+            print(f"  - {Path(__file__).parent / 'research_data' / 'research.db'}")
+            print(f"  - {Path(__file__).parent.parent / 'research_data' / 'research.db'}")
+            print(f"  - {Path(__file__).parent / 'research.db'}")
+            print(f"  - {Path(__file__).parent / 'smell-selector-ui' / 'research.db'}")
+
+        print("\n💡 Options:")
+        print("   1. Specify path: python add_snippet_columns_migration.py --db-path=/path/to/research.db")
+        print("   2. Enter path now:")
+
+        try:
+            user_path = input("   Database path: ").strip()
+            if user_path:
+                db_path = Path(user_path)
+            else:
+                print("❌ No path provided. Exiting.")
+                return
+        except (KeyboardInterrupt, EOFError):
+            print("\n❌ Cancelled by user")
+            return
 
     if not db_path.exists():
         print(f"❌ Database not found at: {db_path}")
         return
 
     # Run migration
+    print("")
     migrate_database(db_path)
 
 
