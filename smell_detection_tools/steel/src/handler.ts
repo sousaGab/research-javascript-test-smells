@@ -41,9 +41,12 @@ export class LoadAsPackageHandler extends AbstractHandler {
   public handle(request: string): string {
     const localPackage = nodepath.resolve(request, './package.json');
     if (existsSync(localPackage) && lstatSync(localPackage).isFile()) {
-      const main = nodepath.resolve(request, require(localPackage).main);
-      if (existsSync(main) && lstatSync(main).isFile()) {
-        return main;
+      const packageJson = require(localPackage);
+      if (packageJson.main) {
+        const main = nodepath.resolve(request, packageJson.main);
+        if (existsSync(main) && lstatSync(main).isFile()) {
+          return main;
+        }
       }
     }
     return super.handle(request);
