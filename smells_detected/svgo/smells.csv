@@ -1,0 +1,465 @@
+file,type,line,method,methodStart,methodEnd,source
+/lib/xast.test.js,ConditionalTestLogic,"{'startLine':80,'endLine':82}","test('visit skips entering children if node is detached', () => {
+  const ast = root([x('g', null, [x('rect'), x('circle')]), x('ellipse')]);
+  /** @type {string[]} */
+  const entered = [];
+  visit(ast, {
+    element: {
+      enter: (node, parentNode) => {
+        entered.push(node.name);
+        if (node.name === 'g') {
+          detachNodeFromParent(node, parentNode);
+        }
+      },
+    },
+  });
+  expect(entered).toStrictEqual(['g', 'ellipse']);
+  expect(ast).toStrictEqual(root([x('ellipse')]));
+})",72,88,snuts
+/lib/xast.test.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","test('visit skips entering children when symbol is passed', () => {
+  const ast = root([x('g', null, [x('rect'), x('circle')]), x('ellipse')]);
+  /** @type {string[]} */
+  const entered = [];
+  visit(ast, {
+    element: {
+      enter: (node) => {
+        entered.push(node.name);
+        if (node.name === 'g') {
+          return visitSkip;
+        }
+      },
+    },
+  });
+  expect(entered).toStrictEqual(['g', 'ellipse']);
+  expect(ast).toStrictEqual(
+    root([x('g', null, [x('rect'), x('circle')]), x('ellipse')]),
+  );
+})",90,108,snuts
+/lib/svgo-node.test.js,AnonymousTest,"{'startLine':9,'endLine':23}","test('should work', () => {
+    const svg = `
+      <?xml version=""1.0"" encoding=""utf-8""?>
+      <svg viewBox=""0 0 120 120"">
+        <desc>
+          Created with love
+        </desc>
+        <circle fill=""#ff0000"" cx=""60"" cy=""60"" r=""50""/>
+      </svg>
+    `;
+    const { data } = optimize(svg);
+    expect(data).toBe(
+      '<svg viewBox=""0 0 120 120""><circle cx=""60"" cy=""60"" r=""50"" fill=""red""/></svg>',
+    );
+  })",9,23,snuts
+/lib/svgo-node.test.js,AnonymousTest,"{'startLine':63,'endLine':77}","test('should work', () => {
+    const svg = `
+      <?xml version=""1.0"" encoding=""utf-8""?>
+      <svg viewBox=""0 0 120 120"">
+        <desc>
+          Created with love
+        </desc>
+        <circle fill=""#ff0000"" cx=""60"" cy=""60"" r=""50""/>
+      </svg>
+    `;
+    const { data } = optimize(svg);
+    expect(data).toBe(
+      '<svg viewBox=""0 0 120 120""><circle cx=""60"" cy=""60"" r=""50"" fill=""red""/></svg>',
+    );
+  })",63,77,snuts
+/lib/svgo-node.test.js,IdenticalTestDescription,"{'startLine':63,'endLine':77}","test('should work', () => {
+    const svg = `
+      <?xml version=""1.0"" encoding=""utf-8""?>
+      <svg viewBox=""0 0 120 120"">
+        <desc>
+          Created with love
+        </desc>
+        <circle fill=""#ff0000"" cx=""60"" cy=""60"" r=""50""/>
+      </svg>
+    `;
+    const { data } = optimize(svg);
+    expect(data).toBe(
+      '<svg viewBox=""0 0 120 120""><circle cx=""60"" cy=""60"" r=""50"" fill=""red""/></svg>',
+    );
+  })",63,77,snuts
+/lib/svgo-node.test.js,IdenticalTestDescription,"{'startLine':79,'endLine':95}","test('should respect config', () => {
+    const svg = `
+      <?xml version=""1.0"" encoding=""utf-8""?>
+      <svg viewBox=""0 0 120 120"">
+        <desc>
+          Created with love
+        </desc>
+        <circle fill=""#ff0000"" cx=""60"" cy=""60"" r=""50""/>
+      </svg>
+    `;
+    const { data } = optimize(svg, {
+      js2svg: { pretty: true, indent: 2 },
+    });
+    expect(data).toBe(
+      '<svg viewBox=""0 0 120 120"">\r\n  <circle cx=""60"" cy=""60"" r=""50"" fill=""red""/>\r\n</svg>\r\n',
+    );
+  })",79,95,snuts
+/lib/svgo-node.test.js,IdenticalTestDescription,"{'startLine':97,'endLine':113}","test('should respect line-ending config', () => {
+    const svg = `
+      <?xml version=""1.0"" encoding=""utf-8""?>
+      <svg viewBox=""0 0 120 120"">
+        <desc>
+          Created with love
+        </desc>
+        <circle fill=""#ff0000"" cx=""60"" cy=""60"" r=""50""/>
+      </svg>
+    `;
+    const { data } = optimize(svg, {
+      js2svg: { eol: 'lf', pretty: true, indent: 2 },
+    });
+    expect(data).toBe(
+      '<svg viewBox=""0 0 120 120"">\n  <circle cx=""60"" cy=""60"" r=""50"" fill=""red""/>\n</svg>\n',
+    );
+  })",97,113,snuts
+/lib/style.test.js,AnonymousTest,"{'startLine':28,'endLine':85}","it('collects styles', () => {
+  const root = parseSvg(`
+      <svg>
+        <rect id=""class"" class=""a"" />
+        <rect id=""two-classes"" class=""b a"" />
+        <rect id=""attribute"" fill=""purple"" />
+        <rect id=""inline-style"" style=""fill: grey;"" />
+        <g fill=""yellow"">
+          <rect id=""inheritance"" />
+          <g style=""fill: blue;"">
+            <g>
+              <rect id=""nested-inheritance"" />
+            </g>
+          </g>
+        </g>
+        <style>
+          .a { fill: red; }
+        </style>
+        <style>
+          <![CDATA[
+            .b { fill: green; stroke: black; }
+          ]]>
+        </style>
+      </svg>
+    `);
+  const stylesheet = collectStylesheet(root);
+  expect(computeStyle(stylesheet, getElementById(root, 'class'))).toStrictEqual(
+    {
+      fill: { type: 'static', inherited: false, value: 'red' },
+    },
+  );
+  expect(
+    computeStyle(stylesheet, getElementById(root, 'two-classes')),
+  ).toStrictEqual({
+    fill: { type: 'static', inherited: false, value: 'green' },
+    stroke: { type: 'static', inherited: false, value: 'black' },
+  });
+  expect(
+    computeStyle(stylesheet, getElementById(root, 'attribute')),
+  ).toStrictEqual({
+    fill: { type: 'static', inherited: false, value: 'purple' },
+  });
+  expect(
+    computeStyle(stylesheet, getElementById(root, 'inline-style')),
+  ).toStrictEqual({
+    fill: { type: 'static', inherited: false, value: 'grey' },
+  });
+  expect(
+    computeStyle(stylesheet, getElementById(root, 'inheritance')),
+  ).toStrictEqual({
+    fill: { type: 'static', inherited: true, value: 'yellow' },
+  });
+  expect(
+    computeStyle(stylesheet, getElementById(root, 'nested-inheritance')),
+  ).toStrictEqual({
+    fill: { type: 'static', inherited: true, value: 'blue' },
+  });
+})",28,85,snuts
+/test/svg2js/_index.test.js,AnonymousTest,"{'startLine':26,'endLine':28}","it('should exist', () => {
+        expect(root).toStrictEqual(expect.anything());
+      })",26,28,snuts
+/test/svg2js/_index.test.js,AnonymousTest,"{'startLine':87,'endLine':89}","it('should exist', () => {
+        expect(root.children[3].children).toStrictEqual(expect.anything());
+      })",87,89,snuts
+/test/svg2js/_index.test.js,IdenticalTestDescription,"{'startLine':87,'endLine':89}","it('should exist', () => {
+        expect(root.children[3].children).toStrictEqual(expect.anything());
+      })",87,89,snuts
+/test/svg2js/_index.test.js,IdenticalTestDescription,"{'startLine':91,'endLine':93}","it('should be an instance of Array', () => {
+        expect(root.children[3].children).toBeInstanceOf(Array);
+      })",91,93,snuts
+/test/coa/_index.test.js,ConditionalTestLogic,"{'startLine':126,'endLine':128}","it('should show message when the folder is empty', async () => {
+      const emptyFolderPath = path.resolve(__dirname, 'testSvgEmpty');
+      if (!fs.existsSync(emptyFolderPath)) {
+        await fs.promises.mkdir(emptyFolderPath);
+      }
+      await expect(
+        runProgram(['--folder', emptyFolderPath, '--quiet']),
+      ).rejects.toThrow(/No SVG files/);
+    })",124,132,snuts
+/test/coa/_index.test.js,NonFunctionalStatement,"{'startLine':25,'endLine':25}",Unknown,,,snuts
+/test/svg2js/_index.test.js,Conditional Test Logic,"{'line': 16, 'column': 8, 'index': 443}","beforeAll((done) => {
+      fs.readFile(filepath, 'utf8', (err, data) => {
+        if (err) {
+          throw err;
+        }
+
+        root = parseSvg(data);
+        done();
+      });
+    })",14,23,steel
+/test/svg2js/_index.test.js,Magic Number,"{'line': 45, 'column': 43, 'index': 1145}","it('should have length 4', () => {
+        expect(root.children).toHaveLength(4);
+      })",44,46,steel
+/test/svg2js/_index.test.js,Magic Number,"{'line': 96, 'column': 55, 'index': 2585}","it('should eventually have length 3', () => {
+        expect(root.children[3].children).toHaveLength(3);
+      })",95,97,steel
+/test/plugins/_index.test.js,Conditional Test Logic,"{'line': 12, 'column': 2, 'index': 362}","describe('plugins tests', function () {
+  for (let file of files) {
+    const match = file.match(regFilename);
+    let index;
+    /** @type {any} */
+    let name;
+
+    if (match) {
+      name = match[1];
+      index = match[2];
+
+      file = path.resolve(__dirname, file);
+
+      it(name + '.' + index, () => {
+        return readFile(file).then(function (data) {
+          // remove description
+          const items = normalize(data).split(/\s*===\s*/);
+          const test = items.length === 2 ? items[1] : items[0];
+          // extract test case
+          const [original, should, params] = test.split(/\s*@@@\s*/);
+          /** @type {Exclude<import('../../lib/types.js').PluginConfig, import('../../lib/types.js').CustomPlugin>} */
+          const plugin = {
+            name,
+            params: params ? JSON.parse(params) : {},
+          };
+          let lastResultData = original;
+          // test plugins idempotence
+          const exclude = ['addAttributesToSVGElement', 'convertTransform'];
+          const multipass = exclude.includes(name) ? 1 : 2;
+          for (let i = 0; i < multipass; i += 1) {
+            const result = optimize(lastResultData, {
+              path: file,
+              plugins: [plugin],
+              js2svg: { pretty: true },
+            });
+            lastResultData = result.data;
+            //FIXME: results.data has a '\n' at the end while it should not
+            expect(normalize(result.data)).toStrictEqual(should);
+          }
+        });
+      });
+    }
+  }
+})",11,54,steel
+/test/plugins/_index.test.js,Conditional Test Logic,"{'line': 18, 'column': 4, 'index': 488}","describe('plugins tests', function () {
+  for (let file of files) {
+    const match = file.match(regFilename);
+    let index;
+    /** @type {any} */
+    let name;
+
+    if (match) {
+      name = match[1];
+      index = match[2];
+
+      file = path.resolve(__dirname, file);
+
+      it(name + '.' + index, () => {
+        return readFile(file).then(function (data) {
+          // remove description
+          const items = normalize(data).split(/\s*===\s*/);
+          const test = items.length === 2 ? items[1] : items[0];
+          // extract test case
+          const [original, should, params] = test.split(/\s*@@@\s*/);
+          /** @type {Exclude<import('../../lib/types.js').PluginConfig, import('../../lib/types.js').CustomPlugin>} */
+          const plugin = {
+            name,
+            params: params ? JSON.parse(params) : {},
+          };
+          let lastResultData = original;
+          // test plugins idempotence
+          const exclude = ['addAttributesToSVGElement', 'convertTransform'];
+          const multipass = exclude.includes(name) ? 1 : 2;
+          for (let i = 0; i < multipass; i += 1) {
+            const result = optimize(lastResultData, {
+              path: file,
+              plugins: [plugin],
+              js2svg: { pretty: true },
+            });
+            lastResultData = result.data;
+            //FIXME: results.data has a '\n' at the end while it should not
+            expect(normalize(result.data)).toStrictEqual(should);
+          }
+        });
+      });
+    }
+  }
+})",11,54,steel
+/test/plugins/_index.test.js,Conditional Test Logic,"{'line': 40, 'column': 10, 'index': 1399}","it(name + '.' + index, () => {
+        return readFile(file).then(function (data) {
+          // remove description
+          const items = normalize(data).split(/\s*===\s*/);
+          const test = items.length === 2 ? items[1] : items[0];
+          // extract test case
+          const [original, should, params] = test.split(/\s*@@@\s*/);
+          /** @type {Exclude<import('../../lib/types.js').PluginConfig, import('../../lib/types.js').CustomPlugin>} */
+          const plugin = {
+            name,
+            params: params ? JSON.parse(params) : {},
+          };
+          let lastResultData = original;
+          // test plugins idempotence
+          const exclude = ['addAttributesToSVGElement', 'convertTransform'];
+          const multipass = exclude.includes(name) ? 1 : 2;
+          for (let i = 0; i < multipass; i += 1) {
+            const result = optimize(lastResultData, {
+              path: file,
+              plugins: [plugin],
+              js2svg: { pretty: true },
+            });
+            lastResultData = result.data;
+            //FIXME: results.data has a '\n' at the end while it should not
+            expect(normalize(result.data)).toStrictEqual(should);
+          }
+        });
+      })",24,51,steel
+/test/plugins/_collections.test.js,Conditional Test Logic,"{'line': 6, 'column': 4, 'index': 204}","describe('elems.deprecated', () => {
+  Object.entries(elems).forEach(([tagName, elemConfig]) => {
+    const deprecated = elemConfig.deprecated;
+    if (!deprecated) {
+      return;
+    }
+
+    test(`${tagName} deprecated attributes are all known attributes`, () => {
+      if (deprecated.safe) {
+        deprecated.safe.forEach((attr) => {
+          expect(elemConfig.attrs).toContain(attr);
+        });
+      }
+
+      if (deprecated.unsafe) {
+        deprecated.unsafe.forEach((attr) => {
+          expect(elemConfig.attrs).toContain(attr);
+        });
+      }
+    });
+  });
+})",3,24,steel
+/test/plugins/_collections.test.js,Conditional Test Logic,"{'line': 11, 'column': 6, 'index': 328}","test(`${tagName} deprecated attributes are all known attributes`, () => {
+      if (deprecated.safe) {
+        deprecated.safe.forEach((attr) => {
+          expect(elemConfig.attrs).toContain(attr);
+        });
+      }
+
+      if (deprecated.unsafe) {
+        deprecated.unsafe.forEach((attr) => {
+          expect(elemConfig.attrs).toContain(attr);
+        });
+      }
+    })",10,22,steel
+/test/plugins/_collections.test.js,Conditional Test Logic,"{'line': 17, 'column': 6, 'index': 474}","test(`${tagName} deprecated attributes are all known attributes`, () => {
+      if (deprecated.safe) {
+        deprecated.safe.forEach((attr) => {
+          expect(elemConfig.attrs).toContain(attr);
+        });
+      }
+
+      if (deprecated.unsafe) {
+        deprecated.unsafe.forEach((attr) => {
+          expect(elemConfig.attrs).toContain(attr);
+        });
+      }
+    })",10,22,steel
+/test/coa/_index.test.js,Conditional Test Logic,"{'line': 126, 'column': 6, 'index': 3753}","it('should show message when the folder is empty', async () => {
+      const emptyFolderPath = path.resolve(__dirname, 'testSvgEmpty');
+      if (!fs.existsSync(emptyFolderPath)) {
+        await fs.promises.mkdir(emptyFolderPath);
+      }
+      await expect(
+        runProgram(['--folder', emptyFolderPath, '--quiet']),
+      ).rejects.toThrow(/No SVG files/);
+    })",124,132,steel
+/test/coa/_index.test.js,Duplicate Assert,"{'line': 99, 'column': 4, 'index': 2788}","it('should optimize several files', async () => {
+    const initWeight = calcFolderSvgWeight(svgFolderPath);
+    await runProgram([
+      '--input',
+      ...svgFiles,
+      '--output',
+      tempFolder,
+      '--quiet',
+    ]);
+    const optimizedWeight = calcFolderSvgWeight(tempFolder);
+    expect(optimizedWeight).toBeGreaterThan(0);
+    expect(optimizedWeight).toBeLessThanOrEqual(initWeight);
+    await fs.promises.rm('temp.svg', { force: true });
+  })",89,102,steel
+/test/coa/_index.test.js,Duplicate Assert,"{'line': 100, 'column': 4, 'index': 2836}","it('should optimize several files', async () => {
+    const initWeight = calcFolderSvgWeight(svgFolderPath);
+    await runProgram([
+      '--input',
+      ...svgFiles,
+      '--output',
+      tempFolder,
+      '--quiet',
+    ]);
+    const optimizedWeight = calcFolderSvgWeight(tempFolder);
+    expect(optimizedWeight).toBeGreaterThan(0);
+    expect(optimizedWeight).toBeLessThanOrEqual(initWeight);
+    await fs.promises.rm('temp.svg', { force: true });
+  })",89,102,steel
+/test/coa/_index.test.js,Magic Number,"{'line': 70, 'column': 44, 'index': 1947}","it('should optimize folder', async () => {
+    const initWeight = calcFolderSvgWeight(svgFolderPath);
+    await runProgram([
+      '--folder',
+      svgFolderPath,
+      '--output',
+      tempFolder,
+      '--quiet',
+    ]);
+    const optimizedWeight = calcFolderSvgWeight(svgFolderPath);
+    expect(optimizedWeight).toBeGreaterThan(0);
+    expect(initWeight).toBeLessThanOrEqual(optimizedWeight);
+  })",60,72,steel
+/test/coa/_index.test.js,Magic Number,"{'line': 85, 'column': 44, 'index': 2420}","it('should optimize folder recursively', async () => {
+    const initWeight = calcFolderSvgWeight(svgFolderPathRecursively);
+    await runProgram([
+      '--folder',
+      svgFolderPathRecursively,
+      '--output',
+      tempFolder,
+      '--quiet',
+      '--recursive',
+    ]);
+    const optimizedWeight = calcFolderSvgWeight(svgFolderPathRecursively);
+    expect(optimizedWeight).toBeGreaterThan(0);
+    expect(initWeight).toBeLessThanOrEqual(optimizedWeight);
+  })",74,87,steel
+/test/coa/_index.test.js,Magic Number,"{'line': 99, 'column': 44, 'index': 2828}","it('should optimize several files', async () => {
+    const initWeight = calcFolderSvgWeight(svgFolderPath);
+    await runProgram([
+      '--input',
+      ...svgFiles,
+      '--output',
+      tempFolder,
+      '--quiet',
+    ]);
+    const optimizedWeight = calcFolderSvgWeight(tempFolder);
+    expect(optimizedWeight).toBeGreaterThan(0);
+    expect(optimizedWeight).toBeLessThanOrEqual(initWeight);
+    await fs.promises.rm('temp.svg', { force: true });
+  })",89,102,steel
+/test/coa/_index.test.js,Mystery Guest,"{'column': 11, 'line': 126}","it('should show message when the folder is empty', async () => {
+      const emptyFolderPath = path.resolve(__dirname, 'testSvgEmpty');
+      if (!fs.existsSync(emptyFolderPath)) {
+        await fs.promises.mkdir(emptyFolderPath);
+      }
+      await expect(
+        runProgram(['--folder', emptyFolderPath, '--quiet']),
+      ).rejects.toThrow(/No SVG files/);
+    })",124,132,steel
+/lib/style.test.js,Conditional Test Logic,"{'line': 16, 'column': 8, 'index': 446}",Unknown,,,steel
+/lib/style.test.js,Conditional Test Logic,"{'line': 22, 'column': 2, 'index': 539}",Unknown,,,steel
