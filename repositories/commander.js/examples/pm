@@ -1,0 +1,36 @@
+#!/usr/bin/env node
+
+const { Command } = require('commander');
+const program = new Command();
+
+// Example of subcommands which are implemented as stand-alone executable files.
+//
+// When `.command()` is invoked with a description argument,
+// this tells Commander that you're going to use a stand-alone executable for the subcommand.
+//
+// Only `install` and `list` are implemented, see pm-install and pm-list.js
+
+program
+  .name('pm')
+  .version('0.0.1')
+  .description('Fake package manager')
+  .command('install [package-names...]', 'install one or more packages')
+  .alias('i')
+  .command('search [query]', 'search with optional query')
+  .alias('s')
+  .command('update', 'update installed packages', {
+    executableFile: 'myUpdateSubCommand',
+  })
+  .command('list', 'list packages installed', { isDefault: true });
+
+program.parse(process.argv);
+
+// Try the following on macOS or Linux:
+//    ./examples/pm
+//
+// Try the following:
+//    node pm
+//    node pm help install
+//    node pm install -h
+//    node pm install foo bar baz
+//    node pm install foo bar baz --force
