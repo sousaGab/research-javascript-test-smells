@@ -26,10 +26,10 @@ export function processData(detections: Detection[]): Report {
     project: basename(process.cwd()),
     version: version[lastLine],
     testSuites: detections.length,
-    testCases: data.map(item => item.testCases).reduce((sum, val) => sum + val),
+    testCases: data.map(item => item.testCases).reduce((sum, val) => sum + val, 0),
     smelledTestSuites: data.length,
     smelledTestCases: 0,
-    smells: smelledTestSuites.flatMap(item => item.smells).reduce((acc, cur) => acc + cur),
+    smells: smelledTestSuites.flatMap(item => item.smells).reduce((acc, cur) => acc + cur, 0),
     smelledFiles: data
   }
 }
