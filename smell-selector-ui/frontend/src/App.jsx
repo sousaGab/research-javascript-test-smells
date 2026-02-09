@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSmells } from './hooks/useSmells';
 import { FilterBar } from './components/FilterBar/FilterBar';
 import { Pagination } from './components/Pagination/Pagination';
@@ -33,6 +33,60 @@ function App() {
     setSelectedSmellId(smell.id);
     await loadSmellDetail(smell.id);
   };
+
+  // Keyboard navigation: Arrow left/right to navigate between smells
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Only navigate if a smell is selected and we're not typing in an input
+      if (!selectedSmellId ||
+          e.target.tagName === 'INPUT' ||
+          e.target.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      const currentIndex = smells.findIndex(s => s.id === selectedSmellId);
+      if (currentIndex === -1) return;
+
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        // Next smell
+        if (currentIndex < smells.length - 1) {
+          const nextSmell = smells[currentIndex + 1];
+          handleSmellClick(nextSmell);
+        } else if (page < totalPages) {
+          // Last smell of page, go to next page
+          setPage(page + 1);
+        }
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        // Previous smell
+        if (currentIndex > 0) {
+          const prevSmell = smells[currentIndex - 1];
+          handleSmellClick(prevSmell);
+        } else if (page > 1) {
+          // First smell of page, go to previous page
+          setPage(page - 1);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedSmellId, smells, page, totalPages]);
+
+  // When page changes and we're navigating, select first/last smell
+  useEffect(() => {
+    if (smells.length > 0 && selectedSmellId) {
+      // Check if selected smell is in current page
+      const isInCurrentPage = smells.some(s => s.id === selectedSmellId);
+
+      if (!isInCurrentPage) {
+        // If smell is not in current page, select first smell
+        // This happens when navigating to next/prev page
+        handleSmellClick(smells[0]);
+      }
+    }
+  }, [smells]);
 
   return (
     <div className="app">
@@ -114,7 +168,17 @@ function App() {
             <div className="smell-detail">
               {selectedSmell ? (
                 <>
-                  <h2>Smell Detail</h2>
+                  <h2>
+                    Smell Detail
+                    <span style={{
+                      fontSize: '13px',
+                      color: '#6b7280',
+                      fontWeight: 'normal',
+                      marginLeft: '12px'
+                    }}>
+                      ← → Navigate
+                    </span>
+                  </h2>
                   <div className="detail-content">
                     <div className="detail-info">
                       <p><strong>Type:</strong> {selectedSmell.smell_type}</p>
