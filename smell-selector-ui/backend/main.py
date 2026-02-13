@@ -717,6 +717,7 @@ async def export_selected_smells():
         # Query selected smells with all details
         query = text("""
             SELECT
+                ss.id as smell_id,
                 r.name as repository,
                 f.path as file_path,
                 ds.smell_type,
@@ -750,6 +751,7 @@ async def export_selected_smells():
 
         # Write header
         writer.writerow([
+            'smell_id',
             'repository',
             'file_path',
             'smell_type',
@@ -767,18 +769,19 @@ async def export_selected_smells():
         # Write data rows
         for row in results:
             writer.writerow([
-                row[0],  # repository
-                row[1],  # file_path
-                row[2],  # smell_type
-                row[3],  # line_numbers
-                row[4] or '',  # severity
-                row[6],  # detection_tool
-                row[7],  # detected_at
-                row[8],  # selected_at
-                row[9] or '',  # annotations
-                row[10] or 0,  # priority
-                row[11] or '',  # tags
-                row[5] or ''  # code_snippet (preserve line breaks)
+                row[0],  # smell_id
+                row[1],  # repository
+                row[2],  # file_path
+                row[3],  # smell_type
+                row[4],  # line_numbers
+                row[5] or '',  # severity
+                row[7],  # detection_tool
+                row[8],  # detected_at
+                row[9],  # selected_at
+                row[10] or '',  # annotations
+                row[11] or 0,  # priority
+                row[12] or '',  # tags
+                row[6] or ''  # code_snippet (preserve line breaks)
             ])
 
         # Prepare response
