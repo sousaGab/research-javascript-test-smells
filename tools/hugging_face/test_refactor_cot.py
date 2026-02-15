@@ -39,8 +39,6 @@ def create_chain_of_thought_prompt(input_data):
         ### Refactoring Guidance
         {refactoring_guidance}
 
-        ### Smell Location
-        {smell_location}
 
         ### Original Test Code
         ```javascript
