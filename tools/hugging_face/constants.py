@@ -80,7 +80,6 @@ TEST_SMELL_CATALOG = {
             "Avoid generic verbs such as 'handle', 'work', or 'process' without context"
         ]
     },
-
     CONDITIONAL_TEST_LOGIC: {
         "definition": (
             "Occurs when a test case contains control-flow constructs such as conditionals "
@@ -186,7 +185,67 @@ TEST_SMELL_CATALOG = {
             "Extract shared checks into helper functions when reused across tests"
         ]
     },
-
+    EXCEPTION_HANDLING: {
+        "definition": (
+            "The Exception Handling test smell occurs when a test method uses manual exception handling constructs "
+            "such as try/catch blocks or explicit throw statements to verify that a production method throws an exception, "
+            "instead of using the testing framework's built‑in assertions for exception verification."
+        ),
+        "consequences": (
+            "Manual exception handling introduces unnecessary complexity, obscures test intent, and couples the test logic "
+            "with control‑flow mechanisms. This reduces readability and maintainability, and can lead to false positives "
+            "if the throw statement is reached unexpectedly."
+        ),
+        "detection": (
+            "Detection identifies the presence of try/catch blocks or throw statements within test functions. "
+            "In JavaScript, this includes TryStatement and ThrowStatement nodes in the abstract syntax tree of test methods."
+        ),
+        "examples": [
+            {
+                "smelly": """
+                    it('should reject invalid email format', async () => {
+                        const user = new User();
+                        try {
+                            await user.setEmail('not-an-email');
+                            throw new Error('Expected validation error');
+                        } catch (error) {
+                            expect(error.message).toContain('Invalid email format');
+                        }
+                    });
+                """,
+                "refactored": """
+                    it('should reject invalid email format', async () => {
+                        const user = new User();
+                        await expect(user.setEmail('not-an-email')).rejects.toThrow('Invalid email format');
+                    });
+                """
+            },
+            {
+                "smelly": """
+                    it('should throw error for division by zero', () => {
+                        const calculator = new Calculator();
+                        try {
+                            calculator.divide(10, 0);
+                            throw new Error('Expected division by zero error');
+                        } catch (error) {
+                            expect(error.message).toBe('Cannot divide by zero');
+                        }
+                    });
+                """,
+                "refactored": """
+                    it('should throw error for division by zero', () => {
+                        const calculator = new Calculator();
+                        expect(() => calculator.divide(10, 0)).toThrow('Cannot divide by zero');
+                    });
+                """
+            }
+        ],
+        "refactoring_strategies": [
+            "Replace manual try/catch and throw constructs with framework‑specific declarative assertions.",
+            "In Jest, use rejects.toThrow for promises and toThrow for synchronous functions.",
+            "In JUnit, use assertThrows; in pytest, use pytest.raises."
+        ]
+    },
     MAGIC_NUMBER: {
         "definition": (
             "Occurs when literal values with implicit meaning are embedded directly in test code, "
@@ -235,7 +294,6 @@ TEST_SMELL_CATALOG = {
             "Avoid unexplained numeric values in assertions"
         ]
     },
-
     OVERCOMMENTED_TEST: {
         "definition": (
             "Occurs when a test contains excessive comments that restate obvious code behavior, "
@@ -293,7 +351,6 @@ TEST_SMELL_CATALOG = {
             "Reserve comments only for non-obvious rationale"
         ]
     },
-
     SLEEPY_TEST: {
         "definition": (
             "Occurs when a test relies on fixed time delays to wait for asynchronous behavior, "
@@ -305,28 +362,52 @@ TEST_SMELL_CATALOG = {
         "detection": (
             "Detected by identifying explicit sleep calls or setTimeout-based delays in tests."
         ),
-        "example": """
-        it('sends notification', async () => {
-          user.updateProfile({ name: 'John' });
-          await new Promise(r => setTimeout(r, 2000));
-          expect(notification.sent).toHaveBeenCalled();
-        });
-        """,
-        "refactored_example": """
-        it('sends notification', async () => {
-          const promise = waitForNotification();
-          user.updateProfile({ name: 'John' });
-          await promise;
-          expect(notification.sent).toHaveBeenCalled();
-        });
-        """,
+        "examples": [
+            {
+            "smelly": """
+                it('sends notification', async () => {
+                  user.updateProfile({ name: 'John' });
+                  await new Promise(r => setTimeout(r, 2000));
+                  expect(notification.sent).toHaveBeenCalled();
+                });
+            """,
+            "refactored": """
+                it('sends notification', async () => {
+                  const promise = waitForNotification();
+                  user.updateProfile({ name: 'John' });
+                  await promise;
+                  expect(notification.sent).toHaveBeenCalled();
+                });
+            """
+            },
+            {
+            "smelly": """
+                test('updates user status after async job', async () => {
+                    startBackgroundJob();
+                
+                    // waits blindly for the job to finish
+                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    
+                    const user = getUserById(1);
+                    expect(user.status).toBe('updated');
+                });
+            """,
+            "refactored": """
+                test('updates user status after async job completion', async () => {
+                    await startBackgroundJobAndWait();
+                
+                    const user = getUserById(1);
+                    expect(user.status).toBe('updated');
+                });
+            """
+            },
+        ],
         "refactoring_strategies": [
             "Eliminate fixed delays",
             "Synchronize on events or promises",
             "Use fake timers when appropriate"
         ]
     },
-
     SUBOPTIMAL_ASSERTION: {
         "definition": (
             "Occurs when tests use generic or low-level assertions instead of expressive, "
@@ -338,24 +419,41 @@ TEST_SMELL_CATALOG = {
         "detection": (
             "Detected by identifying overly generic assertions such as truthy/falsy checks or broad equality comparisons."
         ),
-        "example": """
-        it('validates order', () => {
-          expect(order.isValid()).toBe(true);
-        });
-        """,
-        "refactored_example": """
-        it('validates order with items and payment', () => {
-          expect(order.items.length).toBeGreaterThan(0);
-          expect(order.paymentStatus).toBe('PAID');
-        });
-        """,
+        "examples": [
+            {
+            "smelly": """
+                it('validates order', () => {
+                    expect(order.isValid()).toBe(true);
+                });
+            """,
+            "refactored": """
+                it('validates order with items and payment', () => {
+                    expect(order.items.length).toBeGreaterThan(0);
+                    expect(order.paymentStatus).toBe('PAID');
+                });
+            """
+            },
+            {
+            "smelly": """
+                test('user is valid', () => {
+                  const user = getUser();
+                  expect(user).toBeTruthy();
+                });
+            """,
+            "refactored": """
+                test('user has a valid id', () => {
+                  const user = getUser();
+                  expect(user.id).toBeDefined();
+                });
+            """
+            },
+        ],
         "refactoring_strategies": [
             "Replace generic assertions with behavior-specific checks",
             "Assert on relevant properties and outcomes",
             "Prefer expressive matchers"
         ]
     },
-
     UNKNOWN_TEST: {
         "definition": (
             "Occurs when a test contains no assertions, passing regardless of system behavior as long as no exception is thrown."
@@ -366,25 +464,42 @@ TEST_SMELL_CATALOG = {
         "detection": (
             "Detected by identifying test cases without any assertion statements."
         ),
-        "example": """
-        it('updates user profile', async () => {
-          await user.updateProfile({ name: 'John' });
-        });
-        """,
-        "refactored_example": """
-        it('updates user profile', async () => {
-          await user.updateProfile({ name: 'John' });
-          const updated = await User.findById(user.id);
-          expect(updated.name).toBe('John');
-        });
-        """,
+        "examples": [
+            {
+            "smelly": """
+                it('updates user profile', async () => {
+                    await user.updateProfile({ name: 'John' });
+                }); 
+            """,
+            "refactored": """
+                it('updates user profile', async () => {
+                    await user.updateProfile({ name: 'John' });
+                    const updated = await User.findById(user.id);
+                    expect(updated.name).toBe('John');
+                });
+            """
+            },
+            {
+            "smelly": """
+                test('test1', () => {
+                    const total = calculateTotal([10, 20]);
+                    expect(total).toBe(30);
+                });
+            """,
+            "refactored": """
+                test('calculates total price for a list of item values', () => {
+                    const total = calculateTotal([10, 20]);
+                    expect(total).toBe(30);
+                });
+            """
+            },
+        ],
         "refactoring_strategies": [
             "Introduce explicit assertions",
             "Verify observable state or side effects",
             "Ensure the test validates intended behavior"
         ]
     },
-
     VERBOSE_TEST: {
         "definition": (
             "Occurs when a test method contains an excessive number of statements relative to a single testing objective, "
@@ -396,16 +511,175 @@ TEST_SMELL_CATALOG = {
         "detection": (
             "Detected using size-based metrics such as line count or number of statements in test functions."
         ),
-        "example": """
-        it('processes order', async () => {
-          // long setup, execution, and assertions
-        });
-        """,
-        "refactored_example": """
-        it('calculates order subtotal', () => {
-          expect(order.subtotal).toBe(1359.97);
-        });
-        """,
+        "examples": [
+            {
+            "smelly": """
+                it('should process order correctly', async () => {
+                    // Setup - multiple objects and configurations
+                    const product1 = new Product('P001', 'Laptop', 1299.99);
+                    const product2 = new Product('P002', 'Mouse', 29.99);
+                    const customer = new Customer('C001', 'john@example.com');
+                    const address = new Address('123 Main St', 'New York', '10001');
+                    const payment = new Payment('credit_card', '4242424242424242');
+                    
+                    // Action - multiple operations
+                    const order = new Order('ORD-001', customer, address);
+                    order.addItem(product1, 1);
+                    order.addItem(product2, 2);
+                    order.applyDiscount('SUMMER2026', 0.1);
+                    await order.calculateTax('NY');
+                    await order.processPayment(payment);
+                    await inventory.reserve(order);
+                    await notification.send(order, customer);
+                    
+                    // Assertions - multiple verifications
+                    expect(order.subtotal).toBe(1359.97);
+                    expect(order.discount).toBe(135.99);
+                    expect(order.tax).toBe(97.58);
+                    expect(order.total).toBe(1321.56);
+                    expect(order.status).toBe('PAID');
+                    expect(inventory.isReserved(product1.id)).toBe(true);
+                    expect(inventory.isReserved(product2.id)).toBe(true);
+                    expect(notification.sent).toHaveBeenCalledWith(
+                    customer.email,
+                    'order_confirmation'
+                    );
+                });
+            """,
+            "refactored": """
+                describe('Order processing', () => {
+                    let product1, product2, customer, address;
+                    
+                    beforeEach(() => {
+                        product1 = new Product('P001', 'Laptop', 1299.99);
+                        product2 = new Product('P002', 'Mouse', 29.99);
+                        customer = new Customer('C001', 'john@example.com');
+                        address = new Address('123 Main St', 'New York', '10001');
+                    });
+                    
+                    it('calculates subtotal correctly for multiple items', () => {
+                        const order = new Order('ORD-001', customer, address);
+                        order.addItem(product1, 1);
+                        order.addItem(product2, 2);
+                        
+                        expect(order.subtotal).toBe(1359.97);
+                    });
+                    
+                    it('applies percentage discount to subtotal', () => {
+                        const order = new Order('ORD-001', customer, address);
+                        order.addItem(product1, 1);
+                        order.addItem(product2, 2);
+                        order.applyDiscount('SUMMER2026', 0.1);
+                        
+                        expect(order.discount).toBe(135.99);
+                        expect(order.total).toBe(1321.56);
+                    });
+                    
+                    it('calculates tax based on jurisdiction', async () => {
+                        const order = new Order('ORD-001', customer, address);
+                        order.addItem(product1, 1);
+                        order.addItem(product2, 2);
+                        
+                        await order.calculateTax('NY');
+                        
+                        expect(order.tax).toBeCloseTo(97.58, 2);
+                    });
+                    
+                    it('reserves inventory items after successful payment', async () => {
+                        const order = new Order('ORD-001', customer, address);
+                        order.addItem(product1, 1);
+                        order.addItem(product2, 2);
+                        
+                        await order.processPayment(new Payment('credit_card'));
+                        
+                        expect(inventory.isReserved(product1.id)).toBe(true);
+                        expect(inventory.isReserved(product2.id)).toBe(true);
+                    });
+                });
+            """
+            },
+            {
+            "smelly": """
+                it('should register a new user successfully', async () => {
+                    // Setup test data
+                    const userData = {
+                        email: 'test@example.com',
+                        password: 'SecurePass123',
+                        name: 'John Doe',
+                        age: 30
+                    };
+                        
+                    // Step 1: Validate input
+                    const validationResult = validateUserInput(userData);
+                    expect(validationResult.isValid).toBe(true);
+                    expect(validationResult.errors).toHaveLength(0);
+                    
+                    // Step 2: Hash password
+                    const hashedPassword = await bcrypt.hash(userData.password, 10);
+                    expect(hashedPassword).not.toBe(userData.password);
+                    
+                    // Step 3: Save user to database
+                    const user = await User.create({ ...userData, password: hashedPassword });
+                    expect(user.id).toBeDefined();
+                    expect(user.email).toBe(userData.email);
+                    expect(user.createdAt).toBeInstanceOf(Date);
+                    
+                    // Step 4: Send welcome email
+                    const emailSent = await emailService.sendWelcomeEmail(user.email, user.name);
+                    expect(emailSent).toBe(true);
+                    
+                    // Step 5: Log registration event
+                    const log = await logger.getLastEntry();
+                    expect(log.type).toBe('USER_REGISTRATION');
+                    expect(log.userId).toBe(user.id);
+                });
+            """,
+            "refactored": """
+                describe('User registration', () => {
+                    const validUserData = {
+                        email: 'test@example.com',
+                        password: 'SecurePass123',
+                        name: 'John Doe',
+                        age: 30
+                    };
+
+                    it('validates correct user input', () => {
+                        const validationResult = validateUserInput(validUserData);
+                        expect(validationResult.isValid).toBe(true);
+                        expect(validationResult.errors).toHaveLength(0);
+                    });
+
+                    it('hashes the password before storing', async () => {
+                        const hashedPassword = await bcrypt.hash(validUserData.password, 10);
+                        expect(hashedPassword).not.toBe(validUserData.password);
+                        // Additional verification that bcrypt was called correctly can be done via spies
+                    });
+
+                    it('creates a user record in the database', async () => {
+                        // Mock dependencies if needed (e.g., bcrypt) to isolate database logic
+                        const user = await User.create(validUserData);
+                        expect(user.id).toBeDefined();
+                        expect(user.email).toBe(validUserData.email);
+                        expect(user.createdAt).toBeInstanceOf(Date);
+                    });
+
+                    it('sends a welcome email after successful registration', async () => {
+                        const user = await User.create(validUserData);
+                        const emailSent = await emailService.sendWelcomeEmail(user.email, user.name);
+                        expect(emailSent).toBe(true);
+                    });
+
+                    it('logs the registration event', async () => {
+                        const user = await User.create(validUserData);
+                        // Ensure logger is cleared before test or use a spy
+                        const log = await logger.getLastEntry();
+                        expect(log.type).toBe('USER_REGISTRATION');
+                        expect(log.userId).toBe(user.id);
+                    });
+                });
+            """
+            },
+        ],
         "refactoring_strategies": [
             "Decompose large tests into smaller focused ones",
             "Apply Extract Method to setup and assertions",
@@ -413,103 +687,3 @@ TEST_SMELL_CATALOG = {
         ]
     }
 }
-
-
----
-
-### Suboptimal Assertion — Additional Example
-
-**Smelly Example:**
-```javascript
-test('user is valid', () => {
-  const user = getUser();
-  expect(user).toBeTruthy();
-});
-```
-
-**Refactored Example:**
-```javascript
-test('user has a valid id', () => {
-  const user = getUser();
-  expect(user.id).toBeDefined();
-});
-```
-
----
-
-### Verbose Test — Additional Example
-
-**Smelly Example:**
-```javascript
-test('processes order', () => {
-  const order = createOrder();
-  expect(order.items.length).toBeGreaterThan(0);
-  expect(order.total).toBeGreaterThan(0);
-  expect(order.status).toBe('processed');
-});
-```
-
-**Refactored Example:**
-```javascript
-test('marks order as processed', () => {
-  const order = createOrder();
-  expect(order.status).toBe('processed');
-});
-```
-
----
-
-### Sensitive Equality — Additional Example
-
-**Smelly Example:**
-```javascript
-test('matches user object', () => {
-  expect(JSON.stringify(user)).toBe(JSON.stringify(expectedUser));
-});
-```
-
-**Refactored Example:**
-```javascript
-test('matches relevant user fields', () => {
-  expect(user.id).toBe(expectedUser.id);
-  expect(user.email).toBe(expectedUser.email);
-});
-```
-
----
-
-### Redundant Print — Additional Example
-
-**Smelly Example:**
-```javascript
-test('calculates total', () => {
-  console.log(total);
-  expect(total).toBe(42);
-});
-```
-
-**Refactored Example:**
-```javascript
-test('calculates total correctly', () => {
-  expect(total).toBe(42);
-});
-```
-
----
-
-### Lazy Test — Additional Example
-
-**Smelly Example:**
-```javascript
-test('runs without crashing', () => {
-  initialize();
-});
-```
-
-**Refactored Example:**
-```javascript
-test('initializes system state correctly', () => {
-  const state = initialize();
-  expect(state.isReady).toBe(true);
-});
-```
