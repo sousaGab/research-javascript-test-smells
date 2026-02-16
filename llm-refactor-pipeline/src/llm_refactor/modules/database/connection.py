@@ -211,6 +211,7 @@ class ResearchDB:
             'files',
             'detected_smells',
             'study_smells',
+            'smell_ui_metadata',
             'experiments',
             'smell_detection_results',
             'code_metrics',

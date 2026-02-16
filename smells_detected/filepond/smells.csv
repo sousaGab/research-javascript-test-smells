@@ -1,0 +1,1113 @@
+file,type,line,method,methodStart,methodEnd,source
+/src/js/__tests__/setFiles.test.js,SubOptimalAssert,"{'startLine':39,'endLine':39}","test('set single file object', () => {
+        pond.files = [TEXT_FILE_A];
+        expect(pond.getFiles().length).toBe(1);
+    })",37,40,snuts
+/src/js/__tests__/setFiles.test.js,SubOptimalAssert,"{'startLine':45,'endLine':45}","test('remove single file object', () => {
+        pond.files = [TEXT_FILE_A];
+        pond.files = [];
+        expect(pond.getFiles().length).toBe(0);
+    })",42,46,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,NonFunctionalStatement,"{'startLine':20,'endLine':20}","describe('reverting file uploads on remove', () => {
+
+    const server = {
+        remove: (source, load, error) => { }
+    };
+
+    let pond = null;
+    let item = null;
+
+    // Create 16k of random data to test chunked uploads
+    const fileData = [];
+    for (let i = 0; i < 16384; i++) {
+        fileData.push(Math.floor(Math.random() * 128));
+    }
+
+    const TEXT_FILE = new File(['Hello World!'], 'text_file_a.txt', { type: 'text/plain', lastModified: new Date() });
+    const TEXT_FILE_LARGE = new File(fileData, 'text_file_b.txt', { type: 'text/plain', lastModified: new Date() });
+
+    const setupPond = (options, file, fileType = 'input') => {
+        pond = create({
+            ...options,
+            allowMultiple: false,
+            server
+        });
+
+        // Set up an uploaded file with FileOrigin set to INPUT
+        pond.files = [{ source: file, options: { type: fileType } }];
+        item = pond.getFiles()[0];
+        // Mock the revert function on item so we can check it's been called
+        item.revert = jest.fn();
+
+        // enables draw loop, else it seems that filepond is hidden
+        Object.defineProperty(pond.element, 'offsetParent', {
+            get: jest.fn(() => 1)
+        });
+
+        return pond;
+    };
+
+    beforeEach(() => {
+        item = null;
+        if (pond) {
+            pond.destroy();
+        }
+    });
+
+    test('no revert on removal of standard upload with chunks disabled', done => {
+        pond = setupPond({ chunkUploads: false }, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).not.toHaveBeenCalled();
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+
+    });
+
+    test('no revert on removal of single chunk upload with chunks enabled', done => {
+        pond = setupPond({ chunkUploads: true, chunkSize: 1024 }, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).not.toHaveBeenCalled();
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    });
+
+    test('revert on removal of single chunk upload with chunkForce set', done => {
+        pond = setupPond({ chunkUploads: true, chunkForce: true, chunkSize: 1024}, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    });
+
+    test('revert on removal of chunked upload without chunkForce', done => {
+        pond = setupPond({ chunkUploads: true, chunkForce: false, chunkSize: 1024 }, TEXT_FILE_LARGE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    });
+
+    test('revert on removal of chunked upload with chunkForce set', () => {
+        pond = setupPond({ chunkUploads: true, chunkForce: true, chunkSize: 1024 }, TEXT_FILE_LARGE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    });
+
+    test('revert limbo with serverId set', () => {
+        const fileId = 'abcdefghijklmnop';
+        pond = setupPond({ chunkUploads: false }, fileId, 'limbo');
+        // Check that serverId is not null (anything accepts values that are not null or undefined)
+        expect(item.serverId).toBe(fileId);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    });
+})",17,132,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,SubOptimalAssert,"{'startLine':67,'endLine':67}","test('no revert on removal of standard upload with chunks disabled', done => {
+        pond = setupPond({ chunkUploads: false }, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).not.toHaveBeenCalled();
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+
+    })",63,73,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,SubOptimalAssert,"{'startLine':68,'endLine':68}","test('no revert on removal of standard upload with chunks disabled', done => {
+        pond = setupPond({ chunkUploads: false }, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).not.toHaveBeenCalled();
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+
+    })",63,73,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,SubOptimalAssert,"{'startLine':79,'endLine':79}","test('no revert on removal of single chunk upload with chunks enabled', done => {
+        pond = setupPond({ chunkUploads: true, chunkSize: 1024 }, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).not.toHaveBeenCalled();
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",75,84,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,SubOptimalAssert,"{'startLine':80,'endLine':80}","test('no revert on removal of single chunk upload with chunks enabled', done => {
+        pond = setupPond({ chunkUploads: true, chunkSize: 1024 }, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).not.toHaveBeenCalled();
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",75,84,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,SubOptimalAssert,"{'startLine':90,'endLine':90}","test('revert on removal of single chunk upload with chunkForce set', done => {
+        pond = setupPond({ chunkUploads: true, chunkForce: true, chunkSize: 1024}, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",86,95,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,SubOptimalAssert,"{'startLine':91,'endLine':91}","test('revert on removal of single chunk upload with chunkForce set', done => {
+        pond = setupPond({ chunkUploads: true, chunkForce: true, chunkSize: 1024}, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",86,95,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,SubOptimalAssert,"{'startLine':101,'endLine':101}","test('revert on removal of chunked upload without chunkForce', done => {
+        pond = setupPond({ chunkUploads: true, chunkForce: false, chunkSize: 1024 }, TEXT_FILE_LARGE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",97,106,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,SubOptimalAssert,"{'startLine':102,'endLine':102}","test('revert on removal of chunked upload without chunkForce', done => {
+        pond = setupPond({ chunkUploads: true, chunkForce: false, chunkSize: 1024 }, TEXT_FILE_LARGE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",97,106,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,SubOptimalAssert,"{'startLine':112,'endLine':112}","test('revert on removal of chunked upload with chunkForce set', () => {
+        pond = setupPond({ chunkUploads: true, chunkForce: true, chunkSize: 1024 }, TEXT_FILE_LARGE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",108,117,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,SubOptimalAssert,"{'startLine':113,'endLine':113}","test('revert on removal of chunked upload with chunkForce set', () => {
+        pond = setupPond({ chunkUploads: true, chunkForce: true, chunkSize: 1024 }, TEXT_FILE_LARGE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",108,117,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,SubOptimalAssert,"{'startLine':126,'endLine':126}","test('revert limbo with serverId set', () => {
+        const fileId = 'abcdefghijklmnop';
+        pond = setupPond({ chunkUploads: false }, fileId, 'limbo');
+        // Check that serverId is not null (anything accepts values that are not null or undefined)
+        expect(item.serverId).toBe(fileId);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",119,131,snuts
+/src/js/__tests__/revertUploadOnRemove.test.js,SubOptimalAssert,"{'startLine':127,'endLine':127}","test('revert limbo with serverId set', () => {
+        const fileId = 'abcdefghijklmnop';
+        pond = setupPond({ chunkUploads: false }, fileId, 'limbo');
+        // Check that serverId is not null (anything accepts values that are not null or undefined)
+        expect(item.serverId).toBe(fileId);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",119,131,snuts
+/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':56,'endLine':56}","test('remove file object', () => {
+        pond.files = [DUMMY_FILE];
+        pond.removeFile();
+        expect(pond.getFiles().length).toBe(0);
+    })",53,57,snuts
+/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':61,'endLine':61}","test('process, then remove file object', done => {
+        pond.onremovefile = (error, file) => {
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        };
+        pond.onaddfile = () => {
+            pond.processFile().then(() => {
+                pond.removeFile();
+            });
+        };
+        pond.files = [DUMMY_FILE];
+    })",59,71,snuts
+/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':62,'endLine':62}","test('process, then remove file object', done => {
+        pond.onremovefile = (error, file) => {
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        };
+        pond.onaddfile = () => {
+            pond.processFile().then(() => {
+                pond.removeFile();
+            });
+        };
+        pond.files = [DUMMY_FILE];
+    })",59,71,snuts
+/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':84,'endLine':84}","test('remove file object from client and from server', done => {
+        pond.server = {
+            ...server,
+            remove: (source, load, error) => {
+                setTimeout(() => {
+                    load();
+                }, 10);
+            },
+        };
+
+        pond.onremovefile = (error, file) => {
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        };
+
+        pond.onaddfile = () => {
+            pond.removeFile();
+        };
+
+        pond.files = [LOCAL_FILE];
+    })",73,94,snuts
+/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':85,'endLine':85}","test('remove file object from client and from server', done => {
+        pond.server = {
+            ...server,
+            remove: (source, load, error) => {
+                setTimeout(() => {
+                    load();
+                }, 10);
+            },
+        };
+
+        pond.onremovefile = (error, file) => {
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        };
+
+        pond.onaddfile = () => {
+            pond.removeFile();
+        };
+
+        pond.files = [LOCAL_FILE];
+    })",73,94,snuts
+/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':112,'endLine':112}","test('remove file object from client and fail to remove from server', done => {
+        pond.server = {
+            ...server,
+            remove: (source, load, error) => {
+                setTimeout(() => {
+                    error('fail');
+                }, 10);
+            },
+        };
+
+        const onremovefile = jest.fn();
+        pond.onremovefile = onremovefile;
+
+        pond.onremovefile = (error, file) => {
+            expect(error.type).toBe('error');
+            expect(onremovefile).not.toHaveBeenCalled();
+            expect(pond.getFiles().length).toBe(1);
+            done();
+        };
+
+        pond.onaddfile = () => {
+            pond.removeFile();
+        };
+
+        pond.files = [LOCAL_FILE];
+    })",96,121,snuts
+/src/js/__tests__/createInstance.test.js,AnonymousTest,"{'startLine':5,'endLine':7}","test('without parameters', () => {
+        expect(create()).toBeDefined();
+    })",5,7,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':45,'endLine':51}","test('oninit', done => {
+        createPond({
+            oninit: () => {
+                done();
+            },
+        });
+    })",45,51,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':53,'endLine':59}","test('onaddfilestart', done => {
+        createPond();
+        pond.onaddfilestart = () => {
+            done();
+        };
+        pond.addFile(data);
+    })",53,59,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':61,'endLine':67}","test('onaddfileprogress', done => {
+        createPond();
+        pond.onaddfilestart = () => {
+            done();
+        };
+        pond.addFile(data);
+    })",61,67,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':69,'endLine':75}","test('onaddfile', done => {
+        createPond();
+        pond.onaddfilestart = () => {
+            done();
+        };
+        pond.addFile(data);
+    })",69,75,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':77,'endLine':91}","test('onerror', done => {
+        // we don't want the console error about the server call failure to muddy up the console
+        const restoreConsole = mockConsole();
+
+        createPond({
+            server: './invalid-path'
+        });
+        pond.onerror = () => {
+            done();
+        };
+        pond.addFile(data);
+
+        // restore the console back to normal so that real issues aren't hidden
+        restoreConsole();
+    })",77,91,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':93,'endLine':100}","test('onremovefile', done => {
+        createPond();
+        pond.files = [data];
+        pond.onremovefile = () => {
+            done();
+        };
+        pond.removeFile();
+    })",93,100,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':102,'endLine':108}","test('onprocessfilestart', done => {
+        createPond();
+        pond.onprocessfilestart = () => {
+            done();
+        };
+        pond.files = [data];
+    })",102,108,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':110,'endLine':116}","test('onprocessfileprogress', done => {
+        createPond();
+        pond.onprocessfileprogress = () => {
+            done();
+        };
+        pond.files = [data];
+    })",110,116,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':118,'endLine':126}","test('onprocessfileabort', done => {
+        createPond();
+        pond.onprocessfileabort = () => {
+            done();
+        };
+        pond.files = [data];
+
+        pond.getFile().abortProcessing();
+    })",118,126,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':128,'endLine':134}","test('onprocessfile', done => {
+        createPond();
+        pond.onprocessfile = () => {
+            done();
+        };
+        pond.files = [data];
+    })",128,134,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':136,'endLine':146}","test('onprocessfiles', done => {
+        createPond();
+        pond.onprocessfiles = () => {
+            const result = pond
+                .getFiles()
+                .every(file => file.status === FileStatus.PROCESSING_COMPLETE);
+            expect(result).toBe(true);
+            done();
+        };
+        pond.files = [data, data];
+    })",136,146,snuts
+/src/js/__tests__/addFile.test.js,AnonymousTest,"{'startLine':20,'endLine':28}","test('add file', done => {
+        const data = new File(['Hello World!'], 'dummy.txt', {
+            type: 'text/plain',
+            lastModified: new Date(),
+        });
+        pond.addFile(data).then(item => {
+            done();
+        });
+    })",20,28,snuts
+/src/js/__tests__/addFile.test.js,AnonymousTest,"{'startLine':30,'endLine':35}","test('add blob', done => {
+        const data = new Blob(['Hello World!'], { type: 'text/plain' });
+        pond.addFile(data).then(item => {
+            done();
+        });
+    })",30,35,snuts
+/src/js/__tests__/setFiles.test.js,Conditional Test Logic,"{'line': 24, 'column': 8, 'index': 606}","beforeEach(() => {
+        if (pond) {
+            pond.destroy();
+        }
+        pond = create({
+            allowMultiple: true,
+        });
+
+        // enables draw loop, else it seems that filepond is hidden
+        Object.defineProperty(pond.element, 'offsetParent', {
+            get: jest.fn(() => 1),
+        });
+    })",23,35,steel
+/src/js/__tests__/setFiles.test.js,Magic Number,"{'line': 39, 'column': 44, 'index': 1035}","test('set single file object', () => {
+        pond.files = [TEXT_FILE_A];
+        expect(pond.getFiles().length).toBe(1);
+    })",37,40,steel
+/src/js/__tests__/setFiles.test.js,Magic Number,"{'line': 45, 'column': 44, 'index': 1199}","test('remove single file object', () => {
+        pond.files = [TEXT_FILE_A];
+        pond.files = [];
+        expect(pond.getFiles().length).toBe(0);
+    })",42,46,steel
+/src/js/__tests__/server.test.js,Conditional Test Logic,"{'line': 9, 'column': 8, 'index': 197}","beforeEach(() => {
+        // new pond for each test
+        if (pond) pond.destroy();
+        pond = create();
+
+        // enables draw loop, else it seems that filepond is hidden
+        Object.defineProperty(pond.element, 'offsetParent', {
+            get: jest.fn(() => 1),
+        });
+    })",7,16,steel
+/src/js/__tests__/revertUploadOnRemove.test.js,Conditional Test Logic,"{'line': 28, 'column': 4, 'index': 1120}","describe('reverting file uploads on remove', () => {
+
+    const server = {
+        remove: (source, load, error) => { }
+    };
+
+    let pond = null;
+    let item = null;
+
+    // Create 16k of random data to test chunked uploads
+    const fileData = [];
+    for (let i = 0; i < 16384; i++) {
+        fileData.push(Math.floor(Math.random() * 128));
+    }
+
+    const TEXT_FILE = new File(['Hello World!'], 'text_file_a.txt', { type: 'text/plain', lastModified: new Date() });
+    const TEXT_FILE_LARGE = new File(fileData, 'text_file_b.txt', { type: 'text/plain', lastModified: new Date() });
+
+    const setupPond = (options, file, fileType = 'input') => {
+        pond = create({
+            ...options,
+            allowMultiple: false,
+            server
+        });
+
+        // Set up an uploaded file with FileOrigin set to INPUT
+        pond.files = [{ source: file, options: { type: fileType } }];
+        item = pond.getFiles()[0];
+        // Mock the revert function on item so we can check it's been called
+        item.revert = jest.fn();
+
+        // enables draw loop, else it seems that filepond is hidden
+        Object.defineProperty(pond.element, 'offsetParent', {
+            get: jest.fn(() => 1)
+        });
+
+        return pond;
+    };
+
+    beforeEach(() => {
+        item = null;
+        if (pond) {
+            pond.destroy();
+        }
+    });
+
+    test('no revert on removal of standard upload with chunks disabled', done => {
+        pond = setupPond({ chunkUploads: false }, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).not.toHaveBeenCalled();
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+
+    });
+
+    test('no revert on removal of single chunk upload with chunks enabled', done => {
+        pond = setupPond({ chunkUploads: true, chunkSize: 1024 }, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).not.toHaveBeenCalled();
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    });
+
+    test('revert on removal of single chunk upload with chunkForce set', done => {
+        pond = setupPond({ chunkUploads: true, chunkForce: true, chunkSize: 1024}, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    });
+
+    test('revert on removal of chunked upload without chunkForce', done => {
+        pond = setupPond({ chunkUploads: true, chunkForce: false, chunkSize: 1024 }, TEXT_FILE_LARGE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    });
+
+    test('revert on removal of chunked upload with chunkForce set', () => {
+        pond = setupPond({ chunkUploads: true, chunkForce: true, chunkSize: 1024 }, TEXT_FILE_LARGE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    });
+
+    test('revert limbo with serverId set', () => {
+        const fileId = 'abcdefghijklmnop';
+        pond = setupPond({ chunkUploads: false }, fileId, 'limbo');
+        // Check that serverId is not null (anything accepts values that are not null or undefined)
+        expect(item.serverId).toBe(fileId);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    });
+})",17,132,steel
+/src/js/__tests__/revertUploadOnRemove.test.js,Conditional Test Logic,"{'line': 58, 'column': 8, 'index': 2169}","beforeEach(() => {
+        item = null;
+        if (pond) {
+            pond.destroy();
+        }
+    })",56,61,steel
+/src/js/__tests__/revertUploadOnRemove.test.js,Magic Number,"{'line': 68, 'column': 48, 'index': 2562}","test('no revert on removal of standard upload with chunks disabled', done => {
+        pond = setupPond({ chunkUploads: false }, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).not.toHaveBeenCalled();
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+
+    })",63,73,steel
+/src/js/__tests__/revertUploadOnRemove.test.js,Magic Number,"{'line': 80, 'column': 48, 'index': 2990}","test('no revert on removal of single chunk upload with chunks enabled', done => {
+        pond = setupPond({ chunkUploads: true, chunkSize: 1024 }, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).not.toHaveBeenCalled();
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",75,84,steel
+/src/js/__tests__/revertUploadOnRemove.test.js,Magic Number,"{'line': 91, 'column': 48, 'index': 3458}","test('revert on removal of single chunk upload with chunkForce set', done => {
+        pond = setupPond({ chunkUploads: true, chunkForce: true, chunkSize: 1024}, TEXT_FILE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",86,95,steel
+/src/js/__tests__/revertUploadOnRemove.test.js,Magic Number,"{'line': 102, 'column': 48, 'index': 3928}","test('revert on removal of chunked upload without chunkForce', done => {
+        pond = setupPond({ chunkUploads: true, chunkForce: false, chunkSize: 1024 }, TEXT_FILE_LARGE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",97,106,steel
+/src/js/__tests__/revertUploadOnRemove.test.js,Magic Number,"{'line': 113, 'column': 48, 'index': 4396}","test('revert on removal of chunked upload with chunkForce set', () => {
+        pond = setupPond({ chunkUploads: true, chunkForce: true, chunkSize: 1024 }, TEXT_FILE_LARGE);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",108,117,steel
+/src/js/__tests__/revertUploadOnRemove.test.js,Magic Number,"{'line': 127, 'column': 48, 'index': 4992}","test('revert limbo with serverId set', () => {
+        const fileId = 'abcdefghijklmnop';
+        pond = setupPond({ chunkUploads: false }, fileId, 'limbo');
+        // Check that serverId is not null (anything accepts values that are not null or undefined)
+        expect(item.serverId).toBe(fileId);
+        pond.onremovefile = (error, file) => {
+            expect(item.revert).toHaveBeenCalledWith(expect.any(Function), false);
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        }
+        pond.removeFile(item);
+    })",119,131,steel
+/src/js/__tests__/removeFile.test.js,Conditional Test Logic,"{'line': 39, 'column': 8, 'index': 952}","beforeEach(() => {
+        if (pond) {
+            pond.destroy();
+        }
+
+        pond = create({
+            instantUpload: false,
+            server,
+        });
+
+        Object.defineProperty(pond.element, 'offsetParent', {
+            get: jest.fn(() => 1),
+        });
+    })",38,51,steel
+/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 56, 'column': 44, 'index': 1357}","test('remove file object', () => {
+        pond.files = [DUMMY_FILE];
+        pond.removeFile();
+        expect(pond.getFiles().length).toBe(0);
+    })",53,57,steel
+/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 62, 'column': 48, 'index': 1558}","test('process, then remove file object', done => {
+        pond.onremovefile = (error, file) => {
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        };
+        pond.onaddfile = () => {
+            pond.processFile().then(() => {
+                pond.removeFile();
+            });
+        };
+        pond.files = [DUMMY_FILE];
+    })",59,71,steel
+/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 85, 'column': 48, 'index': 2186}","test('remove file object from client and from server', done => {
+        pond.server = {
+            ...server,
+            remove: (source, load, error) => {
+                setTimeout(() => {
+                    load();
+                }, 10);
+            },
+        };
+
+        pond.onremovefile = (error, file) => {
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        };
+
+        pond.onaddfile = () => {
+            pond.removeFile();
+        };
+
+        pond.files = [LOCAL_FILE];
+    })",73,94,steel
+/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 112, 'column': 48, 'index': 2922}","test('remove file object from client and fail to remove from server', done => {
+        pond.server = {
+            ...server,
+            remove: (source, load, error) => {
+                setTimeout(() => {
+                    error('fail');
+                }, 10);
+            },
+        };
+
+        const onremovefile = jest.fn();
+        pond.onremovefile = onremovefile;
+
+        pond.onremovefile = (error, file) => {
+            expect(error.type).toBe('error');
+            expect(onremovefile).not.toHaveBeenCalled();
+            expect(pond.getFiles().length).toBe(1);
+            done();
+        };
+
+        pond.onaddfile = () => {
+            pond.removeFile();
+        };
+
+        pond.files = [LOCAL_FILE];
+    })",96,121,steel
+/src/js/__tests__/removeFile.test.js,Sleepy Test,"{'line': 77, 'column': 16, 'index': 1955}","test('remove file object from client and from server', done => {
+        pond.server = {
+            ...server,
+            remove: (source, load, error) => {
+                setTimeout(() => {
+                    load();
+                }, 10);
+            },
+        };
+
+        pond.onremovefile = (error, file) => {
+            expect(error).toBe(null);
+            expect(pond.getFiles().length).toBe(0);
+            done();
+        };
+
+        pond.onaddfile = () => {
+            pond.removeFile();
+        };
+
+        pond.files = [LOCAL_FILE];
+    })",73,94,steel
+/src/js/__tests__/removeFile.test.js,Sleepy Test,"{'line': 100, 'column': 16, 'index': 2536}","test('remove file object from client and fail to remove from server', done => {
+        pond.server = {
+            ...server,
+            remove: (source, load, error) => {
+                setTimeout(() => {
+                    error('fail');
+                }, 10);
+            },
+        };
+
+        const onremovefile = jest.fn();
+        pond.onremovefile = onremovefile;
+
+        pond.onremovefile = (error, file) => {
+            expect(error.type).toBe('error');
+            expect(onremovefile).not.toHaveBeenCalled();
+            expect(pond.getFiles().length).toBe(1);
+            done();
+        };
+
+        pond.onaddfile = () => {
+            pond.removeFile();
+        };
+
+        pond.files = [LOCAL_FILE];
+    })",96,121,steel
+/src/js/__tests__/contentDisposition.test.js,Conditional Test Logic,"{'line': 42, 'column': 6, 'index': 1640}","describe('parse filename', () => {
+    [
+        { value: ``, expected: null },
+        { value: `foo-bar`, expected: null },
+        { value: `Content-Disposition: attachment;`, expected: null },
+        { value: `Content-Disposition: attachment; filename=`, expected: null },
+        { value: `Content-Disposition: attachment; filename.jpg`, expected: null },
+        {
+            value: `Content-Disposition: attachment; filename=filename.jpg`,
+            expected: 'filename.jpg',
+        },
+        {
+            value: `Content-Disposition: attachment; filename=filename.jpg;`,
+            expected: 'filename.jpg',
+        },
+        {
+            value: `Content-Disposition: attachment; filename=""filename.jpg""`,
+            expected: 'filename.jpg',
+        },
+        {
+            value: `Content-Disposition: attachment; filename=""filename.jpg"";`,
+            expected: 'filename.jpg',
+        },
+        {
+            value: `Content-Disposition: attachment; filename=file name.jpg`,
+            expected: 'file name.jpg',
+        },
+        {
+            value: `Content-Disposition: attachment; filename=filename.jpg; filename*=UTF-8''filename.jpg`,
+            expected: 'filename.jpg',
+        },
+        {
+            value: `Content-Disposition: attachment; filename=""filename.jpg""; filename*=UTF-8''filename.jpg`,
+            expected: 'filename.jpg',
+        },
+        {
+            value: `Content-Disposition: attachment; filename=""file name.jpg""; filename*=UTF-8''file%20name.jpg`,
+            expected: 'file name.jpg',
+        },
+    ].forEach(header => {
+        test(`Can parse: ""${header.value}""`, () => {
+            const name = getFileNameFromHeader(header.value);
+            expect(name).toBe(header.expected);
+        });
+    });
+})",3,48,steel
+/src/js/__tests__/callbacks.test.js,Conditional Test Logic,"{'line': 11, 'column': 8, 'index': 307}","describe('adding files', () => {
+    const data = 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==';
+    let pond = null;
+
+    const createPond = options => {
+        if (pond) {
+            pond.destroy();
+        }
+
+        pond = create({
+            server: {
+                process: (fieldName, file, metadata, load, error, progress, abort) => {
+                    let p = 0;
+                    const interval = setInterval(() => {
+                        p += 0.01;
+                        progress(true, p, 1);
+                    }, 50);
+                    const timeout = setTimeout(() => {
+                        clearInterval(interval);
+                        progress(true, 1, 1);
+                        load(Date.now());
+                    }, 750);
+                    return {
+                        abort: () => {
+                            clearTimeout(timeout);
+                            abort();
+                        },
+                    };
+                },
+            },            
+            ...options,
+        });
+
+        // enables draw loop, else it seems that filepond is hidden and it won't run
+        Object.defineProperty(pond.element, 'offsetParent', {
+            get: jest.fn(() => 1),
+        });
+    };
+
+    test('oninit', done => {
+        createPond({
+            oninit: () => {
+                done();
+            },
+        });
+    });
+
+    test('onaddfilestart', done => {
+        createPond();
+        pond.onaddfilestart = () => {
+            done();
+        };
+        pond.addFile(data);
+    });
+
+    test('onaddfileprogress', done => {
+        createPond();
+        pond.onaddfilestart = () => {
+            done();
+        };
+        pond.addFile(data);
+    });
+
+    test('onaddfile', done => {
+        createPond();
+        pond.onaddfilestart = () => {
+            done();
+        };
+        pond.addFile(data);
+    });
+
+    test('onerror', done => {
+        // we don't want the console error about the server call failure to muddy up the console
+        const restoreConsole = mockConsole();
+
+        createPond({
+            server: './invalid-path'
+        });
+        pond.onerror = () => {
+            done();
+        };
+        pond.addFile(data);
+
+        // restore the console back to normal so that real issues aren't hidden
+        restoreConsole();
+    });
+
+    test('onremovefile', done => {
+        createPond();
+        pond.files = [data];
+        pond.onremovefile = () => {
+            done();
+        };
+        pond.removeFile();
+    });
+
+    test('onprocessfilestart', done => {
+        createPond();
+        pond.onprocessfilestart = () => {
+            done();
+        };
+        pond.files = [data];
+    });
+
+    test('onprocessfileprogress', done => {
+        createPond();
+        pond.onprocessfileprogress = () => {
+            done();
+        };
+        pond.files = [data];
+    });
+
+    test('onprocessfileabort', done => {
+        createPond();
+        pond.onprocessfileabort = () => {
+            done();
+        };
+        pond.files = [data];
+
+        pond.getFile().abortProcessing();
+    });
+
+    test('onprocessfile', done => {
+        createPond();
+        pond.onprocessfile = () => {
+            done();
+        };
+        pond.files = [data];
+    });
+
+    test('onprocessfiles', done => {
+        createPond();
+        pond.onprocessfiles = () => {
+            const result = pond
+                .getFiles()
+                .every(file => file.status === FileStatus.PROCESSING_COMPLETE);
+            expect(result).toBe(true);
+            done();
+        };
+        pond.files = [data, data];
+    });
+})",6,147,steel
+/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 45}","test('oninit', done => {
+        createPond({
+            oninit: () => {
+                done();
+            },
+        });
+    })",45,51,steel
+/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 53}","test('onaddfilestart', done => {
+        createPond();
+        pond.onaddfilestart = () => {
+            done();
+        };
+        pond.addFile(data);
+    })",53,59,steel
+/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 61}","test('onaddfileprogress', done => {
+        createPond();
+        pond.onaddfilestart = () => {
+            done();
+        };
+        pond.addFile(data);
+    })",61,67,steel
+/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 69}","test('onaddfile', done => {
+        createPond();
+        pond.onaddfilestart = () => {
+            done();
+        };
+        pond.addFile(data);
+    })",69,75,steel
+/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 77}","test('onerror', done => {
+        // we don't want the console error about the server call failure to muddy up the console
+        const restoreConsole = mockConsole();
+
+        createPond({
+            server: './invalid-path'
+        });
+        pond.onerror = () => {
+            done();
+        };
+        pond.addFile(data);
+
+        // restore the console back to normal so that real issues aren't hidden
+        restoreConsole();
+    })",77,91,steel
+/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 93}","test('onremovefile', done => {
+        createPond();
+        pond.files = [data];
+        pond.onremovefile = () => {
+            done();
+        };
+        pond.removeFile();
+    })",93,100,steel
+/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 102}","test('onprocessfilestart', done => {
+        createPond();
+        pond.onprocessfilestart = () => {
+            done();
+        };
+        pond.files = [data];
+    })",102,108,steel
+/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 110}","test('onprocessfileprogress', done => {
+        createPond();
+        pond.onprocessfileprogress = () => {
+            done();
+        };
+        pond.files = [data];
+    })",110,116,steel
+/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 118}","test('onprocessfileabort', done => {
+        createPond();
+        pond.onprocessfileabort = () => {
+            done();
+        };
+        pond.files = [data];
+
+        pond.getFile().abortProcessing();
+    })",118,126,steel
+/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 128}","test('onprocessfile', done => {
+        createPond();
+        pond.onprocessfile = () => {
+            done();
+        };
+        pond.files = [data];
+    })",128,134,steel
+/src/js/__tests__/addFile.test.js,Conditional Test Logic,"{'line': 8, 'column': 8, 'index': 159}","beforeEach(() => {
+        if (pond) {
+            pond.destroy();
+        }
+
+        pond = create();
+
+        // enables draw loop, else it seems that filepond is hidden
+        Object.defineProperty(pond.element, 'offsetParent', {
+            get: jest.fn(() => 1),
+        });
+    })",7,18,steel
+/src/js/__tests__/addFile.test.js,Unknown Test,"{'column': 4, 'line': 20}","test('add file', done => {
+        const data = new File(['Hello World!'], 'dummy.txt', {
+            type: 'text/plain',
+            lastModified: new Date(),
+        });
+        pond.addFile(data).then(item => {
+            done();
+        });
+    })",20,28,steel
+/src/js/__tests__/addFile.test.js,Unknown Test,"{'column': 4, 'line': 30}","test('add blob', done => {
+        const data = new Blob(['Hello World!'], { type: 'text/plain' });
+        pond.addFile(data).then(item => {
+            done();
+        });
+    })",30,35,steel
+/src/js/__tests__/addFile.test.js,Unknown Test,"{'column': 4, 'line': 37}","test('add base64 string', done => {
+        const data = 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==';
+        pond.addFile(data).then(item => {
+            done();
+        });
+    })",37,42,steel

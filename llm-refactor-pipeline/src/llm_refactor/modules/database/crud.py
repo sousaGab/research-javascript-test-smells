@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError
 
 from .models import (
     Repository, File, DetectedSmells, StudySmells, Experiment,
-    SmellDetectionResult, CodeMetric, TestResult, AIResponse
+    SmellDetectionResult, CodeMetric, TestResult, AIResponse, SmellUIMetadata
 )
 
 
@@ -193,6 +193,8 @@ def create_detected_smell(session: Session, file_id: int, smell_type: str,
                          line_numbers: Optional[str] = None,
                          severity: Optional[str] = None,
                          code_snippet: Optional[str] = None,
+                         snippet_start_line: Optional[int] = None,
+                         snippet_end_line: Optional[int] = None,
                          detection_tool: Optional[str] = None) -> DetectedSmells:
     """
     Create a detected smell record (from initial repository scan).
@@ -215,6 +217,8 @@ def create_detected_smell(session: Session, file_id: int, smell_type: str,
         line_numbers=line_numbers,
         severity=severity,
         code_snippet=code_snippet,
+        snippet_start_line=snippet_start_line,
+        snippet_end_line=snippet_end_line,
         detection_tool=detection_tool
     )
     session.add(smell)
@@ -690,3 +694,118 @@ def get_statistics(session: Session) -> Dict[str, Any]:
     stats['by_ai_tool'] = {tool: count for tool, count in ai_tools}
 
     return stats
+
+
+# =============================================================================
+# UI METADATA
+# =============================================================================
+
+def get_ui_metadata(session: Session, detected_smell_id: int) -> Optional[SmellUIMetadata]:
+    """
+    Get UI metadata for a detected smell.
+
+    Args:
+        session: Database session
+        detected_smell_id: ID of the detected smell
+
+    Returns:
+        SmellUIMetadata or None if not found
+    """
+    return session.query(SmellUIMetadata).filter_by(detected_smell_id=detected_smell_id).first()
+
+
+def get_or_create_ui_metadata(session: Session, detected_smell_id: int,
+                              annotations: Optional[str] = None,
+                              priority: int = 0,
+                              tags: Optional[str] = None,
+                              ui_status: str = 'pending') -> tuple[SmellUIMetadata, bool]:
+    """
+    Get existing UI metadata or create new one.
+
+    Args:
+        session: Database session
+        detected_smell_id: ID of the detected smell
+        annotations: Optional annotations text
+        priority: Priority level (0-5)
+        tags: JSON string of tags
+        ui_status: Status ('pending', 'reviewing', 'ready', 'selected')
+
+    Returns:
+        tuple: (metadata, created) where created is True if newly created
+    """
+    metadata = get_ui_metadata(session, detected_smell_id)
+    if metadata:
+        return (metadata, False)
+
+    metadata = SmellUIMetadata(
+        detected_smell_id=detected_smell_id,
+        annotations=annotations,
+        priority=priority,
+        tags=tags or '[]',
+        ui_status=ui_status
+    )
+    session.add(metadata)
+    session.flush()
+    return (metadata, True)
+
+
+def update_ui_metadata(session: Session, detected_smell_id: int,
+                      annotations: Optional[str] = None,
+                      priority: Optional[int] = None,
+                      tags: Optional[str] = None,
+                      ui_status: Optional[str] = None) -> Optional[SmellUIMetadata]:
+    """
+    Update UI metadata for a detected smell (upsert operation).
+
+    Args:
+        session: Database session
+        detected_smell_id: ID of the detected smell
+        annotations: Annotations text (optional)
+        priority: Priority level (optional)
+        tags: JSON string of tags (optional)
+        ui_status: Status (optional)
+
+    Returns:
+        Updated SmellUIMetadata or None if smell not found
+    """
+    # Verify the smell exists
+    smell = session.query(DetectedSmells).filter_by(id=detected_smell_id).first()
+    if not smell:
+        return None
+
+    # Get or create metadata
+    metadata, created = get_or_create_ui_metadata(session, detected_smell_id)
+
+    # Update fields if provided
+    if annotations is not None:
+        metadata.annotations = annotations
+    if priority is not None:
+        metadata.priority = priority
+    if tags is not None:
+        metadata.tags = tags
+    if ui_status is not None:
+        metadata.ui_status = ui_status
+
+    metadata.updated_at = datetime.utcnow()
+    session.flush()
+    return metadata
+
+
+def delete_ui_metadata(session: Session, detected_smell_id: int) -> bool:
+    """
+    Delete UI metadata for a detected smell.
+
+    Args:
+        session: Database session
+        detected_smell_id: ID of the detected smell
+
+    Returns:
+        bool: True if deleted, False if not found
+    """
+    metadata = get_ui_metadata(session, detected_smell_id)
+    if not metadata:
+        return False
+
+    session.delete(metadata)
+    session.flush()
+    return True
