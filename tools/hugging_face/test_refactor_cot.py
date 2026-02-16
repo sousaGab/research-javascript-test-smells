@@ -1,9 +1,24 @@
-from huggingface_hub import InferenceClient
+from openai import OpenAI
 import os
 from dotenv import load_dotenv
-from constants import TEST_SMELL_CATALOG, SUBOPTIMAL_ASSERTION
+from constants import ANONYMOUS_TEST, TEST_SMELL_CATALOG, SUBOPTIMAL_ASSERTION, OVERCOMMENTED_TEST
 
 load_dotenv()
+
+# Models available through HuggingFace router with provider suffixes
+CHAT_MODELS = {
+    # DeepSeek via Novita provider
+    "deepseek-ai/DeepSeek-R1:novita",
+    "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B:novita",
+    
+    # Qwen Coder models
+    "Qwen/Qwen2.5-Coder-32B-Instruct",
+    "Qwen/Qwen2.5-Coder-32B-Instruct:together",
+    "Qwen/Qwen2.5-Coder-32B-Instruct:deepinfra",
+    
+    # Llama models (try without suffix first, then with provider if needed)
+    "meta-llama/Llama-3.1-70B-Instruct",
+}
 
 def create_zero_shot_prompt(smell_name, test_code):
     """Creates a zero-shot prompt for test smell refactoring."""
@@ -54,7 +69,7 @@ def create_few_shot_prompt(smell_name, test_code):
         - Output ONLY the refactored JavaScript test code.
         - Do NOT explain the changes.
         - Ensure the test smell is removed.
-
+        
         Test Smell: {smell_name}
 
         ### Example 1
@@ -122,6 +137,12 @@ def create_chain_of_thought_prompt(smell_name, test_code):
         - The test follows JavaScript testing best practices
         ────────────────────────────────────────
 
+        Output:
+        Provide only the refactored JavaScript test code:
+        ```javascript
+        // Refactored code here
+        ```
+
         ### Test Smell
         {smell_name}
 
@@ -138,16 +159,18 @@ def create_chain_of_thought_prompt(smell_name, test_code):
     """
     return prompt
 
-def refactor_test_smell(smell_name, test_code, prompt_type="cot", model_name="deepseek-ai/DeepSeek-R1-Distill-Qwen-32B"):
+
+def refactor_test_smell(
+    smell_name,
+    test_code,
+    prompt_type="cot",
+    model_name="Qwen/Qwen2.5-Coder-32B-Instruct",
+):
     """
-    Refactor a test smell using specified prompting strategy.
-    
-    Args:
-        smell_name: Name of the test smell (from constants)
-        test_code: The original test code to refactor
-        prompt_type: "zero_shot", "few_shot", or "cot" (chain-of-thought)
-        model_name: HuggingFace model to use
+    Refactor a test smell using HuggingFace's router with OpenAI-compatible API.
     """
+
+    # --- Prompt selection ---
     if prompt_type == "zero_shot":
         prompt = create_zero_shot_prompt(smell_name, test_code)
     elif prompt_type == "few_shot":
@@ -155,18 +178,18 @@ def refactor_test_smell(smell_name, test_code, prompt_type="cot", model_name="de
     elif prompt_type == "cot":
         prompt = create_chain_of_thought_prompt(smell_name, test_code)
     else:
-        raise ValueError(f"Unknown prompt_type: {prompt_type}. Must be 'zero_shot', 'few_shot', or 'cot'.")
-    
-    # Initialize client with token only. The model is provided per-request.
-    client = InferenceClient(token=os.getenv("HF_TOKEN"))
+        raise ValueError(f"Unknown prompt_type: {prompt_type}")
 
-    # Use the conversational/chat endpoint because this model expects a
-    # conversational task (the model mapping indicates "conversational").
-    messages = [
-        {"role": "user", "content": prompt}
-    ]
+    # Initialize OpenAI client with HuggingFace router
+    client = OpenAI(
+        base_url="https://router.huggingface.co/v1",
+        api_key=os.getenv("HF_TOKEN"),
+    )
 
     try:
+        # All models use chat completions API
+        messages = [{"role": "user", "content": prompt}]
+
         response = client.chat.completions.create(
             model=model_name,
             messages=messages,
@@ -174,23 +197,35 @@ def refactor_test_smell(smell_name, test_code, prompt_type="cot", model_name="de
             max_tokens=1024,
         )
 
-        # Extract the assistant reply text (mirror of earlier patterns).
-        analysis = response.choices[0].message.content.strip()
-    except Exception as e:
-        analysis = f"[ERROR] API call failed: {e}"
+        output = response.choices[0].message.content.strip()
 
-    return analysis
+    except Exception as e:
+        output = f"[ERROR] API call failed: {e}"
+
+    return output
 
 if __name__ == "__main__":
-    test_code = """test("Resets internal status", () => {
-        img.setAttribute("src", url200);
-        setSources(img, settings, instance);
-        cancelLoading(img, entry, settings, instance);
-        expect(getStatus(img)).toBe(null);
-    });"""
+    test_code = """
+    it('works', async () => {
+        const wrapper = mount(BDropdownDivider)
+
+        expect(wrapper.element.tagName).toBe('LI')
+
+        const divider = wrapper.find('hr')
+        expect(divider.element.tagName).toBe('HR')
+        expect(divider.classes()).toContain('dropdown-divider')
+        expect(divider.classes().length).toBe(1)
+        expect(divider.attributes('role')).toBeDefined()
+        expect(divider.attributes('role')).toEqual('separator')
+        expect(divider.text()).toEqual('')
+
+        wrapper.destroy()
+    })
+    """
     
-    smell_name = SUBOPTIMAL_ASSERTION
-    
+    # smell_name = SUBOPTIMAL_ASSERTION
+    smell_name = ANONYMOUS_TEST
+
     print("Testing Zero-Shot Prompting:")
     print("="*50)
     result_zero = refactor_test_smell(smell_name, test_code, prompt_type="zero_shot")
