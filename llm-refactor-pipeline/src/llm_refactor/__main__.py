@@ -7,7 +7,13 @@ Can be run as:
 """
 
 import sys
+from pathlib import Path
+from dotenv import load_dotenv
 from llm_refactor.cli.repl import run_interactive
+
+# Load environment variables from .env file
+# Searches in: current directory, then parent directories up to project root
+load_dotenv()
 
 
 def main():

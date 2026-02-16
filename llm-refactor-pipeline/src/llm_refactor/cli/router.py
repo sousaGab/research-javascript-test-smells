@@ -11,6 +11,7 @@ from llm_refactor.modules import detect_smells
 from llm_refactor.modules import run_tests
 from llm_refactor.modules import database_module
 from llm_refactor.modules import ui_server
+from llm_refactor.modules import refactor
 
 
 class CommandRouter:
@@ -51,6 +52,12 @@ class CommandRouter:
             command="ui",
             handler=ui_server.execute,
             description="Start the Smell Selector web UI"
+        )
+
+        self.register(
+            command="refactor",
+            handler=refactor.execute,
+            description="Refactor test smells using HuggingFace LLMs"
         )
 
     def register(self, command: str, handler: Callable, description: str):
