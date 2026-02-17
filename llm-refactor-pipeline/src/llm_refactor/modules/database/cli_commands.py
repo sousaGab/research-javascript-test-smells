@@ -168,6 +168,80 @@ def cmd_clear_smells(args: str = "") -> str:
         session.close()
 
 
+def cmd_clear_experiments(args: str = "") -> str:
+    """
+    Clear all experiment data only (keep smells, repos, and selected smells).
+
+    Usage: db clear-experiments
+
+    This will delete:
+        - All experiments
+        - All smell_detection_results (before/after)
+        - All code_metrics (before/after)
+        - All test_results (before/after)
+        - All ai_responses
+
+    This will KEEP:
+        - Repositories and files
+        - Detected smells (detected_smells table)
+        - Selected smells (study_smells table)
+        - Baseline smells (baseline_smell_detections table)
+        - UI metadata
+    """
+    db = get_db()
+    session = db.get_session()
+
+    try:
+        from .models import Experiment
+        from sqlalchemy import text
+
+        # Count before deletion
+        exp_count = session.query(Experiment).count()
+        
+        # Count related data (will be cascade deleted)
+        metrics_count = session.execute(text("SELECT COUNT(*) FROM code_metrics")).scalar()
+        test_results_count = session.execute(text("SELECT COUNT(*) FROM test_results")).scalar()
+        smell_results_count = session.execute(text("SELECT COUNT(*) FROM smell_detection_results")).scalar()
+        ai_responses_count = session.execute(text("SELECT COUNT(*) FROM ai_responses")).scalar()
+
+        result = "Clear Experiments\n"
+        result += "=" * 60 + "\n"
+        result += f"\nCurrent experiment data:\n"
+        result += f"  Experiments: {exp_count}\n"
+        result += f"  Code Metrics: {metrics_count}\n"
+        result += f"  Test Results: {test_results_count}\n"
+        result += f"  Smell Detection Results: {smell_results_count}\n"
+        result += f"  AI Responses: {ai_responses_count}\n"
+        result += "\n⚠️  WARNING: This will permanently delete the experiment data above!\n"
+        result += "          But will keep: repos, files, detected_smells, study_smells\n\n"
+
+        if exp_count == 0:
+            return result + "✓ No experiments to delete\n"
+
+        # Delete experiments (CASCADE will delete related tables automatically)
+        experiments_deleted = session.query(Experiment).delete()
+        session.commit()
+
+        result += "✓ Deletion completed:\n"
+        result += f"  Experiments: {experiments_deleted}\n"
+        result += f"  Related data: cleared via cascade delete\n"
+        result += f"    - Code metrics\n"
+        result += f"    - Test results\n"
+        result += f"    - Smell detection results\n"
+        result += f"    - AI responses\n"
+        result += "\n✓ Experiment data cleared (smells and repositories kept)\n"
+        result += "\nYou can now run new experiments with:\n"
+        result += "  execute_experiment <smell_id> <strategy_id> <model_id>\n"
+
+        return result
+
+    except Exception as e:
+        session.rollback()
+        return f"✗ Error clearing experiments: {str(e)}"
+    finally:
+        session.close()
+
+
 def cmd_clean(args: str = "") -> str:
     """
     Clean ALL data from database (complete reset).
@@ -867,6 +941,7 @@ def cmd_help(args: str = "") -> str:
     result += "  db init [--force]          Initialize database\n"
     result += "  db clean [--yes]           Clean ALL data (complete reset)\n"
     result += "  db clear-smells [--keep]   Clear smells only (keep repos)\n"
+    result += "  db clear-experiments       Clear experiments (keep smells & repos)\n"
     result += "  db status                  Show database status\n"
     result += "  db stats                   Show database statistics\n"
     result += "  db export [--output=PATH]  Export complete SQL dump\n"
@@ -889,6 +964,7 @@ def cmd_help(args: str = "") -> str:
     result += "  db add-repository --name=dayjs --url=https://github.com/iamkun/dayjs\n"
     result += "  db clean --yes             Complete database reset\n"
     result += "  db clear-smells --keep-repos  Clear smells but keep repos\n"
+    result += "  db clear-experiments       Clear experiment data only\n"
     result += "  db export                  Export to timestamped file\n"
     result += "  db export --output=/tmp/backup.sql  Export to custom path\n"
     result += "  db list-experiments --ai-tool=Claude --limit=10\n"
@@ -1000,6 +1076,7 @@ def cmd_validate_schema(args: str = "") -> str:
 COMMANDS = {
     'init': cmd_init,
     'clear-smells': cmd_clear_smells,
+    'clear-experiments': cmd_clear_experiments,
     'clean': cmd_clean,
     'status': cmd_status,
     'stats': cmd_stats,
