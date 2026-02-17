@@ -1,37 +1,40 @@
 # LLM Refactor Pipeline
 
-An interactive CLI tool for LLM-based code refactoring research. Built for experimentation and modularity.
+An interactive CLI tool for LLM-based code refactoring research with automatic backup and database integration.
 
 ## Features
 
-- **Interactive REPL** - Conversational interface with command history
-- **Modular Design** - Easy to add new modules and features
-- **Beautiful Output** - Rich formatted terminal output
-- **Research-Friendly** - Built for experimentation and iteration
+- **🤖 LLM Integration** - HuggingFace models for test smell refactoring
+- **💾 Safe Refactoring** - Automatic backup before file modifications
+- **🗄️ Database Integration** - Direct integration with research database
+- **📊 Multiple Strategies** - Zero-Shot, Few-Shot, and Chain-of-Thought prompting
+- **🖥️ Interactive REPL** - Conversational interface with command history
+- **🎨 Beautiful Output** - Rich formatted terminal output
+- **🔧 Modular Design** - Easy to add new modules and features
 
 ## Installation
 
 ### Prerequisites
 
 - Python 3.8 or higher
-- pip
+- HuggingFace API token (get from https://huggingface.co/settings/tokens)
 
 ### Setup
 
-1. Clone or navigate to the project directory:
+1. Navigate to project directory:
 ```bash
 cd llm-refactor-pipeline
 ```
 
-2. Install in development mode:
+2. Install dependencies:
 ```bash
 pip install -e .
 ```
 
-Or using requirements.txt:
+3. Configure environment:
 ```bash
-pip install -r requirements.txt
-pip install -e .
+# Create .env file with your HuggingFace token
+echo "HF_TOKEN=your_token_here" > .env
 ```
 
 ## Usage
@@ -237,89 +240,126 @@ The `backup_manager` module provides safe file handling for the refactoring pipe
 - **Directory structure preservation** in backups
 - **Comprehensive error handling** with meaningful exceptions
 
-**Quick Start:**
-```python
-from llm_refactor.modules.refactor import BackupManager
+## Project Structure
 
-manager = BackupManager()
+```
+llm-refactor-pipeline/
+├── README.md                   # This file
+├── pyproject.toml              # Package configuration
+├── requirements.txt            # Python dependencies
+├── .env                        # Environment variables (HF_TOKEN)
+│
+├── src/                        # Source code
+│   └── llm_refactor/
+│       ├── cli/                # CLI components (REPL, router, renderer)
+│       └── modules/            # Feature modules
+│           ├── backup_manager/ # Safe file backup and restore
+│           ├── refactor/       # LLM refactoring engine
+│           ├── database/       # Database operations
+│           └── ...
+│
+├── tests/                      # All test files
+│   ├── test_backup_manager.py
+│   ├── test_cli.py
+│   ├── test_csv_structure.py
+│   ├── test_refactor_integration.py
+│   └── test_import.py
+│
+├── docs/                       # Documentation
+│   ├── USER_GUIDE.md           # Complete user guide
+│   ├── BACKUP_GUIDE.md         # Backup manager details
+│   ├── DATABASE.md             # Database schema and operations
+│   ├── examples/               # Code examples
+│   │   └── backup_integration_example.py
+│   └── archive/                # Implementation history
+│       ├── PROJECT_SUMMARY.md
+│       ├── REFACTORING_SUMMARY.md
+│       └── ...
+│
+└── backup/                     # Backup storage (auto-created)
+    └── {repo_name}/{file_path}
+```
 
-# Backup a file
-backup_path = manager.backup_file("luxon", "test/parse.test.js")
+## Documentation
 
-# Replace a snippet
-file_path, backup_created = manager.replace_snippet(
-    "luxon", "test/parse.test.js",
-    original_snippet="expect(x).toBe(5)",
-    refactored_snippet="expect(x).toEqual(5)"
-)BACKUP_CLI_REFERENCE.md](BACKUP_CLI_REFERENCE.md) for CLI command reference
-- See [backup_integration_example.py](backup_integration_example.py) for integration examples
-- See [BACKUP_IMPLEMENTATION_SUMMARY.md](BACKUP_IMPLEMENTATION_SUMMARY.md) for technical details
+- **[docs/USER_GUIDE.md](docs/USER_GUIDE.md)** - Complete user guide with examples
+- **[docs/BACKUP_GUIDE.md](docs/BACKUP_GUIDE.md)** - Backup manager API and usage
+- **[docs/DATABASE.md](docs/DATABASE.md)** - Database schema and operations
+- **[docs/examples/](docs/examples/)** - Code examples and integration guides
+- **[docs/archive/](docs/archive/)** - Implementation history and technical summaries
 
-**CLI Usage:**
+## Testing
+
 ```bash
-llm-refactor> backup help              # Show help
-llm-refactor> backup list              # List all backups
-llm-refactor> backup create luxon test/parse.test.js
+# Run all tests
+cd tests/
+python test_backup_manager.py        # 16 tests - Backup functionality
+python test_cli.py                   # CLI component tests
+python test_refactor_integration.py  # 5 tests - Refactor integration
+python test_csv_structure.py         # CSV validation tests
+```
+
+## Quick Start
+
+```bash
+# 1. Install
+cd llm-refactor-pipeline
+pip install -e .
+
+# 2. Configure (add your HuggingFace token)
+echo "HF_TOKEN=your_token_here" > .env
+
+# 3. Launch
+llm-refactor
+
+# 4. Refactor a smell (dry-run)
+llm-refactor> refactor 42
+
+# 5. Apply changes with backup
+llm-refactor> refactor 42 --apply
+
+# 6. Restore if needed
 llm-refactor> backup restore luxon test/parse.test.js
-llm-refactor> backup delete luxon test/parse.test.js
-```
-# Undo if needed
-manager.undo_refactor("luxon", "test/parse.test.js")
 ```
 
-**Documentation:** 
-- See [BACKUP_MANAGER_USAGE.md](BACKUP_MANAGER_USAGE.md) for complete usage guide
-- See [backup_integration_example.py](backup_integration_example.py) for integration examples
-- See [BACKUP_IMPLEMENTATION_SUMMARY.md](BACKUP_IMPLEMENTATION_SUMMARY.md) for technical details
+## Key Features
 
-**Testing:**
-```bash
-python test_backup_manager.py  # 16/16 tests passing
-```
+### 🤖 Refactor Command
+- **Dry-run mode** (default): Preview changes without modifying files
+- **Apply mode** (`--apply`): Automatic backup + file modification
+- **3 prompt strategies**: Zero-Shot, Few-Shot, Chain-of-Thought
+- **6+ LLM models**: Qwen, DeepSeek, Llama
+- **Database integrated**: Auto-fetch smells from research database
 
-### Check Repositories
+### 💾 Backup Manager
+- Automatic backups before modifications
+- Precise snippet replacement
+- Full undo functionality
+- Directory structure preservation
+- CLI and programmatic API
 
-The `check_repositories` module prepares the directory structure for smell detection research:
-
-- Discovers all repositories in `../repositories/`
-- Creates output structure in `../smell_detected/`
-- Prepares CSV files for each repository with proper headers
-- Reports progress and statistics
-
-**Quick Start:**
-```bash
-llm-refactor> check_repositories
-```
-
-**Documentation:** See [CHECK_REPOSITORIES_GUIDE.md](CHECK_REPOSITORIES_GUIDE.md) for detailed usage, examples, and integration guide.
-
-**Output Structure:**
-```
-smell_detected/
-├── chart.js/
-│   └── smells.csv
-├── codecombat/
-│   └── smells.csv
-└── ...
-```
+### 🗄️ Database Integration
+- Direct integration with study_smells table
+- Auto-retrieves file paths and repository names
+- Supports smell querying and filtering
 
 ## Future Roadmap
 
 - [x] Interactive CLI with history and autocomplete
 - [x] Repository discovery and setup
-- [x] Backup and restore functionality for safe refactoring
-- [ ] Hugging Face integration
+- [x] Backup and restore functionality
+- [x] HuggingFace LLM integration
+- [x] Database integration
+- [x] Multiple prompting strategies
 - [ ] Multi-LLM provider support
-- [ ] Code parsing and analysis
-- [ ] Refactoring pipeline
+- [ ] Batch refactoring
 - [ ] Web UI (Gradio)
 - [ ] Experiment tracking
 - [ ] Result visualization
+- [ ] Performance metrics
 
 ## License
 
 Research project - Internal use
-
-## Contributing
 
 This is a research tool. Contributions welcome!
