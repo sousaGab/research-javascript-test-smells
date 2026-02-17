@@ -7,6 +7,8 @@ Each function returns a formatted string for display to the user.
 
 import csv
 import json
+import sqlite3
+from datetime import datetime
 from typing import Optional
 from pathlib import Path
 from .connection import ResearchDB
@@ -867,6 +869,7 @@ def cmd_help(args: str = "") -> str:
     result += "  db clear-smells [--keep]   Clear smells only (keep repos)\n"
     result += "  db status                  Show database status\n"
     result += "  db stats                   Show database statistics\n"
+    result += "  db export [--output=PATH]  Export complete SQL dump\n"
     result += "  db validate-schema         Validate ORM matches database\n"
     result += "  db help                    Show this help\n"
 
@@ -886,6 +889,8 @@ def cmd_help(args: str = "") -> str:
     result += "  db add-repository --name=dayjs --url=https://github.com/iamkun/dayjs\n"
     result += "  db clean --yes             Complete database reset\n"
     result += "  db clear-smells --keep-repos  Clear smells but keep repos\n"
+    result += "  db export                  Export to timestamped file\n"
+    result += "  db export --output=/tmp/backup.sql  Export to custom path\n"
     result += "  db list-experiments --ai-tool=Claude --limit=10\n"
     result += "  db get-experiment 1\n"
     result += "  db import-smells --repo=redux-offline\n"
@@ -897,6 +902,81 @@ def cmd_help(args: str = "") -> str:
 # Import validation commands
 from .test_import import cmd_validate_import
 from .schema_validator import cmd_validate_schema as _validate_schema_internal
+
+
+def cmd_export(args: str = "") -> str:
+    """
+    Export complete SQL dump of the database.
+
+    Usage: db export [--output=PATH]
+
+    Options:
+        --output=PATH    Custom output path (default: research_data/research.db.dump-{timestamp}.sql)
+
+    Examples:
+        db export
+        db export --output=/tmp/backup.sql
+    """
+    db = get_db()
+    
+    # Parse arguments
+    output_path = None
+    if args:
+        for arg in args.split():
+            if arg.startswith('--output='):
+                output_path = arg.split('=', 1)[1]
+    
+    # Generate default filename with timestamp if not provided
+    if not output_path:
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        output_filename = f"research.db.dump-{timestamp}.sql"
+        # Place in research_data directory (same location as db)
+        output_path = db.db_path.parent / output_filename
+    else:
+        output_path = Path(output_path)
+    
+    try:
+        # Ensure output directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Connect directly with sqlite3 for dumping
+        conn = sqlite3.connect(str(db.db_path))
+        
+        # Get file size before dump for statistics
+        db_size_mb = db.db_path.stat().st_size / (1024 * 1024)
+        
+        # Perform SQL dump
+        with open(output_path, 'w', encoding='utf-8') as f:
+            # Write header comment
+            f.write(f"-- SQLite Database Dump\n")
+            f.write(f"-- Database: {db.db_path}\n")
+            f.write(f"-- Export Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"-- Database Size: {db_size_mb:.2f} MB\n")
+            f.write(f"--\n\n")
+            
+            # Use iterdump to generate SQL statements
+            for line in conn.iterdump():
+                f.write(f"{line}\n")
+        
+        conn.close()
+        
+        # Get output file size
+        dump_size_mb = output_path.stat().st_size / (1024 * 1024)
+        
+        result = "Database Export\n"
+        result += "=" * 60 + "\n\n"
+        result += f"✓ Successfully exported database\n\n"
+        result += f"Source:      {db.db_path}\n"
+        result += f"Destination: {output_path}\n"
+        result += f"DB Size:     {db_size_mb:.2f} MB\n"
+        result += f"Dump Size:   {dump_size_mb:.2f} MB\n"
+        result += f"\nThe SQL dump can be restored using:\n"
+        result += f"  sqlite3 new_database.db < {output_path}\n"
+        
+        return result
+        
+    except Exception as e:
+        return f"✗ Export failed: {str(e)}"
 
 
 def cmd_validate_schema(args: str = "") -> str:
@@ -923,6 +1003,7 @@ COMMANDS = {
     'clean': cmd_clean,
     'status': cmd_status,
     'stats': cmd_stats,
+    'export': cmd_export,
     'validate-schema': cmd_validate_schema,
     'add-repository': cmd_add_repository,
     'list-repositories': cmd_list_repositories,
