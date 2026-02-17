@@ -337,25 +337,6 @@ NOTE:
         
         return "\n".join(lines)
     
-    def _clean_code_fences(self, code: str) -> str:
-        """Remove markdown code fences from LLM output.
-        
-        Args:
-            code: Code potentially wrapped in ```language ... ```
-            
-        Returns:
-            Clean code without markdown fences
-        """
-        import re
-        
-        # Remove opening fence (```javascript, ```js, ```python, etc.)
-        code = re.sub(r'^\s*```\w*\s*\n?', '', code, flags=re.MULTILINE)
-        
-        # Remove closing fence (```)
-        code = re.sub(r'\n?\s*```\s*$', '', code, flags=re.MULTILINE)
-        
-        return code.strip()
-    
     def _apply_file_changes(self, smell_data: Dict[str, Any], 
                            refactored_code: str) -> List[str]:
         """Apply refactored code to file with backup using BackupManager."""
@@ -379,7 +360,8 @@ NOTE:
             clean_file_path = str(file_path).lstrip('/')
             
             # Clean markdown code fences from LLM output
-            cleaned_code = self._clean_code_fences(refactored_code)
+            from .utils import clean_code_fences
+            cleaned_code = clean_code_fences(refactored_code)
             
             # Use BackupManager's replace_snippet method
             # It handles: backup creation, file validation, snippet replacement

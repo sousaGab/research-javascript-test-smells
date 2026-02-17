@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 
 from .models import (
-    Repository, File, DetectedSmells, StudySmells, Experiment,
+    Repository, File, DetectedSmells, BaselineSmellDetections, StudySmells, Experiment,
     SmellDetectionResult, CodeMetric, TestResult, AIResponse, SmellUIMetadata
 )
 
@@ -283,15 +283,58 @@ def get_study_smells_by_type(session: Session, smell_type: str) -> List[StudySme
     return session.query(StudySmells).filter_by(smell_type=smell_type).all()
 
 
+def get_or_create_baseline_smell_from_study(session: Session, 
+                                            study_smell: StudySmells) -> BaselineSmellDetections:
+    """
+    Get or create a baseline_smell_detection entry from a study_smell.
+    
+    This is useful when creating experiments from study_smells, as experiments
+    reference baseline_smell_detections.
+    
+    Args:
+        session: Database session
+        study_smell: StudySmells object
+        
+    Returns:
+        BaselineSmellDetections: Existing or newly created baseline smell
+    """
+    # Try to find existing baseline smell with same attributes
+    baseline = session.query(BaselineSmellDetections).filter_by(
+        file_id=study_smell.file_id,
+        smell_type=study_smell.smell_type,
+        line_numbers=study_smell.line_numbers
+    ).first()
+    
+    if baseline:
+        return baseline
+    
+    # Create new baseline smell from study smell data
+    baseline = BaselineSmellDetections(
+        file_id=study_smell.file_id,
+        smell_type=study_smell.smell_type,
+        line_numbers=study_smell.line_numbers,
+        severity=study_smell.severity,
+        code_snippet=study_smell.code_snippet,
+        snippet_start_line=study_smell.snippet_start_line,
+        snippet_end_line=study_smell.snippet_end_line,
+        detection_tool=study_smell.detection_tool
+    )
+    session.add(baseline)
+    session.flush()
+    
+    return baseline
+
+
 # =============================================================================
 # EXPERIMENTS
 # =============================================================================
 
 def create_experiment(session: Session,
-                     study_smell_id: int,
+                     baseline_smell_id: int,
                      file_id: int,
                      ai_tool: str,
                      original_code: str,
+                     study_smell_id: Optional[int] = None,
                      ai_model_version: Optional[str] = None,
                      prompting_approach: Optional[str] = None,
                      prompt_text: Optional[str] = None,
@@ -304,10 +347,11 @@ def create_experiment(session: Session,
 
     Args:
         session: Database session
-        study_smell_id: ID of the study smell being addressed
+        baseline_smell_id: ID of baseline smell (required for schema compatibility)
         file_id: File ID
-        ai_tool: AI tool used (e.g., 'Claude', 'GPT-4')
+        ai_tool: AI tool used (e.g., 'HuggingFace', 'Claude', 'GPT-4')
         original_code: Original code before refactoring
+        study_smell_id: ID of the study smell being addressed (optional)
         ai_model_version: AI model version (optional)
         prompting_approach: Prompting strategy (optional)
         prompt_text: Full prompt sent to AI (optional)
@@ -318,8 +362,13 @@ def create_experiment(session: Session,
 
     Returns:
         Experiment: Created experiment object
+        
+    Note:
+        Both baseline_smell_id and study_smell_id can be provided.
+        Use get_or_create_baseline_smell_from_study() to create baseline from study smell.
     """
     experiment = Experiment(
+        baseline_smell_id=baseline_smell_id,
         study_smell_id=study_smell_id,
         file_id=file_id,
         ai_tool=ai_tool,

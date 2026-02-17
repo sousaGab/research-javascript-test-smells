@@ -151,7 +151,8 @@ class Experiment(Base):
     __tablename__ = 'experiments'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    baseline_smell_id = Column(Integer, ForeignKey('baseline_smell_detections.id', ondelete='CASCADE'), nullable=False)
+    study_smell_id = Column(Integer, ForeignKey('study_smells.id', ondelete='CASCADE'), nullable=True)
+    baseline_smell_id = Column(Integer, ForeignKey('baseline_smell_detections.id', ondelete='CASCADE'), nullable=True)
     file_id = Column(Integer, ForeignKey('files.id', ondelete='CASCADE'), nullable=False)
     experiment_date = Column(DateTime, default=datetime.utcnow)
 
@@ -183,6 +184,7 @@ class Experiment(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
+    study_smell = relationship("StudySmells", backref="experiments")
     baseline_smell = relationship("BaselineSmellDetections", back_populates="experiments")
     file = relationship("File", back_populates="experiments")
     smell_results = relationship("SmellDetectionResult", back_populates="experiment", cascade="all, delete-orphan")

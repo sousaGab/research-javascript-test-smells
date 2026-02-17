@@ -13,6 +13,7 @@ from llm_refactor.modules import database_module
 from llm_refactor.modules import ui_server
 from llm_refactor.modules import refactor
 from llm_refactor.modules import backup_manager
+from llm_refactor.modules import execute_experiment
 
 
 class CommandRouter:
@@ -65,6 +66,12 @@ class CommandRouter:
             command="backup",
             handler=backup_manager.execute,
             description="Manage file backups for safe refactoring"
+        )
+
+        self.register(
+            command="execute_experiment",
+            handler=execute_experiment.execute,
+            description="Execute complete refactoring experiment workflow"
         )
 
     def register(self, command: str, handler: Callable, description: str):
