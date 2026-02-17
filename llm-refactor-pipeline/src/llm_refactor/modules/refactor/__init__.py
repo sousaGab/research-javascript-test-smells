@@ -12,10 +12,28 @@ from .hf_client import (
     PromptStrategy,
 )
 
+# Re-export BackupManager from backup_manager module for convenience
+from llm_refactor.modules.backup_manager import (
+    BackupManager,
+    BackupError,
+    BackupExistsError,
+    BackupNotFoundError,
+    BackupFileNotFoundError,
+    InvalidPathError,
+    SnippetReplacementError,
+)
+
 __all__ = [
     'execute',
     'refactor_smell_module',
     'HuggingFaceRefactorClient',
     'HuggingFaceModels',
     'PromptStrategy',
+    'BackupManager',
+    'BackupError',
+    'BackupExistsError',
+    'BackupNotFoundError',
+    'BackupFileNotFoundError',
+    'InvalidPathError',
+    'SnippetReplacementError',
 ]

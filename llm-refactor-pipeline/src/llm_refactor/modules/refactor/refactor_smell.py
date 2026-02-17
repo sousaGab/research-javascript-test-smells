@@ -4,8 +4,9 @@ Refactor Smell Module.
 Integrates HuggingFace LLM API with the research database to refactor test smells.
 """
 
-from typing import Optional
-from sqlalchemy.orm import Session
+import os
+from pathlib import Path
+from typing import Dict, Any, List
 
 from llm_refactor.modules.base import SimpleModule
 from llm_refactor.modules.database.connection import ResearchDB
@@ -16,19 +17,26 @@ from .hf_client import (
     HuggingFaceModels,
     PromptStrategy
 )
+from llm_refactor.modules.backup_manager import (
+    BackupManager,
+    BackupFileNotFoundError,
+    SnippetReplacementError,
+    InvalidPathError
+)
 
 
 class RefactorSmellModule(SimpleModule):
-    """
+    """ 
     Module for refactoring test smells using HuggingFace LLMs.
     
     Usage:
-        refactor <smell_id> [prompt_strategy] [model_id]
+        refactor <smell_id> [prompt_strategy] [model_id] [--apply]
         
     Examples:
-        refactor 42                    # Use defaults (CoT, Qwen)
-        refactor 42 1                  # Zero-shot, default model
-        refactor 42 2 3                # Few-shot, model #3
+        refactor 42                    # Show refactored code only (dry-run)
+        refactor 42 1                  # Zero-shot, default model, dry-run
+        refactor 42 2 3                # Few-shot, model #3, dry-run
+        refactor 42 3 1 --apply        # Apply changes with backup
         refactor help                  # Show detailed help
     """
     
@@ -55,7 +63,7 @@ class RefactorSmellModule(SimpleModule):
         parts = args.split()
         
         if len(parts) < 1:
-            return "❌ Error: smell_id required. Usage: refactor <smell_id> [strategy] [model]\nTry 'refactor help' for details."
+            return "❌ Error: smell_id required. Usage: refactor <smell_id> [strategy] [model] [--apply]\nTry 'refactor help' for details."
         
         try:
             smell_id = int(parts[0])
@@ -64,7 +72,7 @@ class RefactorSmellModule(SimpleModule):
         
         # Parse optional prompt strategy (default: CoT = 3)
         strategy_id = 3
-        if len(parts) >= 2:
+        if len(parts) >= 2 and parts[1] != '--apply':
             try:
                 strategy_id = int(parts[1])
                 if strategy_id not in [1, 2, 3]:
@@ -74,7 +82,7 @@ class RefactorSmellModule(SimpleModule):
         
         # Parse optional model (default: 1)
         model_id = 1
-        if len(parts) >= 3:
+        if len(parts) >= 3 and parts[2] != '--apply':
             try:
                 model_id = int(parts[2])
                 if not HuggingFaceModels.get_model_by_id(model_id):
@@ -82,8 +90,11 @@ class RefactorSmellModule(SimpleModule):
             except ValueError:
                 return f"❌ Error: Invalid model ID '{parts[2]}'. Must be a number."
         
+        # Check for --apply flag
+        apply_changes = '--apply' in parts
+        
         # Execute refactoring
-        return self._refactor_smell(smell_id, strategy_id, model_id)
+        return self._refactor_smell(smell_id, strategy_id, model_id, apply_changes)
     
     def _show_help(self) -> str:
         """Show detailed help message."""
@@ -96,7 +107,7 @@ DESCRIPTION:
     Refactor a test smell from the database using HuggingFace LLMs.
 
 USAGE:
-    refactor <smell_id> [strategy] [model]
+    refactor <smell_id> [strategy] [model] [--apply]
 
 ARGUMENTS:
     smell_id       : Database ID of the smell to refactor (required)
@@ -105,12 +116,14 @@ ARGUMENTS:
                      [2] Few-Shot
                      [3] Chain-of-Thought (recommended)
     model          : Model ID (default: 1 - Qwen 2.5 Coder 32B)
+    --apply        : Apply changes to file with automatic backup (default: dry-run)
 
 EXAMPLES:
-    refactor 42                 # Refactor smell #42 (CoT, Qwen)
-    refactor 42 1               # Use zero-shot strategy
-    refactor 42 2 3             # Use few-shot with model #3
-    refactor 42 3 4             # Use CoT with DeepSeek R1
+    refactor 42                 # Dry-run: show refactored code only
+    refactor 42 1               # Dry-run with zero-shot strategy
+    refactor 42 2 3             # Dry-run with few-shot, model #3
+    refactor 42 3 1 --apply     # Apply changes with backup (CoT, Qwen)
+    refactor 42 --apply         # Apply with default strategy and model
 
 ADDITIONAL COMMANDS:
     refactor help               # Show this help
@@ -143,7 +156,8 @@ NOTE:
         self,
         smell_id: int,
         strategy_id: int,
-        model_id: int
+        model_id: int,
+        apply_changes: bool = False
     ) -> str:
         """
         Perform the actual refactoring.
@@ -152,25 +166,63 @@ NOTE:
             smell_id: Database ID of the smell
             strategy_id: Prompt strategy ID (1-3)
             model_id: Model ID
+            apply_changes: If True, create backup and apply changes to file (default: False)
         
         Returns:
             Formatted result message
         """
-        # Get strategy and model
+        # Validate and get configuration
+        config = self._get_refactor_config(strategy_id, model_id)
+        if isinstance(config, str):  # Error message
+            return config
+        
+        # Fetch smell from database
+        smell_data = self._fetch_smell_data(smell_id)
+        if isinstance(smell_data, str):  # Error message
+            return smell_data
+        
+        # Display header
+        self._print_header(smell_id, smell_data, config, apply_changes)
+        
+        # Get LLM refactoring
+        try:
+            refactored_code = self._get_llm_refactoring(smell_data, config)
+        except Exception as e:
+            return self._format_error(e)
+        
+        # Format and return result
+        return self._format_result(
+            smell_data,
+            refactored_code,
+            config,
+            apply_changes
+        )
+    
+    def _get_refactor_config(self, strategy_id: int, model_id: int) -> Dict[str, Any]:
+        """Get and validate refactoring configuration."""
         strategy = PromptStrategy.get_strategy(strategy_id)
         model = HuggingFaceModels.get_model_by_id(model_id)
         
         if not strategy or not model:
             return "❌ Error: Invalid strategy or model ID"
         
-        # Get model name for display
         model_name = next(
             (m['name'] for m in HuggingFaceModels.MODELS if m['id'] == model_id),
             "Unknown"
         )
         strategy_name = PromptStrategy.STRATEGIES[strategy_id][1]
         
-        # Fetch smell from database
+        return {
+            'strategy': strategy,
+            'model': model,
+            'strategy_id': strategy_id,
+            'model_id': model_id,
+            'strategy_name': strategy_name,
+            'model_name': model_name
+        }
+    
+    def _fetch_smell_data(self, smell_id: int) -> Dict[str, Any]:
+        """Fetch smell data from database."""
         try:
             db = ResearchDB()
             session = db.get_session()
@@ -181,89 +233,243 @@ NOTE:
                 session.close()
                 return f"❌ Error: Smell with ID {smell_id} not found in database.\nUse 'db list_smells' to see available smells."
             
-            # Get smell details
-            smell_type = smell.smell_type
-            code_snippet = smell.code_snippet
-            
-            if not code_snippet:
+            if not smell.code_snippet:
                 session.close()
                 return f"❌ Error: Smell #{smell_id} has no code snippet in database."
             
-            # Get smell catalog information
-            smell_catalog = TEST_SMELL_CATALOG.get(smell_type, {})
-            smell_description = smell_catalog.get('definition', '')
-            examples = smell_catalog.get('examples', [])
-            refactoring_strategies = smell_catalog.get('refactoring_strategies', [])
+            # Extract data
+            smell_catalog = TEST_SMELL_CATALOG.get(smell.smell_type, {})
             
-            # Close the database session
+            data = {
+                'smell_id': smell_id,
+                'file_id': smell.file_id,
+                'smell_type': smell.smell_type,
+                'code_snippet': smell.code_snippet,
+                'file_path': smell.file.path if smell.file else None,
+                'repo_name': smell.file.repository.name if smell.file and smell.file.repository else None,
+                'smell_description': smell_catalog.get('definition', ''),
+                'examples': smell_catalog.get('examples', []),
+                'refactoring_strategies': smell_catalog.get('refactoring_strategies', [])
+            }
+            
             session.close()
+            return data
                 
-        except Exception as e:
+        except (OSError, IOError) as e:
             return f"❌ Database error: {e}"
+    
+    def _print_header(self, smell_id: int, smell_data: Dict[str, Any], 
+                     config: Dict[str, Any], apply_changes: bool) -> None:
+        """Print refactoring header information."""
+        mode = "APPLY MODE (with backup)" if apply_changes else "DRY-RUN MODE (preview only)"
         
-        # Display refactoring info
-        output = [
+        lines = [
             "╔══════════════════════════════════════════════════════════════════════════╗",
             "║                    REFACTORING TEST SMELL                                ║",
             "╚══════════════════════════════════════════════════════════════════════════╝",
             "",
+            f"Mode:            {mode}",
             f"Smell ID:        {smell_id}",
-            f"Smell Type:      {smell_type}",
-            f"Strategy:        [{strategy_id}] {strategy_name}",
-            f"Model:           [{model_id}] {model_name}",
-            f"File ID:         {smell.file_id}",
+            f"Smell Type:      {smell_data['smell_type']}",
+            f"Strategy:        [{config['strategy_id']}] {config['strategy_name']}",
+            f"Model:           [{config['model_id']}] {config['model_name']}",
+            f"File ID:         {smell_data['file_id']}",
+        ]
+        
+        if apply_changes and smell_data['file_path'] and smell_data['repo_name']:
+            lines.extend([
+                f"Repository:      {smell_data['repo_name']}",
+                f"File Path:       {smell_data['file_path']}",
+            ])
+        
+        lines.extend([
             "",
             "─" * 76,
             "ORIGINAL CODE:",
             "─" * 76,
-            code_snippet,
+            smell_data['code_snippet'],
             "",
             "─" * 76,
             "REFACTORING (please wait)...",
             "─" * 76,
             ""
+        ])
+        
+        print("\n".join(lines))
+    
+    def _get_llm_refactoring(self, smell_data: Dict[str, Any], 
+                            config: Dict[str, Any]) -> str:
+        """Get refactored code from LLM."""
+        client = HuggingFaceRefactorClient()
+        
+        return client.refactor(
+            smell_name=smell_data['smell_type'],
+            smell_description=smell_data['smell_description'],
+            test_code=smell_data['code_snippet'],
+            prompt_strategy=config['strategy'],
+            model=config['model'],
+            examples=smell_data['examples'],
+            refactoring_strategies=smell_data['refactoring_strategies'],
+        )
+    
+    def _format_result(self, smell_data: Dict[str, Any], refactored_code: str,
+                      config: Dict[str, Any], apply_changes: bool) -> str:
+        """Format the final result output."""
+        lines = [
+            "─" * 76,
+            "REFACTORED CODE:",
+            "─" * 76,
+            refactored_code,
+            "",
         ]
         
-        print("\n".join(output))
+        if apply_changes:
+            apply_result = self._apply_file_changes(smell_data, refactored_code)
+            lines.extend(apply_result)
+        else:
+            lines.extend(self._format_dry_run_message(smell_data['smell_id'], config))
         
-        # Perform refactoring
-        try:
-            client = HuggingFaceRefactorClient()
+        lines.extend([
+            f"Strategy: {config['strategy_name']}",
+            f"Model: {config['model_name']}",
+            ""
+        ])
+        
+        return "\n".join(lines)
+    
+    def _clean_code_fences(self, code: str) -> str:
+        """Remove markdown code fences from LLM output.
+        
+        Args:
+            code: Code potentially wrapped in ```language ... ```
             
-            refactored_code = client.refactor(
-                smell_name=smell_type,
-                smell_description=smell_description,
-                test_code=code_snippet,
-                prompt_strategy=strategy,
-                model=model,
-                examples=examples,
-                refactoring_strategies=refactoring_strategies,
+        Returns:
+            Clean code without markdown fences
+        """
+        import re
+        
+        # Remove opening fence (```javascript, ```js, ```python, etc.)
+        code = re.sub(r'^\s*```\w*\s*\n?', '', code, flags=re.MULTILINE)
+        
+        # Remove closing fence (```)
+        code = re.sub(r'\n?\s*```\s*$', '', code, flags=re.MULTILINE)
+        
+        return code.strip()
+    
+    def _apply_file_changes(self, smell_data: Dict[str, Any], 
+                           refactored_code: str) -> List[str]:
+        """Apply refactored code to file with backup using BackupManager."""
+        file_path = smell_data['file_path']
+        repo_name = smell_data['repo_name']
+        
+        if not file_path or not repo_name:
+            return self._format_warning(
+                "File path or repository name not found in database."
+            )
+        
+        try:
+            # Get repositories directory (parent of llm-refactor-pipeline)
+            from llm_refactor.core.config import config
+            repositories_dir = config.PROJECT_ROOT.parent / "repositories"
+            
+            # Initialize BackupManager with correct path
+            backup_manager = BackupManager(repositories_dir=repositories_dir)
+            
+            # Clean file path (remove leading slash)
+            clean_file_path = str(file_path).lstrip('/')
+            
+            # Clean markdown code fences from LLM output
+            cleaned_code = self._clean_code_fences(refactored_code)
+            
+            # Use BackupManager's replace_snippet method
+            # It handles: backup creation, file validation, snippet replacement
+            backup_path, backup_created = backup_manager.replace_snippet(
+                repo_name=repo_name,
+                file_path=clean_file_path,
+                original_snippet=smell_data['code_snippet'],
+                refactored_snippet=cleaned_code,
+                create_backup=True
             )
             
-            # Display result
-            result = [
-                "─" * 76,
-                "REFACTORED CODE:",
-                "─" * 76,
-                refactored_code,
-                "",
-                "─" * 76,
-                "✅ REFACTORING COMPLETE",
-                "─" * 76,
-                "",
-                f"Strategy: {strategy_name}",
-                f"Model: {model_name}",
-                ""
-            ]
+            return self._format_success(file_path, backup_path, repo_name)
             
-            return "\n".join(result)
-            
-        except ValueError as e:
-            return f"\n❌ Configuration Error: {e}\n\nMake sure HF_TOKEN is set in your environment."
-        except RuntimeError as e:
-            return f"\n❌ API Error: {e}"
-        except Exception as e:
-            return f"\n❌ Unexpected Error: {e}"
+        except BackupFileNotFoundError as e:
+            return self._format_warning(f"File not found: {e}")
+        except SnippetReplacementError as e:
+            return self._format_apply_error(f"Snippet replacement failed: {e}")
+        except InvalidPathError as e:
+            return self._format_warning(f"Invalid path: {e}")
+        except (OSError, IOError) as e:
+            return self._format_apply_error(f"File operation failed: {e}")
+    
+    def _format_warning(self, message: str) -> List[str]:
+        """Format a warning message."""
+        return [
+            "─" * 76,
+            "⚠️  WARNING: Cannot apply changes",
+            "─" * 76,
+            "",
+            message,
+            "Changes displayed above but NOT applied to file.",
+            ""
+        ]
+    
+    def _format_success(self, file_path: str, backup_path: Path, 
+                       repo_name: str) -> List[str]:
+        """Format a success message."""
+        return [
+            "─" * 76,
+            "✅ CHANGES APPLIED SUCCESSFULLY",
+            "─" * 76,
+            "",
+            f"File:    {file_path}",
+            f"Backup:  {backup_path}",
+            "",
+            f"To undo: backup restore {repo_name} {file_path.lstrip('/')}",
+            ""
+        ]
+    
+    def _format_apply_error(self, error: str) -> List[str]:
+        """Format an error message for failed apply."""
+        return [
+            "─" * 76,
+            "❌ ERROR APPLYING CHANGES",
+            "─" * 76,
+            "",
+            f"Error: {error}",
+            "Changes displayed above but NOT applied to file.",
+            ""
+        ]
+    
+    def _format_dry_run_message(self, smell_id: int, config: Dict[str, Any]) -> List[str]:
+        """Format dry-run completion message."""
+        return [
+            "─" * 76,
+            "✅ REFACTORING COMPLETE (DRY-RUN)",
+            "─" * 76,
+            "",
+            "Changes NOT applied to file (dry-run mode).",
+            "To apply changes, add --apply flag:",
+            f"  refactor {smell_id} {config['strategy_id']} {config['model_id']} --apply",
+            ""
+        ]
+    
+    def _format_error(self, error: Exception) -> str:
+        """Format error message based on exception type."""
+        error_str = str(error)
+        
+        if isinstance(error, ValueError):
+            if "HF_TOKEN" in error_str or "Configuration" in error_str:
+                return f"\n❌ Configuration Error: {error}\n\nMake sure HF_TOKEN is set in your environment."
+            return f"\n❌ Validation Error: {error}"
+        
+        if isinstance(error, RuntimeError):
+            return f"\n❌ API Error: {error}"
+        
+        if isinstance(error, (OSError, IOError)):
+            return f"\n❌ File Error: {error}"
+        
+        return f"\n❌ Unexpected Error: {error}"
 
 
 # Create module instance

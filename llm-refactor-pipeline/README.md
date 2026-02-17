@@ -53,6 +53,18 @@ Once inside the interactive shell:
 
 - `hello` - Run the Hello World module
 - `check_repositories` - Setup smell detection structure for all repositories
+- `backup` - Manage file backups for safe refactoring
+  - `backup list [repo]` - List all backups
+  - `backup create <repo> <file>` - Create a backup
+  - `backup restore <repo> <file>` - Restore from backup
+  - `backup delete <repo> <file>` - Delete a backup
+  - `backup check <repo> <file>` - Check if backup exists
+- `refactor` - Refactor test smells using HuggingFace LLMs
+  - `refactor <smell_id>` - Preview refactored code (dry-run)
+  - `refactor <smell_id> --apply` - Apply changes with automatic backup
+  - `refactor <smell_id> <strategy> <model> --apply` - Custom strategy/model + apply
+- `db` - Database operations
+- `ui` - Start the Smell Selector web UI
 - `help` - Show available commands
 - `exit` or `quit` - Exit the shell (or press Ctrl+D)
 
@@ -68,19 +80,27 @@ $ llm-refactor
 
 Type 'help' for available commands or 'exit' to quit
 
-llm-refactor> hello
-Hello World!
+llm-refactor> backup list
+No backups found
 
-llm-refactor> check_repositories
-Scanning repositories from: /path/to/repositories
-Found 34 repositories
-...
-✓ Successfully processed: 34
+llm-refactor> refactor 42
+[Shows refactored code preview - no changes applied]
+
+llm-refactor> refactor 42 --apply
+✓ Backup created: backup/luxon/test/parse.test.js
+✓ Changes applied successfully
+
+llm-refactor> backup restore luxon test/parse.test.js
+✓ File restored successfully from backup
 
 llm-refactor> help
 Available Commands:
   • hello              - Execute Hello World module
   • check_repositories - Setup smell detection structure
+  • backup             - Manage file backups for safe refactoring
+  • refactor           - Refactor test smells using HuggingFace LLMs
+  • db                 - Database operations
+  • ui                 - Start the Smell Selector web UI
   • help               - Show this help message
   • exit               - Exit the shell
 
@@ -101,7 +121,15 @@ llm-refactor-pipeline/
         ├── __main__.py     # Entry point
         ├── cli/            # CLI components
         │   ├── repl.py     # Interactive loop
-        │   ├── router.py   # Command routing
+        │   ├── check_repositories.py
+            ├── backup_manager/    # Backup management
+            │   ├── __init__.py
+            │   ├── manager.py     # BackupManager class
+            │   ├── exceptions.py  # Custom exceptions
+            │   └── backup_module.py # CLI interface
+            ├── refactor/          # LLM refactoring
+            ├── database/          # Database operations
+            └── run_tests/         # Test execution routing
         │   └── renderer.py # Output formatting
         ├── core/           # Core functionality
         │   └── config.py
@@ -141,6 +169,114 @@ pytest
 
 ## Modules
 
+### Refactor Module
+
+The `refactor` module leverages HuggingFace LLMs to automatically refactor test smells detected in your codebase.
+
+**Key Features:**
+- **Dry-run by default**: Preview refactored code without modifying files
+- **Apply mode**: Use `--apply` flag to create backup and apply changes automatically
+- **Multiple strategies**: Zero-shot, Few-shot, Chain-of-Thought prompting
+- **Multiple models**: Qwen 2.5 Coder, DeepSeek R1, Llama 3.1, and more
+- **Database integration**: Automatically retrieves file paths from study_smells table
+
+**Quick Start:**
+```bash
+llm-refactor> refactor 42                 # Preview only (dry-run)
+llm-refactor> refactor 42 --apply         # Apply with backup
+llm-refactor> refactor 42 3 1 --apply     # CoT strategy, Qwen model, apply
+```
+
+**Usage:**
+```
+refactor <smell_id> [strategy] [model] [--apply]
+
+Arguments:
+  smell_id  : Database ID of the smell to refactor (required)
+  strategy  : Prompt strategy (1=Zero-shot, 2=Few-shot, 3=CoT) [default: 3]
+  model     : Model ID (1=Qwen, 2=DeepSeek, etc.) [default: 1]
+  --apply   : Apply changes to file with automatic backup [default: dry-run]
+```
+
+**Example Workflow:**
+```bash
+# 1. Preview the refactoring
+llm-refactor> refactor 42
+# [Shows original and refactored code]
+
+# 2. Apply if satisfied
+llm-refactor> refactor 42 --apply
+# ✓ Backup created: backup/luxon/test/parse.test.js
+# ✓ Changes applied successfully
+
+# 3. Undo if needed
+llm-refactor> backup restore luxon test/parse.test.js
+# ✓ File restored successfully
+```
+
+**Available Commands:**
+```bash
+llm-refactor> refactor help          # Show detailed help
+llm-refactor> refactor models        # List available LLM models
+llm-refactor> refactor strategies    # List prompting strategies
+```
+
+**Setup:**
+Ensure `HF_TOKEN` is set in your `.env` file:
+```bash
+HF_TOKEN=your_huggingface_token_here
+```
+
+### Backup Manager
+
+The `backup_manager` module provides safe file handling for the refactoring pipeline:
+
+- **Automatic backups** before file modifications
+- **Precise snippet replacement** (only targeted code)
+- **Full undo functionality** to restore from backups
+- **Directory structure preservation** in backups
+- **Comprehensive error handling** with meaningful exceptions
+
+**Quick Start:**
+```python
+from llm_refactor.modules.refactor import BackupManager
+
+manager = BackupManager()
+
+# Backup a file
+backup_path = manager.backup_file("luxon", "test/parse.test.js")
+
+# Replace a snippet
+file_path, backup_created = manager.replace_snippet(
+    "luxon", "test/parse.test.js",
+    original_snippet="expect(x).toBe(5)",
+    refactored_snippet="expect(x).toEqual(5)"
+)BACKUP_CLI_REFERENCE.md](BACKUP_CLI_REFERENCE.md) for CLI command reference
+- See [backup_integration_example.py](backup_integration_example.py) for integration examples
+- See [BACKUP_IMPLEMENTATION_SUMMARY.md](BACKUP_IMPLEMENTATION_SUMMARY.md) for technical details
+
+**CLI Usage:**
+```bash
+llm-refactor> backup help              # Show help
+llm-refactor> backup list              # List all backups
+llm-refactor> backup create luxon test/parse.test.js
+llm-refactor> backup restore luxon test/parse.test.js
+llm-refactor> backup delete luxon test/parse.test.js
+```
+# Undo if needed
+manager.undo_refactor("luxon", "test/parse.test.js")
+```
+
+**Documentation:** 
+- See [BACKUP_MANAGER_USAGE.md](BACKUP_MANAGER_USAGE.md) for complete usage guide
+- See [backup_integration_example.py](backup_integration_example.py) for integration examples
+- See [BACKUP_IMPLEMENTATION_SUMMARY.md](BACKUP_IMPLEMENTATION_SUMMARY.md) for technical details
+
+**Testing:**
+```bash
+python test_backup_manager.py  # 16/16 tests passing
+```
+
 ### Check Repositories
 
 The `check_repositories` module prepares the directory structure for smell detection research:
@@ -171,6 +307,7 @@ smell_detected/
 
 - [x] Interactive CLI with history and autocomplete
 - [x] Repository discovery and setup
+- [x] Backup and restore functionality for safe refactoring
 - [ ] Hugging Face integration
 - [ ] Multi-LLM provider support
 - [ ] Code parsing and analysis

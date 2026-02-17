@@ -12,6 +12,7 @@ from llm_refactor.modules import run_tests
 from llm_refactor.modules import database_module
 from llm_refactor.modules import ui_server
 from llm_refactor.modules import refactor
+from llm_refactor.modules import backup_manager
 
 
 class CommandRouter:
@@ -58,6 +59,12 @@ class CommandRouter:
             command="refactor",
             handler=refactor.execute,
             description="Refactor test smells using HuggingFace LLMs"
+        )
+
+        self.register(
+            command="backup",
+            handler=backup_manager.execute,
+            description="Manage file backups for safe refactoring"
         )
 
     def register(self, command: str, handler: Callable, description: str):
