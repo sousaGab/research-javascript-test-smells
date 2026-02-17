@@ -79,7 +79,7 @@ class BatchExperimentsModule(SimpleModule):
             elif parts[i] == "--dry-run":
                 dry_run = True
                 i += 1
-            elif parts[i] == "--no-skip":
+            elif parts[i] == "--force" or parts[i] == "--no-skip":
                 skip_executed = False
                 i += 1
             elif parts[i] == "--list-pending":
@@ -128,7 +128,7 @@ OPTIONS:
     --start-from N    Start from smell ID N (for resuming)
     --verbose         Show detailed output from each experiment
     --dry-run         Show what would be executed without running
-    --no-skip         Re-run all smells (don't skip already executed)
+    --force           Re-run all smells (overwrite existing results)
     --list-pending    List smells pending for this strategy/model
 
 EXAMPLES:
@@ -163,9 +163,9 @@ MODELS:
 
 NOTES:
     - By default, skips smells already executed for the strategy/model
-    - Use --no-skip to re-execute all smells
+    - Use --force to re-execute all smells (overwrite results)
     - Press Ctrl+C to interrupt (progress is saved)
-    - Failed experiments are logged with error messages
+    - Failed experiments are logged and written to summary file
 """
     
     def _get_study_smells(self) -> List[Tuple[int, str, str, str]]:
@@ -453,7 +453,67 @@ NOTES:
         
         summary.append("=" * 80)
         
+        # Write summary file with failed smells
+        self._write_summary_file(
+            strategy_id, model_id, strategy_name, model_name,
+            stats, failed_smells, elapsed_total
+        )
+        
         return "\n".join(summary)
+    
+    def _write_summary_file(self, strategy_id: int, model_id: int,
+                           strategy_name: str, model_name: str,
+                           stats: dict, failed_smells: list,
+                           elapsed_total: float) -> None:
+        """Write batch execution summary to file."""
+        from pathlib import Path
+        
+        # Create summary directory
+        summary_dir = Path("batch_summaries")
+        summary_dir.mkdir(exist_ok=True)
+        
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"batch_summary_s{strategy_id}_m{model_id}_{timestamp}.txt"
+        filepath = summary_dir / filename
+        
+        # Write summary file
+        with open(filepath, 'w') as f:
+            f.write("=" * 80 + "\n")
+            f.write("📊 BATCH EXECUTION SUMMARY\n")
+            f.write("=" * 80 + "\n")
+            f.write(f"Timestamp:  {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Strategy:   {strategy_name} (ID: {strategy_id})\n")
+            f.write(f"Model:      {model_name} (ID: {model_id})\n")
+            f.write(f"\n")
+            f.write(f"Total:      {stats['total']} experiments\n")
+            f.write(f"✅ Success:  {stats['completed']}\n")
+            f.write(f"❌ Failed:   {stats['failed']}\n")
+            f.write(f"⏱️  Duration: {elapsed_total/60:.1f} minutes\n")
+            f.write(f"⚡ Average:  {elapsed_total/max(1,stats['total']):.1f}s per experiment\n")
+            f.write("=" * 80 + "\n")
+            
+            if failed_smells:
+                f.write(f"\n❌ FAILED EXPERIMENTS ({len(failed_smells)})\n")
+                f.write("=" * 80 + "\n")
+                f.write(f"{'ID':<8} {'Repository':<20} {'File':<50} {'Error'}\n")
+                f.write("-" * 80 + "\n")
+                
+                for smell_id, repo, fpath, stype, error in failed_smells:
+                    file_display = fpath if len(fpath) <= 50 else "..." + fpath[-47:]
+                    repo_display = repo if len(repo) <= 20 else repo[:17] + "..."
+                    f.write(f"{smell_id:<8} {repo_display:<20} {file_display:<50} {error}\n")
+                
+                f.write("\n" + "=" * 80 + "\n")
+                f.write("\nFAILED SMELL IDs:\n")
+                f.write(", ".join(str(sid) for sid, _, _, _, _ in failed_smells))
+                f.write("\n")
+            else:
+                f.write("\n✅ All experiments completed successfully!\n")
+            
+            f.write("\n" + "=" * 80 + "\n")
+        
+        print(f"\n📝 Summary written to: {filepath}")
 
 
 # Create module instance
