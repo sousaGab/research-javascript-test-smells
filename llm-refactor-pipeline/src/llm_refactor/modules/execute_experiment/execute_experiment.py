@@ -237,16 +237,22 @@ NOTES:
             # Step 4: Apply changes (with backup)
             print("💾 [4/7] Applying refactored code to repository (with backup)...")
             try:
+                # Use line number to disambiguate if snippet appears multiple times
+                line_number = smell_data.get('line_number')
+                if line_number:
+                    print(f"   ℹ️  Using line {line_number} to locate snippet")
+                
                 self.backup_manager.replace_snippet(
                     repo_name=repo_name,
                     file_path=file_path,
                     original_snippet=smell_data['code_snippet'],
                     refactored_snippet=refactored_code,
-                    create_backup=True
+                    create_backup=True,
+                    expected_line=line_number
                 )
                 file_was_modified = True
                 print(f"   ✓ Modified: repositories/{repo_name}/{file_path}")
-                print("   ✓ Backup created")
+                print("   ✓ Backup created (or reused if exists)")
             except (SnippetReplacementError, BackupFileNotFoundError, InvalidPathError) as e:
                 return f"❌ Error applying changes: {e}"
             
@@ -402,6 +408,16 @@ NOTES:
         # Get smell catalog info
         smell_catalog = TEST_SMELL_CATALOG.get(smell.smell_type, {})
         
+        # Extract line number from line_numbers JSON
+        import json
+        line_number = None
+        if smell.line_numbers:
+            try:
+                line_info = json.loads(smell.line_numbers) if isinstance(smell.line_numbers, str) else smell.line_numbers
+                line_number = line_info.get('line')
+            except (json.JSONDecodeError, AttributeError):
+                pass
+        
         return {
             'smell_id': smell_id,
             'file_id': smell.file_id,
@@ -409,6 +425,7 @@ NOTES:
             'code_snippet': smell.code_snippet,
             'file_path': smell.file.path,
             'repo_name': smell.file.repository.name,
+            'line_number': line_number,
             'smell_description': smell_catalog.get('definition', ''),
             'examples': smell_catalog.get('examples', []),
             'refactoring_strategies': smell_catalog.get('refactoring_strategies', [])

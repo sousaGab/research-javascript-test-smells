@@ -218,7 +218,8 @@ class BackupManager:
         file_path: str,
         original_snippet: str,
         refactored_snippet: str,
-        create_backup: bool = True
+        create_backup: bool = True,
+        expected_line: Optional[int] = None
     ) -> Tuple[Path, bool]:
         """
         Replace a specific code snippet in a file.
@@ -228,6 +229,17 @@ class BackupManager:
         2. Reads the file content
         3. Replaces the original snippet with the refactored version
         4. Writes the modified content back to the file
+        
+        Args:
+            repo_name: Name of the repository containing the file
+            file_path: Path to the file relative to the repository root
+            original_snippet: The exact code snippet to replace
+            refactored_snippet: The new code to insert
+            create_backup: Whether to create a backup before modifying (default: True)
+            expected_line: Optional line number where snippet is expected (1-based).
+                          Used to disambiguate when snippet appears multiple times.
+        
+        Returns:
         
         Args:
             repo_name: Repository name
@@ -259,14 +271,15 @@ class BackupManager:
         
         # Create backup if requested
         backup_created = False
+        backup_reused = False
         if create_backup:
             try:
                 self.backup_file(repo_name, file_path)
                 backup_created = True
             except BackupExistsError:
-                logger.warning(
-                    "Backup already exists for %s, "
-                    "proceeding with replacement without creating new backup",
+                backup_reused = True
+                logger.info(
+                    "Backup already exists for %s, reusing existing backup",
                     file_path
                 )
         
@@ -292,14 +305,24 @@ class BackupManager:
             )
         
         if occurrences > 1:
-            raise SnippetReplacementError(
-                f"Original snippet found {occurrences} times in file: {target_file}\n"
-                f"Snippet must be unique for safe replacement.\n"
-                f"Consider including more surrounding context."
-            )
-        
-        # Replace the snippet
-        new_content = content.replace(original_snippet, refactored_snippet)
+            # If expected_line is provided, use it to find the correct occurrence
+            if expected_line is not None:
+                logger.info(
+                    "Snippet found %d times in file, using line %d to disambiguate",
+                    occurrences, expected_line
+                )
+                new_content = self._replace_snippet_at_line(
+                    content, original_snippet, refactored_snippet, expected_line
+                )
+            else:
+                raise SnippetReplacementError(
+                    f"Original snippet found {occurrences} times in file: {target_file}\n"
+                    f"Snippet must be unique for safe replacement.\n"
+                    f"Consider including more surrounding context or provide expected_line parameter."
+                )
+        else:
+            # Replace the snippet (only one occurrence)
+            new_content = content.replace(original_snippet, refactored_snippet)
         
         # Write the modified content back
         try:
@@ -422,6 +445,88 @@ class BackupManager:
         except Exception as e:
             logger.error("Failed to delete backup %s: %s", backup_path, e)
             raise
+    
+    def _replace_snippet_at_line(
+        self,
+        content: str,
+        original_snippet: str,
+        refactored_snippet: str,
+        expected_line: int
+    ) -> str:
+        """
+        Replace a snippet at a specific line when it appears multiple times.
+        
+        Args:
+            content: Full file content
+            original_snippet: Snippet to replace
+            refactored_snippet: Replacement snippet
+            expected_line: Line number where smell is located (1-based)
+                          The snippet may start before this line
+        
+        Returns:
+            Modified content with replacement applied
+        
+        Raises:
+            SnippetReplacementError: If snippet not found near expected line
+        """
+        # First try: Find exact substring matches
+        matches = []
+        idx = 0
+        while True:
+            idx = content.find(original_snippet, idx)
+            if idx == -1:
+                break
+            # Calculate line number for this occurrence
+            lines_before = content[:idx].count('\n')
+            start_line = lines_before + 1
+            snippet_line_count = original_snippet.count('\n') + 1
+            end_line = start_line + snippet_line_count - 1
+            matches.append((idx, start_line, end_line))
+            idx += 1
+        
+        if not matches:
+            raise SnippetReplacementError(
+                f"Snippet not found in file (searched all content).\n"
+                f"Expected near line {expected_line}."
+            )
+        
+        # Select the match to use
+        if len(matches) == 1:
+            # Only one match, use it
+            char_idx, start_line, end_line = matches[0]
+            logger.info(
+                "Found single occurrence at line %d-%d",
+                start_line, end_line
+            )
+        else:
+            # Multiple matches - find the one where expected_line falls within range
+            found_match = None
+            for char_idx, start_line, end_line in matches:
+                if start_line <= expected_line <= end_line:
+                    found_match = (char_idx, start_line, end_line)
+                    break
+            
+            # If expected_line is not within any match, use closest one
+            if found_match is None:
+                distances = [(abs(expected_line - start), (idx, start, end)) 
+                           for idx, start, end in matches]
+                found_match = min(distances)[1]
+                logger.warning(
+                    "Expected line %d not within any snippet occurrence. "
+                    "Using closest match at line %d",
+                    expected_line, found_match[1]
+                )
+            
+            char_idx, start_line, end_line = found_match
+            logger.info(
+                "Replacing snippet occurrence at line %d-%d (expected line: %d, total matches: %d)",
+                start_line, end_line, expected_line, len(matches)
+            )
+        
+        # Replace at the found location
+        before = content[:char_idx]
+        after = content[char_idx + len(original_snippet):]
+        return before + refactored_snippet + after
     
     def list_backups(self, repo_name: Optional[str] = None) -> list[Path]:
         """

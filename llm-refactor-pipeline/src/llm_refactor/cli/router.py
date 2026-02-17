@@ -14,6 +14,7 @@ from llm_refactor.modules import ui_server
 from llm_refactor.modules import refactor
 from llm_refactor.modules import backup_manager
 from llm_refactor.modules import execute_experiment
+from llm_refactor.modules import batch_experiments
 
 
 class CommandRouter:
@@ -72,6 +73,12 @@ class CommandRouter:
             command="execute_experiment",
             handler=execute_experiment.execute,
             description="Execute complete refactoring experiment workflow"
+        )
+
+        self.register(
+            command="batch_experiments",
+            handler=batch_experiments.execute,
+            description="Execute batch experiments for multiple study smells"
         )
 
     def register(self, command: str, handler: Callable, description: str):
