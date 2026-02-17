@@ -194,25 +194,40 @@ def mark_new_smells_in_db(session: Session, experiment_id: int, new_smells: Set[
 
 
 def update_experiment_analysis_flags(session: Session, experiment_id: int, 
-                                    target_removed: bool, new_introduced: bool) -> bool:
+                                    target_removed: bool, new_introduced: bool,
+                                    coverage_changed: bool = None, 
+                                    tests_changed: bool = None) -> bool:
     """
-    Update experiment record with smell analysis results.
+    Update experiment record with smell and test analysis results.
     
     Args:
         session: Database session
         experiment_id: Experiment ID
         target_removed: Was the target smell removed?
         new_introduced: Were new smells introduced?
+        coverage_changed: Did test coverage change? (optional)
+        tests_changed: Did test execution results change? (optional)
         
     Returns:
         True if successful, False otherwise
     """
     try:
+        # Prepare update dict
+        update_data = {
+            'smell_removed': target_removed,
+            'introduced_new_smells': new_introduced
+        }
+        
+        # Add test analysis fields if provided
+        if coverage_changed is not None:
+            update_data['coverage_changed'] = coverage_changed
+        if tests_changed is not None:
+            update_data['tests_changed'] = tests_changed
+        
         result = update_experiment(
             session=session,
             experiment_id=experiment_id,
-            smell_removed=target_removed,
-            introduced_new_smells=new_introduced
+            **update_data
         )
         
         if result:

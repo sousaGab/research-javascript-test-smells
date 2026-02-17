@@ -45,7 +45,8 @@ from llm_refactor.modules.detect_smells.steel_runner import run_steel
 from llm_refactor.modules.smell_analysis import (
     SmellAnalyzer,
     save_analysis_json,
-    update_experiment_analysis_flags
+    update_experiment_analysis_flags,
+    analyze_test_results
 )
 
 
@@ -296,6 +297,30 @@ NOTES:
                     print(f"   → Net smell change: {net_change:+d}")
             else:
                 print("   ⚠ Analysis skipped (baseline not found or error occurred)")
+            
+            # Step 7.5: Analyze test results changes
+            print("🧪 [7.5/8] Analyzing test results changes...")
+            test_analysis_results = self._analyze_test_results(
+                session, experiment_id, repo_name, output_dir
+            )
+            
+            if test_analysis_results:
+                cov_changed = test_analysis_results.get('coverage_changed')
+                test_changed = test_analysis_results.get('tests_changed')
+                
+                if cov_changed is not None:
+                    print(f"   ✓ Coverage changed: {cov_changed}")
+                if test_changed is not None:
+                    print(f"   ✓ Test counts changed: {test_changed}")
+                    
+                # Show coverage improvements/regressions if available
+                cov_comp = test_analysis_results.get('coverage_comparison')
+                if cov_comp and cov_comp.get('improvements'):
+                    print(f"   → Coverage improvements: {', '.join(cov_comp['improvements'])}")
+                if cov_comp and cov_comp.get('regressions'):
+                    print(f"   → Coverage regressions: {', '.join(cov_comp['regressions'])}")
+            else:
+                print("   ⚠ Test analysis skipped (baseline not found or error occurred)")
             
             # Update experiment with test results
             self._update_experiment_results(
@@ -806,14 +831,103 @@ NOTES:
             traceback.print_exc()
             return None
     
+    def _analyze_test_results(self, session, experiment_id: int, 
+                              repo_name: str, output_dir: Path) -> Dict:
+        """
+        Analyze test results changes between baseline and refactored versions.
+        
+        Compares baseline test_summary.txt (from tests_output/) with refactored 
+        test_summary.txt (from experiment output), updates database flags.
+        
+        Args:
+            session: Database session
+            experiment_id: Experiment ID
+            repo_name: Repository name
+            output_dir: Experiment output directory
+            
+        Returns:
+            Dict with analysis summary or None if analysis failed/skipped
+        """
+        try:
+            # Get baseline test summary path (from tests_output/)
+            project_root = Config.PROJECT_ROOT.parent
+            baseline_summary = project_root / "tests_output" / repo_name / "test_summary.txt"
+            
+            # Get refactored test summary path (from experiment output)
+            refactored_summary = output_dir / "test_summary.txt"
+            
+            # Validate files exist
+            if not baseline_summary.exists():
+                print(f"   ⚠ Baseline test summary not found: {baseline_summary}")
+                return None
+            
+            if not refactored_summary.exists():
+                print(f"   ⚠ Refactored test summary not found: {refactored_summary}")
+                return None
+            
+            # Run analysis
+            analysis = analyze_test_results(
+                baseline_path=baseline_summary,
+                refactored_path=refactored_summary
+            )
+            
+            if not analysis or not analysis.get('baseline_available') or not analysis.get('refactored_available'):
+                print("   ⚠ Test analysis failed: files not available")
+                return None
+            
+            # Extract binary flags
+            coverage_changed = analysis.get('coverage_changed')
+            tests_changed = analysis.get('tests_changed')
+            
+            # Save analysis JSON
+            analysis_dir = output_dir / "analysis"
+            analysis_dir.mkdir(exist_ok=True)
+            
+            import json
+            analysis_json_path = analysis_dir / "test_analysis.json"
+            with open(analysis_json_path, 'w', encoding='utf-8') as f:
+                json.dump(analysis, f, indent=2, default=str)
+            
+            print(f"   ✓ Test analysis saved: {analysis_dir.relative_to(Config.PROJECT_ROOT)}/test_analysis.json")
+            
+            # Update experiment flags in database
+            if coverage_changed is not None or tests_changed is not None:
+                update_data = {}
+                if coverage_changed is not None:
+                    update_data['coverage_changed'] = coverage_changed
+                if tests_changed is not None:
+                    update_data['tests_changed'] = tests_changed
+                
+                update_experiment(session, experiment_id, **update_data)
+                session.commit()
+                print("   ✓ Updated experiment test analysis flags in database")
+            
+            return analysis
+            
+        except Exception as e:
+            print(f"   ⚠ Error during test analysis: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+    
     def _update_experiment_results(self, session, experiment_id: int,
                                    test_results: Dict[str, Any],
                                    smell_detection_success: bool):  # noqa: ARG002
-        """Update experiment with test results."""
+        """
+        Update experiment with test results.
+        
+        Args:
+            session: Database session
+            experiment_id: Experiment ID
+            test_results: Test execution results
+            smell_detection_success: Whether smell detection succeeded (unused)
+        """
+        # Check if tests passed (exit code 0)
         tests_passed = test_results.get('success', False) and test_results.get('exit_code') == 0
         
         # Update experiment with test results
         # Note: smell_removed and introduced_new_smells are updated in _analyze_smells()
+        # Note: coverage_changed and tests_changed are updated in _analyze_test_results()
         update_experiment(
             session=session,
             experiment_id=experiment_id,

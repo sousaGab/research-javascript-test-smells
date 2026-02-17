@@ -712,333 +712,6 @@ file,type,line,method,methodStart,methodEnd,source
 /test/Model.spec.js,SubOptimalAssert,"{'startLine':68,'endLine':68}","it(""should construct a new Model when calling the falcor module function"", () => {
         expect(falcor() instanceof falcor.Model).toBe(true);
     })",67,69,snuts
-/test/set/edge-cases.spec.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","it(""set blows away the cache."", function() {
-        var model = new Model({});
-        var get = [[""genreList"", 1, 0, ""summary""]];
-
-        // this mimicks the server setting cycle from the router.
-        var set = [
-            {
-                jsonGraph: {""genreList"": {
-                    ""0"": { ""$type"": $path, ""value"": [""lists"", ""abcd""] },
-                    ""1"": { ""$type"": $path, ""value"": [""lists"", ""my-list""] }
-                }},
-                paths: [['genreList', {to:1}, 0, 'summary']]
-            },
-            {
-                jsonGraph: {""lists"": {
-                    ""abcd"": { ""0"": { ""$type"": $path, ""value"": [""videos"", 1234] } },
-                    ""my-list"": { ""$type"": $path, ""value"": [""lists"", ""1x5x""] }
-                }},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            },
-            {
-                jsonGraph: {""lists"": {""1x5x"": {
-                    ""0"": { ""$type"": $path, ""value"": [""videos"", 553] }
-                }}},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            },
-            {
-                jsonGraph: {""videos"": {""553"": {""summary"": {
-                    ""$size"": 10,
-                    ""$type"": $atom,
-                    ""value"": {
-                        ""title"": ""Running Man"",
-                        ""url"": ""/movies/553""
-                    }
-                }}}},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            }
-        ];
-
-        set.forEach(function(s, i) {
-            model._setJSONGs(model, [s]);
-            if (i === 2) {
-                expect(model._root.cache.lists).toBeDefined();
-            }
-        });
-
-        model._getPathValuesAsPathMap(model, get, function(x) {
-            expect(x).toEqual({ json: { genreList: { 1: { 0: { summary: {
-                    ""title"": ""Running Man"",
-                    ""url"": ""/movies/553""
-                } } } } }
-            });
-        });
-    })",57,110,snuts
-/test/set/edge-cases.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':68,'endLine':68}","it(
-        ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
-        function() {
-            var onErrorValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function(e) {
-                    onErrorValues.push(e);
-                }
-            );
-            modelResponseObserver.onError(1);
-            modelResponseObserver.onError(2);
-
-            expect(onErrorValues.length).toBe(1);
-            expect(onErrorValues[0]).toBe(1);
-        }
-    )",63,79,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':86,'endLine':86}","it(
-        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function() {},
-                function(value) {
-                    onCompletedValues.push(value);
-                }
-            );
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",81,98,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':87,'endLine':87}","it(
-        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function() {},
-                function(value) {
-                    onCompletedValues.push(value);
-                }
-            );
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",81,98,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':152,'endLine':152}","it(
-        ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
-        function() {
-            var onErrorValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function(e) {
-                    onErrorValues.push(e);
-                }
-            });
-            modelResponseObserver.onError(1);
-            modelResponseObserver.onError(2);
-
-            expect(onErrorValues.length).toBe(1);
-            expect(onErrorValues[0]).toBe(1);
-        }
-    )",147,163,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':170,'endLine':170}","it(
-        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function() {},
-                onCompleted: function(value) {
-                    onCompletedValues.push(value);
-                }
-            });
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",165,182,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':171,'endLine':171}","it(
-        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function() {},
-                onCompleted: function(value) {
-                    onCompletedValues.push(value);
-                }
-            });
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",165,182,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':43,'endLine':43}","it(
-        ""should suppress onNext callback after ModelResponseObserver is onCompleted"",
-        function() {
-            var onNextValue;
-            var modelResponseObserver = new ModelResponseObserver(function(
-                value
-            ) {
-                onNextValue = value;
-            });
-            modelResponseObserver.onCompleted();
-            modelResponseObserver.onNext(5);
-
-            expect(onNextValue).toBe(undefined);
-        }
-    )",31,45,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':59,'endLine':59}","it(
-        ""should suppress onNext callback after ModelResponseObserver is onError'ed"",
-        function() {
-            var onNextValue;
-            var modelResponseObserver = new ModelResponseObserver(function(
-                value
-            ) {
-                onNextValue = value;
-            });
-            modelResponseObserver.onError();
-            modelResponseObserver.onNext(5);
-
-            expect(onNextValue).toBe(undefined);
-        }
-    )",47,61,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':76,'endLine':76}","it(
-        ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
-        function() {
-            var onErrorValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function(e) {
-                    onErrorValues.push(e);
-                }
-            );
-            modelResponseObserver.onError(1);
-            modelResponseObserver.onError(2);
-
-            expect(onErrorValues.length).toBe(1);
-            expect(onErrorValues[0]).toBe(1);
-        }
-    )",63,79,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':95,'endLine':95}","it(
-        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function() {},
-                function(value) {
-                    onCompletedValues.push(value);
-                }
-            );
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",81,98,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':96,'endLine':96}","it(
-        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function() {},
-                function(value) {
-                    onCompletedValues.push(value);
-                }
-            );
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",81,98,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':127,'endLine':127}","it(
-        ""should suppress onNext method after ModelResponseObserver is onCompleted"",
-        function() {
-            var onNextValue;
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function(value) {
-                    onNextValue = value;
-                }
-            });
-            modelResponseObserver.onCompleted();
-            modelResponseObserver.onNext(5);
-
-            expect(onNextValue).toBe(undefined);
-        }
-    )",115,129,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':143,'endLine':143}","it(
-        ""should suppress onNext method after ModelResponseObserver is onError'ed"",
-        function() {
-            var onNextValue;
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function(value) {
-                    onNextValue = value;
-                }
-            });
-            modelResponseObserver.onError();
-            modelResponseObserver.onNext(5);
-
-            expect(onNextValue).toBe(undefined);
-        }
-    )",131,145,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':160,'endLine':160}","it(
-        ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
-        function() {
-            var onErrorValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function(e) {
-                    onErrorValues.push(e);
-                }
-            });
-            modelResponseObserver.onError(1);
-            modelResponseObserver.onError(2);
-
-            expect(onErrorValues.length).toBe(1);
-            expect(onErrorValues[0]).toBe(1);
-        }
-    )",147,163,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':179,'endLine':179}","it(
-        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function() {},
-                onCompleted: function(value) {
-                    onCompletedValues.push(value);
-                }
-            });
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",165,182,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':180,'endLine':180}","it(
-        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function() {},
-                onCompleted: function(value) {
-                    onCompletedValues.push(value);
-                }
-            });
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",165,182,snuts
 /test/lru/lru.splice.overwrite.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
 /test/lru/lru.splice.expired.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/lru/lru.promote.set.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
@@ -1411,6 +1084,333 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",130,172,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':68,'endLine':68}","it(
+        ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
+        function() {
+            var onErrorValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function(e) {
+                    onErrorValues.push(e);
+                }
+            );
+            modelResponseObserver.onError(1);
+            modelResponseObserver.onError(2);
+
+            expect(onErrorValues.length).toBe(1);
+            expect(onErrorValues[0]).toBe(1);
+        }
+    )",63,79,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':86,'endLine':86}","it(
+        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function() {},
+                function(value) {
+                    onCompletedValues.push(value);
+                }
+            );
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",81,98,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':87,'endLine':87}","it(
+        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function() {},
+                function(value) {
+                    onCompletedValues.push(value);
+                }
+            );
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",81,98,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':152,'endLine':152}","it(
+        ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
+        function() {
+            var onErrorValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function(e) {
+                    onErrorValues.push(e);
+                }
+            });
+            modelResponseObserver.onError(1);
+            modelResponseObserver.onError(2);
+
+            expect(onErrorValues.length).toBe(1);
+            expect(onErrorValues[0]).toBe(1);
+        }
+    )",147,163,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':170,'endLine':170}","it(
+        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function() {},
+                onCompleted: function(value) {
+                    onCompletedValues.push(value);
+                }
+            });
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",165,182,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':171,'endLine':171}","it(
+        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function() {},
+                onCompleted: function(value) {
+                    onCompletedValues.push(value);
+                }
+            });
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",165,182,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':43,'endLine':43}","it(
+        ""should suppress onNext callback after ModelResponseObserver is onCompleted"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver(function(
+                value
+            ) {
+                onNextValue = value;
+            });
+            modelResponseObserver.onCompleted();
+            modelResponseObserver.onNext(5);
+
+            expect(onNextValue).toBe(undefined);
+        }
+    )",31,45,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':59,'endLine':59}","it(
+        ""should suppress onNext callback after ModelResponseObserver is onError'ed"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver(function(
+                value
+            ) {
+                onNextValue = value;
+            });
+            modelResponseObserver.onError();
+            modelResponseObserver.onNext(5);
+
+            expect(onNextValue).toBe(undefined);
+        }
+    )",47,61,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':76,'endLine':76}","it(
+        ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
+        function() {
+            var onErrorValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function(e) {
+                    onErrorValues.push(e);
+                }
+            );
+            modelResponseObserver.onError(1);
+            modelResponseObserver.onError(2);
+
+            expect(onErrorValues.length).toBe(1);
+            expect(onErrorValues[0]).toBe(1);
+        }
+    )",63,79,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':95,'endLine':95}","it(
+        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function() {},
+                function(value) {
+                    onCompletedValues.push(value);
+                }
+            );
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",81,98,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':96,'endLine':96}","it(
+        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function() {},
+                function(value) {
+                    onCompletedValues.push(value);
+                }
+            );
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",81,98,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':127,'endLine':127}","it(
+        ""should suppress onNext method after ModelResponseObserver is onCompleted"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function(value) {
+                    onNextValue = value;
+                }
+            });
+            modelResponseObserver.onCompleted();
+            modelResponseObserver.onNext(5);
+
+            expect(onNextValue).toBe(undefined);
+        }
+    )",115,129,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':143,'endLine':143}","it(
+        ""should suppress onNext method after ModelResponseObserver is onError'ed"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function(value) {
+                    onNextValue = value;
+                }
+            });
+            modelResponseObserver.onError();
+            modelResponseObserver.onNext(5);
+
+            expect(onNextValue).toBe(undefined);
+        }
+    )",131,145,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':160,'endLine':160}","it(
+        ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
+        function() {
+            var onErrorValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function(e) {
+                    onErrorValues.push(e);
+                }
+            });
+            modelResponseObserver.onError(1);
+            modelResponseObserver.onError(2);
+
+            expect(onErrorValues.length).toBe(1);
+            expect(onErrorValues[0]).toBe(1);
+        }
+    )",147,163,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':179,'endLine':179}","it(
+        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function() {},
+                onCompleted: function(value) {
+                    onCompletedValues.push(value);
+                }
+            });
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",165,182,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':180,'endLine':180}","it(
+        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function() {},
+                onCompleted: function(value) {
+                    onCompletedValues.push(value);
+                }
+            });
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",165,182,snuts
+/test/set/edge-cases.spec.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","it(""set blows away the cache."", function() {
+        var model = new Model({});
+        var get = [[""genreList"", 1, 0, ""summary""]];
+
+        // this mimicks the server setting cycle from the router.
+        var set = [
+            {
+                jsonGraph: {""genreList"": {
+                    ""0"": { ""$type"": $path, ""value"": [""lists"", ""abcd""] },
+                    ""1"": { ""$type"": $path, ""value"": [""lists"", ""my-list""] }
+                }},
+                paths: [['genreList', {to:1}, 0, 'summary']]
+            },
+            {
+                jsonGraph: {""lists"": {
+                    ""abcd"": { ""0"": { ""$type"": $path, ""value"": [""videos"", 1234] } },
+                    ""my-list"": { ""$type"": $path, ""value"": [""lists"", ""1x5x""] }
+                }},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            },
+            {
+                jsonGraph: {""lists"": {""1x5x"": {
+                    ""0"": { ""$type"": $path, ""value"": [""videos"", 553] }
+                }}},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            },
+            {
+                jsonGraph: {""videos"": {""553"": {""summary"": {
+                    ""$size"": 10,
+                    ""$type"": $atom,
+                    ""value"": {
+                        ""title"": ""Running Man"",
+                        ""url"": ""/movies/553""
+                    }
+                }}}},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            }
+        ];
+
+        set.forEach(function(s, i) {
+            model._setJSONGs(model, [s]);
+            if (i === 2) {
+                expect(model._root.cache.lists).toBeDefined();
+            }
+        });
+
+        model._getPathValuesAsPathMap(model, get, function(x) {
+            expect(x).toEqual({ json: { genreList: { 1: { 0: { summary: {
+                    ""title"": ""Running Man"",
+                    ""url"": ""/movies/553""
+                } } } } }
+            });
+        });
+    })",57,110,snuts
+/test/set/edge-cases.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/invalidate/pathSets.spec.js,AnonymousTest,"{'startLine':13,'endLine':30}","it(""directly"", function() {
 
         var lru = new Object();
@@ -1850,6 +1850,10 @@ file,type,line,method,methodStart,methodEnd,source
                 expect(strip(cache)).toEqual(strip({}));
             })",146,165,snuts
 /test/invalidate/invalidate.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
+/test/falcor/operations.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
+/test/falcor/operations.spec.js,SubOptimalAssert,"{'startLine':32,'endLine':32}","it('should return undefined when undefined is passed into falcor.keys', function() {
+        expect(falcor.keys()).toBe(undefined);
+    })",31,33,snuts
 /test/integration/get.spec.js,GeneralFixture,"{'startLine':15,'endLine':15}","beforeEach(function(done) {
         app = express();
         server = app.listen(60002, done);
@@ -1921,6 +1925,20 @@ file,type,line,method,methodStart,methodEnd,source
         })",82,91,snuts
 /test/integration/dedupe.spec.js,NonFunctionalStatement,"{'startLine':7,'endLine':7}",Unknown,,,snuts
 /test/integration/call.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/get-core/get.cache.spec.js,NonFunctionalStatement,"{'startLine':37,'endLine':37}","it(""serialized cache should not contain internal keys (including $size, on boxedValues)"", function(done) {
+        var model = new Model({ cache: cacheGenerator(0, 1) });
+
+        model.get(['lolomo', 0, 0, 'item', 'title']).subscribe(function() {}, done, function() {
+            var cache = model.getCache();
+
+            deepExpectations(cache, function(key) {
+                expect(isInternalKey(key)).toBe(false);
+            });
+
+            done();
+        });
+    })",34,46,snuts
+/test/get-core/deref.spec.js,NonFunctionalStatement,"{'startLine':11,'endLine':11}",Unknown,,,snuts
 /test/hardlink/hardlink.remove.spec.js,IdenticalTestDescription,"{'startLine':43,'endLine':49}","it('should perform a hard-link with back references _toJSONG.', function(done) {
             getTest(getPath, '_toJSONG').
                 flatMap(function() {
@@ -1957,24 +1975,554 @@ file,type,line,method,methodStart,methodEnd,source
                 subscribe(noOp, done, done);
         })",59,62,snuts
 /test/hardlink/hardlink.add.spec.js,NonFunctionalStatement,"{'startLine':13,'endLine':13}",Unknown,,,snuts
-/test/get-core/get.cache.spec.js,NonFunctionalStatement,"{'startLine':37,'endLine':37}","it(""serialized cache should not contain internal keys (including $size, on boxedValues)"", function(done) {
-        var model = new Model({ cache: cacheGenerator(0, 1) });
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':25,'endLine':41}","it(""directly"", function() {
 
-        model.get(['lolomo', 0, 0, 'item', 'title']).subscribe(function() {}, done, function() {
-            var cache = model.getCache();
+        var cache = {};
+        var version = 0;
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+            $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+        ]);
 
-            deepExpectations(cache, function(key) {
-                expect(isInternalKey(key)).toBe(false);
-            });
+        expect(strip(cache)).toEqual(strip({
+            movies: {
+                ""pulp-fiction"": {
+                    ""title"": $atom(""Pulp Fiction"")
+                }
+            }
+        }));
+    })",25,41,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':149,'endLine':166}","it(""directly"", function() {
 
-            done();
-        });
-    })",34,46,snuts
-/test/get-core/deref.spec.js,NonFunctionalStatement,"{'startLine':11,'endLine':11}",Unknown,,,snuts
-/test/falcor/operations.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
-/test/falcor/operations.spec.js,SubOptimalAssert,"{'startLine':32,'endLine':32}","it('should return undefined when undefined is passed into falcor.keys', function() {
-        expect(falcor.keys()).toBe(undefined);
-    })",31,33,snuts
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",149,166,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':200,'endLine':230}","it(""to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope(""grid[0][0..2].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",200,230,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':231,'endLine':258}","it(""from:1, to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope(""grid[0][1..2].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",231,258,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':259,'endLine':289}","it(""length:3"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, {length: 3}, ""director""], ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",259,289,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':290,'endLine':317}","it(""from:1, length:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, {from: 1, length: 2}, ""director""], ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",290,317,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':318,'endLine':348}","it(""[length:3]"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, [{length: 3}], ""director""], ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",318,348,snuts
+/test/set/pathMaps/primitive.spec.js,IdenticalTestDescription,"{'startLine':149,'endLine':166}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",149,166,snuts
+/test/set/pathMaps/expired.spec.js,IdenticalTestDescription,"{'startLine':58,'endLine':80}","it(""sets through an immediately expired reference"", function() {
+
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setPathMaps(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: startTime - 10
+                })),
+                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",58,80,snuts
+/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':27,'endLine':27}","it(""converts a negative $expires value to an absolute time"", function() {
+
+        var cache = {};
+        var version = 0;
+
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: -1000
+                }))
+            ]
+        );
+        var value = cache.grids.id[0];
+        var expires = value.$expires;
+
+        expect(expires > Date.now()).toBe(true);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } }
+        }));
+    })",11,32,snuts
+/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it(""sets through an immediately expired reference"", function() {
+
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setPathMaps(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: 0
+                })),
+                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",34,56,snuts
+/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':75,'endLine':75}","it(""sets through an immediately expired reference"", function() {
+
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setPathMaps(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: startTime - 10
+                })),
+                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",58,80,snuts
+/test/set/pathMaps/branch.spec.js,AnonymousTest,"{'startLine':12,'endLine':26}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathMapEnvelope(""movies['pulp-fiction']"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $atom(""Pulp Fiction"") }
+        }));
+    })",12,26,snuts
+/test/set/pathMaps/branch.spec.js,AnonymousTest,"{'startLine':58,'endLine':72}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathMapEnvelope(""movies['pulp-fiction']"", $error(""oops""))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",58,72,snuts
+/test/set/pathMaps/branch.spec.js,IdenticalTestDescription,"{'startLine':58,'endLine':72}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathMapEnvelope(""movies['pulp-fiction']"", $error(""oops""))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",58,72,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':11,'endLine':35}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""movies['pulp-fiction'].summary"", $atom({
+                    title: ""Pulp Fiction"",
+                    url: ""/movies/id/pulp-fiction""
+                }))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: {
+                ""pulp-fiction"": {
+                    ""summary"": $atom({
+                        title: ""Pulp Fiction"",
+                        url: ""/movies/id/pulp-fiction""
+                    })
+                }
+            }
+        }));
+    })",11,35,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':208,'endLine':225}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",208,225,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':259,'endLine':289}","it(""to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope(""grid[0][0..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",259,289,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':290,'endLine':317}","it(""from:1, to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope(""grid[0][1..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",290,317,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':318,'endLine':348}","it(""length:3"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, {length: 3}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",318,348,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':349,'endLine':376}","it(""from:1, length:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, {from: 1, length: 2}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",349,376,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':377,'endLine':407}","it(""[length:3]"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, [{length: 3}], ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",377,407,snuts
+/test/set/pathMaps/atom.spec.js,IdenticalTestDescription,"{'startLine':208,'endLine':225}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",208,225,snuts
 /test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':24,'endLine':40}","it(""directly"", function() {
 
         var cache = {};
@@ -2526,554 +3074,6 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",227,244,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':25,'endLine':41}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-            $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-        ]);
-
-        expect(strip(cache)).toEqual(strip({
-            movies: {
-                ""pulp-fiction"": {
-                    ""title"": $atom(""Pulp Fiction"")
-                }
-            }
-        }));
-    })",25,41,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':149,'endLine':166}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",149,166,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':200,'endLine':230}","it(""to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope(""grid[0][0..2].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",200,230,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':231,'endLine':258}","it(""from:1, to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope(""grid[0][1..2].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",231,258,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':259,'endLine':289}","it(""length:3"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, {length: 3}, ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",259,289,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':290,'endLine':317}","it(""from:1, length:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, {from: 1, length: 2}, ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",290,317,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':318,'endLine':348}","it(""[length:3]"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, [{length: 3}], ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",318,348,snuts
-/test/set/pathMaps/primitive.spec.js,IdenticalTestDescription,"{'startLine':149,'endLine':166}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",149,166,snuts
-/test/set/pathMaps/expired.spec.js,IdenticalTestDescription,"{'startLine':58,'endLine':80}","it(""sets through an immediately expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathMaps(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: startTime - 10
-                })),
-                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",58,80,snuts
-/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':27,'endLine':27}","it(""converts a negative $expires value to an absolute time"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: -1000
-                }))
-            ]
-        );
-        var value = cache.grids.id[0];
-        var expires = value.$expires;
-
-        expect(expires > Date.now()).toBe(true);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } }
-        }));
-    })",11,32,snuts
-/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it(""sets through an immediately expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathMaps(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: 0
-                })),
-                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",34,56,snuts
-/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':75,'endLine':75}","it(""sets through an immediately expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathMaps(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: startTime - 10
-                })),
-                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",58,80,snuts
-/test/set/pathMaps/branch.spec.js,AnonymousTest,"{'startLine':12,'endLine':26}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathMapEnvelope(""movies['pulp-fiction']"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $atom(""Pulp Fiction"") }
-        }));
-    })",12,26,snuts
-/test/set/pathMaps/branch.spec.js,AnonymousTest,"{'startLine':58,'endLine':72}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathMapEnvelope(""movies['pulp-fiction']"", $error(""oops""))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",58,72,snuts
-/test/set/pathMaps/branch.spec.js,IdenticalTestDescription,"{'startLine':58,'endLine':72}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathMapEnvelope(""movies['pulp-fiction']"", $error(""oops""))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",58,72,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':11,'endLine':35}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""movies['pulp-fiction'].summary"", $atom({
-                    title: ""Pulp Fiction"",
-                    url: ""/movies/id/pulp-fiction""
-                }))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: {
-                ""pulp-fiction"": {
-                    ""summary"": $atom({
-                        title: ""Pulp Fiction"",
-                        url: ""/movies/id/pulp-fiction""
-                    })
-                }
-            }
-        }));
-    })",11,35,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':208,'endLine':225}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",208,225,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':259,'endLine':289}","it(""to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope(""grid[0][0..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",259,289,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':290,'endLine':317}","it(""from:1, to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope(""grid[0][1..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",290,317,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':318,'endLine':348}","it(""length:3"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, {length: 3}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",318,348,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':349,'endLine':376}","it(""from:1, length:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, {from: 1, length: 2}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",349,376,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':377,'endLine':407}","it(""[length:3]"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, [{length: 3}], ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",377,407,snuts
-/test/set/pathMaps/atom.spec.js,IdenticalTestDescription,"{'startLine':208,'endLine':225}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",208,225,snuts
 /test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':51,'endLine':70}","it(""directly"", function() {
 
         var cache = {};
@@ -5652,6 +5652,7 @@ file,type,line,method,methodStart,methodEnd,source
                         done();
                     });
         })",183,222,snuts
+/test/falcor/invalidate/invalidate.cache-only.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/get/get.pathSyntax.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/falcor/get/get.model.adapter.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
 /test/falcor/get/get.gen.spec.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should get a version', function() {
@@ -6440,185 +6441,6 @@ file,type,line,method,methodStart,methodEnd,source
                 }, done);
         })",64,92,snuts
 /test/falcor/get/get.cache-only.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
-/test/falcor/invalidate/invalidate.cache-only.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
-/test/falcor/deref/deref.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,OvercommentedTest,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
-        var cache = cacheGenerator(0, 30);
-        var model = new Model({
-            cache: cache,
-            maxSize: 3600,
-
-            // Only clean up 5% of the cache
-            collectRatio: 0.95
-        })._fromWhenceYouCame();
-
-        var lolomoModel;
-        var listModel;
-
-        // this is sync, no dataSource
-        // lolomo should be in the back of the cache again.
-        model.
-            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
-            subscribe(function(x) {
-                var lolomo = x.json.lolomo;
-                lolomoModel = model.deref(lolomo);
-                listModel = model.deref(lolomo[0]);
-            });
-
-        // Move the other references to the front of the LRU list.
-        // One of the problems in dealing with small amounts of data / size
-        // Is when things clean up, it causes side effects with references
-        // and what was cleaned up.  But that is only in these single request
-        // trivial tests
-        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
-
-        listModel.
-            set({
-                json: {
-                    10: {
-                        item: {
-                            title: 'Running man',
-                            rating: 5
-                        }
-                    },
-                    11: {
-                        item: {
-                            title: 'Commando',
-                            rating: 5
-                        }
-                    }
-                }
-            }).
-            subscribe();
-
-        var node = model._root[__head];
-        while (node) {
-            expect(node[__key]).not.toBe('lolomo');
-            node = node[__next];
-        }
-
-        var foundA, foundB, foundC;
-        var node = model._root[__head];
-        while (node) {
-            foundA = foundA || node.value[1] === 'A';
-            foundB = foundB || node.value[1] === 'B';
-            foundC = foundC || node.value[1] === 'C';
-            node = node[__next];
-        }
-        expect(foundA).toBe(true);
-        expect(foundB).toBe(true);
-        expect(foundC).toBe(true);
-
-        expect(lolomoModel._hasValidParentReference()).toBe(false);
-    })",115,183,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,VerboseStatement,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
-        var cache = cacheGenerator(0, 30);
-        var model = new Model({
-            cache: cache,
-            maxSize: 3600,
-
-            // Only clean up 5% of the cache
-            collectRatio: 0.95
-        })._fromWhenceYouCame();
-
-        var lolomoModel;
-        var listModel;
-
-        // this is sync, no dataSource
-        // lolomo should be in the back of the cache again.
-        model.
-            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
-            subscribe(function(x) {
-                var lolomo = x.json.lolomo;
-                lolomoModel = model.deref(lolomo);
-                listModel = model.deref(lolomo[0]);
-            });
-
-        // Move the other references to the front of the LRU list.
-        // One of the problems in dealing with small amounts of data / size
-        // Is when things clean up, it causes side effects with references
-        // and what was cleaned up.  But that is only in these single request
-        // trivial tests
-        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
-
-        listModel.
-            set({
-                json: {
-                    10: {
-                        item: {
-                            title: 'Running man',
-                            rating: 5
-                        }
-                    },
-                    11: {
-                        item: {
-                            title: 'Commando',
-                            rating: 5
-                        }
-                    }
-                }
-            }).
-            subscribe();
-
-        var node = model._root[__head];
-        while (node) {
-            expect(node[__key]).not.toBe('lolomo');
-            node = node[__next];
-        }
-
-        var foundA, foundB, foundC;
-        var node = model._root[__head];
-        while (node) {
-            foundA = foundA || node.value[1] === 'A';
-            foundB = foundB || node.value[1] === 'B';
-            foundC = foundC || node.value[1] === 'C';
-            node = node[__next];
-        }
-        expect(foundA).toBe(true);
-        expect(foundB).toBe(true);
-        expect(foundC).toBe(true);
-
-        expect(lolomoModel._hasValidParentReference()).toBe(false);
-    })",115,183,snuts
-/test/falcor/deref/deref.errors.spec.js,ConditionalTestLogic,"{'startLine':41,'endLine':43}","it('should error on a shorted deref path.', function(done) {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
-        });
-
-        var onNext = jest.fn();
-        model.
-            get(['lolomo', 0, 0, 'item', 'title']).
-            subscribe(onNext, noOp, function() {
-                expect(onNext).toHaveBeenCalledTimes(1);
-
-                var json = onNext.mock.calls[0][0].json;
-                var lolomoModel = model.deref(json.lolomo);
-                model.
-                    set({
-                        json: {
-                            lolomos: 'ohh no'
-                        }
-                    }).
-                    subscribe();
-
-                toObservable(lolomoModel.
-                    get([0, 0, 'item', 'title'])).
-                    doAction(onNext, function(err) {
-                        expect(err.name).toBe(InvalidModelError.name);
-                    }).
-                    subscribe(
-                        noOp,
-                        function(err) {
-                            if (isAssertionError(err)) {
-                                return done(err);
-                            }
-                            done();
-                        },
-                        done.bind(null, new Error('onCompleted shouldnt be called')));
-            });
-    })",12,48,snuts
-/test/falcor/deref/deref.errors.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':65,'endLine':69}","it(""should get a hard error from the DataSource with _treatDataSourceErrorsAsJSONGraphErrors."", function(done) {
         var model = new Model({
             source: new ErrorDataSource(503, ""Timeout""),
@@ -6866,6 +6688,184 @@ file,type,line,method,methodStart,methodEnd,source
             }).
             subscribe(noOp, doneOnError(done), errorOnCompleted(done));
     })",107,144,snuts
+/test/falcor/deref/deref.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,OvercommentedTest,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
+        var cache = cacheGenerator(0, 30);
+        var model = new Model({
+            cache: cache,
+            maxSize: 3600,
+
+            // Only clean up 5% of the cache
+            collectRatio: 0.95
+        })._fromWhenceYouCame();
+
+        var lolomoModel;
+        var listModel;
+
+        // this is sync, no dataSource
+        // lolomo should be in the back of the cache again.
+        model.
+            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
+            subscribe(function(x) {
+                var lolomo = x.json.lolomo;
+                lolomoModel = model.deref(lolomo);
+                listModel = model.deref(lolomo[0]);
+            });
+
+        // Move the other references to the front of the LRU list.
+        // One of the problems in dealing with small amounts of data / size
+        // Is when things clean up, it causes side effects with references
+        // and what was cleaned up.  But that is only in these single request
+        // trivial tests
+        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
+
+        listModel.
+            set({
+                json: {
+                    10: {
+                        item: {
+                            title: 'Running man',
+                            rating: 5
+                        }
+                    },
+                    11: {
+                        item: {
+                            title: 'Commando',
+                            rating: 5
+                        }
+                    }
+                }
+            }).
+            subscribe();
+
+        var node = model._root[__head];
+        while (node) {
+            expect(node[__key]).not.toBe('lolomo');
+            node = node[__next];
+        }
+
+        var foundA, foundB, foundC;
+        var node = model._root[__head];
+        while (node) {
+            foundA = foundA || node.value[1] === 'A';
+            foundB = foundB || node.value[1] === 'B';
+            foundC = foundC || node.value[1] === 'C';
+            node = node[__next];
+        }
+        expect(foundA).toBe(true);
+        expect(foundB).toBe(true);
+        expect(foundC).toBe(true);
+
+        expect(lolomoModel._hasValidParentReference()).toBe(false);
+    })",115,183,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,VerboseStatement,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
+        var cache = cacheGenerator(0, 30);
+        var model = new Model({
+            cache: cache,
+            maxSize: 3600,
+
+            // Only clean up 5% of the cache
+            collectRatio: 0.95
+        })._fromWhenceYouCame();
+
+        var lolomoModel;
+        var listModel;
+
+        // this is sync, no dataSource
+        // lolomo should be in the back of the cache again.
+        model.
+            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
+            subscribe(function(x) {
+                var lolomo = x.json.lolomo;
+                lolomoModel = model.deref(lolomo);
+                listModel = model.deref(lolomo[0]);
+            });
+
+        // Move the other references to the front of the LRU list.
+        // One of the problems in dealing with small amounts of data / size
+        // Is when things clean up, it causes side effects with references
+        // and what was cleaned up.  But that is only in these single request
+        // trivial tests
+        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
+
+        listModel.
+            set({
+                json: {
+                    10: {
+                        item: {
+                            title: 'Running man',
+                            rating: 5
+                        }
+                    },
+                    11: {
+                        item: {
+                            title: 'Commando',
+                            rating: 5
+                        }
+                    }
+                }
+            }).
+            subscribe();
+
+        var node = model._root[__head];
+        while (node) {
+            expect(node[__key]).not.toBe('lolomo');
+            node = node[__next];
+        }
+
+        var foundA, foundB, foundC;
+        var node = model._root[__head];
+        while (node) {
+            foundA = foundA || node.value[1] === 'A';
+            foundB = foundB || node.value[1] === 'B';
+            foundC = foundC || node.value[1] === 'C';
+            node = node[__next];
+        }
+        expect(foundA).toBe(true);
+        expect(foundB).toBe(true);
+        expect(foundC).toBe(true);
+
+        expect(lolomoModel._hasValidParentReference()).toBe(false);
+    })",115,183,snuts
+/test/falcor/deref/deref.errors.spec.js,ConditionalTestLogic,"{'startLine':41,'endLine':43}","it('should error on a shorted deref path.', function(done) {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
+        });
+
+        var onNext = jest.fn();
+        model.
+            get(['lolomo', 0, 0, 'item', 'title']).
+            subscribe(onNext, noOp, function() {
+                expect(onNext).toHaveBeenCalledTimes(1);
+
+                var json = onNext.mock.calls[0][0].json;
+                var lolomoModel = model.deref(json.lolomo);
+                model.
+                    set({
+                        json: {
+                            lolomos: 'ohh no'
+                        }
+                    }).
+                    subscribe();
+
+                toObservable(lolomoModel.
+                    get([0, 0, 'item', 'title'])).
+                    doAction(onNext, function(err) {
+                        expect(err.name).toBe(InvalidModelError.name);
+                    }).
+                    subscribe(
+                        noOp,
+                        function(err) {
+                            if (isAssertionError(err)) {
+                                return done(err);
+                            }
+                            done();
+                        },
+                        done.bind(null, new Error('onCompleted shouldnt be called')));
+            });
+    })",12,48,snuts
+/test/falcor/deref/deref.errors.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/call/call.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/getTestRunner.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/testRunner.js,NonFunctionalStatement,"{'startLine':7,'endLine':7}",Unknown,,,snuts

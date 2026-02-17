@@ -173,6 +173,8 @@ class Experiment(Base):
     smell_removed = Column(Boolean, default=False)
     introduced_new_smells = Column(Boolean, default=False)
     tests_still_passing = Column(Boolean)
+    coverage_changed = Column(Boolean)  # Test coverage changed (baseline vs refactored)
+    tests_changed = Column(Boolean)  # Test execution results changed
 
     # Performance
     execution_time_seconds = Column(Float)
