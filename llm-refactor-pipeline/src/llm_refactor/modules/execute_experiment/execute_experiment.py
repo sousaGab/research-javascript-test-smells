@@ -42,6 +42,11 @@ from llm_refactor.modules.run_tests.utils import (
 from llm_refactor.modules.detect_smells.utils import concatenate_smell_csvs
 from llm_refactor.modules.detect_smells.snuts_runner import run_snuts
 from llm_refactor.modules.detect_smells.steel_runner import run_steel
+from llm_refactor.modules.smell_analysis import (
+    SmellAnalyzer,
+    save_analysis_json,
+    update_experiment_analysis_flags
+)
 
 
 class ExecuteExperimentModule(SimpleModule):
@@ -231,7 +236,7 @@ NOTES:
             # Step 4: Apply changes (with backup)
             print("💾 [4/7] Applying refactored code to repository (with backup)...")
             try:
-                backup_path, backup_created = self.backup_manager.replace_snippet(
+                self.backup_manager.replace_snippet(
                     repo_name=repo_name,
                     file_path=file_path,
                     original_snippet=smell_data['code_snippet'],
@@ -252,7 +257,7 @@ NOTES:
             )
             
             # Step 5: Run smell detection
-            print("🔬 [5/7] Running smell detection on refactored code...")
+            print("🔬 [5/8] Running smell detection on refactored code...")
             smell_output_dir = output_dir / "smell_detection"
             smell_output_dir.mkdir(exist_ok=True)
             
@@ -266,24 +271,39 @@ NOTES:
                 print("   ⚠ Smell detection encountered issues (check logs)")
             
             # Step 6: Run tests
-            print("🧪 [6/7] Running test suite...")
+            print("🧪 [6/8] Running test suite...")
             test_results = self._run_tests(repo_name, output_dir)
             
             if test_results['success']:
-                print(f"   ✓ Tests executed successfully")
+                print("   ✓ Tests executed successfully")
                 print(f"   → Summary: {output_dir.relative_to(Config.PROJECT_ROOT)}/test_summary.txt")
                 print(f"   → Full output: {output_dir.relative_to(Config.PROJECT_ROOT)}/test_output.txt")
                 print(f"   → Exit code: {test_results.get('exit_code', 'N/A')}")
             else:
                 print(f"   ⚠ Tests failed or timed out: {test_results.get('error', 'Unknown')}")
             
-            # Update experiment with results
+            # Step 7: Analyze smell changes
+            print("📊 [7/8] Analyzing smell changes...")
+            analysis_results = self._analyze_smells(
+                session, experiment_id, repo_name, smell_data, output_dir
+            )
+            
+            if analysis_results:
+                print(f"   ✓ Target smell removed: {analysis_results['target_smell_removed']}")
+                print(f"   ✓ New smells introduced: {analysis_results['new_smells_introduced']}")
+                if analysis_results.get('net_change') is not None:
+                    net_change = analysis_results['net_change']
+                    print(f"   → Net smell change: {net_change:+d}")
+            else:
+                print("   ⚠ Analysis skipped (baseline not found or error occurred)")
+            
+            # Update experiment with test results
             self._update_experiment_results(
                 session, experiment_id, test_results, smell_detection_success
             )
             
-            # Step 7: Restore original file
-            print("♻️  [7/7] Restoring original file...")
+            # Step 8: Restore original file
+            print("♻️  [8/8] Restoring original file...")
             try:
                 self.backup_manager.undo_refactor(repo_name, file_path)
                 file_was_modified = False
@@ -301,7 +321,8 @@ NOTES:
             # Print summary
             return self._format_summary(
                 smell_id, smell_data, strategy_id, model_id,
-                output_dir, execution_time, test_results, experiment_id
+                output_dir, execution_time, test_results, experiment_id,
+                analysis_results
             )
             
         except (OSError, IOError, RuntimeError) as e:
@@ -518,7 +539,7 @@ NOTES:
                         repos_dir=repos_dir
                     )
                     if csv_success:
-                        print(f"   ✓ Concatenated CSV created: smells.csv")
+                        print("   ✓ Concatenated CSV created: smells.csv")
                         return True
                     else:
                         print(f"   ⚠ CSV concatenation warning: {csv_msg}")
@@ -554,7 +575,7 @@ NOTES:
                 return {'success': False, 'error': 'Could not find repositories directory'}
             
             # Read test command
-            auto_install, test_command = read_run_tests_command(repos_dir / repo_name)
+            _, test_command = read_run_tests_command(repos_dir / repo_name)
             if not test_command:
                 return {'success': False, 'error': f'No .run_tests file found for {repo_name}'}
             
@@ -678,19 +699,125 @@ NOTES:
         session.commit()
         return experiment.id
     
+    def _analyze_smells(self, session, experiment_id: int, repo_name: str,
+                       smell_data: Dict[str, Any], output_dir: Path) -> Dict:
+        """
+        Analyze smell changes between baseline and refactored versions.
+        
+        Compares baseline smell CSV (from smells_detected/) with refactored CSV,
+        saves results to database and JSON file.
+        
+        Args:
+            session: Database session
+            experiment_id: Experiment ID
+            repo_name: Repository name
+            smell_data: Dict with smell info (file_path, smell_type, etc.)
+            output_dir: Experiment output directory
+            
+        Returns:
+            Dict with analysis summary or None if analysis failed/skipped
+        """
+        try:
+            # Get baseline CSV path (already exists from previous detection)
+            project_root = Config.PROJECT_ROOT.parent
+            baseline_csv = project_root / "smells_detected" / repo_name / "smells.csv"
+            
+            # Get refactored CSV path
+            refactored_csv = output_dir / "smell_detection" / "smells.csv"
+            
+            # Validate files exist
+            if not baseline_csv.exists():
+                print(f"   ⚠ Baseline CSV not found: {baseline_csv}")
+                return None
+            
+            if not refactored_csv.exists():
+                print(f"   ⚠ Refactored CSV not found: {refactored_csv}")
+                return None
+            
+            # Load CSVs
+            analyzer = SmellAnalyzer()
+            baseline_df = analyzer.load_smell_csv(baseline_csv)
+            refactored_df = analyzer.load_smell_csv(refactored_csv)
+            
+            if baseline_df is None or refactored_df is None:
+                print("   ⚠ Failed to load smell CSVs")
+                return None
+            
+            # Run analysis
+            from llm_refactor.modules.smell_analysis.analyzer import normalize_smell_name
+            target_smell_normalized = normalize_smell_name(smell_data['smell_type'])
+            print(f"   → Target smell normalized: '{smell_data['smell_type']}' → '{target_smell_normalized}'")
+            
+            analysis = analyzer.compare_repositories(
+                baseline_df=baseline_df,
+                refactored_df=refactored_df,
+                target_file=smell_data['file_path'],
+                target_smell=smell_data['smell_type']
+            )
+            
+            # Create analysis directory
+            analysis_dir = output_dir / "analysis"
+            analysis_dir.mkdir(exist_ok=True)
+            
+            # Save JSON report
+            experiment_metadata = {
+                'experiment_id': experiment_id,
+                'repository': repo_name,
+                'target_file': smell_data['file_path'],
+                'target_smell': smell_data['smell_type']
+            }
+            
+            save_success = save_analysis_json(
+                analysis_data=analysis,
+                output_path=analysis_dir / "smell_analysis.json",
+                experiment_metadata=experiment_metadata
+            )
+            
+            if save_success:
+                print(f"   ✓ Analysis saved: {analysis_dir.relative_to(Config.PROJECT_ROOT)}/smell_analysis.json")
+            
+            # Update experiment flags (no smell details saved to DB, only analysis flags)
+            target_removed = analysis['summary']['target_smell_removed']
+            new_introduced = analysis['summary']['introduced_new_smells']
+            
+            update_success = update_experiment_analysis_flags(
+                session=session,
+                experiment_id=experiment_id,
+                target_removed=target_removed,
+                new_introduced=new_introduced
+            )
+            
+            if update_success:
+                print("   ✓ Updated experiment analysis flags in database")
+            
+            # Return summary for display
+            return {
+                'target_smell_removed': target_removed,
+                'new_smells_introduced': new_introduced,
+                'net_change': analysis['summary'].get('net_change'),
+                'types_increased': analysis['summary'].get('types_increased', 0),
+                'increased_details': analysis['repository_wide_changes'].get('smells_increased', [])[:3],
+                'analysis_data': analysis
+            }
+            
+        except Exception as e:
+            print(f"   ⚠ Error during smell analysis: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+    
     def _update_experiment_results(self, session, experiment_id: int,
                                    test_results: Dict[str, Any],
                                    smell_detection_success: bool):  # noqa: ARG002
-        """Update experiment with test results and outcomes."""
+        """Update experiment with test results."""
         tests_passed = test_results.get('success', False) and test_results.get('exit_code') == 0
         
-        # Update experiment
+        # Update experiment with test results
+        # Note: smell_removed and introduced_new_smells are updated in _analyze_smells()
         update_experiment(
             session=session,
             experiment_id=experiment_id,
-            tests_still_passing=tests_passed,
-            smell_removed=None,  # Would need to parse smell detection results
-            introduced_new_smells=None  # Would need to compare before/after
+            tests_still_passing=tests_passed
         )
         
         # Create test results record (after phase)
@@ -707,7 +834,8 @@ NOTES:
     def _format_summary(self, smell_id: int, smell_data: Dict[str, Any],
                        strategy_id: int, model_id: int,
                        output_dir: Path, execution_time: float,
-                       test_results: Dict[str, Any], experiment_id: int) -> str:
+                       test_results: Dict[str, Any], experiment_id: int,
+                       analysis_results: Dict = None) -> str:
         """Format experiment summary."""
         strategy_name = PromptStrategy.STRATEGIES[strategy_id][1]
         model_name = next(
@@ -734,20 +862,63 @@ NOTES:
             "RESULTS:",
             f"  Tests:          {tests_status}",
             f"  Execution Time: {execution_time:.2f}s",
+        ]
+        
+        # Add smell analysis results
+        if analysis_results:
+            lines.append("")
+            lines.append("SMELL ANALYSIS:")
+            
+            target_removed = "✓ Yes" if analysis_results.get('target_smell_removed') else "✗ No"
+            lines.append(f"  Target Smell:   {smell_data['smell_type']} → Removed: {target_removed}")
+            
+            new_introduced = analysis_results.get('new_smells_introduced', False)
+            types_increased = analysis_results.get('types_increased', 0)
+            
+            if new_introduced:
+                lines.append(f"  New Smells:     {types_increased} types introduced")
+                # Show top introduced smells
+                increased_details = analysis_results.get('increased_details', [])
+                if increased_details:
+                    for smell in increased_details:
+                        lines.append(f"                  - {smell['type']}: +{smell['diff']}")
+            else:
+                lines.append("  New Smells:     None")
+            
+            net_change = analysis_results.get('net_change')
+            if net_change is not None:
+                lines.append(f"  Net Change:     {net_change:+d} total smells")
+        else:
+            lines.append("")
+            lines.append("SMELL ANALYSIS:")
+            lines.append("  Status:         Skipped (baseline not available)")
+        
+        lines.extend([
             "",
             "OUTPUT LOCATION:",
             f"  {output_dir.relative_to(Config.PROJECT_ROOT)}/",
             "    ├── refactored_code.js",
             "    ├── test_summary.txt",
             "    ├── test_output.txt",
-            "    └── smell_detection/",
+        ])
+        
+        if analysis_results:
+            lines.extend([
+                "    ├── smell_detection/",
+                "    └── analysis/",
+                "        └── smell_analysis.json",
+            ])
+        else:
+            lines.append("    └── smell_detection/")
+        
+        lines.extend([
             "",
             "DATABASE:",
             f"  Experiment record created (ID: {experiment_id})",
             "",
             "═" * 76,
             ""
-        ]
+        ])
         
         return "\n".join(lines)
 
