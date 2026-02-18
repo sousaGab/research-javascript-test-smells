@@ -110,3 +110,37 @@ export async function getFilterOptions() {
 export async function getSmellCatalog() {
   return fetchAPI('/smell-catalog');
 }
+
+// =============================================================================
+// REFATORACOES
+// =============================================================================
+
+export async function getRefatoracoesFilterOptions() {
+  return fetchAPI('/refatoracoes/filter-options');
+}
+
+export async function getRefatoracoes(params = {}) {
+  const query = new URLSearchParams();
+  if (params.repo) query.append('repo', params.repo);
+  if (params.smell_type) query.append('smell_type', params.smell_type);
+  if (params.ai_model) query.append('ai_model', params.ai_model);
+  if (params.ai_model_version) query.append('ai_model_version', params.ai_model_version);
+  if (params.prompting_approach) query.append('prompting_approach', params.prompting_approach);
+  if (params.smell_removed !== undefined && params.smell_removed !== '') {
+    query.append('smell_removed', params.smell_removed);
+  }
+  if (params.tests_changed !== undefined && params.tests_changed !== '') {
+    query.append('tests_changed', params.tests_changed);
+  }
+  if (params.coverage_changed !== undefined && params.coverage_changed !== '') {
+    query.append('coverage_changed', params.coverage_changed);
+  }
+  if (params.limit) query.append('limit', params.limit);
+  if (params.offset !== undefined) query.append('offset', params.offset);
+  const qs = query.toString();
+  return fetchAPI(`/refatoracoes${qs ? '?' + qs : ''}`);
+}
+
+export async function getRefatoracaoDetail(experimentId) {
+  return fetchAPI(`/refatoracoes/${experimentId}`);
+}

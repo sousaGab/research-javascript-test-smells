@@ -914,6 +914,345 @@ async def export_all_smells(
 
 
 # =============================================================================
+# REFATORACOES ENDPOINTS
+# =============================================================================
+
+@app.get("/api/refatoracoes/filter-options")
+async def get_refatoracoes_filter_options():
+    """
+    Get available filter options for the refatoracoes page.
+
+    Returns:
+        Dictionary with repositories, smell_types, ai_models, prompting_approaches
+    """
+    session = get_db_session()
+    try:
+        repos_query = text("""
+            SELECT DISTINCT r.name
+            FROM experiments e
+            JOIN files f ON e.file_id = f.id
+            JOIN repositories r ON f.repository_id = r.id
+            ORDER BY r.name
+        """)
+        repos = [row[0] for row in session.execute(repos_query).fetchall()]
+
+        smell_types_query = text("""
+            SELECT
+                COALESCE(ss.smell_type, bsd.smell_type) as smell_type,
+                COUNT(e.id) as count
+            FROM experiments e
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN baseline_smell_detections bsd ON e.baseline_smell_id = bsd.id
+            WHERE COALESCE(ss.smell_type, bsd.smell_type) IS NOT NULL
+            GROUP BY COALESCE(ss.smell_type, bsd.smell_type)
+            ORDER BY count DESC
+        """)
+        smell_types = [
+            {"name": row[0], "count": row[1]}
+            for row in session.execute(smell_types_query).fetchall()
+        ]
+
+        models_query = text("""
+            SELECT DISTINCT
+                e.ai_tool,
+                e.ai_model_version,
+                COUNT(e.id) as count
+            FROM experiments e
+            WHERE e.ai_tool IS NOT NULL
+            GROUP BY e.ai_tool, e.ai_model_version
+            ORDER BY count DESC
+        """)
+        ai_models = []
+        for row in session.execute(models_query).fetchall():
+            label = row[0]
+            if row[1]:
+                label = f"{row[0]} / {row[1]}"
+            ai_models.append({"label": label, "ai_tool": row[0], "ai_model_version": row[1], "count": row[2]})
+
+        approaches_query = text("""
+            SELECT DISTINCT prompting_approach, COUNT(id) as count
+            FROM experiments
+            WHERE prompting_approach IS NOT NULL
+            GROUP BY prompting_approach
+            ORDER BY count DESC
+        """)
+        prompting_approaches = [
+            {"name": row[0], "count": row[1]}
+            for row in session.execute(approaches_query).fetchall()
+        ]
+
+        return {
+            "repositories": repos,
+            "smell_types": smell_types,
+            "ai_models": ai_models,
+            "prompting_approaches": prompting_approaches,
+        }
+
+    finally:
+        session.close()
+
+
+@app.get("/api/refatoracoes")
+async def get_refatoracoes(
+    repo: Optional[str] = Query(None, description="Filter by repository name"),
+    smell_type: Optional[str] = Query(None, description="Filter by smell type"),
+    ai_model: Optional[str] = Query(None, description="Filter by ai_tool value"),
+    ai_model_version: Optional[str] = Query(None, description="Filter by ai_model_version value"),
+    prompting_approach: Optional[str] = Query(None, description="Filter by prompting approach"),
+    smell_removed: Optional[bool] = Query(None, description="Filter by smell_removed"),
+    tests_changed: Optional[bool] = Query(None, description="Filter by tests_changed"),
+    coverage_changed: Optional[bool] = Query(None, description="Filter by coverage_changed"),
+    limit: int = Query(50, ge=1, le=500, description="Page size"),
+    offset: int = Query(0, ge=0, description="Pagination offset"),
+):
+    """
+    Get paginated list of refactoring experiments with filters.
+    """
+    session = get_db_session()
+    try:
+        where_clauses = []
+        params = {}
+
+        if repo:
+            where_clauses.append("r.name = :repo")
+            params["repo"] = repo
+
+        if smell_type:
+            where_clauses.append("COALESCE(ss.smell_type, bsd.smell_type) = :smell_type")
+            params["smell_type"] = smell_type
+
+        if ai_model:
+            where_clauses.append("e.ai_tool = :ai_model")
+            params["ai_model"] = ai_model
+
+        if ai_model_version:
+            where_clauses.append("e.ai_model_version = :ai_model_version")
+            params["ai_model_version"] = ai_model_version
+
+        if prompting_approach:
+            where_clauses.append("e.prompting_approach = :prompting_approach")
+            params["prompting_approach"] = prompting_approach
+
+        if smell_removed is not None:
+            where_clauses.append("e.smell_removed = :smell_removed")
+            params["smell_removed"] = 1 if smell_removed else 0
+
+        if tests_changed is not None:
+            where_clauses.append("e.tests_changed = :tests_changed")
+            params["tests_changed"] = 1 if tests_changed else 0
+
+        if coverage_changed is not None:
+            where_clauses.append("e.coverage_changed = :coverage_changed")
+            params["coverage_changed"] = 1 if coverage_changed else 0
+
+        where_sql = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
+
+        count_query = text(f"""
+            SELECT COUNT(e.id)
+            FROM experiments e
+            JOIN files f ON e.file_id = f.id
+            JOIN repositories r ON f.repository_id = r.id
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN baseline_smell_detections bsd ON e.baseline_smell_id = bsd.id
+            {where_sql}
+        """)
+        total = session.execute(count_query, params).scalar() or 0
+
+        params["limit"] = limit
+        params["offset"] = offset
+
+        query = text(f"""
+            SELECT
+                e.id,
+                r.name as repository,
+                f.path as file_path,
+                COALESCE(ss.smell_type, bsd.smell_type) as smell_type,
+                e.ai_tool,
+                e.ai_model_version,
+                e.prompting_approach,
+                e.smell_removed,
+                e.tests_changed,
+                e.coverage_changed,
+                e.tests_still_passing,
+                e.refactoring_completed,
+                e.introduced_new_smells,
+                e.experiment_date,
+                e.execution_time_seconds,
+                e.tokens_used,
+                e.study_smell_id,
+                e.baseline_smell_id
+            FROM experiments e
+            JOIN files f ON e.file_id = f.id
+            JOIN repositories r ON f.repository_id = r.id
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN baseline_smell_detections bsd ON e.baseline_smell_id = bsd.id
+            {where_sql}
+            ORDER BY e.experiment_date DESC, e.id DESC
+            LIMIT :limit OFFSET :offset
+        """)
+
+        rows = session.execute(query, params).fetchall()
+
+        experiments = []
+        for row in rows:
+            experiments.append({
+                "id": row[0],
+                "repository": row[1],
+                "file_path": row[2],
+                "smell_type": row[3],
+                "ai_tool": row[4],
+                "ai_model_version": row[5],
+                "prompting_approach": row[6],
+                "smell_removed": bool(row[7]) if row[7] is not None else None,
+                "tests_changed": bool(row[8]) if row[8] is not None else None,
+                "coverage_changed": bool(row[9]) if row[9] is not None else None,
+                "tests_still_passing": bool(row[10]) if row[10] is not None else None,
+                "refactoring_completed": bool(row[11]) if row[11] is not None else None,
+                "introduced_new_smells": bool(row[12]) if row[12] is not None else None,
+                "experiment_date": str(row[13]) if row[13] else None,
+                "execution_time_seconds": row[14],
+                "tokens_used": row[15],
+                "study_smell_id": row[16],
+                "baseline_smell_id": row[17],
+            })
+
+        return {
+            "experiments": experiments,
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+        }
+
+    finally:
+        session.close()
+
+
+@app.get("/api/refatoracoes/{experiment_id}")
+async def get_refatoracao_detail(experiment_id: int):
+    """
+    Get full details of a single refactoring experiment including code and test results.
+    """
+    session = get_db_session()
+    try:
+        query = text("""
+            SELECT
+                e.id,
+                r.name as repository,
+                f.path as file_path,
+                COALESCE(ss.smell_type, bsd.smell_type) as smell_type,
+                e.ai_tool,
+                e.ai_model_version,
+                e.prompting_approach,
+                e.smell_removed,
+                e.tests_changed,
+                e.coverage_changed,
+                e.tests_still_passing,
+                e.refactoring_completed,
+                e.introduced_new_smells,
+                e.experiment_date,
+                e.execution_time_seconds,
+                e.tokens_used,
+                e.study_smell_id,
+                e.baseline_smell_id,
+                e.original_code,
+                e.refactored_code,
+                e.original_method,
+                e.refactored_method,
+                e.prompt_text,
+                e.notes
+            FROM experiments e
+            JOIN files f ON e.file_id = f.id
+            JOIN repositories r ON f.repository_id = r.id
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN baseline_smell_detections bsd ON e.baseline_smell_id = bsd.id
+            WHERE e.id = :experiment_id
+        """)
+
+        row = session.execute(query, {"experiment_id": experiment_id}).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail=f"Experiment {experiment_id} not found")
+
+        # Get test results before/after
+        test_results_query = text("""
+            SELECT
+                phase,
+                test_suites_passed,
+                test_suites_failed,
+                test_suites_total,
+                tests_passed,
+                tests_failed,
+                tests_total,
+                execution_time_seconds,
+                coverage_statements,
+                coverage_branches,
+                coverage_functions,
+                coverage_lines,
+                all_tests_passed
+            FROM test_results
+            WHERE experiment_id = :experiment_id
+            ORDER BY phase
+        """)
+        test_rows = session.execute(test_results_query, {"experiment_id": experiment_id}).fetchall()
+
+        def parse_test_result(r):
+            return {
+                "phase": r[0],
+                "test_suites_passed": r[1],
+                "test_suites_failed": r[2],
+                "test_suites_total": r[3],
+                "tests_passed": r[4],
+                "tests_failed": r[5],
+                "tests_total": r[6],
+                "execution_time_seconds": r[7],
+                "coverage_statements": r[8],
+                "coverage_branches": r[9],
+                "coverage_functions": r[10],
+                "coverage_lines": r[11],
+                "all_tests_passed": bool(r[12]) if r[12] is not None else None,
+            }
+
+        test_results_before = None
+        test_results_after = None
+        for tr in test_rows:
+            if tr[0] == "before":
+                test_results_before = parse_test_result(tr)
+            elif tr[0] == "after":
+                test_results_after = parse_test_result(tr)
+
+        return {
+            "id": row[0],
+            "repository": row[1],
+            "file_path": row[2],
+            "smell_type": row[3],
+            "ai_tool": row[4],
+            "ai_model_version": row[5],
+            "prompting_approach": row[6],
+            "smell_removed": bool(row[7]) if row[7] is not None else None,
+            "tests_changed": bool(row[8]) if row[8] is not None else None,
+            "coverage_changed": bool(row[9]) if row[9] is not None else None,
+            "tests_still_passing": bool(row[10]) if row[10] is not None else None,
+            "refactoring_completed": bool(row[11]) if row[11] is not None else None,
+            "introduced_new_smells": bool(row[12]) if row[12] is not None else None,
+            "experiment_date": str(row[13]) if row[13] else None,
+            "execution_time_seconds": row[14],
+            "tokens_used": row[15],
+            "study_smell_id": row[16],
+            "baseline_smell_id": row[17],
+            "original_code": row[18],
+            "refactored_code": row[19],
+            "original_method": row[20],
+            "refactored_method": row[21],
+            "prompt_text": row[22],
+            "notes": row[23],
+            "test_results_before": test_results_before,
+            "test_results_after": test_results_after,
+        }
+
+    finally:
+        session.close()
+
+
+# =============================================================================
 # MAIN
 # =============================================================================
 
