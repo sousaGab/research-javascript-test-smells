@@ -1236,6 +1236,247 @@ file,type,line,method,methodStart,methodEnd,source
     },
   ]);
 })",463,477,snuts
+/tests/patches/patchMemoComponent.test.js,ConditionalTestLogic,"{'startLine':136,'endLine':138}","test('memo a forward ref component', () => {
+  const content = 'My component!!!';
+
+  const MyComponent = React.memo(React.forwardRef((props, ref) => {
+    return <div ref={ref}>{content}</div>;
+  }));
+
+  MyComponent.whyDidYouRender = true;
+
+  let componentContentFromRef = null;
+  let timesRefWasCalled = 0;
+
+  const handleRef = ref => {
+    if (!ref) {
+      return;
+    }
+    timesRefWasCalled++;
+    componentContentFromRef = ref.innerHTML;
+  };
+
+  const {rerender} = rtl.render(
+    <MyComponent a={[]} ref={handleRef}/>
+  );
+
+  rerender(
+    <MyComponent a={[]} ref={handleRef}/>
+  );
+
+  expect(componentContentFromRef).toBe(content);
+  expect(timesRefWasCalled).toBe(1);
+
+  expect(updateInfos).toHaveLength(1);
+  expect(updateInfos[0].reason).toEqual({
+    propsDifferences: [
+      {
+        pathString: 'a',
+        diffType: diffTypes.deepEquals,
+        prevValue: [],
+        nextValue: [],
+      },
+    ],
+    stateDifferences: false,
+    hookDifferences: false,
+    ownerDifferences: false,
+  });
+})",123,168,snuts
+/tests/patches/patchForwardRefComponent.test.js,AnonymousTest,"{'startLine':19,'endLine':64}","test('forward ref', () => {
+  const content = 'My component!!!';
+
+  const MyComponent = React.forwardRef((props, ref) => {
+    return <div ref={ref}>{content}</div>;
+  });
+
+  MyComponent.whyDidYouRender = true;
+
+  let componentContentFromRef = null;
+  let timesRefWasCalled = 0;
+
+  const handleRef = ref => {
+    if (!ref) {
+      return;
+    }
+    timesRefWasCalled++;
+    componentContentFromRef = ref.innerHTML;
+  };
+
+  const {rerender} = rtl.render(
+    <MyComponent a={[]} ref={handleRef}/>
+  );
+
+  rerender(
+    <MyComponent a={[]} ref={handleRef}/>
+  );
+
+  expect(componentContentFromRef).toBe(content);
+  expect(timesRefWasCalled).toBe(1);
+
+  expect(updateInfos).toHaveLength(1);
+  expect(updateInfos[0].reason).toEqual({
+    propsDifferences: [
+      {
+        pathString: 'a',
+        diffType: diffTypes.deepEquals,
+        prevValue: [],
+        nextValue: [],
+      },
+    ],
+    stateDifferences: false,
+    hookDifferences: false,
+    ownerDifferences: false,
+  });
+})",19,64,snuts
+/tests/patches/patchForwardRefComponent.test.js,ConditionalTestLogic,"{'startLine':32,'endLine':34}","test('forward ref', () => {
+  const content = 'My component!!!';
+
+  const MyComponent = React.forwardRef((props, ref) => {
+    return <div ref={ref}>{content}</div>;
+  });
+
+  MyComponent.whyDidYouRender = true;
+
+  let componentContentFromRef = null;
+  let timesRefWasCalled = 0;
+
+  const handleRef = ref => {
+    if (!ref) {
+      return;
+    }
+    timesRefWasCalled++;
+    componentContentFromRef = ref.innerHTML;
+  };
+
+  const {rerender} = rtl.render(
+    <MyComponent a={[]} ref={handleRef}/>
+  );
+
+  rerender(
+    <MyComponent a={[]} ref={handleRef}/>
+  );
+
+  expect(componentContentFromRef).toBe(content);
+  expect(timesRefWasCalled).toBe(1);
+
+  expect(updateInfos).toHaveLength(1);
+  expect(updateInfos[0].reason).toEqual({
+    propsDifferences: [
+      {
+        pathString: 'a',
+        diffType: diffTypes.deepEquals,
+        prevValue: [],
+        nextValue: [],
+      },
+    ],
+    stateDifferences: false,
+    hookDifferences: false,
+    ownerDifferences: false,
+  });
+})",19,64,snuts
+/tests/patches/patchForwardRefComponent.test.js,ConditionalTestLogic,"{'startLine':80,'endLine':82}","test('forward ref a memo component', () => {
+  expect(() => {
+    const content = 'My component!!!';
+
+    const MyComponent = React.forwardRef(React.memo((props, ref) => {
+      return <div ref={ref}>{content}</div>;
+    }, () => true));
+
+    MyComponent.whyDidYouRender = true;
+
+    let componentContentFromRef = null;
+    let timesRefWasCalled = 0;
+
+    const handleRef = ref => {
+      if (!ref) {
+        return;
+      }
+      timesRefWasCalled++;
+      componentContentFromRef = ref.innerHTML;
+    };
+
+    const {rerender} = rtl.render(
+      <MyComponent a={[]} ref={handleRef}/>
+    );
+
+    rerender(
+      <MyComponent a={[]} ref={handleRef}/>
+    );
+
+    expect(componentContentFromRef).toBe(content);
+    expect(timesRefWasCalled).toBe(1);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        {
+          pathString: 'a',
+          diffType: diffTypes.deepEquals,
+          prevValue: [],
+          nextValue: [],
+        },
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: false,
+    });
+  }).toThrow();
+  global.flushConsoleOutput();
+})",66,114,snuts
+/tests/patches/patchClassComponent.test.js,AnonymousTest,"{'startLine':57,'endLine':72}","test('Same props', () => {
+  const {rerender} = rtl.render(
+    <TestComponent a={1}/>
+  );
+  rerender(
+    <TestComponent a={1}/>
+  );
+
+  expect(updateInfos[0].reason).toEqual({
+    propsDifferences: [],
+    stateDifferences: false,
+    hookDifferences: false,
+    ownerDifferences: false,
+  });
+  expect(updateInfos).toHaveLength(1);
+})",57,72,snuts
+/tests/patches/patchClassComponent.test.js,AnonymousTest,"{'startLine':74,'endLine':90}","test('Same state', () => {
+  const StateTestComponent = createStateTestComponent({a: 1}, {a: 1});
+  rtl.render(
+    <StateTestComponent/>
+  );
+
+  return Promise.resolve()
+    .then(() => {
+      expect(updateInfos[0].reason).toEqual({
+        propsDifferences: false,
+        stateDifferences: [],
+        hookDifferences: false,
+        ownerDifferences: false,
+      });
+      expect(updateInfos).toHaveLength(1);
+    });
+})",74,90,snuts
+/tests/patches/patchClassComponent.test.js,AnonymousTest,"{'startLine':92,'endLine':112}","test('Props change', () => {
+  const {rerender} = rtl.render(
+    <TestComponent a={1}/>
+  );
+  rerender(
+    <TestComponent a={2}/>
+  );
+
+  expect(updateInfos).toHaveLength(1);
+  expect(updateInfos[0].reason).toEqual({
+    propsDifferences: [{
+      pathString: 'a',
+      diffType: diffTypes.different,
+      prevValue: 1,
+      nextValue: 2,
+    }],
+    stateDifferences: false,
+    hookDifferences: false,
+    ownerDifferences: false,
+  });
+})",92,112,snuts
 /tests/librariesTests/styled-components.test.js,AnonymousTest,"{'startLine':21,'endLine':46}","test('simple styled-components', () => {
   const InnerComponent = () => <div>foobar</div>;
   const StyledInnerComponent = styled(InnerComponent)``;
@@ -2099,247 +2340,6 @@ file,type,line,method,methodStart,methodEnd,source
       },
     });
   })",26,86,snuts
-/tests/patches/patchMemoComponent.test.js,ConditionalTestLogic,"{'startLine':136,'endLine':138}","test('memo a forward ref component', () => {
-  const content = 'My component!!!';
-
-  const MyComponent = React.memo(React.forwardRef((props, ref) => {
-    return <div ref={ref}>{content}</div>;
-  }));
-
-  MyComponent.whyDidYouRender = true;
-
-  let componentContentFromRef = null;
-  let timesRefWasCalled = 0;
-
-  const handleRef = ref => {
-    if (!ref) {
-      return;
-    }
-    timesRefWasCalled++;
-    componentContentFromRef = ref.innerHTML;
-  };
-
-  const {rerender} = rtl.render(
-    <MyComponent a={[]} ref={handleRef}/>
-  );
-
-  rerender(
-    <MyComponent a={[]} ref={handleRef}/>
-  );
-
-  expect(componentContentFromRef).toBe(content);
-  expect(timesRefWasCalled).toBe(1);
-
-  expect(updateInfos).toHaveLength(1);
-  expect(updateInfos[0].reason).toEqual({
-    propsDifferences: [
-      {
-        pathString: 'a',
-        diffType: diffTypes.deepEquals,
-        prevValue: [],
-        nextValue: [],
-      },
-    ],
-    stateDifferences: false,
-    hookDifferences: false,
-    ownerDifferences: false,
-  });
-})",123,168,snuts
-/tests/patches/patchForwardRefComponent.test.js,AnonymousTest,"{'startLine':19,'endLine':64}","test('forward ref', () => {
-  const content = 'My component!!!';
-
-  const MyComponent = React.forwardRef((props, ref) => {
-    return <div ref={ref}>{content}</div>;
-  });
-
-  MyComponent.whyDidYouRender = true;
-
-  let componentContentFromRef = null;
-  let timesRefWasCalled = 0;
-
-  const handleRef = ref => {
-    if (!ref) {
-      return;
-    }
-    timesRefWasCalled++;
-    componentContentFromRef = ref.innerHTML;
-  };
-
-  const {rerender} = rtl.render(
-    <MyComponent a={[]} ref={handleRef}/>
-  );
-
-  rerender(
-    <MyComponent a={[]} ref={handleRef}/>
-  );
-
-  expect(componentContentFromRef).toBe(content);
-  expect(timesRefWasCalled).toBe(1);
-
-  expect(updateInfos).toHaveLength(1);
-  expect(updateInfos[0].reason).toEqual({
-    propsDifferences: [
-      {
-        pathString: 'a',
-        diffType: diffTypes.deepEquals,
-        prevValue: [],
-        nextValue: [],
-      },
-    ],
-    stateDifferences: false,
-    hookDifferences: false,
-    ownerDifferences: false,
-  });
-})",19,64,snuts
-/tests/patches/patchForwardRefComponent.test.js,ConditionalTestLogic,"{'startLine':32,'endLine':34}","test('forward ref', () => {
-  const content = 'My component!!!';
-
-  const MyComponent = React.forwardRef((props, ref) => {
-    return <div ref={ref}>{content}</div>;
-  });
-
-  MyComponent.whyDidYouRender = true;
-
-  let componentContentFromRef = null;
-  let timesRefWasCalled = 0;
-
-  const handleRef = ref => {
-    if (!ref) {
-      return;
-    }
-    timesRefWasCalled++;
-    componentContentFromRef = ref.innerHTML;
-  };
-
-  const {rerender} = rtl.render(
-    <MyComponent a={[]} ref={handleRef}/>
-  );
-
-  rerender(
-    <MyComponent a={[]} ref={handleRef}/>
-  );
-
-  expect(componentContentFromRef).toBe(content);
-  expect(timesRefWasCalled).toBe(1);
-
-  expect(updateInfos).toHaveLength(1);
-  expect(updateInfos[0].reason).toEqual({
-    propsDifferences: [
-      {
-        pathString: 'a',
-        diffType: diffTypes.deepEquals,
-        prevValue: [],
-        nextValue: [],
-      },
-    ],
-    stateDifferences: false,
-    hookDifferences: false,
-    ownerDifferences: false,
-  });
-})",19,64,snuts
-/tests/patches/patchForwardRefComponent.test.js,ConditionalTestLogic,"{'startLine':80,'endLine':82}","test('forward ref a memo component', () => {
-  expect(() => {
-    const content = 'My component!!!';
-
-    const MyComponent = React.forwardRef(React.memo((props, ref) => {
-      return <div ref={ref}>{content}</div>;
-    }, () => true));
-
-    MyComponent.whyDidYouRender = true;
-
-    let componentContentFromRef = null;
-    let timesRefWasCalled = 0;
-
-    const handleRef = ref => {
-      if (!ref) {
-        return;
-      }
-      timesRefWasCalled++;
-      componentContentFromRef = ref.innerHTML;
-    };
-
-    const {rerender} = rtl.render(
-      <MyComponent a={[]} ref={handleRef}/>
-    );
-
-    rerender(
-      <MyComponent a={[]} ref={handleRef}/>
-    );
-
-    expect(componentContentFromRef).toBe(content);
-    expect(timesRefWasCalled).toBe(1);
-
-    expect(updateInfos).toHaveLength(1);
-    expect(updateInfos[0].reason).toEqual({
-      propsDifferences: [
-        {
-          pathString: 'a',
-          diffType: diffTypes.deepEquals,
-          prevValue: [],
-          nextValue: [],
-        },
-      ],
-      stateDifferences: false,
-      hookDifferences: false,
-      ownerDifferences: false,
-    });
-  }).toThrow();
-  global.flushConsoleOutput();
-})",66,114,snuts
-/tests/patches/patchClassComponent.test.js,AnonymousTest,"{'startLine':57,'endLine':72}","test('Same props', () => {
-  const {rerender} = rtl.render(
-    <TestComponent a={1}/>
-  );
-  rerender(
-    <TestComponent a={1}/>
-  );
-
-  expect(updateInfos[0].reason).toEqual({
-    propsDifferences: [],
-    stateDifferences: false,
-    hookDifferences: false,
-    ownerDifferences: false,
-  });
-  expect(updateInfos).toHaveLength(1);
-})",57,72,snuts
-/tests/patches/patchClassComponent.test.js,AnonymousTest,"{'startLine':74,'endLine':90}","test('Same state', () => {
-  const StateTestComponent = createStateTestComponent({a: 1}, {a: 1});
-  rtl.render(
-    <StateTestComponent/>
-  );
-
-  return Promise.resolve()
-    .then(() => {
-      expect(updateInfos[0].reason).toEqual({
-        propsDifferences: false,
-        stateDifferences: [],
-        hookDifferences: false,
-        ownerDifferences: false,
-      });
-      expect(updateInfos).toHaveLength(1);
-    });
-})",74,90,snuts
-/tests/patches/patchClassComponent.test.js,AnonymousTest,"{'startLine':92,'endLine':112}","test('Props change', () => {
-  const {rerender} = rtl.render(
-    <TestComponent a={1}/>
-  );
-  rerender(
-    <TestComponent a={2}/>
-  );
-
-  expect(updateInfos).toHaveLength(1);
-  expect(updateInfos[0].reason).toEqual({
-    propsDifferences: [{
-      pathString: 'a',
-      diffType: diffTypes.different,
-      prevValue: 1,
-      nextValue: 2,
-    }],
-    stateDifferences: false,
-    hookDifferences: false,
-    ownerDifferences: false,
-  });
-})",92,112,snuts
 /tests/utils.test.js,Duplicate Assert,"{'line': 23, 'column': 4, 'index': 522}","test('class component', () => {
     let isStrictMode;
     class TestComponent extends React.Component {

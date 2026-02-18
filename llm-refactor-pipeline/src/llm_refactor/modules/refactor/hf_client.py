@@ -19,37 +19,19 @@ class HuggingFaceModels:
             "id": 1,
             "name": "Qwen 2.5 Coder 32B",
             "model_id": "Qwen/Qwen2.5-Coder-32B-Instruct",
-            "description": "High-quality code generation model (default)"
+            "description": "High-quality code generation model"
         },
         {
             "id": 2,
-            "name": "Qwen 2.5 Coder 32B (Together)",
-            "model_id": "Qwen/Qwen2.5-Coder-32B-Instruct:together",
-            "description": "Qwen via Together AI provider"
+            "name": "Llama 3.1 8B Instruct",
+            "model_id": "meta-llama/Llama-3.1-8B-Instruct",
+            "description": "Meta general-purpose instruction model"
         },
         {
             "id": 3,
-            "name": "Qwen 2.5 Coder 32B (DeepInfra)",
-            "model_id": "Qwen/Qwen2.5-Coder-32B-Instruct:deepinfra",
-            "description": "Qwen via DeepInfra provider"
-        },
-        {
-            "id": 4,
-            "name": "DeepSeek R1",
-            "model_id": "deepseek-ai/DeepSeek-R1:novita",
-            "description": "DeepSeek R1 via Novita provider"
-        },
-        {
-            "id": 5,
-            "name": "DeepSeek R1 Distill Qwen 32B",
-            "model_id": "deepseek-ai/DeepSeek-R1-Distill-Qwen-32B:novita",
-            "description": "Distilled DeepSeek R1 model"
-        },
-        {
-            "id": 6,
-            "name": "Llama 3.1 70B",
-            "model_id": "meta-llama/Llama-3.1-70B-Instruct",
-            "description": "Meta Llama 3.1 70B parameter model"
+            "name": "Mistral 7B Instruct",
+            "model_id": "mistralai/Mistral-7B-Instruct-v0.2",
+            "description": "Stable instruction-tuned model supported on HF API"
         },
     ]
     
