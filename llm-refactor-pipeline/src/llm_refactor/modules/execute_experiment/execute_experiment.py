@@ -427,6 +427,7 @@ NOTES:
             'repo_name': smell.file.repository.name,
             'line_number': line_number,
             'smell_description': smell_catalog.get('definition', ''),
+            'smell_detection': smell_catalog.get('detection', ''),
             'examples': smell_catalog.get('examples', []),
             'refactoring_strategies': smell_catalog.get('refactoring_strategies', [])
         }
@@ -493,6 +494,7 @@ NOTES:
             refactored_code = client.refactor(
                 smell_name=smell_data['smell_type'],
                 smell_description=smell_data['smell_description'],
+                smell_detection=smell_data.get('smell_detection', ''),
                 test_code=smell_data['code_snippet'],
                 prompt_strategy=strategy,
                 model=model,

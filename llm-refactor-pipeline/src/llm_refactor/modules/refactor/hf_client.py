@@ -183,7 +183,8 @@ Original Test Code:
 
 
 def create_chain_of_thought_prompt(smell_name: str, smell_description: str,
-                                  test_code: str, refactoring_strategies: List[str]) -> str:
+                                  smell_detection: str, test_code: str,
+                                  refactoring_strategies: List[str]) -> str:
     """Creates a chain-of-thought prompt for test smell refactoring."""
     
     refactoring_guidance = '\n'.join(f"- {strategy}" for strategy in refactoring_strategies)
@@ -219,6 +220,9 @@ Provide only the refactored JavaScript test code:
 
 ### Test Smell Definition
 {smell_description}
+
+### Detection Criteria
+{smell_detection}
 
 ### Refactoring Guidance
 {refactoring_guidance}
@@ -262,6 +266,7 @@ class HuggingFaceRefactorClient:
         model: str = HuggingFaceModels.DEFAULT_MODEL_ID,
         examples: Optional[List[Dict]] = None,
         refactoring_strategies: Optional[List[str]] = None,
+        smell_detection: str = "",
         temperature: float = 0.6,
         max_tokens: int = 1024,
     ) -> str:
@@ -276,6 +281,7 @@ class HuggingFaceRefactorClient:
             model: HuggingFace model identifier
             examples: List of example dicts for few-shot (optional)
             refactoring_strategies: List of refactoring strategies for CoT (optional)
+            smell_detection: Detection criteria description for CoT (optional)
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
         
@@ -293,7 +299,7 @@ class HuggingFaceRefactorClient:
             if not refactoring_strategies:
                 refactoring_strategies = []
             prompt = create_chain_of_thought_prompt(
-                smell_name, smell_description, test_code, refactoring_strategies
+                smell_name, smell_description, smell_detection, test_code, refactoring_strategies
             )
         else:
             raise ValueError(f"Unknown prompt strategy: {prompt_strategy}")

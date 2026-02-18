@@ -248,6 +248,7 @@ NOTE:
                 'file_path': smell.file.path if smell.file else None,
                 'repo_name': smell.file.repository.name if smell.file and smell.file.repository else None,
                 'smell_description': smell_catalog.get('definition', ''),
+                'smell_detection': smell_catalog.get('detection', ''),
                 'examples': smell_catalog.get('examples', []),
                 'refactoring_strategies': smell_catalog.get('refactoring_strategies', [])
             }
@@ -305,6 +306,7 @@ NOTE:
         return client.refactor(
             smell_name=smell_data['smell_type'],
             smell_description=smell_data['smell_description'],
+            smell_detection=smell_data.get('smell_detection', ''),
             test_code=smell_data['code_snippet'],
             prompt_strategy=config['strategy'],
             model=config['model'],
