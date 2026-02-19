@@ -23,15 +23,9 @@ class HuggingFaceModels:
         },
         {
             "id": 2,
-            "name": "Llama 3.1 8B Instruct",
-            "model_id": "meta-llama/Llama-3.1-8B-Instruct",
-            "description": "Meta general-purpose instruction model"
-        },
-        {
-            "id": 3,
-            "name": "Mistral 7B Instruct",
-            "model_id": "mistralai/Mistral-7B-Instruct-v0.2",
-            "description": "Stable instruction-tuned model supported on HF API"
+            "name": "Metallama 34B Instruct",
+            "model_id": "meta-llama/CodeLlama-34b-Instruct-hf",
+            "description": "34B parameters - Code-specialized from Llama 2, good for JavaScript/Python"
         },
     ]
     
@@ -267,8 +261,10 @@ class HuggingFaceRefactorClient:
         examples: Optional[List[Dict]] = None,
         refactoring_strategies: Optional[List[str]] = None,
         smell_detection: str = "",
-        temperature: float = 0.6,
-        max_tokens: int = 1024,
+        temperature: float = 0.3,
+        top_p: float = 1.0,
+        repetition_penalty: float = 1.05,
+        max_tokens: int = 1400,
     ) -> str:
         """
         Refactor test smell using HuggingFace LLM.
@@ -282,7 +278,9 @@ class HuggingFaceRefactorClient:
             examples: List of example dicts for few-shot (optional)
             refactoring_strategies: List of refactoring strategies for CoT (optional)
             smell_detection: Detection criteria description for CoT (optional)
-            temperature: Sampling temperature
+            temperature: Sampling temperature (0.0 to 2.0)
+            top_p: Nucleus sampling parameter (0.0 to 1.0)
+            repetition_penalty: Penalty for repeating tokens (1.0 = no penalty)
             max_tokens: Maximum tokens to generate
         
         Returns:
@@ -312,7 +310,11 @@ class HuggingFaceRefactorClient:
                 model=model,
                 messages=messages,
                 temperature=temperature,
+                top_p=top_p,
                 max_tokens=max_tokens,
+                extra_body={
+                    "repetition_penalty": repetition_penalty
+                }
             )
             
             output = response.choices[0].message.content.strip()
