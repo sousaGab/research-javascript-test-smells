@@ -144,3 +144,9 @@ export async function getRefatoracoes(params = {}) {
 export async function getRefatoracaoDetail(experimentId) {
   return fetchAPI(`/refatoracoes/${experimentId}`);
 }
+
+export async function deleteExperiment(experimentId) {
+  return fetchAPI(`/refatoracoes/${experimentId}`, {
+    method: 'DELETE',
+  });
+}

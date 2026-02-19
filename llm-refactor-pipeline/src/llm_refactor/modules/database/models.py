@@ -175,6 +175,10 @@ class Experiment(Base):
     tests_still_passing = Column(Boolean)
     coverage_changed = Column(Boolean)  # Test coverage changed (baseline vs refactored)
     tests_changed = Column(Boolean)  # Test execution results changed
+    
+    # Phase Tracking (for two-phase experiment execution)
+    refactor_phase_completed = Column(Boolean, default=False)  # Phase 1: LLM refactoring complete
+    execution_phase_completed = Column(Boolean, default=False)  # Phase 2: Testing/detection complete
 
     # Performance
     execution_time_seconds = Column(Float)

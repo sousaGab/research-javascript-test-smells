@@ -105,6 +105,10 @@ export function useRefatoracoes() {
     setSelectedExperiment(null);
   }, []);
 
+  const refreshExperiments = useCallback(async () => {
+    await loadExperiments(filters, page);
+  }, [filters, page, loadExperiments]);
+
   return {
     experiments,
     selectedExperiment,
@@ -123,5 +127,6 @@ export function useRefatoracoes() {
     updateFilters,
     clearFilters,
     setPage,
+    refreshExperiments,
   };
 }

@@ -42,7 +42,7 @@ class BatchExperimentsModule(SimpleModule):
         if args == "list":
             return self._list_smells()
         
-        # Parse arguments: strategy_id model_id [--limit N] [--start-from N] [--verbose] [--dry-run] [--no-skip]
+        # Parse arguments: strategy_id model_id [options]
         parts = args.split()
         
         if len(parts) < 2:
@@ -64,6 +64,8 @@ class BatchExperimentsModule(SimpleModule):
         verbose = False
         dry_run = False
         skip_executed = True
+        phase = "all"  # default: full experiment (refactor + execute)
+        manifest_path = None
         
         i = 2
         while i < len(parts):
@@ -72,6 +74,12 @@ class BatchExperimentsModule(SimpleModule):
                 i += 2
             elif parts[i] == "--start-from" and i + 1 < len(parts):
                 start_from = int(parts[i + 1])
+                i += 2
+            elif parts[i] == "--phase" and i + 1 < len(parts):
+                phase = parts[i + 1]
+                i += 2
+            elif parts[i] == "--manifest" and i + 1 < len(parts):
+                manifest_path = parts[i + 1]
                 i += 2
             elif parts[i] == "--verbose" or parts[i] == "-v":
                 verbose = True
@@ -83,9 +91,17 @@ class BatchExperimentsModule(SimpleModule):
                 skip_executed = False
                 i += 1
             elif parts[i] == "--list-pending":
-                return self._list_pending(strategy_id, model_id)
+                return self._show_pending_executions(strategy_id, model_id)
+            elif parts[i] == "--show-pending":
+                return self._show_pending_executions(strategy_id, model_id)
+            elif parts[i] == "--show-failed":
+                return self._show_failed_experiments(strategy_id, model_id)
             else:
                 return f"❌ Unknown option: {parts[i]}"
+        
+        # Validate phase
+        if phase not in ["refactor", "execute", "all"]:
+            return f"❌ Invalid phase '{phase}'. Must be 'refactor', 'execute', or 'all'"
         
         # Validate strategy and model
         if strategy_id not in PromptStrategy.STRATEGIES:
@@ -94,15 +110,34 @@ class BatchExperimentsModule(SimpleModule):
         if model_id < 1 or model_id > len(HuggingFaceModels.MODELS):
             return f"❌ Invalid model ID. Available: 1-{len(HuggingFaceModels.MODELS)}"
         
-        # Execute batch
-        return self._run_batch(
-            strategy_id, model_id, 
-            start_from=start_from, 
-            limit=limit,
-            skip_executed=skip_executed,
-            verbose=verbose,
-            dry_run=dry_run
-        )
+        # Execute based on phase
+        if phase == "refactor":
+            return self._run_batch_refactor_phase(
+                strategy_id, model_id,
+                start_from=start_from,
+                limit=limit,
+                skip_executed=skip_executed,
+                verbose=verbose,
+                dry_run=dry_run
+            )
+        elif phase == "execute":
+            return self._run_batch_execution_phase(
+                strategy_id, model_id,
+                manifest_path=manifest_path,
+                start_from=start_from,
+                limit=limit,
+                verbose=verbose,
+                dry_run=dry_run
+            )
+        else:  # phase == "all"
+            return self._run_batch(
+                strategy_id, model_id, 
+                start_from=start_from, 
+                limit=limit,
+                skip_executed=skip_executed,
+                verbose=verbose,
+                dry_run=dry_run
+            )
     
     def _show_help(self) -> str:
         """Show detailed help message."""
@@ -113,8 +148,16 @@ class BatchExperimentsModule(SimpleModule):
 
 DESCRIPTION:
     Execute refactoring experiments for multiple study smells in batch mode.
-    Automatically processes all smells (or pending ones) with specified strategy
-    and model combination.
+    Supports two-phase execution for time-based LLM pricing optimization:
+    
+    ┌─────────────────────────────────────────────────────────────────┐
+    │ SINGLE-PHASE MODE (default):                                    │
+    │   Refactor → Apply → Test → Detect → Restore (one at a time)   │
+    │                                                                  │
+    │ TWO-PHASE MODE:                                                  │
+    │   Phase 1: Refactor all smells (batch LLM calls)                │
+    │   Phase 2: Test & detect all experiments (sequential)           │
+    └─────────────────────────────────────────────────────────────────┘
 
 USAGE:
     batch_experiments <strategy_id> <model_id> [options]
@@ -124,34 +167,53 @@ ARGUMENTS:
     model_id       LLM model ID (use 'refactor models' to see available)
 
 OPTIONS:
-    --limit N         Process at most N smells (for testing)
-    --start-from N    Start from smell ID N (for resuming)
+    --phase PHASE     Execution phase: refactor, execute, or all (default: all)
+    --manifest FILE   Use manifest file for execution phase
+    --limit N         Process at most N smells/experiments
+    --start-from N    Start from smell/experiment ID N
     --verbose         Show detailed output from each experiment
-    --dry-run         Show what would be executed without running
-    --force           Re-run all smells (overwrite existing results)
-    --list-pending    List smells pending for this strategy/model
+    --dry-run         Preview what would be executed
+    --force           Re-run all (overwrite existing results, refactor phase only)
+    --show-pending    Show experiments ready for execution
+    --show-failed     Show failed experiments
 
 EXAMPLES:
-    # List all study smells
-    batch_experiments list
+    # Traditional single-phase mode (backward compatible)
+    batch_experiments 3 1                    # Execute all pending smells
+    batch_experiments 3 1 --limit 10         # Execute 10 smells
+    
+    # Two-phase mode (for time-based LLM pricing)
+    batch_experiments 3 1 --phase refactor   # Phase 1: Refactor all
+    batch_experiments 3 1 --phase execute    # Phase 2: Test all
+    
+    # With manifest file
+    batch_experiments 3 1 --phase refactor --limit 20
+    batch_experiments 3 1 --phase execute --manifest batch_summaries/refactor_manifest_*.json
+    
+    # Management commands
+    batch_experiments list                   # List all study smells
+    batch_experiments 3 1 --show-pending     # Show experiments ready for execution
+    batch_experiments 3 1 --show-failed      # Show failed experiments
+    
+    # Dry run
+    batch_experiments 3 1 --phase refactor --dry-run --limit 5
 
-    # See pending smells for strategy 1, model 1
-    batch_experiments 1 1 --list-pending
-
-    # Dry run to see what would be executed
-    batch_experiments 1 1 --limit 5 --dry-run
-
-    # Execute 5 smells with strategy 1 and model 1
-    batch_experiments 1 1 --limit 5
-
-    # Execute all pending smells (skips already done)
-    batch_experiments 1 1
-
-    # Resume from smell ID 50
-    batch_experiments 1 1 --start-from 50
-
-    # Execute with verbose output
-    batch_experiments 1 1 --limit 5 --verbose
+PHASES:
+    refactor   Phase 1: Call LLM to generate refactored code for all smells
+               - Creates experiment records with refactored_code
+               - Does NOT modify repository files
+               - Saves manifest file for Phase 2
+               - Optimizes LLM costs for time-based pricing
+    
+    execute    Phase 2: Test and analyze refactored experiments
+               - Loads experiments from manifest or database
+               - Applies changes, runs tests, detects smells
+               - Restores original files after each experiment
+               - Can re-run failed experiments
+    
+    all        Single-phase mode (default, backward compatible)
+               - Executes both phases for each smell sequentially
+               - Traditional workflow
 
 STRATEGIES:
     1 - Zero-Shot
@@ -163,6 +225,10 @@ MODELS:
 
 NOTES:
     - By default, skips smells already executed for the strategy/model
+    - Use --force with refactor phase to re-run all smells
+    - Execution phase can be re-run safely (uses backups)
+    - Manifest files are saved to batch_summaries/
+    - Press Ctrl+C to interrupt (progress is saved)
     - Use --force to re-execute all smells (overwrite results)
     - Press Ctrl+C to interrupt (progress is saved)
     - Failed experiments are logged and written to summary file
@@ -514,6 +580,488 @@ NOTES:
             f.write("\n" + "=" * 80 + "\n")
         
         print(f"\n📝 Summary written to: {filepath}")
+    
+    def _run_batch_refactor_phase(
+        self,
+        strategy_id: int,
+        model_id: int,
+        start_from=None,
+        limit=None,
+        skip_executed=True,
+        verbose=False,
+        dry_run=False
+    ) -> str:
+        """
+        Execute Phase 1 (Refactor) for multiple smells in batch.
+        
+        Only calls LLM to generate refactored code, creates experiment records.
+        Does NOT apply changes to repositories or run tests.
+        
+        Saves manifest file for later execution.
+        """
+        if not self.db:
+            self.db = ResearchDB()
+            self.db.init_database()
+        
+        if not self.exp_module:
+            self.exp_module = ExecuteExperimentModule()
+        
+        # Get strategy and model info
+        strategy_name = PromptStrategy.STRATEGIES[strategy_id][1]
+        model_info = HuggingFaceModels.MODELS[model_id - 1]
+        model_name = model_info['name']
+        
+        # Get smells to process
+        if skip_executed:
+            smells = self._get_pending_smells(strategy_id, model_id)
+            mode = "Skip smells with existing experiments"
+        else:
+            smells = self._get_study_smells()
+            mode = "Process all smells (may create duplicates)"
+        
+        # Apply filters
+        if start_from:
+            smells = [(sid, r, f, st) for sid, r, f, st in smells if sid >= start_from]
+        
+        if limit:
+            smells = smells[:limit]
+        
+        total_smells = len(smells)
+        
+        if total_smells == 0:
+            return "\n✅ No smells to refactor!"
+        
+        # Build header
+        output = []
+        output.append("\n" + "=" * 80)
+        output.append("🚀 BATCH REFACTOR PHASE (Phase 1)")
+        output.append("=" * 80)
+        output.append(f"Strategy: {strategy_name} (ID: {strategy_id})")
+        output.append(f"Model:    {model_name} (ID: {model_id})")
+        output.append(f"Mode:     {mode}")
+        output.append(f"Total:    {total_smells} smells")
+        output.append("=" * 80)
+        
+        if dry_run:
+            output.append("\n🔍 DRY RUN MODE")
+            output.append("\nSmells that would be refactored:")
+            for idx, (sid, repo, fpath, stype) in enumerate(smells[:10], 1):
+                output.append(f"  {idx}. Smell #{sid}: {stype} in {repo}/{fpath}")
+            if len(smells) > 10:
+                output.append(f"  ... and {len(smells) - 10} more")
+            output.append("\n✅ Dry run complete")
+            return "\n".join(output)
+        
+        # Print header
+        print("\n".join(output))
+        
+        # Track results
+        stats = {
+            'total': total_smells,
+            'refactored': 0,
+            'failed': 0,
+            'start_time': time.time()
+        }
+        
+        manifest_experiments = []
+        failed_smells = []
+        
+        print("\n" + "=" * 80)
+        print("🤖 STARTING REFACTORING")
+        print("=" * 80)
+        
+        # Refactor each smell
+        for idx, (smell_id, repo, file_path, smell_type) in enumerate(smells, 1):
+            print(f"\n{'─' * 80}")
+            print(f"[{idx}/{total_smells}] Refactoring Smell ID: {smell_id}")
+            print(f"  Repository: {repo}")
+            print(f"  Smell: {smell_type}")
+            print(f"{'─' * 80}")
+            
+            try:
+                # Call execute_experiment with --phase refactor
+                result = self.exp_module.execute(
+                    f"{smell_id} {strategy_id} {model_id} --phase refactor"
+                )
+                
+                if verbose:
+                    print(result)
+                
+                if "❌" not in result and "Experiment ID:" in result:
+                    stats['refactored'] += 1
+                    
+                    # Extract experiment ID from result
+                    for line in result.split('\n'):
+                        if "Experiment ID:" in line:
+                            exp_id = int(line.split(':')[1].strip())
+                            manifest_experiments.append({
+                                'experiment_id': exp_id,
+                                'smell_id': smell_id,
+                                'repo': repo,
+                                'file_path': file_path,
+                                'smell_type': smell_type,
+                                'status': 'refactored'
+                            })
+                            break
+                    
+                    print(f"✅ Refactored successfully (Experiment #{exp_id})")
+                else:
+                    stats['failed'] += 1
+                    error_msg = result[:100] if len(result) > 100 else result
+                    failed_smells.append((smell_id, repo, file_path, smell_type, error_msg))
+                    print(f"❌ Refactoring failed: {error_msg}")
+                    
+            except KeyboardInterrupt:
+                print("\n\n⚠️  Interrupted by user!")
+                break
+            except Exception as e:
+                stats['failed'] += 1
+                error_msg = str(e)[:100]
+                failed_smells.append((smell_id, repo, file_path, smell_type, error_msg))
+                print(f"❌ Exception: {error_msg}")
+            
+            # Show progress
+            elapsed = time.time() - stats['start_time']
+            avg_time = elapsed / idx if idx > 0 else 0
+            remaining = (total_smells - idx) * avg_time
+            
+            print(f"\n📊 Progress: {idx}/{total_smells} ({idx/total_smells*100:.1f}%)")
+            print(f"⏱️  Elapsed: {elapsed/60:.1f}m | Est. remaining: {remaining/60:.1f}m")
+        
+        # Save manifest
+        from pathlib import Path
+        import json
+        
+        manifest_dir = Path("batch_summaries")
+        manifest_dir.mkdir(exist_ok=True)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        manifest_filename = f"refactor_manifest_s{strategy_id}_m{model_id}_{timestamp}.json"
+        manifest_path = manifest_dir / manifest_filename
+        
+        manifest_data = {
+            'metadata': {
+                'strategy_id': strategy_id,
+                'model_id': model_id,
+                'strategy_name': strategy_name,
+                'model_name': model_name,
+                'total': stats['total'],
+                'refactored': stats['refactored'],
+                'failed': stats['failed'],
+                'timestamp': datetime.now().isoformat()
+            },
+            'experiments': manifest_experiments
+        }
+        
+        with open(manifest_path, 'w', encoding='utf-8') as f:
+            json.dump(manifest_data, f, indent=2)
+        
+        # Final summary
+        elapsed_total = time.time() - stats['start_time']
+        
+        summary = []
+        summary.append("\n\n" + "=" * 80)
+        summary.append("📊 REFACTOR PHASE SUMMARY")
+        summary.append("=" * 80)
+        summary.append(f"Strategy:      {strategy_name}")
+        summary.append(f"Model:         {model_name}")
+        summary.append(f"Total:         {stats['total']}")
+        summary.append(f"✅ Refactored:  {stats['refactored']}")
+        summary.append(f"❌ Failed:      {stats['failed']}")
+        summary.append(f"⏱️  Time:        {elapsed_total/60:.1f} minutes")
+        summary.append(f"⚡ Avg:         {elapsed_total/max(1,idx):.1f}s per smell")
+        summary.append("")
+        summary.append(f"📝 Manifest:    {manifest_path}")
+        summary.append("")
+        summary.append("NEXT STEPS:")
+        summary.append(f"  1. Review refactored code in dataset/ directory")
+        summary.append(f"  2. Execute testing phase:")
+        summary.append(f"     batch_experiments {strategy_id} {model_id} --phase execute")
+        summary.append(f"     (or with manifest: --manifest {manifest_path})")
+        summary.append("=" * 80)
+        
+        return "\n".join(summary)
+    
+    def _run_batch_execution_phase(
+        self,
+        strategy_id: int,
+        model_id: int,
+        manifest_path=None,
+        start_from=None,
+        limit=None,
+        verbose=False,
+        dry_run=False
+    ) -> str:
+        """
+        Execute Phase 2 (Test & Detect) for refactored experiments.
+        
+        Loads experiments from manifest or database, then executes testing phase.
+        """
+        from llm_refactor.modules.database.crud import get_refactored_pending_execution
+        import json
+        from pathlib import Path
+        
+        if not self.db:
+            self.db = ResearchDB()
+            self.db.init_database()
+        
+        if not self.exp_module:
+            self.exp_module = ExecuteExperimentModule()
+        
+        # Get strategy and model info
+        strategy_name = PromptStrategy.STRATEGIES[strategy_id][1]
+        model_info = HuggingFaceModels.MODELS[model_id - 1]
+        model_name = model_info['name']
+        
+        # Load experiments to execute
+        experiments_to_process = []
+        
+        if manifest_path:
+            # Load from manifest file
+            manifest_file = Path(manifest_path)
+            if not manifest_file.exists():
+                return f"❌ Manifest file not found: {manifest_path}"
+            
+            with open(manifest_file, 'r', encoding='utf-8') as f:
+                manifest_data = json.load(f)
+            
+            for exp in manifest_data.get('experiments', []):
+                if exp.get('status') == 'refactored':
+                    experiments_to_process.append(exp['experiment_id'])
+            
+            source = f"manifest {manifest_file.name}"
+        else:
+            # Query database for pending executions
+            session = self.db.get_session()
+            try:
+                experiments = get_refactored_pending_execution(
+                    session, strategy_name, model_name
+                )
+                experiments_to_process = [exp.id for exp in experiments]
+                session.close()
+            finally:
+                pass
+            
+            source = "database query"
+        
+        # Apply filters
+        if start_from:
+            experiments_to_process = [eid for eid in experiments_to_process if eid >= start_from]
+        
+        if limit:
+            experiments_to_process = experiments_to_process[:limit]
+        
+        total_experiments = len(experiments_to_process)
+        
+        if total_experiments == 0:
+            return "\n✅ No experiments pending execution!"
+        
+        # Build header
+        output = []
+        output.append("\n" + "=" * 80)
+        output.append("🧪 BATCH EXECUTION PHASE (Phase 2)")
+        output.append("=" * 80)
+        output.append(f"Strategy: {strategy_name} (ID: {strategy_id})")
+        output.append(f"Model:    {model_name} (ID: {model_id})")
+        output.append(f"Source:   {source}")
+        output.append(f"Total:    {total_experiments} experiments")
+        output.append("=" * 80)
+        
+        if dry_run:
+            output.append("\n🔍 DRY RUN MODE")
+            output.append("\nExperiments that would be executed:")
+            for idx, exp_id in enumerate(experiments_to_process[:10], 1):
+                output.append(f"  {idx}. Experiment #{exp_id}")
+            if len(experiments_to_process) > 10:
+                output.append(f"  ... and {len(experiments_to_process) - 10} more")
+            output.append("\n✅ Dry run complete")
+            return "\n".join(output)
+        
+        # Print header
+        print("\n".join(output))
+        
+        # Track results
+        stats = {
+            'total': total_experiments,
+            'executed': 0,
+            'failed': 0,
+            'start_time': time.time()
+        }
+        
+        failed_experiments = []
+        
+        print("\n" + "=" * 80)
+        print("🧪 STARTING EXECUTION")
+        print("=" * 80)
+        
+        # Execute each experiment
+        for idx, experiment_id in enumerate(experiments_to_process, 1):
+            print(f"\n{'─' * 80}")
+            print(f"[{idx}/{total_experiments}] Executing Experiment ID: {experiment_id}")
+            print(f"{'─' * 80}")
+            
+            try:
+                # Call execute_experiment with --experiment-id --phase execute
+                result = self.exp_module.execute(
+                    f"--experiment-id {experiment_id} --phase execute"
+                )
+                
+                if verbose:
+                    print(result)
+                
+                if "❌" not in result and "EXECUTION PHASE COMPLETED" in result:
+                    stats['executed'] += 1
+                    print(f"✅ Executed successfully")
+                else:
+                    stats['failed'] += 1
+                    error_msg = result[:100] if len(result) > 100 else result
+                    failed_experiments.append((experiment_id, error_msg))
+                    print(f"❌ Execution failed: {error_msg}")
+                    
+            except KeyboardInterrupt:
+                print("\n\n⚠️  Interrupted by user!")
+                break
+            except Exception as e:
+                stats['failed'] += 1
+                error_msg = str(e)[:100]
+                failed_experiments.append((experiment_id, error_msg))
+                print(f"❌ Exception: {error_msg}")
+            
+            # Show progress
+            elapsed = time.time() - stats['start_time']
+            avg_time = elapsed / idx if idx > 0 else 0
+            remaining = (total_experiments - idx) * avg_time
+            
+            print(f"\n📊 Progress: {idx}/{total_experiments} ({idx/total_experiments*100:.1f}%)")
+            print(f"⏱️  Elapsed: {elapsed/60:.1f}m | Est. remaining: {remaining/60:.1f}m")
+        
+        # Final summary
+        elapsed_total = time.time() - stats['start_time']
+        
+        summary = []
+        summary.append("\n\n" + "=" * 80)
+        summary.append("📊 EXECUTION PHASE SUMMARY")
+        summary.append("=" * 80)
+        summary.append(f"Strategy:    {strategy_name}")
+        summary.append(f"Model:       {model_name}")
+        summary.append(f"Total:       {stats['total']}")
+        summary.append(f"✅ Executed:  {stats['executed']}")
+        summary.append(f"❌ Failed:    {stats['failed']}")
+        summary.append(f"⏱️  Time:      {elapsed_total/60:.1f} minutes")
+        summary.append(f"⚡ Avg:       {elapsed_total/max(1,idx):.1f}s per experiment")
+        
+        if failed_experiments:
+            summary.append(f"\n❌ Failed Experiments ({len(failed_experiments)}):")
+            for exp_id, error in failed_experiments[:10]:
+                summary.append(f"  • Experiment #{exp_id}: {error}")
+            if len(failed_experiments) > 10:
+                summary.append(f"  ... and {len(failed_experiments) - 10} more")
+        
+        summary.append("=" * 80)
+        
+        return "\n".join(summary)
+    
+    def _show_pending_executions(self, strategy_id: int, model_id: int) -> str:
+        """Show experiments that have completed refactor but not execution."""
+        from llm_refactor.modules.database.crud import get_refactored_pending_execution
+        
+        strategy_name = PromptStrategy.STRATEGIES[strategy_id][1]
+        model_info = HuggingFaceModels.MODELS[model_id - 1]
+        model_name = model_info['name']
+        
+        if not self.db:
+            self.db = ResearchDB()
+            self.db.init_database()
+        
+        session = self.db.get_session()
+        try:
+            experiments = get_refactored_pending_execution(session, strategy_name, model_name)
+            
+            if not experiments:
+                return f"\n✅ No pending executions for {strategy_name} / {model_name}"
+            
+            output = [
+                f"\n📋 Pending Executions: {strategy_name} / {model_name}",
+                "=" * 80,
+                f"{'Exp ID':<8} {'Smell ID':<10} {'Smell Type':<30} {'Created At':<20}",
+                "─" * 80
+            ]
+            
+            for exp in experiments[:50]:
+                created = exp.created_at.strftime('%Y-%m-%d %H:%M') if exp.created_at else 'N/A'
+                smell_type = exp.study_smell.smell_type if exp.study_smell else 'N/A'
+                output.append(
+                    f"{exp.id:<8} {exp.study_smell_id:<10} {smell_type:<30} {created:<20}"
+                )
+            
+            if len(experiments) > 50:
+                output.append(f"\n... and {len(experiments) - 50} more")
+            
+            output.extend([
+                "",
+                f"Total: {len(experiments)} pending executions",
+                "",
+                "EXECUTE:",
+                f"  batch_experiments {strategy_id} {model_id} --phase execute",
+                ""
+            ])
+            
+            return "\n".join(output)
+        finally:
+            session.close()
+    
+    def _show_failed_experiments(self, strategy_id: int, model_id: int) -> str:
+        """Show experiments that failed during refactor or execution."""
+        from llm_refactor.modules.database.crud import get_failed_experiments
+        
+        strategy_name = PromptStrategy.STRATEGIES[strategy_id][1]
+        model_info = HuggingFaceModels.MODELS[model_id - 1]
+        model_name = model_info['name']
+        
+        if not self.db:
+            self.db = ResearchDB()
+            self.db.init_database()
+        
+        session = self.db.get_session()
+        try:
+            experiments = get_failed_experiments(session, strategy_name, model_name)
+            
+            if not experiments:
+                return f"\n✅ No failed experiments for {strategy_name} / {model_name}"
+            
+            output = [
+                f"\n❌ Failed Experiments: {strategy_name} / {model_name}",
+                "=" * 80,
+                f"{'Exp ID':<8} {'Smell ID':<10} {'Refactor':<10} {'Execute':<10} {'Notes':<40}",
+                "─" * 80
+            ]
+            
+            for exp in experiments[:50]:
+                refactor_ok = "✓" if exp.refactor_phase_completed else "✗"
+                execute_ok = "✓" if exp.execution_phase_completed else "✗"
+                notes = (exp.notes or "")[:38]
+                output.append(
+                    f"{exp.id:<8} {exp.study_smell_id:<10} {refactor_ok:<10} {execute_ok:<10} {notes:<40}"
+                )
+            
+            if len(experiments) > 50:
+                output.append(f"\n... and {len(experiments) - 50} more")
+            
+            output.extend([
+                "",
+                f"Total: {len(experiments)} failed experiments",
+                "",
+                "RE-RUN:",
+                f"  # Re-run refactor phase (if refactor failed):",
+                f"  batch_experiments {strategy_id} {model_id} --phase refactor --force",
+                f"  # Re-run execution phase (if execution failed):",
+                f"  batch_experiments {strategy_id} {model_id} --phase execute",
+                ""
+            ])
+            
+            return "\n".join(output)
+        finally:
+            session.close()
 
 
 # Create module instance

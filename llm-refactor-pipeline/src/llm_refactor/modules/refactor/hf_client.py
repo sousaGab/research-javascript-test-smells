@@ -23,9 +23,9 @@ class HuggingFaceModels:
         },
         {
             "id": 2,
-            "name": "Metallama 34B Instruct",
-            "model_id": "meta-llama/CodeLlama-34b-Instruct-hf",
-            "description": "34B parameters - Code-specialized from Llama 2, good for JavaScript/Python"
+            "name": "Meta Llama 3.1 8B Instruct",
+            "model_id": "meta-llama/Llama-3.1-8B-Instruct",
+            "description": "8B parameters - Latest Llama 3.1 model, optimized for instruction following"
         },
     ]
     

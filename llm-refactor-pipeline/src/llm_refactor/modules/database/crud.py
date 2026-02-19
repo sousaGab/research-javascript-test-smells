@@ -409,6 +409,135 @@ def get_successful_experiments(session: Session) -> List[Experiment]:
     return session.query(Experiment).filter_by(smell_removed=True).all()
 
 
+def get_experiment_with_relations(session: Session, experiment_id: int) -> Optional[Experiment]:
+    """
+    Get an experiment by ID with all relationships loaded.
+    
+    This loads: study_smell, baseline_smell, file, file.repository
+    Useful for execution phase which needs complete experiment context.
+    
+    Args:
+        session: Database session
+        experiment_id: Experiment ID
+    
+    Returns:
+        Experiment with relationships or None if not found
+    """
+    from sqlalchemy.orm import joinedload
+    
+    return session.query(Experiment)\
+        .filter_by(id=experiment_id)\
+        .options(
+            joinedload(Experiment.study_smell),
+            joinedload(Experiment.baseline_smell),
+            joinedload(Experiment.file).joinedload(File.repository)
+        )\
+        .first()
+
+
+def find_experiment_by_smell_strategy_model(
+    session: Session,
+    study_smell_id: int,
+    prompting_approach: str,
+    ai_model_version: str
+) -> Optional[Experiment]:
+    """
+    Find existing experiment by smell ID, strategy, and model.
+    
+    Used to check if experiment already exists before creating new one.
+    
+    Args:
+        session: Database session
+        study_smell_id: Study smell ID
+        prompting_approach: Strategy name (e.g., "Chain-of-Thought")
+        ai_model_version: Model name (e.g., "Qwen 2.5 Coder 32B")
+    
+    Returns:
+        Experiment or None if not found
+    """
+    return session.query(Experiment)\
+        .filter_by(
+            study_smell_id=study_smell_id,
+            prompting_approach=prompting_approach
+        )\
+        .filter(Experiment.ai_model_version.like(f"%{ai_model_version[:20]}%"))\
+        .first()
+
+
+def get_refactored_pending_execution(
+    session: Session,
+    strategy: Optional[str] = None,
+    model: Optional[str] = None
+) -> List[Experiment]:
+    """
+    Get experiments with refactoring completed but execution pending.
+    
+    These are experiments stuck in Phase 1 (refactored but not tested).
+    Useful for resuming interrupted batch processing.
+    
+    Args:
+        session: Database session
+        strategy: Filter by prompting approach (optional)
+        model: Filter by AI model version (optional)
+    
+    Returns:
+        List of experiments ready for execution phase
+    """
+    query = session.query(Experiment)\
+        .filter_by(
+            refactor_phase_completed=True,
+            execution_phase_completed=False
+        )
+    
+    if strategy:
+        query = query.filter_by(prompting_approach=strategy)
+    
+    if model:
+        query = query.filter(Experiment.ai_model_version.like(f"%{model[:20]}%"))
+    
+    return query.all()
+
+
+def get_failed_experiments(
+    session: Session,
+    strategy: Optional[str] = None,
+    model: Optional[str] = None
+) -> List[Experiment]:
+    """
+    Get experiments that failed (incomplete or with errors).
+    
+    Identifies experiments where:
+    - Refactoring started but not completed
+    - Tests failed after refactoring
+    - Neither phase completed
+    
+    Args:
+        session: Database session
+        strategy: Filter by prompting approach (optional)
+        model: Filter by AI model version (optional)
+    
+    Returns:
+        List of failed/incomplete experiments
+    """
+    query = session.query(Experiment)\
+        .filter(
+            (Experiment.refactor_phase_completed == False) |
+            (
+                (Experiment.refactor_phase_completed == True) &
+                (Experiment.execution_phase_completed == False) &
+                (Experiment.refactored_code.isnot(None))
+            )
+        )
+    
+    if strategy:
+        query = query.filter_by(prompting_approach=strategy)
+    
+    if model:
+        query = query.filter(Experiment.ai_model_version.like(f"%{model[:20]}%"))
+    
+    return query.all()
+
+
 def update_experiment(session: Session, experiment_id: int, **kwargs) -> Optional[Experiment]:
     """
     Update experiment fields.

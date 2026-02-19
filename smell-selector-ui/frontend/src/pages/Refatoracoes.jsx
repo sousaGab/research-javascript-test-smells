@@ -3,6 +3,8 @@ import { useRefatoracoes } from '../hooks/useRefatoracoes';
 import { DiffViewer } from '../components/DiffViewer/DiffViewer';
 import { RefatoracaoCard } from '../components/RefatoracaoCard/RefatoracaoCard';
 import { Pagination } from '../components/Pagination/Pagination';
+import { ConfirmModal } from '../components/ConfirmModal/ConfirmModal';
+import { deleteExperiment } from '../api/client';
 import './Refatoracoes.css';
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
@@ -194,7 +196,7 @@ function PromptSection({ promptText }) {
 
 // ─── experiment detail ────────────────────────────────────────────────────────
 
-function ExperimentDetail({ experiment, layout, onLayoutChange }) {
+function ExperimentDetail({ experiment, layout, onLayoutChange, onDelete }) {
   if (!experiment) {
     return (
       <div className="ref-detail-placeholder">
@@ -222,6 +224,13 @@ function ExperimentDetail({ experiment, layout, onLayoutChange }) {
           <span className="ref-detail-repo">{experiment.repository}</span>
           <span className="ref-detail-path">{experiment.file_path}</span>
         </div>
+        <button 
+          className="ref-btn-delete" 
+          onClick={() => onDelete(experiment)}
+          title="Delete experiment"
+        >
+          🗑️ Delete
+        </button>
       </div>
 
       <DiffViewer
@@ -322,13 +331,50 @@ function Refatoracoes() {
     updateFilters,
     clearFilters,
     setPage,
+    refreshExperiments,
   } = useRefatoracoes();
 
   const [selectedId, setSelectedId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [experimentToDelete, setExperimentToDelete] = useState(null);
+  const [deleteError, setDeleteError] = useState(null);
 
   const handleCardClick = async (exp) => {
     setSelectedId(exp.id);
     await loadExperimentDetail(exp.id);
+  };
+
+  const handleDeleteClick = (experiment) => {
+    setExperimentToDelete(experiment);
+    setIsModalOpen(true);
+    setDeleteError(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!experimentToDelete) return;
+
+    try {
+      await deleteExperiment(experimentToDelete.id);
+      setIsModalOpen(false);
+      setExperimentToDelete(null);
+      setSelectedId(null);
+      // Refresh the list after deletion
+      if (refreshExperiments) {
+        await refreshExperiments();
+      } else {
+        // Fallback: reload the page
+        window.location.reload();
+      }
+    } catch (err) {
+      setDeleteError(err.message || 'Failed to delete experiment');
+      console.error('Delete error:', err);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setIsModalOpen(false);
+    setExperimentToDelete(null);
+    setDeleteError(null);
   };
 
   const start = Math.min((page - 1) * pageSize + 1, total);
@@ -389,12 +435,34 @@ function Refatoracoes() {
                   experiment={selectedExperiment}
                   layout={layout}
                   onLayoutChange={setLayout}
+                  onDelete={handleDeleteClick}
                 />
               )}
             </div>
           </>
         )}
       </div>
+
+      <ConfirmModal
+        isOpen={isModalOpen}
+        title="Delete Experiment"
+        message={
+          experimentToDelete
+            ? `Are you sure you want to delete experiment #${experimentToDelete.id} (${experimentToDelete.smell_type} in ${experimentToDelete.repository})? This action cannot be undone.`
+            : ''
+        }
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+        confirmText="Delete"
+        cancelText="Cancel"
+        danger={true}
+      />
+
+      {deleteError && (
+        <div className="ref-error" style={{ position: 'fixed', bottom: '20px', right: '20px', padding: '10px', background: '#f44336', color: 'white', borderRadius: '4px' }}>
+          {deleteError}
+        </div>
+      )}
     </>
   );
 }

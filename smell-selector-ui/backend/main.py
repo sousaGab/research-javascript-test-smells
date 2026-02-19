@@ -1252,6 +1252,43 @@ async def get_refatoracao_detail(experiment_id: int):
         session.close()
 
 
+@app.delete("/api/refatoracoes/{experiment_id}")
+async def delete_refatoracao(experiment_id: int):
+    """
+    Delete a refactoring experiment.
+    
+    This will cascade delete all related records:
+    - Smell detection results
+    - Code metrics
+    - Test results
+    - AI responses
+    """
+    session = get_db_session()
+    try:
+        # Check if experiment exists
+        check_query = text("SELECT id FROM experiments WHERE id = :experiment_id")
+        exists = session.execute(check_query, {"experiment_id": experiment_id}).fetchone()
+        
+        if not exists:
+            raise HTTPException(status_code=404, detail=f"Experiment {experiment_id} not found")
+        
+        # Delete experiment (cascade will handle related records)
+        delete_query = text("DELETE FROM experiments WHERE id = :experiment_id")
+        session.execute(delete_query, {"experiment_id": experiment_id})
+        session.commit()
+        
+        return {"success": True, "message": f"Experiment {experiment_id} deleted successfully"}
+        
+    except HTTPException:
+        session.rollback()
+        raise
+    except Exception as e:
+        session.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete experiment: {str(e)}")
+    finally:
+        session.close()
+
+
 # =============================================================================
 # MAIN
 # =============================================================================
