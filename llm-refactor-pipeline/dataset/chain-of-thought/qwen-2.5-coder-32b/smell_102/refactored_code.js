@@ -1,5 +1,5 @@
 describe('oneYearAgo()', () => {
-  it('returns the same date one year earlier', async () => {
+  it('returns the date one year prior', async () => {
     // February 2020 was a leap year
     expect(formatYMD(oneYearAgo(parseYMD('2020-02-29')))).toEqual('2019-02-28')
     expect(formatYMD(oneYearAgo(parseYMD('2020-02-28')))).toEqual('2019-02-28')

@@ -2,12 +2,19 @@ it('should enable net connect', done => {
   nock.disableNetConnect()
   nockBack.setMode('wild')
   
-  const originalNetConnect = nock.enableNetConnect
-  nock.enableNetConnect = jest.fn()
+  const originalEnableNetConnect = nock.enableNetConnect
+  const originalNockBack = nockBackWithFixtureLocalhost
   
-  nockBackWithFixtureLocalhost(() => {
-    expect(nock.enableNetConnect).toHaveBeenCalled()
-    nock.enableNetConnect = originalNetConnect
+  // Mock enableNetConnect to track if it's called
+  let enableNetConnectCalled = false
+  nock.enableNetConnect = function() {
+    enableNetConnectCalled = true
+    return originalEnableNetConnect.apply(this, arguments)
+  }
+  
+  // Execute the test
+  originalNockBack(() => {
+    expect(enableNetConnectCalled).toBe(true)
     done()
   })
 })

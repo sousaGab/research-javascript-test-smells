@@ -1,40 +1,78 @@
 test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLogger = (logger, ...calls) => calls.forEach(([method, message]) => logger[method](message))
-  const expectLastCall = (method, expectedMessage) => expect(global.console[method]).toHaveBeenLastCalledWith({ message: expectedMessage })
+  const setupLoggerTest = (level) => {
+    const logger = serverlessExpressLogger({ level })
+    return logger
+  }
 
-  const loggerError = setupLogger('error')
-  callLogger(loggerError, ['error', 'error'], ['info', 'nocall'], ['warn', 'nocall'], ['debug', 'nocall'], ['verbose', 'nocall'])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expectLastCall('error', 'error')
+  const assertLogCalls = (logger, expectedCalls) => {
+    expectedCalls.forEach(({ method, message }) => {
+      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
+    })
+  }
 
-  const loggerWarn = setupLogger('warn')
-  callLogger(loggerWarn, ['error', 'error2'], ['warn', 'warn2'], ['info', 'nocall'], ['debug', 'nocall'], ['verbose', 'nocall'])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expectLastCall('error', 'error2')
-  expectLastCall('warn', 'warn2')
+  const assertNoCalls = (methods) => {
+    methods.forEach(method => {
+      expect(global.console[method]).not.toHaveBeenCalled()
+    })
+  }
 
-  const loggerInfo = setupLogger('info')
-  callLogger(loggerInfo, ['error', 'error3'], ['warn', 'warn3'], ['info', 'info3'], ['debug', 'nocall'], ['verbose', 'nocall'])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expectLastCall('error', 'error3')
-  expectLastCall('warn', 'warn3')
-  expectLastCall('info', 'info3')
+  const loggerError = setupLoggerTest('error')
+  loggerError.error('error')
+  loggerError.info('nocall')
+  loggerError.warn('nocall')
+  loggerError.debug('nocall')
+  loggerError.verbose('nocall')
+  assertNoCalls(['warn', 'debug', 'info'])
+  assertLogCalls(loggerError, [{ method: 'error', message: 'error' }])
 
-  const loggerVerbose = setupLogger('verbose')
-  callLogger(loggerVerbose, ['error', 'error4'], ['warn', 'warn4'], ['info', 'info4'], ['verbose', 'verbose4'], ['debug', 'nocall'])
-  expectLastCall('error', 'error4')
-  expectLastCall('warn', 'warn4')
-  expectLastCall('info', 'info4')
-  expectLastCall('debug', 'verbose4')
+  const loggerWarn = setupLoggerTest('warn')
+  loggerWarn.error('error2')
+  loggerWarn.warn('warn2')
+  loggerWarn.info('nocall')
+  loggerWarn.debug('nocall')
+  loggerWarn.verbose('nocall')
+  assertNoCalls(['debug', 'info'])
+  assertLogCalls(loggerWarn, [
+    { method: 'error', message: 'error2' },
+    { method: 'warn', message: 'warn2' }
+  ])
 
-  const loggerDebug = setupLogger('debug')
-  callLogger(loggerDebug, ['error', 'error5'], ['warn', 'warn5'], ['info', 'info5'], ['verbose', 'verbose5'], ['debug', 'debug5'])
-  expectLastCall('error', 'error5')
-  expectLastCall('warn', 'warn5')
-  expectLastCall('info', 'info5')
-  expectLastCall('debug', 'debug5')
+  const loggerInfo = setupLoggerTest('info')
+  loggerInfo.error('error3')
+  loggerInfo.warn('warn3')
+  loggerInfo.info('info3')
+  loggerInfo.debug('nocall')
+  loggerInfo.verbose('nocall')
+  assertNoCalls(['debug'])
+  assertLogCalls(loggerInfo, [
+    { method: 'error', message: 'error3' },
+    { method: 'warn', message: 'warn3' },
+    { method: 'info', message: 'info3' }
+  ])
+
+  const loggerVerbose = setupLoggerTest('verbose')
+  loggerVerbose.error('error4')
+  loggerVerbose.warn('warn4')
+  loggerVerbose.info('info4')
+  loggerVerbose.verbose('verbose4')
+  loggerVerbose.debug('nocall')
+  assertLogCalls(loggerVerbose, [
+    { method: 'error', message: 'error4' },
+    { method: 'warn', message: 'warn4' },
+    { method: 'info', message: 'info4' },
+    { method: 'debug', message: 'verbose4' }
+  ])
+
+  const loggerDebug = setupLoggerTest('debug')
+  loggerDebug.error('error5')
+  loggerDebug.warn('warn5')
+  loggerDebug.info('info5')
+  loggerDebug.verbose('verbose5')
+  loggerDebug.debug('debug5')
+  assertLogCalls(loggerDebug, [
+    { method: 'error', message: 'error5' },
+    { method: 'warn', message: 'warn5' },
+    { method: 'info', message: 'info5' },
+    { method: 'debug', message: 'debug5' }
+  ])
 })

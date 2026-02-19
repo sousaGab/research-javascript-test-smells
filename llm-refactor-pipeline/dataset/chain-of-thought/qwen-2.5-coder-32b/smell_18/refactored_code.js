@@ -1,12 +1,12 @@
+const TIMEOUT_DELAY = 500;
 const EXIT_CODE = 1;
-const DELAY_MS = 500;
-const EXPECTED_MESSAGE = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+const EXPECTED_MESSAGE_PREFIX = 'uncaughtException: ';
 
 it('when strings are thrown as errors', async () => {
-  const expectedMessage = EXPECTED_MESSAGE;
+  const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
   process.emit('uncaughtException', expectedMessage);
-  await new Promise(resolve => setTimeout(resolve, DELAY_MS));
+  await new Promise(resolve => setTimeout(resolve, TIMEOUT_DELAY));
 
   expect(processExitSpy).toHaveBeenCalledTimes(1);
   expect(processExitSpy).toHaveBeenCalledWith(EXIT_CODE);
@@ -20,5 +20,5 @@ it('when strings are thrown as errors', async () => {
   helpers.assertProcessInfo(data.process);
   helpers.assertOsInfo(data.os);
   helpers.assertTrace(data.trace);
-  assume(data.message).includes('uncaughtException: ' + expectedMessage);
-});
+  assume(data.message).includes(EXPECTED_MESSAGE_PREFIX + expectedMessage);
+})

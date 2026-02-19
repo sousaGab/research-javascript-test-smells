@@ -9,7 +9,6 @@ it('should promote the get item to the head _toJSONG.', function() {
         expect(model._root[__head][__next][__next].value).toBe('I am 1');
         getWithPathsAsJSONGraph(model, [['2']], [{}]);
         getWithPathsAsJSONGraph(model, [['1']], [{}]);
-        
         var current = model._root[__head];
         expect(current.value).toBe('I am 1');
         current = current[__next];
@@ -17,4 +16,9 @@ it('should promote the get item to the head _toJSONG.', function() {
         current = current[__next];
         expect(current.value).toBe('I am 3');
         expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
     })

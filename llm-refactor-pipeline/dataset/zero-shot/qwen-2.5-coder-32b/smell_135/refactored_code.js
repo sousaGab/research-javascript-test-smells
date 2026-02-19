@@ -15,35 +15,23 @@ it('should handle a high volume of large writes synchronous', function (done) {
       message: 'a'.repeat(16384 - os.EOL.length - 1)
     }));
     
-    let writesComplete = false;
-    let readsComplete = false;
+    let writeComplete = false;
+    let readComplete = false;
     let doneCalled = false;
 
     const checkDone = () => {
-      if (writesComplete && readsComplete && !doneCalled) {
+      if (writeComplete && readComplete && !doneCalled) {
         doneCalled = true;
-        logger.close();
         done();
       }
     };
 
     msgs.forEach(msg => logger.info(msg));
 
-    // Listen for write completion by checking file size or using a more reliable method
-    const waitForWrites = () => {
-      fs.stat(fileStressLogFile, (err, stats) => {
-        if (err || stats.size === 0) {
-          setTimeout(waitForWrites, 100);
-        } else {
-          writesComplete = true;
-          checkDone();
-        }
-      });
-    };
-
-    setTimeout(() => {
-      waitForWrites();
-    }, 100);
+    logger.on('finish', () => {
+      writeComplete = true;
+      checkDone();
+    });
 
     helpers.tryRead(fileStressLogFile)
       .on('error', function (err) {
@@ -59,7 +47,7 @@ it('should handle a high volume of large writes synchronous', function (done) {
         assume(json.counter).equal(++counters.read);
       })
       .on('end', function () {
-        readsComplete = true;
+        readComplete = true;
         checkDone();
       });
   })

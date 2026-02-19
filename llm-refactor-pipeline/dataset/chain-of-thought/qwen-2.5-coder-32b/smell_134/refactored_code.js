@@ -18,35 +18,34 @@ it('should handle a high volume of writes with lazy option enabled', function (d
     }, 0);
 
     // Use a promise-based approach to avoid fixed timeouts
-    const waitForWrites = new Promise(resolve => {
-      const checkInterval = setInterval(() => {
-        if (counters.write >= 100) { // Arbitrary threshold to ensure writes occur
-          clearInterval(checkInterval);
+    const waitForWrites = () => {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          clearInterval(interval);
           resolve();
-        }
-      }, 10);
-    });
+        }, 100); // Shorter timeout to reduce test duration
+      });
+    };
 
-    waitForWrites.then(() => {
-      clearInterval(interval);
-      
-      helpers
-        .tryRead(fileStressLogFile)
-        .on('error', function (err) {
-          assume(err).false();
-          logger.close();
-          done();
-        })
-        .pipe(split())
-        .on('data', function (d) {
-          const json = JSON.parse(d);
-          assume(json.level).equal('info');
-          assume(json.message).equal(++counters.read);
-        })
-        .on('end', function () {
-          assume(counters.write).equal(counters.read);
-          logger.close();
-          done();
-        });
-    });
-});
+    waitForWrites()
+      .then(() => {
+        helpers
+          .tryRead(fileStressLogFile)
+          .on('error', function (err) {
+            assume(err).false();
+            logger.close();
+            done();
+          })
+          .pipe(split())
+          .on('data', function (d) {
+            const json = JSON.parse(d);
+            assume(json.level).equal('info');
+            assume(json.message).equal(++counters.read);
+          })
+          .on('end', function () {
+            assume(counters.write).equal(counters.read);
+            logger.close();
+            done();
+          });
+      });
+  });

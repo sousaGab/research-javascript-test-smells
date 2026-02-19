@@ -1,10 +1,10 @@
-it("updates director for multiple movies in cache", function() {
+it("sets director for multiple movies", function() {
     var cache = {};
     var version = 0;
-    
     setPathValues(
-        getModel({ cache: cache, version: version++ }), 
-        [$pathValue("movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director", "Quentin Tarantino")]
+        getModel({ cache: cache, version: version++ }), [
+            $pathValue("movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director", "Quentin Tarantino")
+        ]
     );
 
     expect(strip(cache)).toEqual(strip({

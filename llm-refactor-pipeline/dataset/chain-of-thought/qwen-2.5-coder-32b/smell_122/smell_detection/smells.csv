@@ -7756,7 +7756,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(response3.body).to.equal('server response')
     expect(scope.isDone()).to.equal(false)
   })",30,68,steel
-/tests/got/test_allow_unmocked.js,Conditional Test Logic,"{'line': 38, 'column': 6, 'index': 1169}","it('allow unmocked option allows traffic to server', async () => {
+/tests/got/test_allow_unmocked.js,Conditional Test Logic,"{'line': 38, 'column': 6, 'index': 1171}","it('allows unmocked option to pass through to server', async () => {
     const { origin } = await startHttpServer((request, response) => {
       switch (request.url) {
         case '/':
@@ -7782,23 +7782,19 @@ file,type,line,method,methodStart,methodEnd,source
       .reply(307, 'served from our mock')
     const client = got.extend({ prefixUrl: origin, throwHttpErrors: false })
 
-    const [response1, response2, response3] = await Promise.all([
-      client('abc'),
-      client('not/available'),
-      client('')
-    ])
-
+    const response1 = await client('abc')
     expect(response1.statusCode).to.equal(307)
     expect(response1.body).to.equal('served from our mock')
-    expect(scope.isDone()).to.equal(false)
 
+    const response2 = await client('not/available')
     expect(response2.statusCode).to.equal(404)
-    expect(scope.isDone()).to.equal(false)
 
+    const response3 = await client('')
     expect(response3.statusCode).to.equal(200)
     expect(response3.body).to.equal('server served a response')
-    expect(scope.isDone()).to.equal(false)
-  })",36,78,steel
+
+    expect(scope.isDone()).to.be.false
+  })",36,74,steel
 /tests/got/test_allow_unmocked.js,Duplicate Assert,"{'line': 32, 'column': 4, 'index': 912}","it('allow unmocked works after one interceptor is removed', async () => {
     const { origin } = await startHttpServer((request, response) => {
       response.write('live')
@@ -7821,132 +7817,3 @@ file,type,line,method,methodStart,methodEnd,source
     expect((await got(origin)).body).to.equal('Mocked')
     expect((await got(origin)).body).to.equal('live')
   })",24,34,steel
-/tests/got/test_allow_unmocked.js,Duplicate Assert,"{'line': 70, 'column': 4, 'index': 2076}","it('allow unmocked option allows traffic to server', async () => {
-    const { origin } = await startHttpServer((request, response) => {
-      switch (request.url) {
-        case '/':
-          response.writeHead(200)
-          response.write('server served a response')
-          break
-        case '/not/available':
-          response.writeHead(404)
-          break
-        case '/abc':
-          response.writeHead(200)
-          response.write('server served a response')
-          break
-      }
-
-      response.end()
-    })
-
-    const scope = nock(origin, { allowUnmocked: true })
-      .get('/abc')
-      .reply(307, 'served from our mock')
-      .get('/wont/get/here')
-      .reply(307, 'served from our mock')
-    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false })
-
-    const [response1, response2, response3] = await Promise.all([
-      client('abc'),
-      client('not/available'),
-      client('')
-    ])
-
-    expect(response1.statusCode).to.equal(307)
-    expect(response1.body).to.equal('served from our mock')
-    expect(scope.isDone()).to.equal(false)
-
-    expect(response2.statusCode).to.equal(404)
-    expect(scope.isDone()).to.equal(false)
-
-    expect(response3.statusCode).to.equal(200)
-    expect(response3.body).to.equal('server served a response')
-    expect(scope.isDone()).to.equal(false)
-  })",36,78,steel
-/tests/got/test_allow_unmocked.js,Duplicate Assert,"{'line': 73, 'column': 4, 'index': 2167}","it('allow unmocked option allows traffic to server', async () => {
-    const { origin } = await startHttpServer((request, response) => {
-      switch (request.url) {
-        case '/':
-          response.writeHead(200)
-          response.write('server served a response')
-          break
-        case '/not/available':
-          response.writeHead(404)
-          break
-        case '/abc':
-          response.writeHead(200)
-          response.write('server served a response')
-          break
-      }
-
-      response.end()
-    })
-
-    const scope = nock(origin, { allowUnmocked: true })
-      .get('/abc')
-      .reply(307, 'served from our mock')
-      .get('/wont/get/here')
-      .reply(307, 'served from our mock')
-    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false })
-
-    const [response1, response2, response3] = await Promise.all([
-      client('abc'),
-      client('not/available'),
-      client('')
-    ])
-
-    expect(response1.statusCode).to.equal(307)
-    expect(response1.body).to.equal('served from our mock')
-    expect(scope.isDone()).to.equal(false)
-
-    expect(response2.statusCode).to.equal(404)
-    expect(scope.isDone()).to.equal(false)
-
-    expect(response3.statusCode).to.equal(200)
-    expect(response3.body).to.equal('server served a response')
-    expect(scope.isDone()).to.equal(false)
-  })",36,78,steel
-/tests/got/test_allow_unmocked.js,Duplicate Assert,"{'line': 77, 'column': 4, 'index': 2322}","it('allow unmocked option allows traffic to server', async () => {
-    const { origin } = await startHttpServer((request, response) => {
-      switch (request.url) {
-        case '/':
-          response.writeHead(200)
-          response.write('server served a response')
-          break
-        case '/not/available':
-          response.writeHead(404)
-          break
-        case '/abc':
-          response.writeHead(200)
-          response.write('server served a response')
-          break
-      }
-
-      response.end()
-    })
-
-    const scope = nock(origin, { allowUnmocked: true })
-      .get('/abc')
-      .reply(307, 'served from our mock')
-      .get('/wont/get/here')
-      .reply(307, 'served from our mock')
-    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false })
-
-    const [response1, response2, response3] = await Promise.all([
-      client('abc'),
-      client('not/available'),
-      client('')
-    ])
-
-    expect(response1.statusCode).to.equal(307)
-    expect(response1.body).to.equal('served from our mock')
-    expect(scope.isDone()).to.equal(false)
-
-    expect(response2.statusCode).to.equal(404)
-    expect(scope.isDone()).to.equal(false)
-
-    expect(response3.statusCode).to.equal(200)
-    expect(response3.body).to.equal('server served a response')
-    expect(scope.isDone()).to.equal(false)
-  })",36,78,steel

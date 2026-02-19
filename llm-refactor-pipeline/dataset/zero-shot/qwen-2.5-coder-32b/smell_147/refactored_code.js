@@ -1,4 +1,6 @@
-test('remove file object from client and fail to remove from server', done => {
+test('remove file object from client and fail to remove from server', async () => {
+        const mockError = jest.fn();
+        
         pond.server = {
             ...server,
             remove: (source, load, error) => {
@@ -9,16 +11,20 @@ test('remove file object from client and fail to remove from server', done => {
         const onremovefile = jest.fn();
         pond.onremovefile = onremovefile;
 
-        pond.onremovefile = (error, file) => {
-            expect(error.type).toBe('error');
-            expect(onremovefile).not.toHaveBeenCalled();
-            expect(pond.getFiles().length).toBe(1);
-            done();
-        };
+        const onRemoveFilePromise = new Promise(resolve => {
+            pond.onremovefile = (error, file) => {
+                expect(error.type).toBe('error');
+                expect(onremovefile).not.toHaveBeenCalled();
+                expect(pond.getFiles().length).toBe(1);
+                resolve();
+            };
+        });
 
         pond.onaddfile = () => {
             pond.removeFile();
         };
 
         pond.files = [LOCAL_FILE];
+        
+        await onRemoveFilePromise;
     })

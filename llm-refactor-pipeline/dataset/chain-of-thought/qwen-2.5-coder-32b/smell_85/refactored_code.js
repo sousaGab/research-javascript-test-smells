@@ -1,4 +1,4 @@
-it('should rotate log files according to maxFiles limit', async function () {
+it('should rotate log files based on maxFiles limit', async function () {
   const transport = new winston.transports.File({
     ...defaultTransportOptions,
     maxsize: 2024,

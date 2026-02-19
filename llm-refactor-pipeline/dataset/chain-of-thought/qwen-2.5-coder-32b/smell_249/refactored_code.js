@@ -19,5 +19,5 @@ it('can destroy the socket if stream is not finished', async () => {
       stream.on('end', resolve)
     })
 
-    expect(result).toBeDefined()
+    expect(result).to.exist
   })

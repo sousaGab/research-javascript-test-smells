@@ -1,15 +1,15 @@
 const EXPECTED_MESSAGE = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
-const EXIT_CODE = 1;
-const DELAY_MS = 500;
+const PROCESS_EXIT_CODE = 1;
+const TIMEOUT_DELAY = 500;
 
 it('when strings are thrown as errors', async () => {
   const expectedMessage = EXPECTED_MESSAGE;
 
   process.emit('uncaughtException', expectedMessage);
-  await new Promise(resolve => setTimeout(resolve, DELAY_MS));
+  await new Promise(resolve => setTimeout(resolve, TIMEOUT_DELAY));
 
   expect(processExitSpy).toHaveBeenCalledTimes(1);
-  expect(processExitSpy).toHaveBeenCalledWith(EXIT_CODE);
+  expect(processExitSpy).toHaveBeenCalledWith(PROCESS_EXIT_CODE);
 
   // Read the log file and verify its contents
   const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });

@@ -1,21 +1,17 @@
 it('with the default winston logger', async () => {
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
         const logFileReady = new Promise(resolve => {
-          const originalWriteFile = fsPromise.writeFile;
-          fsPromise.writeFile = function(file, data) {
-            return originalWriteFile.call(this, file, data).then(() => {
-              fsPromise.writeFile = originalWriteFile;
-              resolve();
-            });
-          };
-        });
-
-        winston.exceptions.handle([
-          new winston.transports.File({
+          const fileTransport = new winston.transports.File({
             filename: filePath,
-            handleExceptions: true
-          })
-        ]);
+            handleExceptions: true,
+            maxsize: '10m',
+            maxFiles: 1
+          });
+
+          fileTransport.on('finish', () => resolve());
+          
+          winston.exceptions.handle([fileTransport]);
+        });
 
         process.emit('uncaughtException', expectedMessage);
         

@@ -454,7 +454,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(scope.isDone()).to.be.false()
         done()
       } else {
-        setImmediate(waitForEvents)
+        setTimeout(waitForEvents, 1)
       }
     }
 
@@ -3394,13 +3394,13 @@ file,type,line,method,methodStart,methodEnd,source
         expect(scope.isDone()).to.be.false()
         done()
       } else {
-        setImmediate(waitForEvents)
+        setTimeout(waitForEvents, 1)
       }
     }
 
     waitForEvents()
   })",51,72,steel
-/tests/test_abort.js,Ignored Test,"{'line': 171, 'column': 5, 'index': 5390}","it.skip('Emits the expected event sequence when aborted after a delay from the `finish` event', done => {
+/tests/test_abort.js,Ignored Test,"{'line': 171, 'column': 5, 'index': 5391}","it.skip('Emits the expected event sequence when aborted after a delay from the `finish` event', done => {
     // use the delay functionality to create a window where the abort is called during the artificial connection wait.
     const scope = nock('http://example.test').get('/').delay(100).reply()
 
@@ -3464,7 +3464,29 @@ file,type,line,method,methodStart,methodEnd,source
       done()
     }, 10)
   })",34,49,steel
-/tests/test_abort.js,Sleepy Test,"{'line': 82, 'column': 4, 'index': 2730}","it('Emits the expected event sequence when aborted immediately after `end`', done => {
+/tests/test_abort.js,Sleepy Test,"{'line': 67, 'column': 8, 'index': 2378}","it('Emits the expected event sequence when `flushHeaders` is called on an aborted request', done => {
+    const scope = nock('http://example.test').get('/').reply()
+
+    const req = http.request('http://example.test')
+    const emitSpy = sinon.spy(req, 'emit')
+    req.abort()
+    req.flushHeaders()
+
+    const waitForEvents = () => {
+      if (emitSpy.callCount >= 2) {
+        expect(emitSpy).to.have.been.calledTwice()
+        expect(emitSpy.firstCall).to.have.been.calledWith('close')
+        expect(emitSpy.secondCall).to.have.been.calledWith('abort')
+        expect(scope.isDone()).to.be.false()
+        done()
+      } else {
+        setTimeout(waitForEvents, 1)
+      }
+    }
+
+    waitForEvents()
+  })",51,72,steel
+/tests/test_abort.js,Sleepy Test,"{'line': 82, 'column': 4, 'index': 2731}","it('Emits the expected event sequence when aborted immediately after `end`', done => {
     const scope = nock('http://example.test').get('/').reply()
 
     const req = http.request('http://example.test')
@@ -3480,7 +3502,7 @@ file,type,line,method,methodStart,methodEnd,source
       done()
     }, 10)
   })",74,89,steel
-/tests/test_abort.js,Sleepy Test,"{'line': 106, 'column': 4, 'index': 3468}","it('Emits the expected event sequence when aborted inside a `socket` event listener', done => {
+/tests/test_abort.js,Sleepy Test,"{'line': 106, 'column': 4, 'index': 3469}","it('Emits the expected event sequence when aborted inside a `socket` event listener', done => {
     const scope = nock('http://example.test').get('/').reply()
 
     const req = http.request('http://example.test')
@@ -3502,7 +3524,7 @@ file,type,line,method,methodStart,methodEnd,source
       done()
     }, 10)
   })",91,112,steel
-/tests/test_abort.js,Sleepy Test,"{'line': 128, 'column': 4, 'index': 4103}","it('Emits the expected event sequence when aborted multiple times', done => {
+/tests/test_abort.js,Sleepy Test,"{'line': 128, 'column': 4, 'index': 4104}","it('Emits the expected event sequence when aborted multiple times', done => {
     const scope = nock('http://example.test').get('/').reply()
 
     const req = http.request('http://example.test')
@@ -3524,7 +3546,7 @@ file,type,line,method,methodStart,methodEnd,source
       done()
     }, 10)
   })",114,135,steel
-/tests/test_abort.js,Sleepy Test,"{'line': 155, 'column': 4, 'index': 5032}","it('Emits the expected event sequence when aborted inside a `finish` event listener', done => {
+/tests/test_abort.js,Sleepy Test,"{'line': 155, 'column': 4, 'index': 5033}","it('Emits the expected event sequence when aborted inside a `finish` event listener', done => {
     const scope = nock('http://example.test').get('/').reply()
 
     const req = http.request('http://example.test')
@@ -3553,7 +3575,7 @@ file,type,line,method,methodStart,methodEnd,source
       done()
     }, 20)
   })",140,168,steel
-/tests/test_abort.js,Sleepy Test,"{'line': 215, 'column': 4, 'index': 6638}","it('Emits the expected event sequence when aborted inside a `response` event listener', done => {
+/tests/test_abort.js,Sleepy Test,"{'line': 215, 'column': 4, 'index': 6639}","it('Emits the expected event sequence when aborted inside a `response` event listener', done => {
     const scope = nock('http://example.test').get('/').reply()
 
     const req = http.request('http://example.test')

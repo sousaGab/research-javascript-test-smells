@@ -1,4 +1,4 @@
-const NUM_RUNS = 50;
+const RUNS = 50;
 const MAX_WORSE_THRESHOLD = 40;
 const LAYOUT_WIDTH = 30;
 const LAYOUT_HEIGHT = 12;
@@ -10,7 +10,7 @@ it("produces similar or better compaction height", () => {
   let stdBetter = 0;
   let equal = 0;
 
-  for (let run = 0; run < NUM_RUNS; run++) {
+  for (let run = 0; run < RUNS; run++) {
     const layout = generateMessyLayout(LAYOUT_WIDTH, LAYOUT_HEIGHT);
 
     const stdCompacted = verticalCompactor.compact(layout, LAYOUT_HEIGHT);

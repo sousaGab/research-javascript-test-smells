@@ -1,6 +1,6 @@
 test('dispatches complete action when discard throw an exception', () => {
     const effect = () => Promise.reject();
-    const discard = () => {throw new Error()};
+    const discard = () => {throw new Error};
     const { action, config, dispatch } = setup({ effect, discard });
     const promise = send(action, dispatch, config);
 

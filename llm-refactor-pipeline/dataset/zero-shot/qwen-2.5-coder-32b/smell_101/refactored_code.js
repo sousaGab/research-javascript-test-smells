@@ -1,4 +1,4 @@
-it('should show tooltip on click', async () => {
+it('should initialize tooltip directive and handle click interaction', async () => {
     jest.useFakeTimers()
 
     const App = {

@@ -19,13 +19,13 @@ it('renders with correct basic inner structure', async () => {
       expect(pageLink).toBeDefined()
     })
 
-    // Test active state
+    // Test active page state
     const activeLi = lis.at(2)
     expect(activeLi.classes()).toContain('active')
     expect(activeLi.classes()).not.toContain('disabled')
     expect(activeLi.find('.page-link').element.tagName).toBe('BUTTON')
 
-    // Test disabled states
+    // Test disabled pages state
     const disabledLis = [0, 1, 3, 4]
     disabledLis.forEach(index => {
       const li = lis.at(index)

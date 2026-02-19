@@ -24,14 +24,14 @@ it('renders with correct basic inner structure', async () => {
         expect(li.classes()).not.toContain('disabled')
         expect(pageLink.element.tagName).toBe('BUTTON')
       } else {
-        // Non-active page items
+        // Inactive page items
         expect(li.classes()).not.toContain('active')
         expect(li.classes()).toContain('disabled')
         expect(pageLink.element.tagName).toBe('SPAN')
       }
     })
 
-    // Verify specific page button content
+    // Verify specific page item contents
     const first = lis.at(0)
     const prev = lis.at(1)
     const page = lis.at(2)

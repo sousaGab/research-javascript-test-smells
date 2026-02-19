@@ -8,7 +8,7 @@ it('default levels', function (done) {
       log: function (obj) {
         if (level === 'info') {
           assume(obj).equals(undefined, 'Transport on level info should never be called');
-        } else {
+        } else if (level === 'debug') {
           assume(obj.message).equals('foo');
           assume(obj.level).equals('debug');
           assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'debug', message: 'foo'});

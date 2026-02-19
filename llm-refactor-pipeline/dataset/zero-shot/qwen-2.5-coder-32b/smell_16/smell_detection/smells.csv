@@ -3351,144 +3351,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(tree.queryRange(2, 4)).toBe(8);
     expect(tree.queryRange(6, 9)).toBe(11);
   })",16,63,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,ConditionalTestLogic,"{'startLine':221,'endLine':223}","it('should be possible to use objects as node values', () => {
-    const nodeValueComparatorCallback = (a, b) => {
-      const normalizedA = a || { value: null };
-      const normalizedB = b || { value: null };
-
-      if (normalizedA.value === normalizedB.value) {
-        return 0;
-      }
-
-      return normalizedA.value < normalizedB.value ? -1 : 1;
-    };
-
-    const obj1 = { key: 'obj1', value: 1, toString: () => 'obj1' };
-    const obj2 = { key: 'obj2', value: 2, toString: () => 'obj2' };
-    const obj3 = { key: 'obj3', value: 3, toString: () => 'obj3' };
-
-    const bstNode = new BinarySearchTreeNode(obj2, nodeValueComparatorCallback);
-    bstNode.insert(obj1);
-
-    expect(bstNode.toString()).toBe('obj1,obj2');
-    expect(bstNode.contains(obj1)).toBe(true);
-    expect(bstNode.contains(obj3)).toBe(false);
-
-    bstNode.insert(obj3);
-
-    expect(bstNode.toString()).toBe('obj1,obj2,obj3');
-    expect(bstNode.contains(obj3)).toBe(true);
-
-    expect(bstNode.findMin().value).toEqual(obj1);
-  })",216,245,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':21,'endLine':54}","it('should insert nodes in correct order', () => {
-    const bstNode = new BinarySearchTreeNode(2);
-    const insertedNode1 = bstNode.insert(1);
-
-    expect(insertedNode1.value).toBe(1);
-    expect(bstNode.toString()).toBe('1,2');
-    expect(bstNode.contains(1)).toBe(true);
-    expect(bstNode.contains(3)).toBe(false);
-
-    const insertedNode2 = bstNode.insert(3);
-
-    expect(insertedNode2.value).toBe(3);
-    expect(bstNode.toString()).toBe('1,2,3');
-    expect(bstNode.contains(3)).toBe(true);
-    expect(bstNode.contains(4)).toBe(false);
-
-    bstNode.insert(7);
-
-    expect(bstNode.toString()).toBe('1,2,3,7');
-    expect(bstNode.contains(7)).toBe(true);
-    expect(bstNode.contains(8)).toBe(false);
-
-    bstNode.insert(4);
-
-    expect(bstNode.toString()).toBe('1,2,3,4,7');
-    expect(bstNode.contains(4)).toBe(true);
-    expect(bstNode.contains(8)).toBe(false);
-
-    bstNode.insert(6);
-
-    expect(bstNode.toString()).toBe('1,2,3,4,6,7');
-    expect(bstNode.contains(6)).toBe(true);
-    expect(bstNode.contains(8)).toBe(false);
-  })",21,54,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':84,'endLine':103}","it('should be possible to attach meta information to binary search tree nodes', () => {
-    const node = new BinarySearchTreeNode(10);
-
-    node.insert(20);
-    const node1 = node.insert(30);
-    node.insert(5);
-    node.insert(40);
-    const node2 = node.insert(1);
-
-    node.meta.set('color', 'red');
-    node1.meta.set('color', 'black');
-    node2.meta.set('color', 'white');
-
-    expect(node.meta.get('color')).toBe('red');
-
-    expect(node.findMin()).not.toBeNull();
-    expect(node.findMin().value).toBe(1);
-    expect(node.findMin().meta.get('color')).toBe('white');
-    expect(node.find(30).meta.get('color')).toBe('black');
-  })",84,103,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':157,'endLine':186}","it('should remove nodes with two children', () => {
-    const bstRootNode = new BinarySearchTreeNode();
-
-    bstRootNode.insert(10);
-    bstRootNode.insert(20);
-    bstRootNode.insert(5);
-    bstRootNode.insert(30);
-    bstRootNode.insert(15);
-    bstRootNode.insert(25);
-
-    expect(bstRootNode.toString()).toBe('5,10,15,20,25,30');
-    expect(bstRootNode.find(20).left.value).toBe(15);
-    expect(bstRootNode.find(20).right.value).toBe(30);
-
-    bstRootNode.remove(20);
-    expect(bstRootNode.toString()).toBe('5,10,15,25,30');
-
-    bstRootNode.remove(15);
-    expect(bstRootNode.toString()).toBe('5,10,25,30');
-
-    bstRootNode.remove(10);
-    expect(bstRootNode.toString()).toBe('5,25,30');
-    expect(bstRootNode.value).toBe(25);
-
-    bstRootNode.remove(25);
-    expect(bstRootNode.toString()).toBe('5,30');
-
-    bstRootNode.remove(5);
-    expect(bstRootNode.toString()).toBe('30');
-  })",157,186,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTree.test.js,ConditionalTestLogic,"{'startLine':60,'endLine':62}","it('should insert object values', () => {
-    const nodeValueCompareFunction = (a, b) => {
-      const normalizedA = a || { value: null };
-      const normalizedB = b || { value: null };
-
-      if (normalizedA.value === normalizedB.value) {
-        return 0;
-      }
-
-      return normalizedA.value < normalizedB.value ? -1 : 1;
-    };
-
-    const obj1 = { key: 'obj1', value: 1, toString: () => 'obj1' };
-    const obj2 = { key: 'obj2', value: 2, toString: () => 'obj2' };
-    const obj3 = { key: 'obj3', value: 3, toString: () => 'obj3' };
-
-    const bst = new BinarySearchTree(nodeValueCompareFunction);
-
-    bst.insert(obj2);
-    bst.insert(obj3);
-    bst.insert(obj1);
-
-    expect(bst.toString()).toBe('obj1,obj2,obj3');
-  })",55,78,snuts
 /src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,IdenticalTestDescription,"{'startLine':211,'endLine':231}","it('should do left right rotation and keeping left right node safe', () => {
     const tree = new AvlTree();
 
@@ -3739,6 +3601,144 @@ file,type,line,method,methodStart,methodEnd,source
     expect(tree.root.height).toBe(2);
     expect(tree.root.balanceFactor).toBe(0);
   })",271,302,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,ConditionalTestLogic,"{'startLine':221,'endLine':223}","it('should be possible to use objects as node values', () => {
+    const nodeValueComparatorCallback = (a, b) => {
+      const normalizedA = a || { value: null };
+      const normalizedB = b || { value: null };
+
+      if (normalizedA.value === normalizedB.value) {
+        return 0;
+      }
+
+      return normalizedA.value < normalizedB.value ? -1 : 1;
+    };
+
+    const obj1 = { key: 'obj1', value: 1, toString: () => 'obj1' };
+    const obj2 = { key: 'obj2', value: 2, toString: () => 'obj2' };
+    const obj3 = { key: 'obj3', value: 3, toString: () => 'obj3' };
+
+    const bstNode = new BinarySearchTreeNode(obj2, nodeValueComparatorCallback);
+    bstNode.insert(obj1);
+
+    expect(bstNode.toString()).toBe('obj1,obj2');
+    expect(bstNode.contains(obj1)).toBe(true);
+    expect(bstNode.contains(obj3)).toBe(false);
+
+    bstNode.insert(obj3);
+
+    expect(bstNode.toString()).toBe('obj1,obj2,obj3');
+    expect(bstNode.contains(obj3)).toBe(true);
+
+    expect(bstNode.findMin().value).toEqual(obj1);
+  })",216,245,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':21,'endLine':54}","it('should insert nodes in correct order', () => {
+    const bstNode = new BinarySearchTreeNode(2);
+    const insertedNode1 = bstNode.insert(1);
+
+    expect(insertedNode1.value).toBe(1);
+    expect(bstNode.toString()).toBe('1,2');
+    expect(bstNode.contains(1)).toBe(true);
+    expect(bstNode.contains(3)).toBe(false);
+
+    const insertedNode2 = bstNode.insert(3);
+
+    expect(insertedNode2.value).toBe(3);
+    expect(bstNode.toString()).toBe('1,2,3');
+    expect(bstNode.contains(3)).toBe(true);
+    expect(bstNode.contains(4)).toBe(false);
+
+    bstNode.insert(7);
+
+    expect(bstNode.toString()).toBe('1,2,3,7');
+    expect(bstNode.contains(7)).toBe(true);
+    expect(bstNode.contains(8)).toBe(false);
+
+    bstNode.insert(4);
+
+    expect(bstNode.toString()).toBe('1,2,3,4,7');
+    expect(bstNode.contains(4)).toBe(true);
+    expect(bstNode.contains(8)).toBe(false);
+
+    bstNode.insert(6);
+
+    expect(bstNode.toString()).toBe('1,2,3,4,6,7');
+    expect(bstNode.contains(6)).toBe(true);
+    expect(bstNode.contains(8)).toBe(false);
+  })",21,54,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':84,'endLine':103}","it('should be possible to attach meta information to binary search tree nodes', () => {
+    const node = new BinarySearchTreeNode(10);
+
+    node.insert(20);
+    const node1 = node.insert(30);
+    node.insert(5);
+    node.insert(40);
+    const node2 = node.insert(1);
+
+    node.meta.set('color', 'red');
+    node1.meta.set('color', 'black');
+    node2.meta.set('color', 'white');
+
+    expect(node.meta.get('color')).toBe('red');
+
+    expect(node.findMin()).not.toBeNull();
+    expect(node.findMin().value).toBe(1);
+    expect(node.findMin().meta.get('color')).toBe('white');
+    expect(node.find(30).meta.get('color')).toBe('black');
+  })",84,103,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':157,'endLine':186}","it('should remove nodes with two children', () => {
+    const bstRootNode = new BinarySearchTreeNode();
+
+    bstRootNode.insert(10);
+    bstRootNode.insert(20);
+    bstRootNode.insert(5);
+    bstRootNode.insert(30);
+    bstRootNode.insert(15);
+    bstRootNode.insert(25);
+
+    expect(bstRootNode.toString()).toBe('5,10,15,20,25,30');
+    expect(bstRootNode.find(20).left.value).toBe(15);
+    expect(bstRootNode.find(20).right.value).toBe(30);
+
+    bstRootNode.remove(20);
+    expect(bstRootNode.toString()).toBe('5,10,15,25,30');
+
+    bstRootNode.remove(15);
+    expect(bstRootNode.toString()).toBe('5,10,25,30');
+
+    bstRootNode.remove(10);
+    expect(bstRootNode.toString()).toBe('5,25,30');
+    expect(bstRootNode.value).toBe(25);
+
+    bstRootNode.remove(25);
+    expect(bstRootNode.toString()).toBe('5,30');
+
+    bstRootNode.remove(5);
+    expect(bstRootNode.toString()).toBe('30');
+  })",157,186,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTree.test.js,ConditionalTestLogic,"{'startLine':60,'endLine':62}","it('should insert object values', () => {
+    const nodeValueCompareFunction = (a, b) => {
+      const normalizedA = a || { value: null };
+      const normalizedB = b || { value: null };
+
+      if (normalizedA.value === normalizedB.value) {
+        return 0;
+      }
+
+      return normalizedA.value < normalizedB.value ? -1 : 1;
+    };
+
+    const obj1 = { key: 'obj1', value: 1, toString: () => 'obj1' };
+    const obj2 = { key: 'obj2', value: 2, toString: () => 'obj2' };
+    const obj3 = { key: 'obj3', value: 3, toString: () => 'obj3' };
+
+    const bst = new BinarySearchTree(nodeValueCompareFunction);
+
+    bst.insert(obj2);
+    bst.insert(obj3);
+    bst.insert(obj1);
+
+    expect(bst.toString()).toBe('obj1,obj2,obj3');
+  })",55,78,snuts
 /src/algorithms/uncategorized/rain-terraces/__test__/dpRainTerraces.test.js,VerboseStatement,"{'startLine':4,'endLine':20}","it('should find the amount of water collected after raining', () => {
     expect(dpRainTerraces([1])).toBe(0);
     expect(dpRainTerraces([1, 0])).toBe(0);
@@ -3876,149 +3876,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(moveCallback.mock.calls[2][1]).toEqual([1]);
     expect(moveCallback.mock.calls[2][2]).toEqual([2]);
   })",5,37,snuts
-/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,OvercommentedTest,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
-    const nodeA = new BinaryTreeNode('A');
-    const nodeB = new BinaryTreeNode('B');
-    const nodeC = new BinaryTreeNode('C');
-    const nodeD = new BinaryTreeNode('D');
-    const nodeE = new BinaryTreeNode('E');
-    const nodeF = new BinaryTreeNode('F');
-    const nodeG = new BinaryTreeNode('G');
-
-    nodeA.setLeft(nodeB).setRight(nodeC);
-    nodeB.setLeft(nodeD).setRight(nodeE);
-    nodeC.setLeft(nodeF).setRight(nodeG);
-
-    // In-order traversing.
-    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
-
-    const enterNodeCallback = jest.fn();
-    const leaveNodeCallback = jest.fn();
-
-    // Traverse tree without callbacks first to check default ones.
-    depthFirstSearch(nodeA);
-
-    // Traverse tree with callbacks.
-    depthFirstSearch(nodeA, {
-      allowTraversal: (node, child) => {
-        // Forbid traversing left part of the tree.
-        return child.value !== 'B';
-      },
-      enterNode: enterNodeCallback,
-      leaveNode: leaveNodeCallback,
-    });
-
-    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
-    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
-
-    // Check node entering.
-    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
-    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
-    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
-
-    // Check node leaving.
-    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('F');
-    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('G');
-    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
-    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('A');
-  })",55,101,snuts
-/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':5,'endLine':53}","it('should perform DFS operation on tree', () => {
-    const nodeA = new BinaryTreeNode('A');
-    const nodeB = new BinaryTreeNode('B');
-    const nodeC = new BinaryTreeNode('C');
-    const nodeD = new BinaryTreeNode('D');
-    const nodeE = new BinaryTreeNode('E');
-    const nodeF = new BinaryTreeNode('F');
-    const nodeG = new BinaryTreeNode('G');
-
-    nodeA.setLeft(nodeB).setRight(nodeC);
-    nodeB.setLeft(nodeD).setRight(nodeE);
-    nodeC.setLeft(nodeF).setRight(nodeG);
-
-    // In-order traversing.
-    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
-
-    const enterNodeCallback = jest.fn();
-    const leaveNodeCallback = jest.fn();
-
-    // Traverse tree without callbacks first to check default ones.
-    depthFirstSearch(nodeA);
-
-    // Traverse tree with callbacks.
-    depthFirstSearch(nodeA, {
-      enterNode: enterNodeCallback,
-      leaveNode: leaveNodeCallback,
-    });
-
-    expect(enterNodeCallback).toHaveBeenCalledTimes(7);
-    expect(leaveNodeCallback).toHaveBeenCalledTimes(7);
-
-    // Check node entering.
-    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('B');
-    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('D');
-    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('E');
-    expect(enterNodeCallback.mock.calls[4][0].value).toEqual('C');
-    expect(enterNodeCallback.mock.calls[5][0].value).toEqual('F');
-    expect(enterNodeCallback.mock.calls[6][0].value).toEqual('G');
-
-    // Check node leaving.
-    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('D');
-    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('E');
-    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('B');
-    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('F');
-    expect(leaveNodeCallback.mock.calls[4][0].value).toEqual('G');
-    expect(leaveNodeCallback.mock.calls[5][0].value).toEqual('C');
-    expect(leaveNodeCallback.mock.calls[6][0].value).toEqual('A');
-  })",5,53,snuts
-/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
-    const nodeA = new BinaryTreeNode('A');
-    const nodeB = new BinaryTreeNode('B');
-    const nodeC = new BinaryTreeNode('C');
-    const nodeD = new BinaryTreeNode('D');
-    const nodeE = new BinaryTreeNode('E');
-    const nodeF = new BinaryTreeNode('F');
-    const nodeG = new BinaryTreeNode('G');
-
-    nodeA.setLeft(nodeB).setRight(nodeC);
-    nodeB.setLeft(nodeD).setRight(nodeE);
-    nodeC.setLeft(nodeF).setRight(nodeG);
-
-    // In-order traversing.
-    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
-
-    const enterNodeCallback = jest.fn();
-    const leaveNodeCallback = jest.fn();
-
-    // Traverse tree without callbacks first to check default ones.
-    depthFirstSearch(nodeA);
-
-    // Traverse tree with callbacks.
-    depthFirstSearch(nodeA, {
-      allowTraversal: (node, child) => {
-        // Forbid traversing left part of the tree.
-        return child.value !== 'B';
-      },
-      enterNode: enterNodeCallback,
-      leaveNode: leaveNodeCallback,
-    });
-
-    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
-    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
-
-    // Check node entering.
-    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
-    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
-    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
-
-    // Check node leaving.
-    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('F');
-    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('G');
-    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
-    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('A');
-  })",55,101,snuts
 /src/algorithms/uncategorized/best-time-to-buy-sell-stocks/__tests__/peakvalleyBestTimeToBuySellStocks.test.js,VerboseStatement,"{'startLine':4,'endLine':47}","it('should find the best time to buy and sell stocks', () => {
     let visit;
 
@@ -4195,6 +4052,149 @@ file,type,line,method,methodStart,methodEnd,source
     )).toEqual(19);
     expect(visit).toHaveBeenCalledTimes(20);
   })",4,47,snuts
+/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,OvercommentedTest,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
+    const nodeA = new BinaryTreeNode('A');
+    const nodeB = new BinaryTreeNode('B');
+    const nodeC = new BinaryTreeNode('C');
+    const nodeD = new BinaryTreeNode('D');
+    const nodeE = new BinaryTreeNode('E');
+    const nodeF = new BinaryTreeNode('F');
+    const nodeG = new BinaryTreeNode('G');
+
+    nodeA.setLeft(nodeB).setRight(nodeC);
+    nodeB.setLeft(nodeD).setRight(nodeE);
+    nodeC.setLeft(nodeF).setRight(nodeG);
+
+    // In-order traversing.
+    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
+
+    const enterNodeCallback = jest.fn();
+    const leaveNodeCallback = jest.fn();
+
+    // Traverse tree without callbacks first to check default ones.
+    depthFirstSearch(nodeA);
+
+    // Traverse tree with callbacks.
+    depthFirstSearch(nodeA, {
+      allowTraversal: (node, child) => {
+        // Forbid traversing left part of the tree.
+        return child.value !== 'B';
+      },
+      enterNode: enterNodeCallback,
+      leaveNode: leaveNodeCallback,
+    });
+
+    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
+    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
+
+    // Check node entering.
+    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
+    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
+    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
+
+    // Check node leaving.
+    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('F');
+    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('G');
+    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
+    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('A');
+  })",55,101,snuts
+/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':5,'endLine':53}","it('should perform DFS operation on tree', () => {
+    const nodeA = new BinaryTreeNode('A');
+    const nodeB = new BinaryTreeNode('B');
+    const nodeC = new BinaryTreeNode('C');
+    const nodeD = new BinaryTreeNode('D');
+    const nodeE = new BinaryTreeNode('E');
+    const nodeF = new BinaryTreeNode('F');
+    const nodeG = new BinaryTreeNode('G');
+
+    nodeA.setLeft(nodeB).setRight(nodeC);
+    nodeB.setLeft(nodeD).setRight(nodeE);
+    nodeC.setLeft(nodeF).setRight(nodeG);
+
+    // In-order traversing.
+    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
+
+    const enterNodeCallback = jest.fn();
+    const leaveNodeCallback = jest.fn();
+
+    // Traverse tree without callbacks first to check default ones.
+    depthFirstSearch(nodeA);
+
+    // Traverse tree with callbacks.
+    depthFirstSearch(nodeA, {
+      enterNode: enterNodeCallback,
+      leaveNode: leaveNodeCallback,
+    });
+
+    expect(enterNodeCallback).toHaveBeenCalledTimes(7);
+    expect(leaveNodeCallback).toHaveBeenCalledTimes(7);
+
+    // Check node entering.
+    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('B');
+    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('D');
+    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('E');
+    expect(enterNodeCallback.mock.calls[4][0].value).toEqual('C');
+    expect(enterNodeCallback.mock.calls[5][0].value).toEqual('F');
+    expect(enterNodeCallback.mock.calls[6][0].value).toEqual('G');
+
+    // Check node leaving.
+    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('D');
+    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('E');
+    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('B');
+    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('F');
+    expect(leaveNodeCallback.mock.calls[4][0].value).toEqual('G');
+    expect(leaveNodeCallback.mock.calls[5][0].value).toEqual('C');
+    expect(leaveNodeCallback.mock.calls[6][0].value).toEqual('A');
+  })",5,53,snuts
+/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
+    const nodeA = new BinaryTreeNode('A');
+    const nodeB = new BinaryTreeNode('B');
+    const nodeC = new BinaryTreeNode('C');
+    const nodeD = new BinaryTreeNode('D');
+    const nodeE = new BinaryTreeNode('E');
+    const nodeF = new BinaryTreeNode('F');
+    const nodeG = new BinaryTreeNode('G');
+
+    nodeA.setLeft(nodeB).setRight(nodeC);
+    nodeB.setLeft(nodeD).setRight(nodeE);
+    nodeC.setLeft(nodeF).setRight(nodeG);
+
+    // In-order traversing.
+    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
+
+    const enterNodeCallback = jest.fn();
+    const leaveNodeCallback = jest.fn();
+
+    // Traverse tree without callbacks first to check default ones.
+    depthFirstSearch(nodeA);
+
+    // Traverse tree with callbacks.
+    depthFirstSearch(nodeA, {
+      allowTraversal: (node, child) => {
+        // Forbid traversing left part of the tree.
+        return child.value !== 'B';
+      },
+      enterNode: enterNodeCallback,
+      leaveNode: leaveNodeCallback,
+    });
+
+    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
+    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
+
+    // Check node entering.
+    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
+    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
+    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
+
+    // Check node leaving.
+    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('F');
+    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('G');
+    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
+    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('A');
+  })",55,101,snuts
 /src/algorithms/tree/breadth-first-search/__test__/breadthFirstSearch.test.js,OvercommentedTest,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
     const nodeA = new BinaryTreeNode('A');
     const nodeB = new BinaryTreeNode('B');
@@ -5343,6 +5343,26 @@ file,type,line,method,methodStart,methodEnd,source
 
     expect(combinations.length).toBe(expectedNumberOfCombinations);
   })",5,58,snuts
+/src/algorithms/search/linear-search/__test__/linearSearch.test.js,ConditionalTestLogic,"{'startLine':22,'endLine':24}","it('should search through objects as well', () => {
+    const comparatorCallback = (a, b) => {
+      if (a.key === b.key) {
+        return 0;
+      }
+
+      return a.key <= b.key ? -1 : 1;
+    };
+
+    const array = [
+      { key: 5 },
+      { key: 6 },
+      { key: 7 },
+      { key: 6 },
+    ];
+
+    expect(linearSearch(array, { key: 10 }, comparatorCallback)).toEqual([]);
+    expect(linearSearch(array, { key: 5 }, comparatorCallback)).toEqual([0]);
+    expect(linearSearch(array, { key: 6 }, comparatorCallback)).toEqual([1, 3]);
+  })",20,39,snuts
 /src/algorithms/search/jump-search/__test__/jumpSearch.test.js,ConditionalTestLogic,"{'startLine':29,'endLine':29}","it('should search object in sorted array', () => {
     const sortedArrayOfObjects = [
       { key: 1, value: 'value1' },
@@ -5377,26 +5397,24 @@ file,type,line,method,methodStart,methodEnd,source
     expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 30)).toBe(7);
     expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 48)).toBe(8);
   })",4,19,snuts
-/src/algorithms/search/linear-search/__test__/linearSearch.test.js,ConditionalTestLogic,"{'startLine':22,'endLine':24}","it('should search through objects as well', () => {
-    const comparatorCallback = (a, b) => {
-      if (a.key === b.key) {
-        return 0;
-      }
-
-      return a.key <= b.key ? -1 : 1;
-    };
-
-    const array = [
-      { key: 5 },
-      { key: 6 },
-      { key: 7 },
-      { key: 6 },
+/src/algorithms/search/binary-search/__test__/binarySearch.test.js,ConditionalTestLogic,"{'startLine':24,'endLine':24}","it('should search object in sorted array', () => {
+    const sortedArrayOfObjects = [
+      { key: 1, value: 'value1' },
+      { key: 2, value: 'value2' },
+      { key: 3, value: 'value3' },
     ];
 
-    expect(linearSearch(array, { key: 10 }, comparatorCallback)).toEqual([]);
-    expect(linearSearch(array, { key: 5 }, comparatorCallback)).toEqual([0]);
-    expect(linearSearch(array, { key: 6 }, comparatorCallback)).toEqual([1, 3]);
-  })",20,39,snuts
+    const comparator = (a, b) => {
+      if (a.key === b.key) return 0;
+      return a.key < b.key ? -1 : 1;
+    };
+
+    expect(binarySearch([], { key: 1 }, comparator)).toBe(-1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
+    expect(binarySearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
+  })",16,33,snuts
 /src/algorithms/search/interpolation-search/__test__/interpolationSearch.test.js,VerboseStatement,"{'startLine':4,'endLine':23}","it('should search elements in sorted array of numbers', () => {
     expect(interpolationSearch([], 1)).toBe(-1);
     expect(interpolationSearch([1], 1)).toBe(0);
@@ -5417,24 +5435,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 19000], 800)).toBe(4);
     expect(interpolationSearch([0, 10, 11, 12, 13, 14, 15], 10)).toBe(1);
   })",4,23,snuts
-/src/algorithms/search/binary-search/__test__/binarySearch.test.js,ConditionalTestLogic,"{'startLine':24,'endLine':24}","it('should search object in sorted array', () => {
-    const sortedArrayOfObjects = [
-      { key: 1, value: 'value1' },
-      { key: 2, value: 'value2' },
-      { key: 3, value: 'value3' },
-    ];
-
-    const comparator = (a, b) => {
-      if (a.key === b.key) return 0;
-      return a.key < b.key ? -1 : 1;
-    };
-
-    expect(binarySearch([], { key: 1 }, comparator)).toBe(-1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
-    expect(binarySearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
-  })",16,33,snuts
 /src/algorithms/ml/knn/__test__/knn.test.js,IdenticalTestDescription,"{'startLine':24,'endLine':29}","it('should throw an error on not giving classification vector', () => {
     const inconsistent = () => {
       kNN([[1, 1]], [1], [1]);
@@ -7609,619 +7609,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(previousVertices.A.getKey()).toBe('D');
     expect(previousVertices.D.getKey()).toBe('E');
   })",68,116,snuts
-/src/algorithms/graph/detect-cycle/__test__/detectUndirectedCycleUsingDisjointSet.test.js,VerboseStatement,"{'startLine':7,'endLine':35}","it('should detect undirected cycle', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-
-    const edgeAF = new GraphEdge(vertexA, vertexF);
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBE = new GraphEdge(vertexB, vertexE);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-    const edgeDE = new GraphEdge(vertexD, vertexE);
-
-    const graph = new Graph();
-    graph
-      .addEdge(edgeAF)
-      .addEdge(edgeAB)
-      .addEdge(edgeBE)
-      .addEdge(edgeBC)
-      .addEdge(edgeCD);
-
-    expect(detectUndirectedCycleUsingDisjointSet(graph)).toBe(false);
-
-    graph.addEdge(edgeDE);
-
-    expect(detectUndirectedCycleUsingDisjointSet(graph)).toBe(true);
-  })",7,35,snuts
-/src/algorithms/graph/detect-cycle/__test__/detectUndirectedCycle.test.js,VerboseStatement,"{'startLine':7,'endLine':40}","it('should detect undirected cycle', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-
-    const edgeAF = new GraphEdge(vertexA, vertexF);
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBE = new GraphEdge(vertexB, vertexE);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-    const edgeDE = new GraphEdge(vertexD, vertexE);
-
-    const graph = new Graph();
-    graph
-      .addEdge(edgeAF)
-      .addEdge(edgeAB)
-      .addEdge(edgeBE)
-      .addEdge(edgeBC)
-      .addEdge(edgeCD);
-
-    expect(detectUndirectedCycle(graph)).toBeNull();
-
-    graph.addEdge(edgeDE);
-
-    expect(detectUndirectedCycle(graph)).toEqual({
-      B: vertexC,
-      C: vertexD,
-      D: vertexE,
-      E: vertexB,
-    });
-  })",7,40,snuts
-/src/algorithms/graph/detect-cycle/__test__/detectDirectedCycle.test.js,VerboseStatement,"{'startLine':7,'endLine':41}","it('should detect directed cycle', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeAC = new GraphEdge(vertexA, vertexC);
-    const edgeDA = new GraphEdge(vertexD, vertexA);
-    const edgeDE = new GraphEdge(vertexD, vertexE);
-    const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeFD = new GraphEdge(vertexF, vertexD);
-
-    const graph = new Graph(true);
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeAC)
-      .addEdge(edgeDA)
-      .addEdge(edgeDE)
-      .addEdge(edgeEF);
-
-    expect(detectDirectedCycle(graph)).toBeNull();
-
-    graph.addEdge(edgeFD);
-
-    expect(detectDirectedCycle(graph)).toEqual({
-      D: vertexF,
-      F: vertexE,
-      E: vertexD,
-    });
-  })",7,41,snuts
-/src/algorithms/graph/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':7,'endLine':85}","it('should perform DFS operation on graph', () => {
-    const graph = new Graph(true);
-
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCG = new GraphEdge(vertexC, vertexG);
-    const edgeAD = new GraphEdge(vertexA, vertexD);
-    const edgeAE = new GraphEdge(vertexA, vertexE);
-    const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeFD = new GraphEdge(vertexF, vertexD);
-    const edgeDG = new GraphEdge(vertexD, vertexG);
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeCG)
-      .addEdge(edgeAD)
-      .addEdge(edgeAE)
-      .addEdge(edgeEF)
-      .addEdge(edgeFD)
-      .addEdge(edgeDG);
-
-    expect(graph.toString()).toBe('A,B,C,G,D,E,F');
-
-    const enterVertexCallback = jest.fn();
-    const leaveVertexCallback = jest.fn();
-
-    // Traverse graphs without callbacks first to check default ones.
-    depthFirstSearch(graph, vertexA);
-
-    // Traverse graph with enterVertex and leaveVertex callbacks.
-    depthFirstSearch(graph, vertexA, {
-      enterVertex: enterVertexCallback,
-      leaveVertex: leaveVertexCallback,
-    });
-
-    expect(enterVertexCallback).toHaveBeenCalledTimes(graph.getAllVertices().length);
-    expect(leaveVertexCallback).toHaveBeenCalledTimes(graph.getAllVertices().length);
-
-    const enterVertexParamsMap = [
-      { currentVertex: vertexA, previousVertex: null },
-      { currentVertex: vertexB, previousVertex: vertexA },
-      { currentVertex: vertexC, previousVertex: vertexB },
-      { currentVertex: vertexG, previousVertex: vertexC },
-      { currentVertex: vertexD, previousVertex: vertexA },
-      { currentVertex: vertexE, previousVertex: vertexA },
-      { currentVertex: vertexF, previousVertex: vertexE },
-    ];
-
-    for (let callIndex = 0; callIndex < graph.getAllVertices().length; callIndex += 1) {
-      const params = enterVertexCallback.mock.calls[callIndex][0];
-      expect(params.currentVertex).toEqual(enterVertexParamsMap[callIndex].currentVertex);
-      expect(params.previousVertex).toEqual(enterVertexParamsMap[callIndex].previousVertex);
-    }
-
-    const leaveVertexParamsMap = [
-      { currentVertex: vertexG, previousVertex: vertexC },
-      { currentVertex: vertexC, previousVertex: vertexB },
-      { currentVertex: vertexB, previousVertex: vertexA },
-      { currentVertex: vertexD, previousVertex: vertexA },
-      { currentVertex: vertexF, previousVertex: vertexE },
-      { currentVertex: vertexE, previousVertex: vertexA },
-      { currentVertex: vertexA, previousVertex: null },
-    ];
-
-    for (let callIndex = 0; callIndex < graph.getAllVertices().length; callIndex += 1) {
-      const params = leaveVertexCallback.mock.calls[callIndex][0];
-      expect(params.currentVertex).toEqual(leaveVertexParamsMap[callIndex].currentVertex);
-      expect(params.previousVertex).toEqual(leaveVertexParamsMap[callIndex].previousVertex);
-    }
-  })",7,85,snuts
-/src/algorithms/graph/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':87,'endLine':164}","it('allow users to redefine vertex visiting logic', () => {
-    const graph = new Graph(true);
-
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCG = new GraphEdge(vertexC, vertexG);
-    const edgeAD = new GraphEdge(vertexA, vertexD);
-    const edgeAE = new GraphEdge(vertexA, vertexE);
-    const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeFD = new GraphEdge(vertexF, vertexD);
-    const edgeDG = new GraphEdge(vertexD, vertexG);
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeCG)
-      .addEdge(edgeAD)
-      .addEdge(edgeAE)
-      .addEdge(edgeEF)
-      .addEdge(edgeFD)
-      .addEdge(edgeDG);
-
-    expect(graph.toString()).toBe('A,B,C,G,D,E,F');
-
-    const enterVertexCallback = jest.fn();
-    const leaveVertexCallback = jest.fn();
-
-    depthFirstSearch(graph, vertexA, {
-      enterVertex: enterVertexCallback,
-      leaveVertex: leaveVertexCallback,
-      allowTraversal: ({ currentVertex, nextVertex }) => {
-        return !(currentVertex === vertexA && nextVertex === vertexB);
-      },
-    });
-
-    expect(enterVertexCallback).toHaveBeenCalledTimes(7);
-    expect(leaveVertexCallback).toHaveBeenCalledTimes(7);
-
-    const enterVertexParamsMap = [
-      { currentVertex: vertexA, previousVertex: null },
-      { currentVertex: vertexD, previousVertex: vertexA },
-      { currentVertex: vertexG, previousVertex: vertexD },
-      { currentVertex: vertexE, previousVertex: vertexA },
-      { currentVertex: vertexF, previousVertex: vertexE },
-      { currentVertex: vertexD, previousVertex: vertexF },
-      { currentVertex: vertexG, previousVertex: vertexD },
-    ];
-
-    for (let callIndex = 0; callIndex < graph.getAllVertices().length; callIndex += 1) {
-      const params = enterVertexCallback.mock.calls[callIndex][0];
-      expect(params.currentVertex).toEqual(enterVertexParamsMap[callIndex].currentVertex);
-      expect(params.previousVertex).toEqual(enterVertexParamsMap[callIndex].previousVertex);
-    }
-
-    const leaveVertexParamsMap = [
-      { currentVertex: vertexG, previousVertex: vertexD },
-      { currentVertex: vertexD, previousVertex: vertexA },
-      { currentVertex: vertexG, previousVertex: vertexD },
-      { currentVertex: vertexD, previousVertex: vertexF },
-      { currentVertex: vertexF, previousVertex: vertexE },
-      { currentVertex: vertexE, previousVertex: vertexA },
-      { currentVertex: vertexA, previousVertex: null },
-    ];
-
-    for (let callIndex = 0; callIndex < graph.getAllVertices().length; callIndex += 1) {
-      const params = leaveVertexCallback.mock.calls[callIndex][0];
-      expect(params.currentVertex).toEqual(leaveVertexParamsMap[callIndex].currentVertex);
-      expect(params.previousVertex).toEqual(leaveVertexParamsMap[callIndex].previousVertex);
-    }
-  })",87,164,snuts
-/src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':26,'endLine':26}","it('should find bridges in simple graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeCD);
-
-    const bridges = Object.values(graphBridges(graph));
-
-    expect(bridges.length).toBe(3);
-    expect(bridges[0].getKey()).toBe(edgeCD.getKey());
-    expect(bridges[1].getKey()).toBe(edgeBC.getKey());
-    expect(bridges[2].getKey()).toBe(edgeAB.getKey());
-  })",7,30,snuts
-/src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':53,'endLine':53}","it('should find bridges in simple graph with back edge', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-    const edgeAC = new GraphEdge(vertexA, vertexC);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeCD);
-
-    const bridges = Object.values(graphBridges(graph));
-
-    expect(bridges.length).toBe(1);
-    expect(bridges[0].getKey()).toBe(edgeCD.getKey());
-  })",32,55,snuts
-/src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':92,'endLine':92}","it('should find bridges in graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-    const vertexH = new GraphVertex('H');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeAC = new GraphEdge(vertexA, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-    const edgeDE = new GraphEdge(vertexD, vertexE);
-    const edgeEG = new GraphEdge(vertexE, vertexG);
-    const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeGF = new GraphEdge(vertexG, vertexF);
-    const edgeFH = new GraphEdge(vertexF, vertexH);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeAC)
-      .addEdge(edgeCD)
-      .addEdge(edgeDE)
-      .addEdge(edgeEG)
-      .addEdge(edgeEF)
-      .addEdge(edgeGF)
-      .addEdge(edgeFH);
-
-    const bridges = Object.values(graphBridges(graph));
-
-    expect(bridges.length).toBe(3);
-    expect(bridges[0].getKey()).toBe(edgeFH.getKey());
-    expect(bridges[1].getKey()).toBe(edgeDE.getKey());
-    expect(bridges[2].getKey()).toBe(edgeCD.getKey());
-  })",57,96,snuts
-/src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':133,'endLine':133}","it('should find bridges in graph starting with different root vertex', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-    const vertexH = new GraphVertex('H');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeAC = new GraphEdge(vertexA, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-    const edgeDE = new GraphEdge(vertexD, vertexE);
-    const edgeEG = new GraphEdge(vertexE, vertexG);
-    const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeGF = new GraphEdge(vertexG, vertexF);
-    const edgeFH = new GraphEdge(vertexF, vertexH);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeDE)
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeAC)
-      .addEdge(edgeCD)
-      .addEdge(edgeEG)
-      .addEdge(edgeEF)
-      .addEdge(edgeGF)
-      .addEdge(edgeFH);
-
-    const bridges = Object.values(graphBridges(graph));
-
-    expect(bridges.length).toBe(3);
-    expect(bridges[0].getKey()).toBe(edgeFH.getKey());
-    expect(bridges[1].getKey()).toBe(edgeDE.getKey());
-    expect(bridges[2].getKey()).toBe(edgeCD.getKey());
-  })",98,137,snuts
-/src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':163,'endLine':163}","it('should find bridges in yet another graph #1', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeAC = new GraphEdge(vertexA, vertexC);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-    const edgeDE = new GraphEdge(vertexD, vertexE);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeCD)
-      .addEdge(edgeDE);
-
-    const bridges = Object.values(graphBridges(graph));
-
-    expect(bridges.length).toBe(2);
-    expect(bridges[0].getKey()).toBe(edgeDE.getKey());
-    expect(bridges[1].getKey()).toBe(edgeCD.getKey());
-  })",139,166,snuts
-/src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':200,'endLine':200}","it('should find bridges in yet another graph #2', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeAC = new GraphEdge(vertexA, vertexC);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-    const edgeCE = new GraphEdge(vertexC, vertexE);
-    const edgeCF = new GraphEdge(vertexC, vertexF);
-    const edgeEG = new GraphEdge(vertexE, vertexG);
-    const edgeFG = new GraphEdge(vertexF, vertexG);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeCD)
-      .addEdge(edgeCE)
-      .addEdge(edgeCF)
-      .addEdge(edgeEG)
-      .addEdge(edgeFG);
-
-    const bridges = Object.values(graphBridges(graph));
-
-    expect(bridges.length).toBe(1);
-    expect(bridges[0].getKey()).toBe(edgeCD.getKey());
-  })",168,202,snuts
-/src/algorithms/graph/bridges/__test__/graphBridges.test.js,VerboseStatement,"{'startLine':7,'endLine':30}","it('should find bridges in simple graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeCD);
-
-    const bridges = Object.values(graphBridges(graph));
-
-    expect(bridges.length).toBe(3);
-    expect(bridges[0].getKey()).toBe(edgeCD.getKey());
-    expect(bridges[1].getKey()).toBe(edgeBC.getKey());
-    expect(bridges[2].getKey()).toBe(edgeAB.getKey());
-  })",7,30,snuts
-/src/algorithms/graph/bridges/__test__/graphBridges.test.js,VerboseStatement,"{'startLine':57,'endLine':96}","it('should find bridges in graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-    const vertexH = new GraphVertex('H');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeAC = new GraphEdge(vertexA, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-    const edgeDE = new GraphEdge(vertexD, vertexE);
-    const edgeEG = new GraphEdge(vertexE, vertexG);
-    const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeGF = new GraphEdge(vertexG, vertexF);
-    const edgeFH = new GraphEdge(vertexF, vertexH);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeAC)
-      .addEdge(edgeCD)
-      .addEdge(edgeDE)
-      .addEdge(edgeEG)
-      .addEdge(edgeEF)
-      .addEdge(edgeGF)
-      .addEdge(edgeFH);
-
-    const bridges = Object.values(graphBridges(graph));
-
-    expect(bridges.length).toBe(3);
-    expect(bridges[0].getKey()).toBe(edgeFH.getKey());
-    expect(bridges[1].getKey()).toBe(edgeDE.getKey());
-    expect(bridges[2].getKey()).toBe(edgeCD.getKey());
-  })",57,96,snuts
-/src/algorithms/graph/bridges/__test__/graphBridges.test.js,VerboseStatement,"{'startLine':98,'endLine':137}","it('should find bridges in graph starting with different root vertex', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-    const vertexH = new GraphVertex('H');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeAC = new GraphEdge(vertexA, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-    const edgeDE = new GraphEdge(vertexD, vertexE);
-    const edgeEG = new GraphEdge(vertexE, vertexG);
-    const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeGF = new GraphEdge(vertexG, vertexF);
-    const edgeFH = new GraphEdge(vertexF, vertexH);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeDE)
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeAC)
-      .addEdge(edgeCD)
-      .addEdge(edgeEG)
-      .addEdge(edgeEF)
-      .addEdge(edgeGF)
-      .addEdge(edgeFH);
-
-    const bridges = Object.values(graphBridges(graph));
-
-    expect(bridges.length).toBe(3);
-    expect(bridges[0].getKey()).toBe(edgeFH.getKey());
-    expect(bridges[1].getKey()).toBe(edgeDE.getKey());
-    expect(bridges[2].getKey()).toBe(edgeCD.getKey());
-  })",98,137,snuts
-/src/algorithms/graph/bridges/__test__/graphBridges.test.js,VerboseStatement,"{'startLine':139,'endLine':166}","it('should find bridges in yet another graph #1', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeAC = new GraphEdge(vertexA, vertexC);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-    const edgeDE = new GraphEdge(vertexD, vertexE);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeCD)
-      .addEdge(edgeDE);
-
-    const bridges = Object.values(graphBridges(graph));
-
-    expect(bridges.length).toBe(2);
-    expect(bridges[0].getKey()).toBe(edgeDE.getKey());
-    expect(bridges[1].getKey()).toBe(edgeCD.getKey());
-  })",139,166,snuts
-/src/algorithms/graph/bridges/__test__/graphBridges.test.js,VerboseStatement,"{'startLine':168,'endLine':202}","it('should find bridges in yet another graph #2', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeAC = new GraphEdge(vertexA, vertexC);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-    const edgeCE = new GraphEdge(vertexC, vertexE);
-    const edgeCF = new GraphEdge(vertexC, vertexF);
-    const edgeEG = new GraphEdge(vertexE, vertexG);
-    const edgeFG = new GraphEdge(vertexF, vertexG);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeCD)
-      .addEdge(edgeCE)
-      .addEdge(edgeCF)
-      .addEdge(edgeEG)
-      .addEdge(edgeFG);
-
-    const bridges = Object.values(graphBridges(graph));
-
-    expect(bridges.length).toBe(1);
-    expect(bridges[0].getKey()).toBe(edgeCD.getKey());
-  })",168,202,snuts
 /src/algorithms/graph/breadth-first-search/__test__/breadthFirstSearch.test.js,VerboseStatement,"{'startLine':7,'endLine':90}","it('should perform BFS operation on graph', () => {
     const graph = new Graph(true);
 
@@ -8927,6 +8314,619 @@ file,type,line,method,methodStart,methodEnd,source
       });
     });
   })",4,42,snuts
+/src/algorithms/graph/detect-cycle/__test__/detectUndirectedCycleUsingDisjointSet.test.js,VerboseStatement,"{'startLine':7,'endLine':35}","it('should detect undirected cycle', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+
+    const edgeAF = new GraphEdge(vertexA, vertexF);
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBE = new GraphEdge(vertexB, vertexE);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+    const edgeDE = new GraphEdge(vertexD, vertexE);
+
+    const graph = new Graph();
+    graph
+      .addEdge(edgeAF)
+      .addEdge(edgeAB)
+      .addEdge(edgeBE)
+      .addEdge(edgeBC)
+      .addEdge(edgeCD);
+
+    expect(detectUndirectedCycleUsingDisjointSet(graph)).toBe(false);
+
+    graph.addEdge(edgeDE);
+
+    expect(detectUndirectedCycleUsingDisjointSet(graph)).toBe(true);
+  })",7,35,snuts
+/src/algorithms/graph/detect-cycle/__test__/detectUndirectedCycle.test.js,VerboseStatement,"{'startLine':7,'endLine':40}","it('should detect undirected cycle', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+
+    const edgeAF = new GraphEdge(vertexA, vertexF);
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBE = new GraphEdge(vertexB, vertexE);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+    const edgeDE = new GraphEdge(vertexD, vertexE);
+
+    const graph = new Graph();
+    graph
+      .addEdge(edgeAF)
+      .addEdge(edgeAB)
+      .addEdge(edgeBE)
+      .addEdge(edgeBC)
+      .addEdge(edgeCD);
+
+    expect(detectUndirectedCycle(graph)).toBeNull();
+
+    graph.addEdge(edgeDE);
+
+    expect(detectUndirectedCycle(graph)).toEqual({
+      B: vertexC,
+      C: vertexD,
+      D: vertexE,
+      E: vertexB,
+    });
+  })",7,40,snuts
+/src/algorithms/graph/detect-cycle/__test__/detectDirectedCycle.test.js,VerboseStatement,"{'startLine':7,'endLine':41}","it('should detect directed cycle', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeAC = new GraphEdge(vertexA, vertexC);
+    const edgeDA = new GraphEdge(vertexD, vertexA);
+    const edgeDE = new GraphEdge(vertexD, vertexE);
+    const edgeEF = new GraphEdge(vertexE, vertexF);
+    const edgeFD = new GraphEdge(vertexF, vertexD);
+
+    const graph = new Graph(true);
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeAC)
+      .addEdge(edgeDA)
+      .addEdge(edgeDE)
+      .addEdge(edgeEF);
+
+    expect(detectDirectedCycle(graph)).toBeNull();
+
+    graph.addEdge(edgeFD);
+
+    expect(detectDirectedCycle(graph)).toEqual({
+      D: vertexF,
+      F: vertexE,
+      E: vertexD,
+    });
+  })",7,41,snuts
+/src/algorithms/graph/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':7,'endLine':85}","it('should perform DFS operation on graph', () => {
+    const graph = new Graph(true);
+
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCG = new GraphEdge(vertexC, vertexG);
+    const edgeAD = new GraphEdge(vertexA, vertexD);
+    const edgeAE = new GraphEdge(vertexA, vertexE);
+    const edgeEF = new GraphEdge(vertexE, vertexF);
+    const edgeFD = new GraphEdge(vertexF, vertexD);
+    const edgeDG = new GraphEdge(vertexD, vertexG);
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeCG)
+      .addEdge(edgeAD)
+      .addEdge(edgeAE)
+      .addEdge(edgeEF)
+      .addEdge(edgeFD)
+      .addEdge(edgeDG);
+
+    expect(graph.toString()).toBe('A,B,C,G,D,E,F');
+
+    const enterVertexCallback = jest.fn();
+    const leaveVertexCallback = jest.fn();
+
+    // Traverse graphs without callbacks first to check default ones.
+    depthFirstSearch(graph, vertexA);
+
+    // Traverse graph with enterVertex and leaveVertex callbacks.
+    depthFirstSearch(graph, vertexA, {
+      enterVertex: enterVertexCallback,
+      leaveVertex: leaveVertexCallback,
+    });
+
+    expect(enterVertexCallback).toHaveBeenCalledTimes(graph.getAllVertices().length);
+    expect(leaveVertexCallback).toHaveBeenCalledTimes(graph.getAllVertices().length);
+
+    const enterVertexParamsMap = [
+      { currentVertex: vertexA, previousVertex: null },
+      { currentVertex: vertexB, previousVertex: vertexA },
+      { currentVertex: vertexC, previousVertex: vertexB },
+      { currentVertex: vertexG, previousVertex: vertexC },
+      { currentVertex: vertexD, previousVertex: vertexA },
+      { currentVertex: vertexE, previousVertex: vertexA },
+      { currentVertex: vertexF, previousVertex: vertexE },
+    ];
+
+    for (let callIndex = 0; callIndex < graph.getAllVertices().length; callIndex += 1) {
+      const params = enterVertexCallback.mock.calls[callIndex][0];
+      expect(params.currentVertex).toEqual(enterVertexParamsMap[callIndex].currentVertex);
+      expect(params.previousVertex).toEqual(enterVertexParamsMap[callIndex].previousVertex);
+    }
+
+    const leaveVertexParamsMap = [
+      { currentVertex: vertexG, previousVertex: vertexC },
+      { currentVertex: vertexC, previousVertex: vertexB },
+      { currentVertex: vertexB, previousVertex: vertexA },
+      { currentVertex: vertexD, previousVertex: vertexA },
+      { currentVertex: vertexF, previousVertex: vertexE },
+      { currentVertex: vertexE, previousVertex: vertexA },
+      { currentVertex: vertexA, previousVertex: null },
+    ];
+
+    for (let callIndex = 0; callIndex < graph.getAllVertices().length; callIndex += 1) {
+      const params = leaveVertexCallback.mock.calls[callIndex][0];
+      expect(params.currentVertex).toEqual(leaveVertexParamsMap[callIndex].currentVertex);
+      expect(params.previousVertex).toEqual(leaveVertexParamsMap[callIndex].previousVertex);
+    }
+  })",7,85,snuts
+/src/algorithms/graph/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':87,'endLine':164}","it('allow users to redefine vertex visiting logic', () => {
+    const graph = new Graph(true);
+
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCG = new GraphEdge(vertexC, vertexG);
+    const edgeAD = new GraphEdge(vertexA, vertexD);
+    const edgeAE = new GraphEdge(vertexA, vertexE);
+    const edgeEF = new GraphEdge(vertexE, vertexF);
+    const edgeFD = new GraphEdge(vertexF, vertexD);
+    const edgeDG = new GraphEdge(vertexD, vertexG);
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeCG)
+      .addEdge(edgeAD)
+      .addEdge(edgeAE)
+      .addEdge(edgeEF)
+      .addEdge(edgeFD)
+      .addEdge(edgeDG);
+
+    expect(graph.toString()).toBe('A,B,C,G,D,E,F');
+
+    const enterVertexCallback = jest.fn();
+    const leaveVertexCallback = jest.fn();
+
+    depthFirstSearch(graph, vertexA, {
+      enterVertex: enterVertexCallback,
+      leaveVertex: leaveVertexCallback,
+      allowTraversal: ({ currentVertex, nextVertex }) => {
+        return !(currentVertex === vertexA && nextVertex === vertexB);
+      },
+    });
+
+    expect(enterVertexCallback).toHaveBeenCalledTimes(7);
+    expect(leaveVertexCallback).toHaveBeenCalledTimes(7);
+
+    const enterVertexParamsMap = [
+      { currentVertex: vertexA, previousVertex: null },
+      { currentVertex: vertexD, previousVertex: vertexA },
+      { currentVertex: vertexG, previousVertex: vertexD },
+      { currentVertex: vertexE, previousVertex: vertexA },
+      { currentVertex: vertexF, previousVertex: vertexE },
+      { currentVertex: vertexD, previousVertex: vertexF },
+      { currentVertex: vertexG, previousVertex: vertexD },
+    ];
+
+    for (let callIndex = 0; callIndex < graph.getAllVertices().length; callIndex += 1) {
+      const params = enterVertexCallback.mock.calls[callIndex][0];
+      expect(params.currentVertex).toEqual(enterVertexParamsMap[callIndex].currentVertex);
+      expect(params.previousVertex).toEqual(enterVertexParamsMap[callIndex].previousVertex);
+    }
+
+    const leaveVertexParamsMap = [
+      { currentVertex: vertexG, previousVertex: vertexD },
+      { currentVertex: vertexD, previousVertex: vertexA },
+      { currentVertex: vertexG, previousVertex: vertexD },
+      { currentVertex: vertexD, previousVertex: vertexF },
+      { currentVertex: vertexF, previousVertex: vertexE },
+      { currentVertex: vertexE, previousVertex: vertexA },
+      { currentVertex: vertexA, previousVertex: null },
+    ];
+
+    for (let callIndex = 0; callIndex < graph.getAllVertices().length; callIndex += 1) {
+      const params = leaveVertexCallback.mock.calls[callIndex][0];
+      expect(params.currentVertex).toEqual(leaveVertexParamsMap[callIndex].currentVertex);
+      expect(params.previousVertex).toEqual(leaveVertexParamsMap[callIndex].previousVertex);
+    }
+  })",87,164,snuts
+/src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':26,'endLine':26}","it('should find bridges in simple graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeCD);
+
+    const bridges = Object.values(graphBridges(graph));
+
+    expect(bridges.length).toBe(3);
+    expect(bridges[0].getKey()).toBe(edgeCD.getKey());
+    expect(bridges[1].getKey()).toBe(edgeBC.getKey());
+    expect(bridges[2].getKey()).toBe(edgeAB.getKey());
+  })",7,30,snuts
+/src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':53,'endLine':53}","it('should find bridges in simple graph with back edge', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+    const edgeAC = new GraphEdge(vertexA, vertexC);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeAC)
+      .addEdge(edgeBC)
+      .addEdge(edgeCD);
+
+    const bridges = Object.values(graphBridges(graph));
+
+    expect(bridges.length).toBe(1);
+    expect(bridges[0].getKey()).toBe(edgeCD.getKey());
+  })",32,55,snuts
+/src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':92,'endLine':92}","it('should find bridges in graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+    const vertexH = new GraphVertex('H');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeAC = new GraphEdge(vertexA, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+    const edgeDE = new GraphEdge(vertexD, vertexE);
+    const edgeEG = new GraphEdge(vertexE, vertexG);
+    const edgeEF = new GraphEdge(vertexE, vertexF);
+    const edgeGF = new GraphEdge(vertexG, vertexF);
+    const edgeFH = new GraphEdge(vertexF, vertexH);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeAC)
+      .addEdge(edgeCD)
+      .addEdge(edgeDE)
+      .addEdge(edgeEG)
+      .addEdge(edgeEF)
+      .addEdge(edgeGF)
+      .addEdge(edgeFH);
+
+    const bridges = Object.values(graphBridges(graph));
+
+    expect(bridges.length).toBe(3);
+    expect(bridges[0].getKey()).toBe(edgeFH.getKey());
+    expect(bridges[1].getKey()).toBe(edgeDE.getKey());
+    expect(bridges[2].getKey()).toBe(edgeCD.getKey());
+  })",57,96,snuts
+/src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':133,'endLine':133}","it('should find bridges in graph starting with different root vertex', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+    const vertexH = new GraphVertex('H');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeAC = new GraphEdge(vertexA, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+    const edgeDE = new GraphEdge(vertexD, vertexE);
+    const edgeEG = new GraphEdge(vertexE, vertexG);
+    const edgeEF = new GraphEdge(vertexE, vertexF);
+    const edgeGF = new GraphEdge(vertexG, vertexF);
+    const edgeFH = new GraphEdge(vertexF, vertexH);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeDE)
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeAC)
+      .addEdge(edgeCD)
+      .addEdge(edgeEG)
+      .addEdge(edgeEF)
+      .addEdge(edgeGF)
+      .addEdge(edgeFH);
+
+    const bridges = Object.values(graphBridges(graph));
+
+    expect(bridges.length).toBe(3);
+    expect(bridges[0].getKey()).toBe(edgeFH.getKey());
+    expect(bridges[1].getKey()).toBe(edgeDE.getKey());
+    expect(bridges[2].getKey()).toBe(edgeCD.getKey());
+  })",98,137,snuts
+/src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':163,'endLine':163}","it('should find bridges in yet another graph #1', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeAC = new GraphEdge(vertexA, vertexC);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+    const edgeDE = new GraphEdge(vertexD, vertexE);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeAC)
+      .addEdge(edgeBC)
+      .addEdge(edgeCD)
+      .addEdge(edgeDE);
+
+    const bridges = Object.values(graphBridges(graph));
+
+    expect(bridges.length).toBe(2);
+    expect(bridges[0].getKey()).toBe(edgeDE.getKey());
+    expect(bridges[1].getKey()).toBe(edgeCD.getKey());
+  })",139,166,snuts
+/src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':200,'endLine':200}","it('should find bridges in yet another graph #2', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeAC = new GraphEdge(vertexA, vertexC);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+    const edgeCE = new GraphEdge(vertexC, vertexE);
+    const edgeCF = new GraphEdge(vertexC, vertexF);
+    const edgeEG = new GraphEdge(vertexE, vertexG);
+    const edgeFG = new GraphEdge(vertexF, vertexG);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeAC)
+      .addEdge(edgeBC)
+      .addEdge(edgeCD)
+      .addEdge(edgeCE)
+      .addEdge(edgeCF)
+      .addEdge(edgeEG)
+      .addEdge(edgeFG);
+
+    const bridges = Object.values(graphBridges(graph));
+
+    expect(bridges.length).toBe(1);
+    expect(bridges[0].getKey()).toBe(edgeCD.getKey());
+  })",168,202,snuts
+/src/algorithms/graph/bridges/__test__/graphBridges.test.js,VerboseStatement,"{'startLine':7,'endLine':30}","it('should find bridges in simple graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeCD);
+
+    const bridges = Object.values(graphBridges(graph));
+
+    expect(bridges.length).toBe(3);
+    expect(bridges[0].getKey()).toBe(edgeCD.getKey());
+    expect(bridges[1].getKey()).toBe(edgeBC.getKey());
+    expect(bridges[2].getKey()).toBe(edgeAB.getKey());
+  })",7,30,snuts
+/src/algorithms/graph/bridges/__test__/graphBridges.test.js,VerboseStatement,"{'startLine':57,'endLine':96}","it('should find bridges in graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+    const vertexH = new GraphVertex('H');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeAC = new GraphEdge(vertexA, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+    const edgeDE = new GraphEdge(vertexD, vertexE);
+    const edgeEG = new GraphEdge(vertexE, vertexG);
+    const edgeEF = new GraphEdge(vertexE, vertexF);
+    const edgeGF = new GraphEdge(vertexG, vertexF);
+    const edgeFH = new GraphEdge(vertexF, vertexH);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeAC)
+      .addEdge(edgeCD)
+      .addEdge(edgeDE)
+      .addEdge(edgeEG)
+      .addEdge(edgeEF)
+      .addEdge(edgeGF)
+      .addEdge(edgeFH);
+
+    const bridges = Object.values(graphBridges(graph));
+
+    expect(bridges.length).toBe(3);
+    expect(bridges[0].getKey()).toBe(edgeFH.getKey());
+    expect(bridges[1].getKey()).toBe(edgeDE.getKey());
+    expect(bridges[2].getKey()).toBe(edgeCD.getKey());
+  })",57,96,snuts
+/src/algorithms/graph/bridges/__test__/graphBridges.test.js,VerboseStatement,"{'startLine':98,'endLine':137}","it('should find bridges in graph starting with different root vertex', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+    const vertexH = new GraphVertex('H');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeAC = new GraphEdge(vertexA, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+    const edgeDE = new GraphEdge(vertexD, vertexE);
+    const edgeEG = new GraphEdge(vertexE, vertexG);
+    const edgeEF = new GraphEdge(vertexE, vertexF);
+    const edgeGF = new GraphEdge(vertexG, vertexF);
+    const edgeFH = new GraphEdge(vertexF, vertexH);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeDE)
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeAC)
+      .addEdge(edgeCD)
+      .addEdge(edgeEG)
+      .addEdge(edgeEF)
+      .addEdge(edgeGF)
+      .addEdge(edgeFH);
+
+    const bridges = Object.values(graphBridges(graph));
+
+    expect(bridges.length).toBe(3);
+    expect(bridges[0].getKey()).toBe(edgeFH.getKey());
+    expect(bridges[1].getKey()).toBe(edgeDE.getKey());
+    expect(bridges[2].getKey()).toBe(edgeCD.getKey());
+  })",98,137,snuts
+/src/algorithms/graph/bridges/__test__/graphBridges.test.js,VerboseStatement,"{'startLine':139,'endLine':166}","it('should find bridges in yet another graph #1', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeAC = new GraphEdge(vertexA, vertexC);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+    const edgeDE = new GraphEdge(vertexD, vertexE);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeAC)
+      .addEdge(edgeBC)
+      .addEdge(edgeCD)
+      .addEdge(edgeDE);
+
+    const bridges = Object.values(graphBridges(graph));
+
+    expect(bridges.length).toBe(2);
+    expect(bridges[0].getKey()).toBe(edgeDE.getKey());
+    expect(bridges[1].getKey()).toBe(edgeCD.getKey());
+  })",139,166,snuts
+/src/algorithms/graph/bridges/__test__/graphBridges.test.js,VerboseStatement,"{'startLine':168,'endLine':202}","it('should find bridges in yet another graph #2', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeAC = new GraphEdge(vertexA, vertexC);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+    const edgeCE = new GraphEdge(vertexC, vertexE);
+    const edgeCF = new GraphEdge(vertexC, vertexF);
+    const edgeEG = new GraphEdge(vertexE, vertexG);
+    const edgeFG = new GraphEdge(vertexF, vertexG);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeAC)
+      .addEdge(edgeBC)
+      .addEdge(edgeCD)
+      .addEdge(edgeCE)
+      .addEdge(edgeCF)
+      .addEdge(edgeEG)
+      .addEdge(edgeFG);
+
+    const bridges = Object.values(graphBridges(graph));
+
+    expect(bridges.length).toBe(1);
+    expect(bridges[0].getKey()).toBe(edgeCD.getKey());
+  })",168,202,snuts
 /src/utils/comparator/__test__/Comparator.test.js,Conditional Test Logic,"{'line': 27, 'column': 6, 'index': 1178}","it('should compare with custom comparator function', () => {
     const comparator = new Comparator((a, b) => {
       if (a.length === b.length) {

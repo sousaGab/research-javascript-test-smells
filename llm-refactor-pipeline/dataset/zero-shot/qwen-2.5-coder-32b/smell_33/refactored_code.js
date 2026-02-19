@@ -1,16 +1,11 @@
 it('should have default settings', function () {
-      const pageLinks = pagination.find('a')
-      const expectedPageCount = 4
-      const firstPage = '1'
-      const secondPage = '2'
-      const ellipsis = '...'
-      const lastPage = '9'
-      const nonExistentPage = undefined
+      const links = pagination.find('a')
+      const expectedLinks = ['1', '2', '...', '9']
       
-      expect(pageLinks.length).toEqual(expectedPageCount)
-      expect(pageLinks.get(0).innerHTML).toEqual(firstPage)
-      expect(pageLinks.get(1).innerHTML).toEqual(secondPage)
-      expect(pageLinks.get(2).innerHTML).toEqual(ellipsis)
-      expect(pageLinks.get(3).innerHTML).toEqual(lastPage)
-      expect(pageLinks.get(4)).toEqual(nonExistentPage)
+      expect(links.length).toEqual(expectedLinks.length)
+      expect(links.get(0).innerHTML).toEqual(expectedLinks[0])
+      expect(links.get(1).innerHTML).toEqual(expectedLinks[1])
+      expect(links.get(2).innerHTML).toEqual(expectedLinks[2])
+      expect(links.get(3).innerHTML).toEqual(expectedLinks[3])
+      expect(links.get(4)).toEqual(undefined)
     })

@@ -32,19 +32,18 @@ it('$bvModal.msgBoxOk() works', async () => {
 
   // Find the modal
   const modal = document.querySelector('#test2')
-  expect(modal).toBeInTheDocument()
+  expect(modal).toBeDefined()
   const $modal = createWrapper(modal)
   expect($modal.element.tagName).toBe('DIV')
 
   // Find the OK button and click it
-  expect($modal.findAll('button')).toHaveLength(1)
   const $button = $modal.find('button')
-  expect($button.text()).toBe('OK')
+  expect($button.text()).toEqual('OK')
   await $button.trigger('click')
 
   // Promise should now resolve
   const result = await p
-  expect(result).toBe(true)
+  expect(result).toEqual(true)
 
   await waitNT(wrapper.vm)
   await waitRAF()
@@ -54,5 +53,5 @@ it('$bvModal.msgBoxOk() works', async () => {
   await waitRAF()
 
   // Modal should be gone from DOM
-  expect(document.querySelector('#test2')).not.toBeInTheDocument()
+  expect(document.querySelector('#test2')).toBeNull()
 })

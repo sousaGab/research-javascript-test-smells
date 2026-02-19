@@ -1,4 +1,4 @@
-test('deep equals', function deepEqualsTest() {
+test('deep equals', () => {
     const initialState = {b: 'b'};
 
     function reducer() {

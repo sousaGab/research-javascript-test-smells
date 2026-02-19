@@ -3,7 +3,7 @@ it('when strings are thrown as errors', async () => {
 
           process.emit('uncaughtException', expectedMessage);
 
-          // Wait for the async operations to complete using a more reliable approach
+          // Wait for the async operation to complete using a more reliable approach
           await new Promise(resolve => setImmediate(resolve));
 
           expect(processExitSpy).toHaveBeenCalledTimes(1);

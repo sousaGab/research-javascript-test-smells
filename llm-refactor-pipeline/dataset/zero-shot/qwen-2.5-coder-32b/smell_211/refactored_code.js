@@ -3,7 +3,7 @@ it('with a custom winston.Logger instance', async () => {
 
           process.emit('uncaughtException', expectedMessage);
 
-          // Wait for the async operation to complete
+          // Wait for the exception handler to complete using a more reliable approach
           await new Promise(resolve => process.nextTick(resolve));
 
           expect(processExitSpy).toHaveBeenCalledTimes(1);

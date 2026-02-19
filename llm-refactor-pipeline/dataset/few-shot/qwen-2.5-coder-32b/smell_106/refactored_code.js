@@ -1,4 +1,4 @@
-test('open() emits error event and calls callbacks', (done) => {
+test('open() emits error event and calls write stream', (done) => {
     const error = new Error('test');
     const errorHandler = (err) => {
       expect(err).toBe(error);

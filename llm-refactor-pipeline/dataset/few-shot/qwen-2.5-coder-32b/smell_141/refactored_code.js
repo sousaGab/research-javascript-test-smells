@@ -9,12 +9,12 @@ it('prevents the request from completing', done => {
         expect(onRequest).not.to.have.been.called()
         done()
       }, 200)
-
+      
       const cleanup = () => {
         clearTimeout(timeoutId)
         nock.abortPendingRequests()
       }
-
+      
       // Clean up on test completion
       process.nextTick(cleanup)
     })

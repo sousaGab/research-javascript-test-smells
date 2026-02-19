@@ -19133,6 +19133,92 @@ file,type,line,method,methodStart,methodEnd,source
     document.body.removeChild(root3);
     document.body.removeChild(root4);
   })",601,634,snuts
+/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}","it('Should be possible to listen changes and remove listeners by calling callback', () => {
+    const emitter = new EventEmitter();
+    const listener1 = function () {};
+    expect(emitter.listeners.length).toEqual(0);
+
+    const listener = emitter.on(listener1);
+
+    expect(emitter.listeners.length).toEqual(1);
+    expect(emitter.listeners[0]).toEqual(listener1);
+
+    listener();
+
+    expect(emitter.listeners.length).toEqual(0);
+  })",4,17,snuts
+/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':21,'endLine':21}","it('Should do nothing if removing same callback twice/or more', () => {
+    const emitter = new EventEmitter();
+    const listener1 = function () {};
+    expect(emitter.listeners.length).toEqual(0);
+
+    const listener = emitter.on(listener1);
+
+    expect(emitter.listeners.length).toEqual(1);
+    expect(emitter.listeners[0]).toEqual(listener1);
+
+    listener();
+    listener();
+    listener();
+
+    expect(emitter.listeners.length).toEqual(0);
+  })",19,34,snuts
+/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':38,'endLine':38}","it('Should emit the change data to all active listeners', () => {
+    const emitter = new EventEmitter();
+    const listener1 = function () {};
+    const listener2 = function (data) {
+      console.error(data);
+    };
+
+    spyOn(console, 'error');
+
+    expect(emitter.listeners.length).toEqual(0);
+
+    const listener = emitter.on(listener1);
+    emitter.on(listener2);
+
+    expect(emitter.listeners.length).toEqual(2);
+    expect(emitter.listeners[0]).toEqual(listener1);
+
+    listener();
+    listener();
+    listener();
+
+    expect(emitter.listeners.length).toEqual(1);
+
+    emitter.emit('foobar');
+
+    expect(console.error.calls.count()).toBe(1);
+    expect(console.error.calls.argsFor(0)[0]).toContain('foobar');
+  })",36,63,snuts
+/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,VerboseStatement,"{'startLine':36,'endLine':63}","it('Should emit the change data to all active listeners', () => {
+    const emitter = new EventEmitter();
+    const listener1 = function () {};
+    const listener2 = function (data) {
+      console.error(data);
+    };
+
+    spyOn(console, 'error');
+
+    expect(emitter.listeners.length).toEqual(0);
+
+    const listener = emitter.on(listener1);
+    emitter.on(listener2);
+
+    expect(emitter.listeners.length).toEqual(2);
+    expect(emitter.listeners[0]).toEqual(listener1);
+
+    listener();
+    listener();
+    listener();
+
+    expect(emitter.listeners.length).toEqual(1);
+
+    emitter.emit('foobar');
+
+    expect(console.error.calls.count()).toBe(1);
+    expect(console.error.calls.argsFor(0)[0]).toContain('foobar');
+  })",36,63,snuts
 /packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':1089,'endLine':1091}","it('should not attempt to notify unmounted child of state change', () => {
       class ProviderMockTest extends Component {
         getChildContext() {
@@ -23177,92 +23263,6 @@ file,type,line,method,methodStart,methodEnd,source
       renderIntoContainer(vNode);
       expect(childMapStateInvokes).toEqual(4);
     })",151,225,snuts
-/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}","it('Should be possible to listen changes and remove listeners by calling callback', () => {
-    const emitter = new EventEmitter();
-    const listener1 = function () {};
-    expect(emitter.listeners.length).toEqual(0);
-
-    const listener = emitter.on(listener1);
-
-    expect(emitter.listeners.length).toEqual(1);
-    expect(emitter.listeners[0]).toEqual(listener1);
-
-    listener();
-
-    expect(emitter.listeners.length).toEqual(0);
-  })",4,17,snuts
-/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':21,'endLine':21}","it('Should do nothing if removing same callback twice/or more', () => {
-    const emitter = new EventEmitter();
-    const listener1 = function () {};
-    expect(emitter.listeners.length).toEqual(0);
-
-    const listener = emitter.on(listener1);
-
-    expect(emitter.listeners.length).toEqual(1);
-    expect(emitter.listeners[0]).toEqual(listener1);
-
-    listener();
-    listener();
-    listener();
-
-    expect(emitter.listeners.length).toEqual(0);
-  })",19,34,snuts
-/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':38,'endLine':38}","it('Should emit the change data to all active listeners', () => {
-    const emitter = new EventEmitter();
-    const listener1 = function () {};
-    const listener2 = function (data) {
-      console.error(data);
-    };
-
-    spyOn(console, 'error');
-
-    expect(emitter.listeners.length).toEqual(0);
-
-    const listener = emitter.on(listener1);
-    emitter.on(listener2);
-
-    expect(emitter.listeners.length).toEqual(2);
-    expect(emitter.listeners[0]).toEqual(listener1);
-
-    listener();
-    listener();
-    listener();
-
-    expect(emitter.listeners.length).toEqual(1);
-
-    emitter.emit('foobar');
-
-    expect(console.error.calls.count()).toBe(1);
-    expect(console.error.calls.argsFor(0)[0]).toContain('foobar');
-  })",36,63,snuts
-/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,VerboseStatement,"{'startLine':36,'endLine':63}","it('Should emit the change data to all active listeners', () => {
-    const emitter = new EventEmitter();
-    const listener1 = function () {};
-    const listener2 = function (data) {
-      console.error(data);
-    };
-
-    spyOn(console, 'error');
-
-    expect(emitter.listeners.length).toEqual(0);
-
-    const listener = emitter.on(listener1);
-    emitter.on(listener2);
-
-    expect(emitter.listeners.length).toEqual(2);
-    expect(emitter.listeners[0]).toEqual(listener1);
-
-    listener();
-    listener();
-    listener();
-
-    expect(emitter.listeners.length).toEqual(1);
-
-    emitter.emit('foobar');
-
-    expect(console.error.calls.count()).toBe(1);
-    expect(console.error.calls.argsFor(0)[0]).toContain('foobar');
-  })",36,63,snuts
 /packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 17, 'column': 4, 'index': 630}","describe('Inferno', () => {
   // IE does not support function names so error messages are different
   const testFunction = function testFunction() {};

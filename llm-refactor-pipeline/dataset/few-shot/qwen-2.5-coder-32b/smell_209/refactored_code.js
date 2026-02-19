@@ -1,9 +1,11 @@
 it('with the default winston logger', async () => {
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
         const logFileReady = new Promise(resolve => {
-          const watcher = fsPromise.watch(filePath, () => {
-            watcher.close();
-            resolve();
+          const watcher = fsPromise.watch(filePath, (eventType) => {
+            if (eventType === 'change') {
+              watcher.close();
+              resolve();
+            }
           });
         });
 

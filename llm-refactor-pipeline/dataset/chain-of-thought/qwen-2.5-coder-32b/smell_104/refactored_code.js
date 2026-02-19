@@ -1,4 +1,4 @@
-it("sets up path maps for movie title", function() {
+it("sets path maps for movie title", function() {
     var cache = {};
     var version = 0;
     

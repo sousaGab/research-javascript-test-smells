@@ -39,33 +39,30 @@ test('set-cookie', async () => {
 
     jest.useRealTimers()
 
-    switch (eventSourceName) {
-      case 'azureHttpFunctionV4':
-      case 'azureHttpFunctionV3':
-        expectedResponse.cookies = [
-          {
-            domain: 'mafoo.com',
-            httpOnly: true,
-            name: 'Zoo',
-            path: '/',
-            sameSite: 'Strict',
-            secure: true,
-            value: 'boo',
-            maxAge: maxAge / 1000,
-            expires
-          },
-          {
-            domain: 'example.com',
-            httpOnly: true,
-            name: 'Foo',
-            path: '/',
-            sameSite: 'Strict',
-            secure: true,
-            value: 'bar'
-          },
-          { name: 'Fizz', path: '/', value: 'buzz' }
-        ]
-        break
+    if (['azureHttpFunctionV4', 'azureHttpFunctionV3'].includes(eventSourceName)) {
+      expectedResponse.cookies = [
+        {
+          domain: 'mafoo.com',
+          httpOnly: true,
+          name: 'Zoo',
+          path: '/',
+          sameSite: 'Strict',
+          secure: true,
+          value: 'boo',
+          maxAge: maxAge / 1000,
+          expires
+        },
+        {
+          domain: 'example.com',
+          httpOnly: true,
+          name: 'Foo',
+          path: '/',
+          sameSite: 'Strict',
+          secure: true,
+          value: 'bar'
+        },
+        { name: 'Fizz', path: '/', value: 'buzz' }
+      ]
     }
 
     expect(response).toEqual(expectedResponse)

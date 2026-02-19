@@ -6,6 +6,6 @@ it("renders nested div elements correctly", () => {
   render(childElement, fragment);
   render(parentElement, fragment);
   
-  expect(fragment.firstChild).toHaveProperty('childNode', 1);
+  expect(fragment.firstChild).toHaveProperty('childNodeCount', 1);
   expect(fragment.firstChild.firstChild).toHaveProperty('tagName', 'DIV');
 });

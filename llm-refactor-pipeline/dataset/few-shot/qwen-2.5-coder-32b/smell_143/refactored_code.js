@@ -14,7 +14,7 @@ it('Emits the expected event sequence when `flushHeaders` is called on an aborte
         expect(scope.isDone()).to.be.false()
         done()
       } else {
-        setImmediate(waitForEvents)
+        setTimeout(waitForEvents, 1)
       }
     }
 

@@ -1,19 +1,19 @@
 ================================================================================
 Test Execution Report: react-grid-layout
 ================================================================================
-Timestamp: 2026-02-18 14:56:34
+Timestamp: 2026-02-19 14:44:59
 Command: NODE_ENV=test npx jest --coverage --coverageReporters=text-summary
-Status: SUCCESS
+Status: FAILED
 ================================================================================
 
 OUTPUT:
 --------------------------------------------------------------------------------
 
 =============================== Coverage summary ===============================
-Statements   : 89.52% ( 1461/1632 )
-Branches     : 81.4% ( 740/909 )
+Statements   : 89.58% ( 1462/1632 )
+Branches     : 81.51% ( 741/909 )
 Functions    : 90.33% ( 243/269 )
-Lines        : 91.45% ( 1380/1509 )
+Lines        : 91.51% ( 1381/1509 )
 ================================================================================
 
 PASS test/spec/hooks-test.tsx
@@ -23,9 +23,9 @@ PASS test/spec/fast-compactor-test.js
     console.log
       
         With static items (200 items, 20 static):
-          Standard: 24.92ms
-          Fast:     1.15ms
-          Speedup:  21.68x
+          Standard: 13.94ms
+          Fast:     0.54ms
+          Speedup:  25.74x
 
       at Object.log (test/spec/fast-compactor-test.js:245:15)
 
@@ -36,10 +36,10 @@ PASS test/spec/fast-compactor-test.js
       ├──────────────────────────────────────────────────────────────────────────────┤
       │ Items    │ Standard Vertical     │ Fast Vertical         │ Speedup          │
       ├──────────┼───────────────────────┼───────────────────────┼──────────────────┤
-      │ 50       │               1.21 ms │             212.38 µs │   5.70x faster │
-      │ 100      │               2.19 ms │             423.35 µs │   5.17x faster │
-      │ 200      │               7.14 ms │             848.35 µs │   8.42x faster │
-      │ 500      │              50.79 ms │               2.45 ms │  20.75x faster │
+      │ 50       │               1.31 ms │             210.09 µs │   6.25x faster │
+      │ 100      │               2.31 ms │             412.50 µs │   5.61x faster │
+      │ 200      │               6.01 ms │             860.11 µs │   6.99x faster │
+      │ 500      │              54.49 ms │               1.91 ms │  28.47x faster │
       └──────────────────────────────────────────────────────────────────────────────┘
 
       at Object.log (test/spec/fast-compactor-test.js:201:15)
@@ -47,9 +47,9 @@ PASS test/spec/fast-compactor-test.js
     console.log
       
         Compaction height comparison (50 random layouts):
-          Fast better: 1
-          Standard better: 16
-          Equal: 33
+          Fast better: 3
+          Standard better: 15
+          Equal: 32
 
       at Object.log (test/spec/fast-compactor-test.js:399:15)
 
@@ -62,21 +62,39 @@ PASS test/spec/fast-compactor-test.js
 
       at Object.log (test/spec/fast-compactor-test.js:483:15)
 
-PASS test/spec/backcompat-test.js
+FAIL test/spec/backcompat-test.js
+  ● Backwards Compatibility: Responsive Grid › uses correct layout for current breakpoint
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 2
+
+      510 |
+      511 |     // Verify layout was updated correctly for sm breakpoint
+    > 512 |     expect(onLayoutChange).toHaveBeenCalledTimes(1);
+          |                            ^
+      513 |     const [[layout]] = onLayoutChange.mock.calls;
+      514 |     expect(layout[0].w).toBeLessThanOrEqual(6);
+      515 |   });;
+
+      at Object.toHaveBeenCalledTimes (test/spec/backcompat-test.js:512:28)
+
 PASS test/spec/utils-test.js
-PASS test/spec/typescript-components-test.tsx
 PASS test/spec/lifecycle-test.js
+PASS test/spec/typescript-components-test.tsx
+PASS test/spec/core-functions-test.ts
 PASS test/spec/constraints-test.ts
-PASS test/spec/drop-alignment.test.ts
+PASS test/spec/static-compaction.test.ts
 PASS test/spec/fast-horizontal-compactor-test.js
   ● Console
 
     console.log
       
         With static items (200 items, 20 static):
-          Standard: 15.69ms
-          Fast:     0.24ms
-          Speedup:  64.18x
+          Standard: 11.23ms
+          Fast:     0.61ms
+          Speedup:  18.55x
 
       at Object.log (test/spec/fast-horizontal-compactor-test.js:328:15)
 
@@ -87,10 +105,10 @@ PASS test/spec/fast-horizontal-compactor-test.js
       ├──────────────────────────────────────────────────────────────────────────────────┤
       │ Items    │ Standard Horizontal   │ Fast Horizontal       │ Speedup              │
       ├──────────┼───────────────────────┼───────────────────────┼──────────────────────┤
-      │ 50       │             890.63 µs │             461.55 µs │   1.93x faster     │
-      │ 100      │               6.85 ms │             660.88 µs │  10.36x faster     │
-      │ 200      │              26.05 ms │             315.25 µs │  82.64x faster     │
-      │ 500      │              97.81 ms │               2.18 ms │  44.78x faster     │
+      │ 50       │               1.70 ms │             584.85 µs │   2.91x faster     │
+      │ 100      │               3.40 ms │             828.18 µs │   4.11x faster     │
+      │ 200      │              17.57 ms │             543.71 µs │  32.32x faster     │
+      │ 500      │              92.90 ms │             781.06 µs │ 118.94x faster     │
       └──────────────────────────────────────────────────────────────────────────────────┘
 
       at Object.log (test/spec/fast-horizontal-compactor-test.js:284:15)
@@ -113,9 +131,9 @@ PASS test/spec/fast-horizontal-compactor-test.js
     console.log
       
         Compaction width comparison (50 random layouts):
-          Fast better: 0
-          Standard better: 0
-          Equal: 50
+          Fast better: 1
+          Standard better: 1
+          Equal: 48
 
       at Object.log (test/spec/fast-horizontal-compactor-test.js:517:15)
 
@@ -128,12 +146,11 @@ PASS test/spec/fast-horizontal-compactor-test.js
 
       at Object.log (test/spec/fast-horizontal-compactor-test.js:600:15)
 
-PASS test/spec/core-functions-test.ts
 PASS test/spec/compactors-test.ts
-PASS test/spec/static-compaction.test.ts
-PASS test/spec/wrapCompactor-test.ts
 PASS test/spec/margin-consistency.test.ts
-PASS test/spec/benchmark-test.js (11.195 s)
+PASS test/spec/drop-alignment.test.ts
+PASS test/spec/wrapCompactor-test.ts
+PASS test/spec/benchmark-test.js (11.494 s)
   ● Console
 
     console.log
@@ -145,49 +162,49 @@ PASS test/spec/benchmark-test.js (11.195 s)
       ├───────────────────────────────────────────────────┼────────────────┤
       │ COMPACTION                                        │                │
       ├───────────────────────────────────────────────────┼────────────────┤
-      │   compact vertical 100 items                      │        4.58 ms │
-      │   compact horizontal 100 items                    │        3.38 ms │
-      │   compact vertical 500 items                      │       46.48 ms │
-      │   compact horizontal 500 items                    │       81.26 ms │
-      │   compact vertical 1000 items                     │      171.63 ms │
-      │   compact horizontal 1000 items                   │      422.84 ms │
+      │   compact vertical 100 items                      │        3.27 ms │
+      │   compact horizontal 100 items                    │        4.06 ms │
+      │   compact vertical 500 items                      │       42.05 ms │
+      │   compact horizontal 500 items                    │       89.38 ms │
+      │   compact vertical 1000 items                     │      181.73 ms │
+      │   compact horizontal 1000 items                   │      471.95 ms │
       ├───────────────────────────────────────────────────┼────────────────┤
       │ MOVE                                              │                │
       ├───────────────────────────────────────────────────┼────────────────┤
-      │   element 100 items                               │       65.19 µs │
-      │   element 500 items                               │      347.83 µs │
+      │   element 100 items                               │       57.95 µs │
+      │   element 500 items                               │      320.74 µs │
       ├───────────────────────────────────────────────────┼────────────────┤
       │ SORT                                              │                │
       ├───────────────────────────────────────────────────┼────────────────┤
-      │   100 items                                       │       35.26 µs │
-      │   500 items                                       │      255.38 µs │
-      │   1000 items                                      │      557.06 µs │
+      │   100 items                                       │       31.43 µs │
+      │   500 items                                       │      249.43 µs │
+      │   1000 items                                      │      557.85 µs │
       ├───────────────────────────────────────────────────┼────────────────┤
       │ BOUNDS                                            │                │
       ├───────────────────────────────────────────────────┼────────────────┤
-      │   correct  100 items                              │       62.16 µs │
-      │   correct  500 items                              │      206.61 µs │
-      │   correct  1000 items                             │      144.24 µs │
+      │   correct  100 items                              │       67.06 µs │
+      │   correct  500 items                              │      226.25 µs │
+      │   correct  1000 items                             │      138.31 µs │
       ├───────────────────────────────────────────────────┼────────────────┤
       │ RENDER                                            │                │
       ├───────────────────────────────────────────────────┼────────────────┤
-      │   50 items                                        │       37.14 ms │
-      │   100 items                                       │       57.25 ms │
-      │   200 items                                       │       94.93 ms │
+      │   50 items                                        │       39.26 ms │
+      │   100 items                                       │       58.00 ms │
+      │   200 items                                       │       98.52 ms │
       ├───────────────────────────────────────────────────┼────────────────┤
       │ SIMULATION                                        │                │
       ├───────────────────────────────────────────────────┼────────────────┤
-      │   drag  100 items 20 steps                        │       13.52 ms │
+      │   drag  100 items 20 steps                        │       13.40 ms │
       ├───────────────────────────────────────────────────┼────────────────┤
       └────────────────────────────────────────────────────────────────────┘
 
       at Object.log (test/spec/benchmark-test.js:158:13)
 
 
-Test Suites: 15 passed, 15 total
-Tests:       8 skipped, 517 passed, 525 total
+Test Suites: 1 failed, 14 passed, 15 total
+Tests:       1 failed, 8 skipped, 516 passed, 525 total
 Snapshots:   2 passed, 2 total
-Time:        14.705 s
+Time:        15.163 s
 Ran all test suites.
 
 --------------------------------------------------------------------------------

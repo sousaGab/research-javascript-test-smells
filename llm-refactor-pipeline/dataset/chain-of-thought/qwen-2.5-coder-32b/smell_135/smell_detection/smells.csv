@@ -1048,7 +1048,7 @@ file,type,line,method,methodStart,methodEnd,source
     let writeComplete = false;
     let readComplete = false;
 
-    const checkCompletion = () => {
+    const checkComplete = () => {
       if (writeComplete && readComplete) {
         logger.close();
         done();
@@ -1057,13 +1057,13 @@ file,type,line,method,methodStart,methodEnd,source
 
     msgs.forEach(msg => logger.info(msg));
 
-    // Wait for write to complete by listening to the logger's drain event
+    // Wait for write to complete by listening to the logger's flush event
     logger.on('finish', () => {
       writeComplete = true;
-      checkCompletion();
+      checkComplete();
     });
 
-    // Read and validate logs
+    // Read and verify logs
     helpers.tryRead(fileStressLogFile)
       .on('error', function (err) {
         assume(err).false();
@@ -1078,9 +1078,9 @@ file,type,line,method,methodStart,methodEnd,source
         assume(json.counter).equal(++counters.read);
       })
       .on('end', function () {
-        assume(counters.write).equal(counters.read);
         readComplete = true;
-        checkCompletion();
+        assume(counters.write).equal(counters.read);
+        checkComplete();
       });
   })",114,168,snuts
 /test/helpers/index.js,NonFunctionalStatement,"{'startLine':121,'endLine':121}",Unknown,,,snuts
@@ -3946,7 +3946,7 @@ file,type,line,method,methodStart,methodEnd,source
       if (ex && ex.code !== 'ENOENT') { return done(ex); }
     }
   })",23,29,steel
-/test/unit/winston/transports/00-file-stress.test.js,Conditional Test Logic,"{'line': 135, 'column': 6, 'index': 3410}","it('should handle a high volume of large writes synchronous', function (done) {
+/test/unit/winston/transports/00-file-stress.test.js,Conditional Test Logic,"{'line': 135, 'column': 6, 'index': 3408}","it('should handle a high volume of large writes synchronous', function (done) {
     const logger = winston.createLogger({
       transports: [new winston.transports.File({
         filename: fileStressLogFile
@@ -3966,7 +3966,7 @@ file,type,line,method,methodStart,methodEnd,source
     let writeComplete = false;
     let readComplete = false;
 
-    const checkCompletion = () => {
+    const checkComplete = () => {
       if (writeComplete && readComplete) {
         logger.close();
         done();
@@ -3975,13 +3975,13 @@ file,type,line,method,methodStart,methodEnd,source
 
     msgs.forEach(msg => logger.info(msg));
 
-    // Wait for write to complete by listening to the logger's drain event
+    // Wait for write to complete by listening to the logger's flush event
     logger.on('finish', () => {
       writeComplete = true;
-      checkCompletion();
+      checkComplete();
     });
 
-    // Read and validate logs
+    // Read and verify logs
     helpers.tryRead(fileStressLogFile)
       .on('error', function (err) {
         assume(err).false();
@@ -3996,9 +3996,9 @@ file,type,line,method,methodStart,methodEnd,source
         assume(json.counter).equal(++counters.read);
       })
       .on('end', function () {
-        assume(counters.write).equal(counters.read);
         readComplete = true;
-        checkCompletion();
+        assume(counters.write).equal(counters.read);
+        checkComplete();
       });
   })",114,168,steel
 /test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 47, 'column': 4, 'index': 1122}","it('should handle a high volume of writes', function (done) {
@@ -4082,7 +4082,7 @@ file,type,line,method,methodStart,methodEnd,source
         });
     }, 10000);
   })",70,112,steel
-/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 189, 'column': 4, 'index': 4764}","it('should handle a high volume of writes with lazy option enabled', function (done) {
+/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 189, 'column': 4, 'index': 4756}","it('should handle a high volume of writes with lazy option enabled', function (done) {
     const logger = winston.createLogger({
       transports: [
         new winston.transports.File({
@@ -4225,7 +4225,7 @@ file,type,line,method,methodStart,methodEnd,source
     let writeComplete = false;
     let readComplete = false;
 
-    const checkCompletion = () => {
+    const checkComplete = () => {
       if (writeComplete && readComplete) {
         logger.close();
         done();
@@ -4234,13 +4234,13 @@ file,type,line,method,methodStart,methodEnd,source
 
     msgs.forEach(msg => logger.info(msg));
 
-    // Wait for write to complete by listening to the logger's drain event
+    // Wait for write to complete by listening to the logger's flush event
     logger.on('finish', () => {
       writeComplete = true;
-      checkCompletion();
+      checkComplete();
     });
 
-    // Read and validate logs
+    // Read and verify logs
     helpers.tryRead(fileStressLogFile)
       .on('error', function (err) {
         assume(err).false();
@@ -4255,9 +4255,9 @@ file,type,line,method,methodStart,methodEnd,source
         assume(json.counter).equal(++counters.read);
       })
       .on('end', function () {
-        assume(counters.write).equal(counters.read);
         readComplete = true;
-        checkCompletion();
+        assume(counters.write).equal(counters.read);
+        checkComplete();
       });
   })",114,168,steel
 /test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 170}","it('should handle a high volume of writes with lazy option enabled', function (done) {

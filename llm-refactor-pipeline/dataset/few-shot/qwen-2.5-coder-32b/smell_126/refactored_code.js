@@ -29,7 +29,9 @@ test("DateTime#toRelative takes a round and a rounding argument", () => {
   ];
 
   testCases.forEach(({ input, expected, rounding }) => {
-    expect(base.plus(input).toRelative({ base, round: false, rounding })).toBe(expected);
-    expect(base.minus(input).toRelative({ base, round: false, rounding })).toBe(expected.replace("in ", "").replace(" ago", ""));
+    const result = base
+      .plus(input)
+      .toRelative({ base, round: false, rounding });
+    expect(result).toBe(expected);
   });
 });

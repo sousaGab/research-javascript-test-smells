@@ -1,4 +1,4 @@
-test('open() emits error event and sets up error listener', (done) => {
+test('open() emits error event and sets up error handler', (done) => {
   const error = new Error('test');
   
   file.on('error', (err) => {

@@ -6,6 +6,7 @@ test('onprocessfileabort should call callback when file processing is aborted', 
 
     pond.getFile().abortProcessing();
 
+    // Verify the callback was called
     expect(mockCallback).toHaveBeenCalled();
     done();
 });

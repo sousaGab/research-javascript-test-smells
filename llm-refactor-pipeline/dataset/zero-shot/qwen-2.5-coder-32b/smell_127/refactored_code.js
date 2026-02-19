@@ -9,9 +9,9 @@ test("DateTime.fromFormat() parses format month names", () => {
   ];
 
   testCases.forEach(({ input, format, locale, expected }) => {
-    const result = DateTime.fromFormat(input, format, { locale });
-    expect(result.year).toBe(expected.year);
-    expect(result.month).toBe(expected.month);
-    expect(result.day).toBe(expected.day);
+    const i = DateTime.fromFormat(input, format, locale ? { locale } : undefined);
+    expect(i.year).toBe(expected.year);
+    expect(i.month).toBe(expected.month);
+    expect(i.day).toBe(expected.day);
   });
 });

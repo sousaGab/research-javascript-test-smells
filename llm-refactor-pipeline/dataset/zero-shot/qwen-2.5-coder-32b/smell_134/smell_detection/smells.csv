@@ -4011,7 +4011,7 @@ file,type,line,method,methodStart,methodEnd,source
         });
     }, 10000);
   })",114,152,steel
-/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 173, 'column': 22, 'index': 4448}","it('should handle a high volume of writes with lazy option enabled', function (done) {
+/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 173, 'column': 4, 'index': 4430}","it('should handle a high volume of writes with lazy option enabled', function (done) {
     const logger = winston.createLogger({
       transports: [
         new winston.transports.File({
@@ -4030,33 +4030,29 @@ file,type,line,method,methodStart,methodEnd,source
       logger.info(++counters.write);
     }, 0);
 
-    const timeoutId = setTimeout(function () {
+    setTimeout(function () {
       clearInterval(interval);
-      
-      const readStream = helpers.tryRead(fileStressLogFile);
-      
-      readStream.on('error', function (err) {
-        assume(err).false();
-        logger.close();
-        done();
-      });
 
-      const data = [];
-      readStream
+      helpers
+        .tryRead(fileStressLogFile)
+        .on('error', function (err) {
+          assume(err).false();
+          logger.close();
+          done();
+        })
         .pipe(split())
         .on('data', function (d) {
           const json = JSON.parse(d);
           assume(json.level).equal('info');
           assume(json.message).equal(++counters.read);
-          data.push(json);
         })
         .on('end', function () {
           assume(counters.write).equal(counters.read);
           logger.close();
           done();
         });
-    }, 1000);
-  })",154,199,steel
+    }, 100);
+  })",154,195,steel
 /test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 31}","it('should handle a high volume of writes', function (done) {
     const logger = winston.createLogger({
       transports: [new winston.transports.File({
@@ -4196,33 +4192,29 @@ file,type,line,method,methodStart,methodEnd,source
       logger.info(++counters.write);
     }, 0);
 
-    const timeoutId = setTimeout(function () {
+    setTimeout(function () {
       clearInterval(interval);
-      
-      const readStream = helpers.tryRead(fileStressLogFile);
-      
-      readStream.on('error', function (err) {
-        assume(err).false();
-        logger.close();
-        done();
-      });
 
-      const data = [];
-      readStream
+      helpers
+        .tryRead(fileStressLogFile)
+        .on('error', function (err) {
+          assume(err).false();
+          logger.close();
+          done();
+        })
         .pipe(split())
         .on('data', function (d) {
           const json = JSON.parse(d);
           assume(json.level).equal('info');
           assume(json.message).equal(++counters.read);
-          data.push(json);
         })
         .on('end', function () {
           assume(counters.write).equal(counters.read);
           logger.close();
           done();
         });
-    }, 1000);
-  })",154,199,steel
+    }, 100);
+  })",154,195,steel
 /test/unit/winston/config/config.test.js,Unknown Test,"{'column': 2, 'line': 13}","it('should have expected methods', function () {
     assume(winston.config).is.an('object');
     assume(winston.config.addColors).is.a('function');

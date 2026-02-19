@@ -11,16 +11,10 @@ it('should work with a delayed response stream', async () => {
       .delayBody(100)
       .reply(200, () => passthrough)
 
-    // Replace setTimeout with promise-based approach
-    const writePromise = new Promise((resolve) => {
-      fs.createReadStream(textFilePath).pipe(passthrough)
-      passthrough.on('end', resolve)
-    })
+    const readStream = fs.createReadStream(textFilePath)
+    readStream.pipe(passthrough)
 
     const { body } = await got('http://example.test/')
-    
-    // Wait for the stream to finish writing before asserting
-    await writePromise
 
     expect(body).to.equal(textFileContents)
     scope.done()

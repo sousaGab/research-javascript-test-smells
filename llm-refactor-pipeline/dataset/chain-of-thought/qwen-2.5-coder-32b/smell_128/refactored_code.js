@@ -36,7 +36,7 @@ it('should handle data operations with collisions', () => {
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
-    // Test updated value
+    // Test update after delete
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-});
+  })

@@ -1,4 +1,4 @@
-it('should return true for JSON content types', () => {
+it('should return true for JSON content type', () => {
   expect(common.isJSONContent({ 'content-type': 'application/json' })).to.equal(
     true,
   )

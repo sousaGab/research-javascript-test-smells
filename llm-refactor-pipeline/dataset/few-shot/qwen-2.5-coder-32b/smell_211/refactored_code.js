@@ -1,9 +1,9 @@
 it('with a custom winston.Logger instance', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
-          const logFileWritten = waitForLogFileWrite();
+          const logFileWrittenPromise = waitForLogFileWrite(filePath);
           process.emit('uncaughtException', expectedMessage);
-          await logFileWritten;
+          await logFileWrittenPromise;
 
           expect(processExitSpy).toHaveBeenCalledTimes(1);
           expect(processExitSpy).toHaveBeenCalledWith(1);

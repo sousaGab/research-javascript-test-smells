@@ -8,7 +8,7 @@ it('should scroll to next/prev slide when key next/prev pressed', async () => {
     })
 
     const $carousel = wrapper.findComponent(BCarousel)
-    
+
     await waitNT(wrapper.vm)
     await waitRAF()
 

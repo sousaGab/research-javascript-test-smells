@@ -1034,58 +1034,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(maxHeap.remove(7).toString()).toEqual('8');
     expect(maxHeap.remove(8).toString()).toEqual('');
   })",126,150,snuts
-/src/data-structures/hash-table/__test__/HashTable.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should create hash table of certain size', () => {
-    const defaultHashTable = new HashTable();
-    expect(defaultHashTable.buckets.length).toBe(32);
-
-    const biggerHashTable = new HashTable(64);
-    expect(biggerHashTable.buckets.length).toBe(64);
-  })",4,10,snuts
-/src/data-structures/hash-table/__test__/HashTable.test.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should create hash table of certain size', () => {
-    const defaultHashTable = new HashTable();
-    expect(defaultHashTable.buckets.length).toBe(32);
-
-    const biggerHashTable = new HashTable(64);
-    expect(biggerHashTable.buckets.length).toBe(64);
-  })",4,10,snuts
-/src/data-structures/hash-table/__test__/HashTable.test.js,VerboseStatement,"{'startLine':20,'endLine':57}","it('should set, read and delete data with collisions', () => {
-    const hashTable = new HashTable(3);
-
-    expect(hashTable.hash('a')).toBe(1);
-    expect(hashTable.hash('b')).toBe(2);
-    expect(hashTable.hash('c')).toBe(0);
-    expect(hashTable.hash('d')).toBe(1);
-
-    hashTable.set('a', 'sky-old');
-    hashTable.set('a', 'sky');
-    hashTable.set('b', 'sea');
-    hashTable.set('c', 'earth');
-    hashTable.set('d', 'ocean');
-
-    expect(hashTable.has('x')).toBe(false);
-    expect(hashTable.has('b')).toBe(true);
-    expect(hashTable.has('c')).toBe(true);
-
-    const stringifier = (value) => `${value.key}:${value.value}`;
-
-    expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
-    expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
-    expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
-
-    expect(hashTable.get('a')).toBe('sky');
-    expect(hashTable.get('d')).toBe('ocean');
-    expect(hashTable.get('x')).not.toBeDefined();
-
-    hashTable.delete('a');
-
-    expect(hashTable.delete('not-existing')).toBeNull();
-
-    expect(hashTable.get('a')).not.toBeDefined();
-    expect(hashTable.get('d')).toBe('ocean');
-
-    hashTable.set('d', 'ocean-new');
-    expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,57,snuts
 /src/data-structures/graph/__test__/GraphVertex.test.js,SubOptimalAssert,"{'startLine':36,'endLine':36}","it('should add edges to vertex and check if it exists', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -2062,187 +2010,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(graph.getNeighbors(vertexD).length).toBe(1);
     expect(graph.getNeighbors(vertexD)[0].getKey()).toBe(vertexC.getKey());
   })",269,306,snuts
-/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,ConditionalTestLogic,"{'startLine':208,'endLine':210}","it('should find node by means of custom compare function', () => {
-    const comparatorFunction = (a, b) => {
-      if (a.customValue === b.customValue) {
-        return 0;
-      }
-
-      return a.customValue < b.customValue ? -1 : 1;
-    };
-
-    const linkedList = new DoublyLinkedList(comparatorFunction);
-
-    linkedList
-      .append({ value: 1, customValue: 'test1' })
-      .append({ value: 2, customValue: 'test2' })
-      .append({ value: 3, customValue: 'test3' });
-
-    const node = linkedList.find({
-      value: { value: 2, customValue: 'test2' },
-    });
-
-    expect(node).toBeDefined();
-    expect(node.value.value).toBe(2);
-    expect(node.value.customValue).toBe('test2');
-    expect(linkedList.find({ value: 2, customValue: 'test5' })).toBeNull();
-  })",206,230,snuts
-/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':46,'endLine':94}","it('should delete node by value from linked list', () => {
-    const linkedList = new DoublyLinkedList();
-
-    expect(linkedList.delete(5)).toBeNull();
-
-    linkedList.append(1);
-    linkedList.append(1);
-    linkedList.append(2);
-    linkedList.append(3);
-    linkedList.append(3);
-    linkedList.append(3);
-    linkedList.append(4);
-    linkedList.append(5);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('5');
-
-    const deletedNode = linkedList.delete(3);
-    expect(deletedNode.value).toBe(3);
-    expect(linkedList.tail.previous.previous.value).toBe(2);
-    expect(linkedList.toString()).toBe('1,1,2,4,5');
-
-    linkedList.delete(3);
-    expect(linkedList.toString()).toBe('1,1,2,4,5');
-
-    linkedList.delete(1);
-    expect(linkedList.toString()).toBe('2,4,5');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.head.next.next).toBe(linkedList.tail);
-    expect(linkedList.tail.previous.previous).toBe(linkedList.head);
-    expect(linkedList.tail.toString()).toBe('5');
-
-    linkedList.delete(5);
-    expect(linkedList.toString()).toBe('2,4');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('4');
-
-    linkedList.delete(4);
-    expect(linkedList.toString()).toBe('2');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('2');
-    expect(linkedList.head).toBe(linkedList.tail);
-
-    linkedList.delete(2);
-    expect(linkedList.toString()).toBe('');
-  })",46,94,snuts
-/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':96,'endLine':128}","it('should delete linked list tail', () => {
-    const linkedList = new DoublyLinkedList();
-
-    expect(linkedList.deleteTail()).toBeNull();
-
-    linkedList.append(1);
-    linkedList.append(2);
-    linkedList.append(3);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('3');
-
-    const deletedNode1 = linkedList.deleteTail();
-
-    expect(deletedNode1.value).toBe(3);
-    expect(linkedList.toString()).toBe('1,2');
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode2 = linkedList.deleteTail();
-
-    expect(deletedNode2.value).toBe(2);
-    expect(linkedList.toString()).toBe('1');
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('1');
-
-    const deletedNode3 = linkedList.deleteTail();
-
-    expect(deletedNode3.value).toBe(1);
-    expect(linkedList.toString()).toBe('');
-    expect(linkedList.head).toBeNull();
-    expect(linkedList.tail).toBeNull();
-  })",96,128,snuts
-/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':130,'endLine':155}","it('should delete linked list head', () => {
-    const linkedList = new DoublyLinkedList();
-
-    expect(linkedList.deleteHead()).toBeNull();
-
-    linkedList.append(1);
-    linkedList.append(2);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode1 = linkedList.deleteHead();
-
-    expect(deletedNode1.value).toBe(1);
-    expect(linkedList.head.previous).toBeNull();
-    expect(linkedList.toString()).toBe('2');
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode2 = linkedList.deleteHead();
-
-    expect(deletedNode2.value).toBe(2);
-    expect(linkedList.toString()).toBe('');
-    expect(linkedList.head).toBeNull();
-    expect(linkedList.tail).toBeNull();
-  })",130,155,snuts
-/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':232,'endLine':279}","it('should reverse linked list', () => {
-    const linkedList = new DoublyLinkedList();
-
-    // Add test values to linked list.
-    linkedList
-      .append(1)
-      .append(2)
-      .append(3)
-      .append(4);
-
-    expect(linkedList.toString()).toBe('1,2,3,4');
-    expect(linkedList.head.value).toBe(1);
-    expect(linkedList.tail.value).toBe(4);
-
-    // Reverse linked list.
-    linkedList.reverse();
-
-    expect(linkedList.toString()).toBe('4,3,2,1');
-
-    expect(linkedList.head.previous).toBeNull();
-    expect(linkedList.head.value).toBe(4);
-    expect(linkedList.head.next.value).toBe(3);
-    expect(linkedList.head.next.next.value).toBe(2);
-    expect(linkedList.head.next.next.next.value).toBe(1);
-
-    expect(linkedList.tail.next).toBeNull();
-    expect(linkedList.tail.value).toBe(1);
-    expect(linkedList.tail.previous.value).toBe(2);
-    expect(linkedList.tail.previous.previous.value).toBe(3);
-    expect(linkedList.tail.previous.previous.previous.value).toBe(4);
-
-    // Reverse linked list back to initial state.
-    linkedList.reverse();
-
-    expect(linkedList.toString()).toBe('1,2,3,4');
-
-    expect(linkedList.head.previous).toBeNull();
-    expect(linkedList.head.value).toBe(1);
-    expect(linkedList.head.next.value).toBe(2);
-    expect(linkedList.head.next.next.value).toBe(3);
-    expect(linkedList.head.next.next.next.value).toBe(4);
-
-    expect(linkedList.tail.next).toBeNull();
-    expect(linkedList.tail.value).toBe(4);
-    expect(linkedList.tail.previous.value).toBe(3);
-    expect(linkedList.tail.previous.previous.value).toBe(2);
-    expect(linkedList.tail.previous.previous.previous.value).toBe(1);
-  })",232,279,snuts
 /src/data-structures/disjoint-set/__test__/DisjointSetItem.test.js,SubOptimalAssert,"{'startLine':26,'endLine':26}","it('should do basic manipulation with disjoint set item', () => {
     const itemA = new DisjointSetItem('A');
     const itemB = new DisjointSetItem('B');
@@ -2952,6 +2719,239 @@ file,type,line,method,methodStart,methodEnd,source
     expect(bloomFilter.hash2(str2)).toBe(61);
     expect(bloomFilter.hash3(str2)).toBe(10);
   })",26,46,snuts
+/src/data-structures/hash-table/__test__/HashTable.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should create hash table of certain size', () => {
+    const defaultHashTable = new HashTable();
+    expect(defaultHashTable.buckets.length).toBe(32);
+
+    const biggerHashTable = new HashTable(64);
+    expect(biggerHashTable.buckets.length).toBe(64);
+  })",4,10,snuts
+/src/data-structures/hash-table/__test__/HashTable.test.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should create hash table of certain size', () => {
+    const defaultHashTable = new HashTable();
+    expect(defaultHashTable.buckets.length).toBe(32);
+
+    const biggerHashTable = new HashTable(64);
+    expect(biggerHashTable.buckets.length).toBe(64);
+  })",4,10,snuts
+/src/data-structures/hash-table/__test__/HashTable.test.js,VerboseStatement,"{'startLine':20,'endLine':57}","it('should set, read and delete data with collisions', () => {
+    const hashTable = new HashTable(3);
+
+    expect(hashTable.hash('a')).toBe(1);
+    expect(hashTable.hash('b')).toBe(2);
+    expect(hashTable.hash('c')).toBe(0);
+    expect(hashTable.hash('d')).toBe(1);
+
+    hashTable.set('a', 'sky-old');
+    hashTable.set('a', 'sky');
+    hashTable.set('b', 'sea');
+    hashTable.set('c', 'earth');
+    hashTable.set('d', 'ocean');
+
+    expect(hashTable.has('x')).toBe(false);
+    expect(hashTable.has('b')).toBe(true);
+    expect(hashTable.has('c')).toBe(true);
+
+    const stringifier = (value) => `${value.key}:${value.value}`;
+
+    expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
+    expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
+    expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
+
+    expect(hashTable.get('a')).toBe('sky');
+    expect(hashTable.get('d')).toBe('ocean');
+    expect(hashTable.get('x')).not.toBeDefined();
+
+    hashTable.delete('a');
+
+    expect(hashTable.delete('not-existing')).toBeNull();
+
+    expect(hashTable.get('a')).not.toBeDefined();
+    expect(hashTable.get('d')).toBe('ocean');
+
+    hashTable.set('d', 'ocean-new');
+    expect(hashTable.get('d')).toBe('ocean-new');
+  })",20,57,snuts
+/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,ConditionalTestLogic,"{'startLine':208,'endLine':210}","it('should find node by means of custom compare function', () => {
+    const comparatorFunction = (a, b) => {
+      if (a.customValue === b.customValue) {
+        return 0;
+      }
+
+      return a.customValue < b.customValue ? -1 : 1;
+    };
+
+    const linkedList = new DoublyLinkedList(comparatorFunction);
+
+    linkedList
+      .append({ value: 1, customValue: 'test1' })
+      .append({ value: 2, customValue: 'test2' })
+      .append({ value: 3, customValue: 'test3' });
+
+    const node = linkedList.find({
+      value: { value: 2, customValue: 'test2' },
+    });
+
+    expect(node).toBeDefined();
+    expect(node.value.value).toBe(2);
+    expect(node.value.customValue).toBe('test2');
+    expect(linkedList.find({ value: 2, customValue: 'test5' })).toBeNull();
+  })",206,230,snuts
+/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':46,'endLine':94}","it('should delete node by value from linked list', () => {
+    const linkedList = new DoublyLinkedList();
+
+    expect(linkedList.delete(5)).toBeNull();
+
+    linkedList.append(1);
+    linkedList.append(1);
+    linkedList.append(2);
+    linkedList.append(3);
+    linkedList.append(3);
+    linkedList.append(3);
+    linkedList.append(4);
+    linkedList.append(5);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('5');
+
+    const deletedNode = linkedList.delete(3);
+    expect(deletedNode.value).toBe(3);
+    expect(linkedList.tail.previous.previous.value).toBe(2);
+    expect(linkedList.toString()).toBe('1,1,2,4,5');
+
+    linkedList.delete(3);
+    expect(linkedList.toString()).toBe('1,1,2,4,5');
+
+    linkedList.delete(1);
+    expect(linkedList.toString()).toBe('2,4,5');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.head.next.next).toBe(linkedList.tail);
+    expect(linkedList.tail.previous.previous).toBe(linkedList.head);
+    expect(linkedList.tail.toString()).toBe('5');
+
+    linkedList.delete(5);
+    expect(linkedList.toString()).toBe('2,4');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('4');
+
+    linkedList.delete(4);
+    expect(linkedList.toString()).toBe('2');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('2');
+    expect(linkedList.head).toBe(linkedList.tail);
+
+    linkedList.delete(2);
+    expect(linkedList.toString()).toBe('');
+  })",46,94,snuts
+/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':96,'endLine':128}","it('should delete linked list tail', () => {
+    const linkedList = new DoublyLinkedList();
+
+    expect(linkedList.deleteTail()).toBeNull();
+
+    linkedList.append(1);
+    linkedList.append(2);
+    linkedList.append(3);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('3');
+
+    const deletedNode1 = linkedList.deleteTail();
+
+    expect(deletedNode1.value).toBe(3);
+    expect(linkedList.toString()).toBe('1,2');
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode2 = linkedList.deleteTail();
+
+    expect(deletedNode2.value).toBe(2);
+    expect(linkedList.toString()).toBe('1');
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('1');
+
+    const deletedNode3 = linkedList.deleteTail();
+
+    expect(deletedNode3.value).toBe(1);
+    expect(linkedList.toString()).toBe('');
+    expect(linkedList.head).toBeNull();
+    expect(linkedList.tail).toBeNull();
+  })",96,128,snuts
+/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':130,'endLine':155}","it('should delete linked list head', () => {
+    const linkedList = new DoublyLinkedList();
+
+    expect(linkedList.deleteHead()).toBeNull();
+
+    linkedList.append(1);
+    linkedList.append(2);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode1 = linkedList.deleteHead();
+
+    expect(deletedNode1.value).toBe(1);
+    expect(linkedList.head.previous).toBeNull();
+    expect(linkedList.toString()).toBe('2');
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode2 = linkedList.deleteHead();
+
+    expect(deletedNode2.value).toBe(2);
+    expect(linkedList.toString()).toBe('');
+    expect(linkedList.head).toBeNull();
+    expect(linkedList.tail).toBeNull();
+  })",130,155,snuts
+/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':232,'endLine':279}","it('should reverse linked list', () => {
+    const linkedList = new DoublyLinkedList();
+
+    // Add test values to linked list.
+    linkedList
+      .append(1)
+      .append(2)
+      .append(3)
+      .append(4);
+
+    expect(linkedList.toString()).toBe('1,2,3,4');
+    expect(linkedList.head.value).toBe(1);
+    expect(linkedList.tail.value).toBe(4);
+
+    // Reverse linked list.
+    linkedList.reverse();
+
+    expect(linkedList.toString()).toBe('4,3,2,1');
+
+    expect(linkedList.head.previous).toBeNull();
+    expect(linkedList.head.value).toBe(4);
+    expect(linkedList.head.next.value).toBe(3);
+    expect(linkedList.head.next.next.value).toBe(2);
+    expect(linkedList.head.next.next.next.value).toBe(1);
+
+    expect(linkedList.tail.next).toBeNull();
+    expect(linkedList.tail.value).toBe(1);
+    expect(linkedList.tail.previous.value).toBe(2);
+    expect(linkedList.tail.previous.previous.value).toBe(3);
+    expect(linkedList.tail.previous.previous.previous.value).toBe(4);
+
+    // Reverse linked list back to initial state.
+    linkedList.reverse();
+
+    expect(linkedList.toString()).toBe('1,2,3,4');
+
+    expect(linkedList.head.previous).toBeNull();
+    expect(linkedList.head.value).toBe(1);
+    expect(linkedList.head.next.value).toBe(2);
+    expect(linkedList.head.next.next.value).toBe(3);
+    expect(linkedList.head.next.next.next.value).toBe(4);
+
+    expect(linkedList.tail.next).toBeNull();
+    expect(linkedList.tail.value).toBe(4);
+    expect(linkedList.tail.previous.value).toBe(3);
+    expect(linkedList.tail.previous.previous.value).toBe(2);
+    expect(linkedList.tail.previous.previous.previous.value).toBe(1);
+  })",232,279,snuts
 /src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should build tree for input array #0 with length of power of two', () => {
     const array = [-1, 2];
     const segmentTree = new SegmentTree(array, Math.min, Infinity);
@@ -4052,149 +4052,135 @@ file,type,line,method,methodStart,methodEnd,source
     )).toEqual(19);
     expect(visit).toHaveBeenCalledTimes(20);
   })",4,47,snuts
-/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,OvercommentedTest,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
-    const nodeA = new BinaryTreeNode('A');
-    const nodeB = new BinaryTreeNode('B');
-    const nodeC = new BinaryTreeNode('C');
-    const nodeD = new BinaryTreeNode('D');
-    const nodeE = new BinaryTreeNode('E');
-    const nodeF = new BinaryTreeNode('F');
-    const nodeG = new BinaryTreeNode('G');
+/src/algorithms/string/regular-expression-matching/__test__/regularExpressionMatching.test.js,VerboseStatement,"{'startLine':4,'endLine':33}","it('should match regular expressions in a string', () => {
+    expect(regularExpressionMatching('', '')).toBe(true);
+    expect(regularExpressionMatching('a', 'a')).toBe(true);
+    expect(regularExpressionMatching('aa', 'aa')).toBe(true);
+    expect(regularExpressionMatching('aab', 'aab')).toBe(true);
+    expect(regularExpressionMatching('aab', 'aa.')).toBe(true);
+    expect(regularExpressionMatching('aab', '.a.')).toBe(true);
+    expect(regularExpressionMatching('aab', '...')).toBe(true);
+    expect(regularExpressionMatching('a', 'a*')).toBe(true);
+    expect(regularExpressionMatching('aaa', 'a*')).toBe(true);
+    expect(regularExpressionMatching('aaab', 'a*b')).toBe(true);
+    expect(regularExpressionMatching('aaabb', 'a*b*')).toBe(true);
+    expect(regularExpressionMatching('aaabb', 'a*b*c*')).toBe(true);
+    expect(regularExpressionMatching('', 'a*')).toBe(true);
+    expect(regularExpressionMatching('xaabyc', 'xa*b.c')).toBe(true);
+    expect(regularExpressionMatching('aab', 'c*a*b*')).toBe(true);
+    expect(regularExpressionMatching('mississippi', 'mis*is*.p*.')).toBe(true);
+    expect(regularExpressionMatching('ab', '.*')).toBe(true);
 
-    nodeA.setLeft(nodeB).setRight(nodeC);
-    nodeB.setLeft(nodeD).setRight(nodeE);
-    nodeC.setLeft(nodeF).setRight(nodeG);
+    expect(regularExpressionMatching('', 'a')).toBe(false);
+    expect(regularExpressionMatching('a', '')).toBe(false);
+    expect(regularExpressionMatching('aab', 'aa')).toBe(false);
+    expect(regularExpressionMatching('aab', 'baa')).toBe(false);
+    expect(regularExpressionMatching('aabc', '...')).toBe(false);
+    expect(regularExpressionMatching('aaabbdd', 'a*b*c*')).toBe(false);
+    expect(regularExpressionMatching('mississippi', 'mis*is*p*.')).toBe(false);
+    expect(regularExpressionMatching('ab', 'a*')).toBe(false);
+    expect(regularExpressionMatching('abba', 'a*b*.c')).toBe(false);
+    expect(regularExpressionMatching('abba', '.*c')).toBe(false);
+  })",4,33,snuts
+/src/algorithms/statistics/weighted-random/__test__/weightedRandom.test.js,OvercommentedTest,"{'startLine':27,'endLine':63}","it('should correctly do random selection based on wights', () => {
+    // Number of times we're going to select the random items based on their weights.
+    const ATTEMPTS_NUM = 1000;
+    // The +/- delta in the number of times each item has been actually selected.
+    // I.e. if we want the item 'a' to be selected 300 times out of 1000 cases (30%)
+    // then 267 times is acceptable since it is bigger that 250 (which is 300 - 50)
+    // ans smaller than 350 (which is 300 + 50)
+    const THRESHOLD = 50;
 
-    // In-order traversing.
-    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
+    const items = ['a', 'b', 'c']; // The actual items values don't matter.
+    const weights = [0.1, 0.3, 0.6];
 
-    const enterNodeCallback = jest.fn();
-    const leaveNodeCallback = jest.fn();
+    const counter = [];
+    for (let i = 0; i < ATTEMPTS_NUM; i += 1) {
+      const randomItem = weightedRandom(items, weights);
+      if (!counter[randomItem.index]) {
+        counter[randomItem.index] = 1;
+      } else {
+        counter[randomItem.index] += 1;
+      }
+    }
 
-    // Traverse tree without callbacks first to check default ones.
-    depthFirstSearch(nodeA);
+    for (let itemIndex = 0; itemIndex < items.length; itemIndex += 1) {
+      /*
+        i.e. item with the index of 0 must be selected 100 times (ideally)
+        or with the threshold of [100 - 50, 100 + 50] times.
 
-    // Traverse tree with callbacks.
-    depthFirstSearch(nodeA, {
-      allowTraversal: (node, child) => {
-        // Forbid traversing left part of the tree.
-        return child.value !== 'B';
-      },
-      enterNode: enterNodeCallback,
-      leaveNode: leaveNodeCallback,
-    });
+        i.e. item with the index of 1 must be selected 300 times (ideally)
+        or with the threshold of [300 - 50, 300 + 50] times.
 
-    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
-    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
+        i.e. item with the index of 2 must be selected 600 times (ideally)
+        or with the threshold of [600 - 50, 600 + 50] times.
+       */
+      expect(counter[itemIndex]).toBeGreaterThan(ATTEMPTS_NUM * weights[itemIndex] - THRESHOLD);
+      expect(counter[itemIndex]).toBeLessThan(ATTEMPTS_NUM * weights[itemIndex] + THRESHOLD);
+    }
+  })",27,63,snuts
+/src/algorithms/statistics/weighted-random/__test__/weightedRandom.test.js,ConditionalTestLogic,"{'startLine':42,'endLine':46}","it('should correctly do random selection based on wights', () => {
+    // Number of times we're going to select the random items based on their weights.
+    const ATTEMPTS_NUM = 1000;
+    // The +/- delta in the number of times each item has been actually selected.
+    // I.e. if we want the item 'a' to be selected 300 times out of 1000 cases (30%)
+    // then 267 times is acceptable since it is bigger that 250 (which is 300 - 50)
+    // ans smaller than 350 (which is 300 + 50)
+    const THRESHOLD = 50;
 
-    // Check node entering.
-    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
-    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
-    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
+    const items = ['a', 'b', 'c']; // The actual items values don't matter.
+    const weights = [0.1, 0.3, 0.6];
 
-    // Check node leaving.
-    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('F');
-    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('G');
-    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
-    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('A');
-  })",55,101,snuts
-/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':5,'endLine':53}","it('should perform DFS operation on tree', () => {
-    const nodeA = new BinaryTreeNode('A');
-    const nodeB = new BinaryTreeNode('B');
-    const nodeC = new BinaryTreeNode('C');
-    const nodeD = new BinaryTreeNode('D');
-    const nodeE = new BinaryTreeNode('E');
-    const nodeF = new BinaryTreeNode('F');
-    const nodeG = new BinaryTreeNode('G');
+    const counter = [];
+    for (let i = 0; i < ATTEMPTS_NUM; i += 1) {
+      const randomItem = weightedRandom(items, weights);
+      if (!counter[randomItem.index]) {
+        counter[randomItem.index] = 1;
+      } else {
+        counter[randomItem.index] += 1;
+      }
+    }
 
-    nodeA.setLeft(nodeB).setRight(nodeC);
-    nodeB.setLeft(nodeD).setRight(nodeE);
-    nodeC.setLeft(nodeF).setRight(nodeG);
+    for (let itemIndex = 0; itemIndex < items.length; itemIndex += 1) {
+      /*
+        i.e. item with the index of 0 must be selected 100 times (ideally)
+        or with the threshold of [100 - 50, 100 + 50] times.
 
-    // In-order traversing.
-    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
+        i.e. item with the index of 1 must be selected 300 times (ideally)
+        or with the threshold of [300 - 50, 300 + 50] times.
 
-    const enterNodeCallback = jest.fn();
-    const leaveNodeCallback = jest.fn();
+        i.e. item with the index of 2 must be selected 600 times (ideally)
+        or with the threshold of [600 - 50, 600 + 50] times.
+       */
+      expect(counter[itemIndex]).toBeGreaterThan(ATTEMPTS_NUM * weights[itemIndex] - THRESHOLD);
+      expect(counter[itemIndex]).toBeLessThan(ATTEMPTS_NUM * weights[itemIndex] + THRESHOLD);
+    }
+  })",27,63,snuts
+/src/algorithms/string/levenshtein-distance/__test__/levenshteinDistance.test.js,OvercommentedTest,"{'startLine':4,'endLine':28}","it('should calculate edit distance between two strings', () => {
+    expect(levenshteinDistance('', '')).toBe(0);
+    expect(levenshteinDistance('a', '')).toBe(1);
+    expect(levenshteinDistance('', 'a')).toBe(1);
+    expect(levenshteinDistance('abc', '')).toBe(3);
+    expect(levenshteinDistance('', 'abc')).toBe(3);
 
-    // Traverse tree without callbacks first to check default ones.
-    depthFirstSearch(nodeA);
+    // Should just add I to the beginning.
+    expect(levenshteinDistance('islander', 'slander')).toBe(1);
 
-    // Traverse tree with callbacks.
-    depthFirstSearch(nodeA, {
-      enterNode: enterNodeCallback,
-      leaveNode: leaveNodeCallback,
-    });
+    // Needs to substitute M by K, T by M and add an A to the end
+    expect(levenshteinDistance('mart', 'karma')).toBe(3);
 
-    expect(enterNodeCallback).toHaveBeenCalledTimes(7);
-    expect(leaveNodeCallback).toHaveBeenCalledTimes(7);
+    // Substitute K by S, E by I and insert G at the end.
+    expect(levenshteinDistance('kitten', 'sitting')).toBe(3);
 
-    // Check node entering.
-    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('B');
-    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('D');
-    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('E');
-    expect(enterNodeCallback.mock.calls[4][0].value).toEqual('C');
-    expect(enterNodeCallback.mock.calls[5][0].value).toEqual('F');
-    expect(enterNodeCallback.mock.calls[6][0].value).toEqual('G');
+    // Should add 4 letters FOOT at the beginning.
+    expect(levenshteinDistance('ball', 'football')).toBe(4);
 
-    // Check node leaving.
-    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('D');
-    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('E');
-    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('B');
-    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('F');
-    expect(leaveNodeCallback.mock.calls[4][0].value).toEqual('G');
-    expect(leaveNodeCallback.mock.calls[5][0].value).toEqual('C');
-    expect(leaveNodeCallback.mock.calls[6][0].value).toEqual('A');
-  })",5,53,snuts
-/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
-    const nodeA = new BinaryTreeNode('A');
-    const nodeB = new BinaryTreeNode('B');
-    const nodeC = new BinaryTreeNode('C');
-    const nodeD = new BinaryTreeNode('D');
-    const nodeE = new BinaryTreeNode('E');
-    const nodeF = new BinaryTreeNode('F');
-    const nodeG = new BinaryTreeNode('G');
+    // Should delete 4 letters FOOT at the beginning.
+    expect(levenshteinDistance('football', 'foot')).toBe(4);
 
-    nodeA.setLeft(nodeB).setRight(nodeC);
-    nodeB.setLeft(nodeD).setRight(nodeE);
-    nodeC.setLeft(nodeF).setRight(nodeG);
-
-    // In-order traversing.
-    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
-
-    const enterNodeCallback = jest.fn();
-    const leaveNodeCallback = jest.fn();
-
-    // Traverse tree without callbacks first to check default ones.
-    depthFirstSearch(nodeA);
-
-    // Traverse tree with callbacks.
-    depthFirstSearch(nodeA, {
-      allowTraversal: (node, child) => {
-        // Forbid traversing left part of the tree.
-        return child.value !== 'B';
-      },
-      enterNode: enterNodeCallback,
-      leaveNode: leaveNodeCallback,
-    });
-
-    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
-    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
-
-    // Check node entering.
-    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
-    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
-    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
-
-    // Check node leaving.
-    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('F');
-    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('G');
-    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
-    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('A');
-  })",55,101,snuts
+    // Needs to substitute the first 5 chars: INTEN by EXECU
+    expect(levenshteinDistance('intention', 'execution')).toBe(5);
+  })",4,28,snuts
 /src/algorithms/tree/breadth-first-search/__test__/breadthFirstSearch.test.js,OvercommentedTest,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
     const nodeA = new BinaryTreeNode('A');
     const nodeB = new BinaryTreeNode('B');
@@ -4338,135 +4324,149 @@ file,type,line,method,methodStart,methodEnd,source
     expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('F');
     expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('G');
   })",55,101,snuts
-/src/algorithms/string/regular-expression-matching/__test__/regularExpressionMatching.test.js,VerboseStatement,"{'startLine':4,'endLine':33}","it('should match regular expressions in a string', () => {
-    expect(regularExpressionMatching('', '')).toBe(true);
-    expect(regularExpressionMatching('a', 'a')).toBe(true);
-    expect(regularExpressionMatching('aa', 'aa')).toBe(true);
-    expect(regularExpressionMatching('aab', 'aab')).toBe(true);
-    expect(regularExpressionMatching('aab', 'aa.')).toBe(true);
-    expect(regularExpressionMatching('aab', '.a.')).toBe(true);
-    expect(regularExpressionMatching('aab', '...')).toBe(true);
-    expect(regularExpressionMatching('a', 'a*')).toBe(true);
-    expect(regularExpressionMatching('aaa', 'a*')).toBe(true);
-    expect(regularExpressionMatching('aaab', 'a*b')).toBe(true);
-    expect(regularExpressionMatching('aaabb', 'a*b*')).toBe(true);
-    expect(regularExpressionMatching('aaabb', 'a*b*c*')).toBe(true);
-    expect(regularExpressionMatching('', 'a*')).toBe(true);
-    expect(regularExpressionMatching('xaabyc', 'xa*b.c')).toBe(true);
-    expect(regularExpressionMatching('aab', 'c*a*b*')).toBe(true);
-    expect(regularExpressionMatching('mississippi', 'mis*is*.p*.')).toBe(true);
-    expect(regularExpressionMatching('ab', '.*')).toBe(true);
+/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,OvercommentedTest,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
+    const nodeA = new BinaryTreeNode('A');
+    const nodeB = new BinaryTreeNode('B');
+    const nodeC = new BinaryTreeNode('C');
+    const nodeD = new BinaryTreeNode('D');
+    const nodeE = new BinaryTreeNode('E');
+    const nodeF = new BinaryTreeNode('F');
+    const nodeG = new BinaryTreeNode('G');
 
-    expect(regularExpressionMatching('', 'a')).toBe(false);
-    expect(regularExpressionMatching('a', '')).toBe(false);
-    expect(regularExpressionMatching('aab', 'aa')).toBe(false);
-    expect(regularExpressionMatching('aab', 'baa')).toBe(false);
-    expect(regularExpressionMatching('aabc', '...')).toBe(false);
-    expect(regularExpressionMatching('aaabbdd', 'a*b*c*')).toBe(false);
-    expect(regularExpressionMatching('mississippi', 'mis*is*p*.')).toBe(false);
-    expect(regularExpressionMatching('ab', 'a*')).toBe(false);
-    expect(regularExpressionMatching('abba', 'a*b*.c')).toBe(false);
-    expect(regularExpressionMatching('abba', '.*c')).toBe(false);
-  })",4,33,snuts
-/src/algorithms/string/levenshtein-distance/__test__/levenshteinDistance.test.js,OvercommentedTest,"{'startLine':4,'endLine':28}","it('should calculate edit distance between two strings', () => {
-    expect(levenshteinDistance('', '')).toBe(0);
-    expect(levenshteinDistance('a', '')).toBe(1);
-    expect(levenshteinDistance('', 'a')).toBe(1);
-    expect(levenshteinDistance('abc', '')).toBe(3);
-    expect(levenshteinDistance('', 'abc')).toBe(3);
+    nodeA.setLeft(nodeB).setRight(nodeC);
+    nodeB.setLeft(nodeD).setRight(nodeE);
+    nodeC.setLeft(nodeF).setRight(nodeG);
 
-    // Should just add I to the beginning.
-    expect(levenshteinDistance('islander', 'slander')).toBe(1);
+    // In-order traversing.
+    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
 
-    // Needs to substitute M by K, T by M and add an A to the end
-    expect(levenshteinDistance('mart', 'karma')).toBe(3);
+    const enterNodeCallback = jest.fn();
+    const leaveNodeCallback = jest.fn();
 
-    // Substitute K by S, E by I and insert G at the end.
-    expect(levenshteinDistance('kitten', 'sitting')).toBe(3);
+    // Traverse tree without callbacks first to check default ones.
+    depthFirstSearch(nodeA);
 
-    // Should add 4 letters FOOT at the beginning.
-    expect(levenshteinDistance('ball', 'football')).toBe(4);
+    // Traverse tree with callbacks.
+    depthFirstSearch(nodeA, {
+      allowTraversal: (node, child) => {
+        // Forbid traversing left part of the tree.
+        return child.value !== 'B';
+      },
+      enterNode: enterNodeCallback,
+      leaveNode: leaveNodeCallback,
+    });
 
-    // Should delete 4 letters FOOT at the beginning.
-    expect(levenshteinDistance('football', 'foot')).toBe(4);
+    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
+    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
 
-    // Needs to substitute the first 5 chars: INTEN by EXECU
-    expect(levenshteinDistance('intention', 'execution')).toBe(5);
-  })",4,28,snuts
-/src/algorithms/statistics/weighted-random/__test__/weightedRandom.test.js,OvercommentedTest,"{'startLine':27,'endLine':63}","it('should correctly do random selection based on wights', () => {
-    // Number of times we're going to select the random items based on their weights.
-    const ATTEMPTS_NUM = 1000;
-    // The +/- delta in the number of times each item has been actually selected.
-    // I.e. if we want the item 'a' to be selected 300 times out of 1000 cases (30%)
-    // then 267 times is acceptable since it is bigger that 250 (which is 300 - 50)
-    // ans smaller than 350 (which is 300 + 50)
-    const THRESHOLD = 50;
+    // Check node entering.
+    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
+    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
+    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
 
-    const items = ['a', 'b', 'c']; // The actual items values don't matter.
-    const weights = [0.1, 0.3, 0.6];
+    // Check node leaving.
+    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('F');
+    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('G');
+    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
+    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('A');
+  })",55,101,snuts
+/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':5,'endLine':53}","it('should perform DFS operation on tree', () => {
+    const nodeA = new BinaryTreeNode('A');
+    const nodeB = new BinaryTreeNode('B');
+    const nodeC = new BinaryTreeNode('C');
+    const nodeD = new BinaryTreeNode('D');
+    const nodeE = new BinaryTreeNode('E');
+    const nodeF = new BinaryTreeNode('F');
+    const nodeG = new BinaryTreeNode('G');
 
-    const counter = [];
-    for (let i = 0; i < ATTEMPTS_NUM; i += 1) {
-      const randomItem = weightedRandom(items, weights);
-      if (!counter[randomItem.index]) {
-        counter[randomItem.index] = 1;
-      } else {
-        counter[randomItem.index] += 1;
-      }
-    }
+    nodeA.setLeft(nodeB).setRight(nodeC);
+    nodeB.setLeft(nodeD).setRight(nodeE);
+    nodeC.setLeft(nodeF).setRight(nodeG);
 
-    for (let itemIndex = 0; itemIndex < items.length; itemIndex += 1) {
-      /*
-        i.e. item with the index of 0 must be selected 100 times (ideally)
-        or with the threshold of [100 - 50, 100 + 50] times.
+    // In-order traversing.
+    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
 
-        i.e. item with the index of 1 must be selected 300 times (ideally)
-        or with the threshold of [300 - 50, 300 + 50] times.
+    const enterNodeCallback = jest.fn();
+    const leaveNodeCallback = jest.fn();
 
-        i.e. item with the index of 2 must be selected 600 times (ideally)
-        or with the threshold of [600 - 50, 600 + 50] times.
-       */
-      expect(counter[itemIndex]).toBeGreaterThan(ATTEMPTS_NUM * weights[itemIndex] - THRESHOLD);
-      expect(counter[itemIndex]).toBeLessThan(ATTEMPTS_NUM * weights[itemIndex] + THRESHOLD);
-    }
-  })",27,63,snuts
-/src/algorithms/statistics/weighted-random/__test__/weightedRandom.test.js,ConditionalTestLogic,"{'startLine':42,'endLine':46}","it('should correctly do random selection based on wights', () => {
-    // Number of times we're going to select the random items based on their weights.
-    const ATTEMPTS_NUM = 1000;
-    // The +/- delta in the number of times each item has been actually selected.
-    // I.e. if we want the item 'a' to be selected 300 times out of 1000 cases (30%)
-    // then 267 times is acceptable since it is bigger that 250 (which is 300 - 50)
-    // ans smaller than 350 (which is 300 + 50)
-    const THRESHOLD = 50;
+    // Traverse tree without callbacks first to check default ones.
+    depthFirstSearch(nodeA);
 
-    const items = ['a', 'b', 'c']; // The actual items values don't matter.
-    const weights = [0.1, 0.3, 0.6];
+    // Traverse tree with callbacks.
+    depthFirstSearch(nodeA, {
+      enterNode: enterNodeCallback,
+      leaveNode: leaveNodeCallback,
+    });
 
-    const counter = [];
-    for (let i = 0; i < ATTEMPTS_NUM; i += 1) {
-      const randomItem = weightedRandom(items, weights);
-      if (!counter[randomItem.index]) {
-        counter[randomItem.index] = 1;
-      } else {
-        counter[randomItem.index] += 1;
-      }
-    }
+    expect(enterNodeCallback).toHaveBeenCalledTimes(7);
+    expect(leaveNodeCallback).toHaveBeenCalledTimes(7);
 
-    for (let itemIndex = 0; itemIndex < items.length; itemIndex += 1) {
-      /*
-        i.e. item with the index of 0 must be selected 100 times (ideally)
-        or with the threshold of [100 - 50, 100 + 50] times.
+    // Check node entering.
+    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('B');
+    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('D');
+    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('E');
+    expect(enterNodeCallback.mock.calls[4][0].value).toEqual('C');
+    expect(enterNodeCallback.mock.calls[5][0].value).toEqual('F');
+    expect(enterNodeCallback.mock.calls[6][0].value).toEqual('G');
 
-        i.e. item with the index of 1 must be selected 300 times (ideally)
-        or with the threshold of [300 - 50, 300 + 50] times.
+    // Check node leaving.
+    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('D');
+    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('E');
+    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('B');
+    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('F');
+    expect(leaveNodeCallback.mock.calls[4][0].value).toEqual('G');
+    expect(leaveNodeCallback.mock.calls[5][0].value).toEqual('C');
+    expect(leaveNodeCallback.mock.calls[6][0].value).toEqual('A');
+  })",5,53,snuts
+/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
+    const nodeA = new BinaryTreeNode('A');
+    const nodeB = new BinaryTreeNode('B');
+    const nodeC = new BinaryTreeNode('C');
+    const nodeD = new BinaryTreeNode('D');
+    const nodeE = new BinaryTreeNode('E');
+    const nodeF = new BinaryTreeNode('F');
+    const nodeG = new BinaryTreeNode('G');
 
-        i.e. item with the index of 2 must be selected 600 times (ideally)
-        or with the threshold of [600 - 50, 600 + 50] times.
-       */
-      expect(counter[itemIndex]).toBeGreaterThan(ATTEMPTS_NUM * weights[itemIndex] - THRESHOLD);
-      expect(counter[itemIndex]).toBeLessThan(ATTEMPTS_NUM * weights[itemIndex] + THRESHOLD);
-    }
-  })",27,63,snuts
+    nodeA.setLeft(nodeB).setRight(nodeC);
+    nodeB.setLeft(nodeD).setRight(nodeE);
+    nodeC.setLeft(nodeF).setRight(nodeG);
+
+    // In-order traversing.
+    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
+
+    const enterNodeCallback = jest.fn();
+    const leaveNodeCallback = jest.fn();
+
+    // Traverse tree without callbacks first to check default ones.
+    depthFirstSearch(nodeA);
+
+    // Traverse tree with callbacks.
+    depthFirstSearch(nodeA, {
+      allowTraversal: (node, child) => {
+        // Forbid traversing left part of the tree.
+        return child.value !== 'B';
+      },
+      enterNode: enterNodeCallback,
+      leaveNode: leaveNodeCallback,
+    });
+
+    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
+    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
+
+    // Check node entering.
+    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
+    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
+    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
+
+    // Check node leaving.
+    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('F');
+    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('G');
+    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
+    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('A');
+  })",55,101,snuts
 /src/algorithms/sets/permutations/__test__/permutateWithoutRepetitions.test.js,SubOptimalAssert,"{'startLine':12,'endLine':12}","it('should permutate string', () => {
     const permutations1 = permutateWithoutRepetitions(['A']);
     expect(permutations1).toEqual([
@@ -4925,188 +4925,14 @@ file,type,line,method,methodStart,methodEnd,source
       0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15,
     ])).toBe(6);
   })",4,35,snuts
-/src/algorithms/sets/knapsack-problem/__test__/KnapsackItem.test.js,VerboseStatement,"{'startLine':4,'endLine':34}","it('should create knapsack item and count its total weight and value', () => {
-    const knapsackItem = new KnapsackItem({ value: 3, weight: 2 });
+/src/algorithms/sets/fisher-yates/__test__/fisherYates.test.js,SubOptimalAssert,"{'startLine':15,'endLine':15}","it('should shuffle array randomly', () => {
+    const shuffledArray = fisherYates(sortedArr);
+    const sorter = new QuickSort();
 
-    expect(knapsackItem.value).toBe(3);
-    expect(knapsackItem.weight).toBe(2);
-    expect(knapsackItem.quantity).toBe(1);
-    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
-    expect(knapsackItem.toString()).toBe('v3 w2 x 1');
-    expect(knapsackItem.totalValue).toBe(3);
-    expect(knapsackItem.totalWeight).toBe(2);
-
-    knapsackItem.quantity = 0;
-
-    expect(knapsackItem.value).toBe(3);
-    expect(knapsackItem.weight).toBe(2);
-    expect(knapsackItem.quantity).toBe(0);
-    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
-    expect(knapsackItem.toString()).toBe('v3 w2 x 0');
-    expect(knapsackItem.totalValue).toBe(0);
-    expect(knapsackItem.totalWeight).toBe(0);
-
-    knapsackItem.quantity = 2;
-
-    expect(knapsackItem.value).toBe(3);
-    expect(knapsackItem.weight).toBe(2);
-    expect(knapsackItem.quantity).toBe(2);
-    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
-    expect(knapsackItem.toString()).toBe('v3 w2 x 2');
-    expect(knapsackItem.totalValue).toBe(6);
-    expect(knapsackItem.totalWeight).toBe(4);
-  })",4,34,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':21,'endLine':21}","it('should solve 0/1 knapsack problem', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 1, weight: 1 }),
-      new KnapsackItem({ value: 4, weight: 3 }),
-      new KnapsackItem({ value: 5, weight: 4 }),
-      new KnapsackItem({ value: 7, weight: 5 }),
-    ];
-
-    const maxKnapsackWeight = 7;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveZeroOneKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(9);
-    expect(knapsack.totalWeight).toBe(7);
-    expect(knapsack.selectedItems.length).toBe(2);
-    expect(knapsack.selectedItems[0].toString()).toBe('v5 w4 x 1');
-    expect(knapsack.selectedItems[1].toString()).toBe('v4 w3 x 1');
-  })",5,24,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':42,'endLine':42}","it('should solve 0/1 knapsack problem regardless of items order', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 5, weight: 4 }),
-      new KnapsackItem({ value: 1, weight: 1 }),
-      new KnapsackItem({ value: 7, weight: 5 }),
-      new KnapsackItem({ value: 4, weight: 3 }),
-    ];
-
-    const maxKnapsackWeight = 7;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveZeroOneKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(9);
-    expect(knapsack.totalWeight).toBe(7);
-    expect(knapsack.selectedItems.length).toBe(2);
-    expect(knapsack.selectedItems[0].toString()).toBe('v5 w4 x 1');
-    expect(knapsack.selectedItems[1].toString()).toBe('v4 w3 x 1');
-  })",26,45,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':63,'endLine':63}","it('should solve 0/1 knapsack problem with impossible items set', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 5, weight: 40 }),
-      new KnapsackItem({ value: 1, weight: 10 }),
-      new KnapsackItem({ value: 7, weight: 50 }),
-      new KnapsackItem({ value: 4, weight: 30 }),
-    ];
-
-    const maxKnapsackWeight = 7;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveZeroOneKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(0);
-    expect(knapsack.totalWeight).toBe(0);
-    expect(knapsack.selectedItems.length).toBe(0);
-  })",47,64,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':84,'endLine':84}","it('should solve 0/1 knapsack problem with all equal weights', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 5, weight: 1 }),
-      new KnapsackItem({ value: 1, weight: 1 }),
-      new KnapsackItem({ value: 7, weight: 1 }),
-      new KnapsackItem({ value: 4, weight: 1 }),
-      new KnapsackItem({ value: 4, weight: 1 }),
-      new KnapsackItem({ value: 4, weight: 1 }),
-    ];
-
-    const maxKnapsackWeight = 3;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveZeroOneKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(16);
-    expect(knapsack.totalWeight).toBe(3);
-    expect(knapsack.selectedItems.length).toBe(3);
-    expect(knapsack.selectedItems[0].toString()).toBe('v4 w1 x 1');
-    expect(knapsack.selectedItems[1].toString()).toBe('v5 w1 x 1');
-    expect(knapsack.selectedItems[2].toString()).toBe('v7 w1 x 1');
-  })",66,88,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':107,'endLine':107}","it('should solve unbound knapsack problem', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 84, weight: 7 }), // v/w ratio is 12
-      new KnapsackItem({ value: 5, weight: 2 }), // v/w ratio is 2.5
-      new KnapsackItem({ value: 12, weight: 3 }), // v/w ratio is 4
-      new KnapsackItem({ value: 10, weight: 1 }), // v/w ratio is 10
-      new KnapsackItem({ value: 20, weight: 2 }), // v/w ratio is 10
-    ];
-
-    const maxKnapsackWeight = 15;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveUnboundedKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(84 + 20 + 12 + 10 + 5);
-    expect(knapsack.totalWeight).toBe(15);
-    expect(knapsack.selectedItems.length).toBe(5);
-    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 1');
-    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 1');
-    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 1');
-    expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
-    expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 1');
-  })",90,113,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':132,'endLine':132}","it('should solve unbound knapsack problem with items in stock', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 84, weight: 7, itemsInStock: 3 }), // v/w ratio is 12
-      new KnapsackItem({ value: 5, weight: 2, itemsInStock: 2 }), // v/w ratio is 2.5
-      new KnapsackItem({ value: 12, weight: 3, itemsInStock: 1 }), // v/w ratio is 4
-      new KnapsackItem({ value: 10, weight: 1, itemsInStock: 6 }), // v/w ratio is 10
-      new KnapsackItem({ value: 20, weight: 2, itemsInStock: 8 }), // v/w ratio is 10
-    ];
-
-    const maxKnapsackWeight = 17;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveUnboundedKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(84 + 84 + 20 + 10);
-    expect(knapsack.totalWeight).toBe(17);
-    expect(knapsack.selectedItems.length).toBe(3);
-    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 2');
-    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 1');
-    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 1');
-  })",115,136,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':155,'endLine':155}","it('should solve unbound knapsack problem with items in stock and max weight more than sum of all items', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 84, weight: 7, itemsInStock: 3 }), // v/w ratio is 12
-      new KnapsackItem({ value: 5, weight: 2, itemsInStock: 2 }), // v/w ratio is 2.5
-      new KnapsackItem({ value: 12, weight: 3, itemsInStock: 1 }), // v/w ratio is 4
-      new KnapsackItem({ value: 10, weight: 1, itemsInStock: 6 }), // v/w ratio is 10
-      new KnapsackItem({ value: 20, weight: 2, itemsInStock: 8 }), // v/w ratio is 10
-    ];
-
-    const maxKnapsackWeight = 60;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveUnboundedKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe((3 * 84) + (2 * 5) + (1 * 12) + (6 * 10) + (8 * 20));
-    expect(knapsack.totalWeight).toBe((3 * 7) + (2 * 2) + (1 * 3) + (6 * 1) + (8 * 2));
-    expect(knapsack.selectedItems.length).toBe(5);
-    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 3');
-    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 8');
-    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 6');
-    expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
-    expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 2');
-  })",138,161,snuts
+    expect(shuffledArray.length).toBe(sortedArr.length);
+    expect(shuffledArray).not.toEqual(sortedArr);
+    expect(sorter.sort(shuffledArray)).toEqual(sortedArr);
+  })",11,18,snuts
 /src/algorithms/sets/combinations/__test__/combineWithoutRepetitions.test.js,SubOptimalAssert,"{'startLine':59,'endLine':59}","it('should combine string without repetitions', () => {
     expect(combineWithoutRepetitions(['A', 'B'], 3)).toEqual([]);
 
@@ -5335,14 +5161,188 @@ file,type,line,method,methodStart,methodEnd,source
 
     expect(combinations.length).toBe(expectedNumberOfCombinations);
   })",5,58,snuts
-/src/algorithms/sets/fisher-yates/__test__/fisherYates.test.js,SubOptimalAssert,"{'startLine':15,'endLine':15}","it('should shuffle array randomly', () => {
-    const shuffledArray = fisherYates(sortedArr);
-    const sorter = new QuickSort();
+/src/algorithms/sets/knapsack-problem/__test__/KnapsackItem.test.js,VerboseStatement,"{'startLine':4,'endLine':34}","it('should create knapsack item and count its total weight and value', () => {
+    const knapsackItem = new KnapsackItem({ value: 3, weight: 2 });
 
-    expect(shuffledArray.length).toBe(sortedArr.length);
-    expect(shuffledArray).not.toEqual(sortedArr);
-    expect(sorter.sort(shuffledArray)).toEqual(sortedArr);
-  })",11,18,snuts
+    expect(knapsackItem.value).toBe(3);
+    expect(knapsackItem.weight).toBe(2);
+    expect(knapsackItem.quantity).toBe(1);
+    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
+    expect(knapsackItem.toString()).toBe('v3 w2 x 1');
+    expect(knapsackItem.totalValue).toBe(3);
+    expect(knapsackItem.totalWeight).toBe(2);
+
+    knapsackItem.quantity = 0;
+
+    expect(knapsackItem.value).toBe(3);
+    expect(knapsackItem.weight).toBe(2);
+    expect(knapsackItem.quantity).toBe(0);
+    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
+    expect(knapsackItem.toString()).toBe('v3 w2 x 0');
+    expect(knapsackItem.totalValue).toBe(0);
+    expect(knapsackItem.totalWeight).toBe(0);
+
+    knapsackItem.quantity = 2;
+
+    expect(knapsackItem.value).toBe(3);
+    expect(knapsackItem.weight).toBe(2);
+    expect(knapsackItem.quantity).toBe(2);
+    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
+    expect(knapsackItem.toString()).toBe('v3 w2 x 2');
+    expect(knapsackItem.totalValue).toBe(6);
+    expect(knapsackItem.totalWeight).toBe(4);
+  })",4,34,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':21,'endLine':21}","it('should solve 0/1 knapsack problem', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 1, weight: 1 }),
+      new KnapsackItem({ value: 4, weight: 3 }),
+      new KnapsackItem({ value: 5, weight: 4 }),
+      new KnapsackItem({ value: 7, weight: 5 }),
+    ];
+
+    const maxKnapsackWeight = 7;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveZeroOneKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(9);
+    expect(knapsack.totalWeight).toBe(7);
+    expect(knapsack.selectedItems.length).toBe(2);
+    expect(knapsack.selectedItems[0].toString()).toBe('v5 w4 x 1');
+    expect(knapsack.selectedItems[1].toString()).toBe('v4 w3 x 1');
+  })",5,24,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':42,'endLine':42}","it('should solve 0/1 knapsack problem regardless of items order', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 5, weight: 4 }),
+      new KnapsackItem({ value: 1, weight: 1 }),
+      new KnapsackItem({ value: 7, weight: 5 }),
+      new KnapsackItem({ value: 4, weight: 3 }),
+    ];
+
+    const maxKnapsackWeight = 7;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveZeroOneKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(9);
+    expect(knapsack.totalWeight).toBe(7);
+    expect(knapsack.selectedItems.length).toBe(2);
+    expect(knapsack.selectedItems[0].toString()).toBe('v5 w4 x 1');
+    expect(knapsack.selectedItems[1].toString()).toBe('v4 w3 x 1');
+  })",26,45,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':63,'endLine':63}","it('should solve 0/1 knapsack problem with impossible items set', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 5, weight: 40 }),
+      new KnapsackItem({ value: 1, weight: 10 }),
+      new KnapsackItem({ value: 7, weight: 50 }),
+      new KnapsackItem({ value: 4, weight: 30 }),
+    ];
+
+    const maxKnapsackWeight = 7;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveZeroOneKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(0);
+    expect(knapsack.totalWeight).toBe(0);
+    expect(knapsack.selectedItems.length).toBe(0);
+  })",47,64,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':84,'endLine':84}","it('should solve 0/1 knapsack problem with all equal weights', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 5, weight: 1 }),
+      new KnapsackItem({ value: 1, weight: 1 }),
+      new KnapsackItem({ value: 7, weight: 1 }),
+      new KnapsackItem({ value: 4, weight: 1 }),
+      new KnapsackItem({ value: 4, weight: 1 }),
+      new KnapsackItem({ value: 4, weight: 1 }),
+    ];
+
+    const maxKnapsackWeight = 3;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveZeroOneKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(16);
+    expect(knapsack.totalWeight).toBe(3);
+    expect(knapsack.selectedItems.length).toBe(3);
+    expect(knapsack.selectedItems[0].toString()).toBe('v4 w1 x 1');
+    expect(knapsack.selectedItems[1].toString()).toBe('v5 w1 x 1');
+    expect(knapsack.selectedItems[2].toString()).toBe('v7 w1 x 1');
+  })",66,88,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':107,'endLine':107}","it('should solve unbound knapsack problem', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 84, weight: 7 }), // v/w ratio is 12
+      new KnapsackItem({ value: 5, weight: 2 }), // v/w ratio is 2.5
+      new KnapsackItem({ value: 12, weight: 3 }), // v/w ratio is 4
+      new KnapsackItem({ value: 10, weight: 1 }), // v/w ratio is 10
+      new KnapsackItem({ value: 20, weight: 2 }), // v/w ratio is 10
+    ];
+
+    const maxKnapsackWeight = 15;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveUnboundedKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(84 + 20 + 12 + 10 + 5);
+    expect(knapsack.totalWeight).toBe(15);
+    expect(knapsack.selectedItems.length).toBe(5);
+    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 1');
+    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 1');
+    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 1');
+    expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
+    expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 1');
+  })",90,113,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':132,'endLine':132}","it('should solve unbound knapsack problem with items in stock', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 84, weight: 7, itemsInStock: 3 }), // v/w ratio is 12
+      new KnapsackItem({ value: 5, weight: 2, itemsInStock: 2 }), // v/w ratio is 2.5
+      new KnapsackItem({ value: 12, weight: 3, itemsInStock: 1 }), // v/w ratio is 4
+      new KnapsackItem({ value: 10, weight: 1, itemsInStock: 6 }), // v/w ratio is 10
+      new KnapsackItem({ value: 20, weight: 2, itemsInStock: 8 }), // v/w ratio is 10
+    ];
+
+    const maxKnapsackWeight = 17;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveUnboundedKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(84 + 84 + 20 + 10);
+    expect(knapsack.totalWeight).toBe(17);
+    expect(knapsack.selectedItems.length).toBe(3);
+    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 2');
+    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 1');
+    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 1');
+  })",115,136,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':155,'endLine':155}","it('should solve unbound knapsack problem with items in stock and max weight more than sum of all items', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 84, weight: 7, itemsInStock: 3 }), // v/w ratio is 12
+      new KnapsackItem({ value: 5, weight: 2, itemsInStock: 2 }), // v/w ratio is 2.5
+      new KnapsackItem({ value: 12, weight: 3, itemsInStock: 1 }), // v/w ratio is 4
+      new KnapsackItem({ value: 10, weight: 1, itemsInStock: 6 }), // v/w ratio is 10
+      new KnapsackItem({ value: 20, weight: 2, itemsInStock: 8 }), // v/w ratio is 10
+    ];
+
+    const maxKnapsackWeight = 60;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveUnboundedKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe((3 * 84) + (2 * 5) + (1 * 12) + (6 * 10) + (8 * 20));
+    expect(knapsack.totalWeight).toBe((3 * 7) + (2 * 2) + (1 * 3) + (6 * 1) + (8 * 2));
+    expect(knapsack.selectedItems.length).toBe(5);
+    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 3');
+    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 8');
+    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 6');
+    expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
+    expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 2');
+  })",138,161,snuts
 /src/algorithms/search/linear-search/__test__/linearSearch.test.js,ConditionalTestLogic,"{'startLine':22,'endLine':24}","it('should search through objects as well', () => {
     const comparatorCallback = (a, b) => {
       if (a.key === b.key) {
@@ -5401,54 +5401,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 19000], 800)).toBe(4);
     expect(interpolationSearch([0, 10, 11, 12, 13, 14, 15], 10)).toBe(1);
   })",4,23,snuts
-/src/algorithms/search/binary-search/__test__/binarySearch.test.js,ConditionalTestLogic,"{'startLine':24,'endLine':24}","it('should search object in sorted array', () => {
-    const sortedArrayOfObjects = [
-      { key: 1, value: 'value1' },
-      { key: 2, value: 'value2' },
-      { key: 3, value: 'value3' },
-    ];
-
-    const comparator = (a, b) => {
-      if (a.key === b.key) return 0;
-      return a.key < b.key ? -1 : 1;
-    };
-
-    expect(binarySearch([], { key: 1 }, comparator)).toBe(-1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
-    expect(binarySearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
-  })",16,33,snuts
-/src/algorithms/ml/knn/__test__/knn.test.js,IdenticalTestDescription,"{'startLine':24,'endLine':29}","it('should throw an error on not giving classification vector', () => {
-    const inconsistent = () => {
-      kNN([[1, 1]], [1], [1]);
-    };
-    expect(inconsistent).toThrowError('Matrices have different shapes');
-  })",24,29,snuts
-/src/algorithms/ml/knn/__test__/knn.test.js,VerboseStatement,"{'startLine':31,'endLine':54}","it('should find the nearest neighbour', () => {
-    let dataSet;
-    let labels;
-    let toClassify;
-    let expectedClass;
-
-    dataSet = [[1, 1], [2, 2]];
-    labels = [1, 2];
-    toClassify = [1, 1];
-    expectedClass = 1;
-    expect(kNN(dataSet, labels, toClassify)).toBe(expectedClass);
-
-    dataSet = [[1, 1], [6, 2], [3, 3], [4, 5], [9, 2], [2, 4], [8, 7]];
-    labels = [1, 2, 1, 2, 1, 2, 1];
-    toClassify = [1.25, 1.25];
-    expectedClass = 1;
-    expect(kNN(dataSet, labels, toClassify)).toBe(expectedClass);
-
-    dataSet = [[1, 1], [6, 2], [3, 3], [4, 5], [9, 2], [2, 4], [8, 7]];
-    labels = [1, 2, 1, 2, 1, 2, 1];
-    toClassify = [1.25, 1.25];
-    expectedClass = 2;
-    expect(kNN(dataSet, labels, toClassify, 5)).toBe(expectedClass);
-  })",31,54,snuts
 /src/algorithms/math/square-root/__test__/squareRoot.test.js,IdenticalTestDescription,"{'startLine':65,'endLine':68}","it('should correctly calculate square root for integers with custom tolerance', () => {
     expect(squareRoot(4.5, 10)).toBe(2.1213203436);
     expect(squareRoot(217.534, 10)).toBe(14.7490338667);
@@ -5514,25 +5466,36 @@ file,type,line,method,methodStart,methodEnd,source
     expect(primeFactors(8735463)).toEqual([3, 3, 11, 88237]);
     expect(primeFactors(873452453)).toEqual([149, 1637, 3581]);
   })",17,37,snuts
-/src/algorithms/math/fibonacci/__test__/fibonacciNth.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should calculate fibonacci correctly', () => {
-    expect(fibonacciNth(1)).toBe(1);
-    expect(fibonacciNth(2)).toBe(1);
-    expect(fibonacciNth(3)).toBe(2);
-    expect(fibonacciNth(4)).toBe(3);
-    expect(fibonacciNth(5)).toBe(5);
-    expect(fibonacciNth(6)).toBe(8);
-    expect(fibonacciNth(7)).toBe(13);
-    expect(fibonacciNth(8)).toBe(21);
-    expect(fibonacciNth(20)).toBe(6765);
-    expect(fibonacciNth(30)).toBe(832040);
-    expect(fibonacciNth(50)).toBe(12586269025);
-    expect(fibonacciNth(70)).toBe(190392490709135);
-    expect(fibonacciNth(71)).toBe(308061521170129);
-    expect(fibonacciNth(72)).toBe(498454011879264);
-    expect(fibonacciNth(73)).toBe(806515533049393);
-    expect(fibonacciNth(74)).toBe(1304969544928657);
-    expect(fibonacciNth(75)).toBe(2111485077978050);
-  })",4,22,snuts
+/src/algorithms/ml/knn/__test__/knn.test.js,IdenticalTestDescription,"{'startLine':24,'endLine':29}","it('should throw an error on not giving classification vector', () => {
+    const inconsistent = () => {
+      kNN([[1, 1]], [1], [1]);
+    };
+    expect(inconsistent).toThrowError('Matrices have different shapes');
+  })",24,29,snuts
+/src/algorithms/ml/knn/__test__/knn.test.js,VerboseStatement,"{'startLine':31,'endLine':54}","it('should find the nearest neighbour', () => {
+    let dataSet;
+    let labels;
+    let toClassify;
+    let expectedClass;
+
+    dataSet = [[1, 1], [2, 2]];
+    labels = [1, 2];
+    toClassify = [1, 1];
+    expectedClass = 1;
+    expect(kNN(dataSet, labels, toClassify)).toBe(expectedClass);
+
+    dataSet = [[1, 1], [6, 2], [3, 3], [4, 5], [9, 2], [2, 4], [8, 7]];
+    labels = [1, 2, 1, 2, 1, 2, 1];
+    toClassify = [1.25, 1.25];
+    expectedClass = 1;
+    expect(kNN(dataSet, labels, toClassify)).toBe(expectedClass);
+
+    dataSet = [[1, 1], [6, 2], [3, 3], [4, 5], [9, 2], [2, 4], [8, 7]];
+    labels = [1, 2, 1, 2, 1, 2, 1];
+    toClassify = [1.25, 1.25];
+    expectedClass = 2;
+    expect(kNN(dataSet, labels, toClassify, 5)).toBe(expectedClass);
+  })",31,54,snuts
 /src/algorithms/math/is-power-of-two/__test__/isPowerOfTwoBitwise.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should check if the number is made by multiplying twos', () => {
     expect(isPowerOfTwoBitwise(-1)).toBe(false);
     expect(isPowerOfTwoBitwise(0)).toBe(false);
@@ -5571,6 +5534,25 @@ file,type,line,method,methodStart,methodEnd,source
     expect(isPowerOfTwo(1024)).toBe(true);
     expect(isPowerOfTwo(1023)).toBe(false);
   })",4,22,snuts
+/src/algorithms/math/fibonacci/__test__/fibonacciNth.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should calculate fibonacci correctly', () => {
+    expect(fibonacciNth(1)).toBe(1);
+    expect(fibonacciNth(2)).toBe(1);
+    expect(fibonacciNth(3)).toBe(2);
+    expect(fibonacciNth(4)).toBe(3);
+    expect(fibonacciNth(5)).toBe(5);
+    expect(fibonacciNth(6)).toBe(8);
+    expect(fibonacciNth(7)).toBe(13);
+    expect(fibonacciNth(8)).toBe(21);
+    expect(fibonacciNth(20)).toBe(6765);
+    expect(fibonacciNth(30)).toBe(832040);
+    expect(fibonacciNth(50)).toBe(12586269025);
+    expect(fibonacciNth(70)).toBe(190392490709135);
+    expect(fibonacciNth(71)).toBe(308061521170129);
+    expect(fibonacciNth(72)).toBe(498454011879264);
+    expect(fibonacciNth(73)).toBe(806515533049393);
+    expect(fibonacciNth(74)).toBe(1304969544928657);
+    expect(fibonacciNth(75)).toBe(2111485077978050);
+  })",4,22,snuts
 /src/algorithms/math/fast-powering/__test__/fastPowering.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should compute power in log(n) time', () => {
     expect(fastPowering(1, 1)).toBe(1);
     expect(fastPowering(2, 0)).toBe(1);
@@ -5590,6 +5572,24 @@ file,type,line,method,methodStart,methodEnd,source
     expect(fastPowering(7, 21)).toBe(558545864083284000);
     expect(fastPowering(100, 9)).toBe(1000000000000000000);
   })",4,22,snuts
+/src/algorithms/search/binary-search/__test__/binarySearch.test.js,ConditionalTestLogic,"{'startLine':24,'endLine':24}","it('should search object in sorted array', () => {
+    const sortedArrayOfObjects = [
+      { key: 1, value: 'value1' },
+      { key: 2, value: 'value2' },
+      { key: 3, value: 'value3' },
+    ];
+
+    const comparator = (a, b) => {
+      if (a.key === b.key) return 0;
+      return a.key < b.key ? -1 : 1;
+    };
+
+    expect(binarySearch([], { key: 1 }, comparator)).toBe(-1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
+    expect(binarySearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
+  })",16,33,snuts
 /src/algorithms/math/euclidean-algorithm/__test__/euclideanAlgorithmIterative.test.js,VerboseStatement,"{'startLine':4,'endLine':25}","it('should calculate GCD iteratively', () => {
     expect(euclideanAlgorithmIterative(0, 0)).toBe(0);
     expect(euclideanAlgorithmIterative(2, 0)).toBe(2);
@@ -5717,6 +5717,26 @@ file,type,line,method,methodStart,methodEnd,source
     expect(countSetBits(-1023)).toBe(23);
     expect(countSetBits(-4294967296)).toBe(0);
   })",4,19,snuts
+/src/algorithms/math/binary-floating-point/__tests__/floatAsBinaryString.test.js,IdenticalTestDescription,"{'startLine':14,'endLine':19}","it('should create a binary representation of the floating numbers', () => {
+    for (let testCaseIndex = 0; testCaseIndex < testCases64Bits.length; testCaseIndex += 1) {
+      const [decimal, binary] = testCases64Bits[testCaseIndex];
+      expect(floatAs64BinaryString(decimal)).toBe(binary);
+    }
+  })",14,19,snuts
+/src/algorithms/math/binary-floating-point/__tests__/bitsToFloat.test.js,IdenticalTestDescription,"{'startLine':15,'endLine':21}","it('should convert floating point binary bits to floating point decimal number', () => {
+    for (let testCaseIndex = 0; testCaseIndex < testCases32Bits.length; testCaseIndex += 1) {
+      const [decimal, binary] = testCases32Bits[testCaseIndex];
+      const bits = binary.split('').map((bitString) => parseInt(bitString, 10));
+      expect(bitsToFloat32(bits)).toBeCloseTo(decimal, 7);
+    }
+  })",15,21,snuts
+/src/algorithms/math/binary-floating-point/__tests__/bitsToFloat.test.js,IdenticalTestDescription,"{'startLine':25,'endLine':31}","it('should convert floating point binary bits to floating point decimal number', () => {
+    for (let testCaseIndex = 0; testCaseIndex < testCases64Bits.length; testCaseIndex += 1) {
+      const [decimal, binary] = testCases64Bits[testCaseIndex];
+      const bits = binary.split('').map((bitString) => parseInt(bitString, 10));
+      expect(bitsToFloat64(bits)).toBeCloseTo(decimal, 14);
+    }
+  })",25,31,snuts
 /src/algorithms/graph/travelling-salesman/__test__/bfTravellingSalesman.test.js,SubOptimalAssert,"{'startLine':44,'endLine':44}","it('should solve problem for simple graph', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -8186,26 +8206,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(bridges.length).toBe(1);
     expect(bridges[0].getKey()).toBe(edgeCD.getKey());
   })",168,202,snuts
-/src/algorithms/math/binary-floating-point/__tests__/floatAsBinaryString.test.js,IdenticalTestDescription,"{'startLine':14,'endLine':19}","it('should create a binary representation of the floating numbers', () => {
-    for (let testCaseIndex = 0; testCaseIndex < testCases64Bits.length; testCaseIndex += 1) {
-      const [decimal, binary] = testCases64Bits[testCaseIndex];
-      expect(floatAs64BinaryString(decimal)).toBe(binary);
-    }
-  })",14,19,snuts
-/src/algorithms/math/binary-floating-point/__tests__/bitsToFloat.test.js,IdenticalTestDescription,"{'startLine':15,'endLine':21}","it('should convert floating point binary bits to floating point decimal number', () => {
-    for (let testCaseIndex = 0; testCaseIndex < testCases32Bits.length; testCaseIndex += 1) {
-      const [decimal, binary] = testCases32Bits[testCaseIndex];
-      const bits = binary.split('').map((bitString) => parseInt(bitString, 10));
-      expect(bitsToFloat32(bits)).toBeCloseTo(decimal, 7);
-    }
-  })",15,21,snuts
-/src/algorithms/math/binary-floating-point/__tests__/bitsToFloat.test.js,IdenticalTestDescription,"{'startLine':25,'endLine':31}","it('should convert floating point binary bits to floating point decimal number', () => {
-    for (let testCaseIndex = 0; testCaseIndex < testCases64Bits.length; testCaseIndex += 1) {
-      const [decimal, binary] = testCases64Bits[testCaseIndex];
-      const bits = binary.split('').map((bitString) => parseInt(bitString, 10));
-      expect(bitsToFloat64(bits)).toBeCloseTo(decimal, 14);
-    }
-  })",25,31,snuts
 /src/algorithms/graph/breadth-first-search/__test__/breadthFirstSearch.test.js,VerboseStatement,"{'startLine':7,'endLine':90}","it('should perform BFS operation on graph', () => {
     const graph = new Graph(true);
 

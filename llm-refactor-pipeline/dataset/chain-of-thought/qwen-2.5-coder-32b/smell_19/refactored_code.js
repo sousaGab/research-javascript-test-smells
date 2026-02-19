@@ -1,12 +1,12 @@
 it('with the default winston logger', async () => {
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+        const exitCode = 1;
         const delayMs = 500;
-        const expectedExitCode = 1;
-        const expectedLogPrefix = 'uncaughtException: ';
+        const logFileName = filePath;
 
         winston.exceptions.handle([
           new winston.transports.File({
-            filename: filePath,
+            filename: logFileName,
             handleExceptions: true
           })
         ]);
@@ -15,10 +15,10 @@ it('with the default winston logger', async () => {
         await new Promise(resolve => setTimeout(resolve, delayMs));
 
         expect(processExitSpy).toHaveBeenCalledTimes(1);
-        expect(processExitSpy).toHaveBeenCalledWith(expectedExitCode);
+        expect(processExitSpy).toHaveBeenCalledWith(exitCode);
 
         // Read the log file and verify its contents
-        const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+        const contents = await fsPromise.readFile(logFileName, { encoding: 'utf8' });
         const data = JSON.parse(contents);
 
         // Assert on the log data
@@ -26,5 +26,5 @@ it('with the default winston logger', async () => {
         helpers.assertProcessInfo(data.process);
         helpers.assertOsInfo(data.os);
         helpers.assertTrace(data.trace);
-        assume(data.message).includes(expectedLogPrefix + expectedMessage);
+        assume(data.message).includes('uncaughtException: ' + expectedMessage);
       })

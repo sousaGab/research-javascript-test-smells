@@ -17,7 +17,8 @@ it('renders classes bv-d-xs-down-none when more than 3 pages', async () => {
   // display classes when currentPage = 0
   expect(wrapper.vm.computedCurrentPage).toBe(1)
   // Grab the page buttons (includes bookends)
-  const firstPageAssertions = (li, index) => {
+  const firstPageButtons = wrapper.findAll('li').wrappers
+  firstPageButtons.forEach((li, index) => {
     expect(li.classes()).toContain('page-item')
     if (index === 0) {
       // First button
@@ -44,9 +45,7 @@ it('renders classes bv-d-xs-down-none when more than 3 pages', async () => {
         expect(li.classes()).toContain('bv-d-xs-down-none')
       }
     }
-  }
-
-  wrapper.findAll('li').wrappers.forEach(firstPageAssertions)
+  })
 
   // Should have the first and last 2 pages buttons with the
   // display classes when currentPage = 4
@@ -56,7 +55,8 @@ it('renders classes bv-d-xs-down-none when more than 3 pages', async () => {
   await waitNT(wrapper.vm)
   expect(wrapper.vm.computedCurrentPage).toBe(4)
   // Grab the page buttons (including bookends)
-  const middlePageAssertions = (li, index) => {
+  const middlePageButtons = wrapper.findAll('li').wrappers
+  middlePageButtons.forEach((li, index) => {
     expect(li.classes()).toContain('page-item')
     if (index === 0) {
       // First button
@@ -83,9 +83,7 @@ it('renders classes bv-d-xs-down-none when more than 3 pages', async () => {
         expect(li.classes()).toContain('bv-d-xs-down-none')
       }
     }
-  }
-
-  wrapper.findAll('li').wrappers.forEach(middlePageAssertions)
+  })
 
   // Should have the first 4 pages buttons with the
   // display classes when currentPage = 4
@@ -95,7 +93,8 @@ it('renders classes bv-d-xs-down-none when more than 3 pages', async () => {
   await waitNT(wrapper.vm)
   expect(wrapper.vm.computedCurrentPage).toBe(7)
   // Grab the page buttons (including bookends)
-  const lastPageAssertions = (li, index) => {
+  const lastPageButtons = wrapper.findAll('li').wrappers
+  lastPageButtons.forEach((li, index) => {
     expect(li.classes()).toContain('page-item')
     // Page number buttons
     if (index >= 2 && index <= 5) {
@@ -105,9 +104,7 @@ it('renders classes bv-d-xs-down-none when more than 3 pages', async () => {
       // Pages 5 to 7
       expect(li.classes()).not.toContain('bv-d-xs-down-none')
     }
-  }
-
-  wrapper.findAll('li').wrappers.forEach(lastPageAssertions)
+  })
 
   wrapper.destroy()
 })

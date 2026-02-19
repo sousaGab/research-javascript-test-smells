@@ -1,5 +1,5 @@
 const NUMBER_OF_RUNS = 50;
-const HEIGHT_TOLERANCE = 40;
+const MAX_WORSE_COUNT = 40;
 const LAYOUT_WIDTH = 30;
 const LAYOUT_HEIGHT = 12;
 
@@ -36,5 +36,5 @@ it("produces similar or better compaction height", () => {
 
   // Fast compactor should not be significantly worse
   // Allow some tolerance since algorithms may differ
-  expect(stdBetter).toBeLessThan(HEIGHT_TOLERANCE); // At most 80% worse
+  expect(stdBetter).toBeLessThan(MAX_WORSE_COUNT); // At most 80% worse
 })

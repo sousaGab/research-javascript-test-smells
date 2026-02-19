@@ -1923,7 +1923,30 @@ file,type,line,method,methodStart,methodEnd,source
 /tests/test_unix_socket.js,Conditional Test Logic,"{'line': 27, 'column': 8, 'index': 630}",Failed to parse file: 'return' outside of function. (16:2),,,steel
 /tests/test_unix_socket.js,Conditional Test Logic,"{'line': 36, 'column': 8, 'index': 799}",Failed to parse file: 'return' outside of function. (16:2),,,steel
 /tests/test_unix_socket.js,Conditional Test Logic,"{'line': 44, 'column': 6, 'index': 928}",Failed to parse file: 'return' outside of function. (16:2),,,steel
-/tests/test_socket.js,Conditional Test Logic,"{'line': 89, 'column': 4, 'index': 2379}",Unknown,,,steel
+/tests/test_socket.js,Conditional Test Logic,"{'line': 89, 'column': 4, 'index': 2359}",Unknown,,,steel
+/tests/test_socket.js,Redundant Assertion,"{'column': 4, 'line': 77}","it('can destroy the socket if stream is not finished', async () => {
+    const scope = nock('http://example.test')
+
+    scope.intercept('/somepath', 'GET').reply(() => {
+      const buffer = Buffer.allocUnsafe(10000000)
+      const data = new MemoryReadableStream(buffer, { highWaterMark: 128 })
+      return [200, data]
+    })
+
+    const req = http.get('http://example.test/somepath')
+    const stream = await new Promise(resolve => req.on('response', resolve))
+
+    // close after first chunk of data
+    stream.on('data', () => stream.destroy())
+
+    await new Promise((resolve, reject) => {
+      stream.on('error', reject)
+      stream.on('close', resolve)
+      stream.on('end', resolve)
+    })
+    
+    expect(true).toBe(true)
+  })",56,78,steel
 /tests/test_socket.js,Unknown Test,"{'column': 2, 'line': 30}","it('adds callback as a one-time listener for parity with a real socket', done => {
     nock('http://example.test').get('/').delayConnection(100).reply()
 

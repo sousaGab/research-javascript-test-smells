@@ -6,7 +6,7 @@ it('Emits the expected event sequence when `flushHeaders` is called on an aborte
     req.abort()
     req.flushHeaders()
 
-    // Use nextTick to defer assertion to next event loop cycle
+    // Use nextTick to ensure async operations complete before assertions
     process.nextTick(() => {
       expect(emitSpy).to.have.been.calledTwice()
       expect(emitSpy.firstCall).to.have.been.calledWith('close')

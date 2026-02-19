@@ -21,4 +21,4 @@ it('should write to the newest file and older files will be in descending order'
   assertFileContentsStartWith('testarchive.log', undefined);
   assertFileContentsStartWith('testarchive1.log', 'A');
   assertFileContentsStartWith('testarchive2.log', 'B');
-})
+});

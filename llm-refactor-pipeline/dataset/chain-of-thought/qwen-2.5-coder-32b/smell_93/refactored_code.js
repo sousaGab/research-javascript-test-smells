@@ -1,4 +1,4 @@
-it('should correctly perform weighted random selection', () => {
+it('should correctly select items based on weights', () => {
   const ATTEMPTS_NUM = 1000;
   const THRESHOLD = 50;
 
@@ -14,7 +14,7 @@ it('should correctly perform weighted random selection', () => {
 
   for (let itemIndex = 0; itemIndex < items.length; itemIndex += 1) {
     const expectedCount = ATTEMPTS_NUM * weights[itemIndex];
-    expect(counter[itemIndex]).toBeGreaterThan(expectedCount - THRESHOLD);
-    expect(counter[itemIndex]).toBeLessThan(expectedCount + THRESHOLD);
+    expect(counter[itemIndex]).toBeGreaterThanOrEqual(expectedCount - THRESHOLD);
+    expect(counter[itemIndex]).toBeLessThanOrEqual(expectedCount + THRESHOLD);
   }
 });

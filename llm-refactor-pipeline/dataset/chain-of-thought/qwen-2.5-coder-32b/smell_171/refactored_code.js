@@ -5,7 +5,7 @@ test('when no arguments then asterisk action not called', () => {
     const mockAction = jest.fn();
     const program = new commander.Command();
     program
-      .exitOverride() // to catch help
+      .exitOverride()
       .command('*')
       .action(mockAction);
     

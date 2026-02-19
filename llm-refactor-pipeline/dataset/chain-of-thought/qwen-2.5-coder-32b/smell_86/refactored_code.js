@@ -1,4 +1,4 @@
-it("compact() respects allowOverlap=true", () => {
+it("compact() respects allowOverlap flag", () => {
   const layout = [
     { i: "a", x: 0, y: 0, w: 4, h: 4 },
     { i: "b", x: 2, y: 2, w: 4, h: 4 }

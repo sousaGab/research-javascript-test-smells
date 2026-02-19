@@ -19,8 +19,6 @@ it("isDraggable:false in data-grid prevents dragging that item", () => {
     );
 
     const item = container.querySelector(".react-grid-item");
-    expect(item).toBeInTheDocument();
-    
     fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
     fireEvent.mouseMove(document, { clientX: 200, clientY: 200 });
     fireEvent.mouseUp(document);

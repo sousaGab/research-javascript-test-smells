@@ -18,7 +18,7 @@ it('should handle a high volume of large writes synchronous', function (done) {
     let writeComplete = false;
     let readComplete = false;
 
-    const checkCompletion = () => {
+    const checkComplete = () => {
       if (writeComplete && readComplete) {
         logger.close();
         done();
@@ -27,13 +27,13 @@ it('should handle a high volume of large writes synchronous', function (done) {
 
     msgs.forEach(msg => logger.info(msg));
 
-    // Wait for write to complete by listening to the logger's drain event
+    // Wait for write to complete by listening to the logger's flush event
     logger.on('finish', () => {
       writeComplete = true;
-      checkCompletion();
+      checkComplete();
     });
 
-    // Read and validate logs
+    // Read and verify logs
     helpers.tryRead(fileStressLogFile)
       .on('error', function (err) {
         assume(err).false();
@@ -48,8 +48,8 @@ it('should handle a high volume of large writes synchronous', function (done) {
         assume(json.counter).equal(++counters.read);
       })
       .on('end', function () {
-        assume(counters.write).equal(counters.read);
         readComplete = true;
-        checkCompletion();
+        assume(counters.write).equal(counters.read);
+        checkComplete();
       });
   });

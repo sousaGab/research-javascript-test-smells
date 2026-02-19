@@ -6441,6 +6441,184 @@ file,type,line,method,methodStart,methodEnd,source
                 }, done);
         })",64,92,snuts
 /test/falcor/get/get.cache-only.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/falcor/deref/deref.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,OvercommentedTest,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
+        var cache = cacheGenerator(0, 30);
+        var model = new Model({
+            cache: cache,
+            maxSize: 3600,
+
+            // Only clean up 5% of the cache
+            collectRatio: 0.95
+        })._fromWhenceYouCame();
+
+        var lolomoModel;
+        var listModel;
+
+        // this is sync, no dataSource
+        // lolomo should be in the back of the cache again.
+        model.
+            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
+            subscribe(function(x) {
+                var lolomo = x.json.lolomo;
+                lolomoModel = model.deref(lolomo);
+                listModel = model.deref(lolomo[0]);
+            });
+
+        // Move the other references to the front of the LRU list.
+        // One of the problems in dealing with small amounts of data / size
+        // Is when things clean up, it causes side effects with references
+        // and what was cleaned up.  But that is only in these single request
+        // trivial tests
+        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
+
+        listModel.
+            set({
+                json: {
+                    10: {
+                        item: {
+                            title: 'Running man',
+                            rating: 5
+                        }
+                    },
+                    11: {
+                        item: {
+                            title: 'Commando',
+                            rating: 5
+                        }
+                    }
+                }
+            }).
+            subscribe();
+
+        var node = model._root[__head];
+        while (node) {
+            expect(node[__key]).not.toBe('lolomo');
+            node = node[__next];
+        }
+
+        var foundA, foundB, foundC;
+        var node = model._root[__head];
+        while (node) {
+            foundA = foundA || node.value[1] === 'A';
+            foundB = foundB || node.value[1] === 'B';
+            foundC = foundC || node.value[1] === 'C';
+            node = node[__next];
+        }
+        expect(foundA).toBe(true);
+        expect(foundB).toBe(true);
+        expect(foundC).toBe(true);
+
+        expect(lolomoModel._hasValidParentReference()).toBe(false);
+    })",115,183,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,VerboseStatement,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
+        var cache = cacheGenerator(0, 30);
+        var model = new Model({
+            cache: cache,
+            maxSize: 3600,
+
+            // Only clean up 5% of the cache
+            collectRatio: 0.95
+        })._fromWhenceYouCame();
+
+        var lolomoModel;
+        var listModel;
+
+        // this is sync, no dataSource
+        // lolomo should be in the back of the cache again.
+        model.
+            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
+            subscribe(function(x) {
+                var lolomo = x.json.lolomo;
+                lolomoModel = model.deref(lolomo);
+                listModel = model.deref(lolomo[0]);
+            });
+
+        // Move the other references to the front of the LRU list.
+        // One of the problems in dealing with small amounts of data / size
+        // Is when things clean up, it causes side effects with references
+        // and what was cleaned up.  But that is only in these single request
+        // trivial tests
+        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
+
+        listModel.
+            set({
+                json: {
+                    10: {
+                        item: {
+                            title: 'Running man',
+                            rating: 5
+                        }
+                    },
+                    11: {
+                        item: {
+                            title: 'Commando',
+                            rating: 5
+                        }
+                    }
+                }
+            }).
+            subscribe();
+
+        var node = model._root[__head];
+        while (node) {
+            expect(node[__key]).not.toBe('lolomo');
+            node = node[__next];
+        }
+
+        var foundA, foundB, foundC;
+        var node = model._root[__head];
+        while (node) {
+            foundA = foundA || node.value[1] === 'A';
+            foundB = foundB || node.value[1] === 'B';
+            foundC = foundC || node.value[1] === 'C';
+            node = node[__next];
+        }
+        expect(foundA).toBe(true);
+        expect(foundB).toBe(true);
+        expect(foundC).toBe(true);
+
+        expect(lolomoModel._hasValidParentReference()).toBe(false);
+    })",115,183,snuts
+/test/falcor/deref/deref.errors.spec.js,ConditionalTestLogic,"{'startLine':41,'endLine':43}","it('should error on a shorted deref path.', function(done) {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
+        });
+
+        var onNext = jest.fn();
+        model.
+            get(['lolomo', 0, 0, 'item', 'title']).
+            subscribe(onNext, noOp, function() {
+                expect(onNext).toHaveBeenCalledTimes(1);
+
+                var json = onNext.mock.calls[0][0].json;
+                var lolomoModel = model.deref(json.lolomo);
+                model.
+                    set({
+                        json: {
+                            lolomos: 'ohh no'
+                        }
+                    }).
+                    subscribe();
+
+                toObservable(lolomoModel.
+                    get([0, 0, 'item', 'title'])).
+                    doAction(onNext, function(err) {
+                        expect(err.name).toBe(InvalidModelError.name);
+                    }).
+                    subscribe(
+                        noOp,
+                        function(err) {
+                            if (isAssertionError(err)) {
+                                return done(err);
+                            }
+                            done();
+                        },
+                        done.bind(null, new Error('onCompleted shouldnt be called')));
+            });
+    })",12,48,snuts
+/test/falcor/deref/deref.errors.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':65,'endLine':69}","it(""should get a hard error from the DataSource with _treatDataSourceErrorsAsJSONGraphErrors."", function(done) {
         var model = new Model({
             source: new ErrorDataSource(503, ""Timeout""),
@@ -6688,184 +6866,6 @@ file,type,line,method,methodStart,methodEnd,source
             }).
             subscribe(noOp, doneOnError(done), errorOnCompleted(done));
     })",107,144,snuts
-/test/falcor/deref/deref.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,OvercommentedTest,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
-        var cache = cacheGenerator(0, 30);
-        var model = new Model({
-            cache: cache,
-            maxSize: 3600,
-
-            // Only clean up 5% of the cache
-            collectRatio: 0.95
-        })._fromWhenceYouCame();
-
-        var lolomoModel;
-        var listModel;
-
-        // this is sync, no dataSource
-        // lolomo should be in the back of the cache again.
-        model.
-            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
-            subscribe(function(x) {
-                var lolomo = x.json.lolomo;
-                lolomoModel = model.deref(lolomo);
-                listModel = model.deref(lolomo[0]);
-            });
-
-        // Move the other references to the front of the LRU list.
-        // One of the problems in dealing with small amounts of data / size
-        // Is when things clean up, it causes side effects with references
-        // and what was cleaned up.  But that is only in these single request
-        // trivial tests
-        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
-
-        listModel.
-            set({
-                json: {
-                    10: {
-                        item: {
-                            title: 'Running man',
-                            rating: 5
-                        }
-                    },
-                    11: {
-                        item: {
-                            title: 'Commando',
-                            rating: 5
-                        }
-                    }
-                }
-            }).
-            subscribe();
-
-        var node = model._root[__head];
-        while (node) {
-            expect(node[__key]).not.toBe('lolomo');
-            node = node[__next];
-        }
-
-        var foundA, foundB, foundC;
-        var node = model._root[__head];
-        while (node) {
-            foundA = foundA || node.value[1] === 'A';
-            foundB = foundB || node.value[1] === 'B';
-            foundC = foundC || node.value[1] === 'C';
-            node = node[__next];
-        }
-        expect(foundA).toBe(true);
-        expect(foundB).toBe(true);
-        expect(foundC).toBe(true);
-
-        expect(lolomoModel._hasValidParentReference()).toBe(false);
-    })",115,183,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,VerboseStatement,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
-        var cache = cacheGenerator(0, 30);
-        var model = new Model({
-            cache: cache,
-            maxSize: 3600,
-
-            // Only clean up 5% of the cache
-            collectRatio: 0.95
-        })._fromWhenceYouCame();
-
-        var lolomoModel;
-        var listModel;
-
-        // this is sync, no dataSource
-        // lolomo should be in the back of the cache again.
-        model.
-            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
-            subscribe(function(x) {
-                var lolomo = x.json.lolomo;
-                lolomoModel = model.deref(lolomo);
-                listModel = model.deref(lolomo[0]);
-            });
-
-        // Move the other references to the front of the LRU list.
-        // One of the problems in dealing with small amounts of data / size
-        // Is when things clean up, it causes side effects with references
-        // and what was cleaned up.  But that is only in these single request
-        // trivial tests
-        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
-
-        listModel.
-            set({
-                json: {
-                    10: {
-                        item: {
-                            title: 'Running man',
-                            rating: 5
-                        }
-                    },
-                    11: {
-                        item: {
-                            title: 'Commando',
-                            rating: 5
-                        }
-                    }
-                }
-            }).
-            subscribe();
-
-        var node = model._root[__head];
-        while (node) {
-            expect(node[__key]).not.toBe('lolomo');
-            node = node[__next];
-        }
-
-        var foundA, foundB, foundC;
-        var node = model._root[__head];
-        while (node) {
-            foundA = foundA || node.value[1] === 'A';
-            foundB = foundB || node.value[1] === 'B';
-            foundC = foundC || node.value[1] === 'C';
-            node = node[__next];
-        }
-        expect(foundA).toBe(true);
-        expect(foundB).toBe(true);
-        expect(foundC).toBe(true);
-
-        expect(lolomoModel._hasValidParentReference()).toBe(false);
-    })",115,183,snuts
-/test/falcor/deref/deref.errors.spec.js,ConditionalTestLogic,"{'startLine':41,'endLine':43}","it('should error on a shorted deref path.', function(done) {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
-        });
-
-        var onNext = jest.fn();
-        model.
-            get(['lolomo', 0, 0, 'item', 'title']).
-            subscribe(onNext, noOp, function() {
-                expect(onNext).toHaveBeenCalledTimes(1);
-
-                var json = onNext.mock.calls[0][0].json;
-                var lolomoModel = model.deref(json.lolomo);
-                model.
-                    set({
-                        json: {
-                            lolomos: 'ohh no'
-                        }
-                    }).
-                    subscribe();
-
-                toObservable(lolomoModel.
-                    get([0, 0, 'item', 'title'])).
-                    doAction(onNext, function(err) {
-                        expect(err.name).toBe(InvalidModelError.name);
-                    }).
-                    subscribe(
-                        noOp,
-                        function(err) {
-                            if (isAssertionError(err)) {
-                                return done(err);
-                            }
-                            done();
-                        },
-                        done.bind(null, new Error('onCompleted shouldnt be called')));
-            });
-    })",12,48,snuts
-/test/falcor/deref/deref.errors.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/call/call.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/getTestRunner.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/testRunner.js,NonFunctionalStatement,"{'startLine':7,'endLine':7}",Unknown,,,snuts

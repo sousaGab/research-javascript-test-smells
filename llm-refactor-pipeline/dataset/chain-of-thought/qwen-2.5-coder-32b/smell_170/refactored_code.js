@@ -13,4 +13,4 @@ test('when non-command argument and unknown option then error for unknown option
     expect(() => {
       program.parse(['node', 'test', 'some-argument', '--unknown']);
     }).toThrow('commander.unknownOption');
-});
+  })

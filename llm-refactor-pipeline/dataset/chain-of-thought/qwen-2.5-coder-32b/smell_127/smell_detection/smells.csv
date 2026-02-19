@@ -399,6 +399,51 @@ file,type,line,method,methodStart,methodEnd,source
   expect(formatString(Formats.DATETIME_HUGE_WITH_SECONDS)).toBe(""EEEE, LLLL d, yyyy, h:mm:ss a"");
   expect(formatString(""Default"")).toBe(""EEEE, LLLL d, yyyy, h:mm a"");
 })",83,107,snuts
+/test/duration/units.test.js,AnonymousTest,"{'startLine':166,'endLine':171}","test(""Duration#normalize de-overflows"", () => {
+  const dur = Duration.fromObject({ years: 2, days: 5000 }).normalize();
+  expect(dur.years).toBe(15);
+  expect(dur.days).toBe(255);
+  expect(dur.toObject()).toEqual({ years: 15, days: 255 });
+})",166,171,snuts
+/test/duration/parse.test.js,VerboseStatement,"{'startLine':23,'endLine':38}","test(""Duration.fromISO can parse mixed or negative durations"", () => {
+  check(""P-5Y-3M"", { years: -5, months: -3 });
+  check(""PT-54M32S"", { minutes: -54, seconds: 32 });
+  check(""P-3DT54M-32S"", { days: -3, minutes: 54, seconds: -32 });
+  check(""P1YT-34000S"", { years: 1, seconds: -34000 });
+  check(""P-1W1DT13H23M34S"", { weeks: -1, days: 1, hours: 13, minutes: 23, seconds: 34 });
+  check(""P-2W"", { weeks: -2 });
+  check(""-P1D"", { days: -1 });
+  check(""-P5Y3M"", { years: -5, months: -3 });
+  check(""-P-5Y-3M"", { years: 5, months: 3 });
+  check(""-P-1W1DT13H-23M34S"", { weeks: 1, days: -1, hours: -13, minutes: 23, seconds: -34 });
+  check(""PT-1.5S"", { seconds: -1, milliseconds: -500 });
+  check(""PT-0.5S"", { seconds: 0, milliseconds: -500 });
+  check(""PT1.5S"", { seconds: 1, milliseconds: 500 });
+  check(""PT0.5S"", { seconds: 0, milliseconds: 500 });
+})",23,38,snuts
+/test/duration/invalid.test.js,AnonymousTest,"{'startLine':12,'endLine':19}","test(""throwOnInvalid throws"", () => {
+  try {
+    Settings.throwOnInvalid = true;
+    expect(() => Duration.invalid(""because"")).toThrow();
+  } finally {
+    Settings.throwOnInvalid = false;
+  }
+})",12,19,snuts
+/test/duration/format.test.js,SubOptimalAssert,"{'startLine':60,'endLine':60}","test(""Duration#toISO returns null for invalid durations"", () => {
+  expect(Duration.invalid(""because"").toISO()).toBe(null);
+})",59,61,snuts
+/test/duration/format.test.js,SubOptimalAssert,"{'startLine':116,'endLine':116}","test(""Duration#toISOTime returns null if the value is outside the range of one day"", () => {
+  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
+  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
+})",115,118,snuts
+/test/duration/format.test.js,SubOptimalAssert,"{'startLine':117,'endLine':117}","test(""Duration#toISOTime returns null if the value is outside the range of one day"", () => {
+  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
+  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
+})",115,118,snuts
+/test/duration/equality.test.js,AnonymousTest,"{'startLine':4,'endLine':7}","test(""equals self"", () => {
+  const l = Duration.fromObject({ years: 5, days: 6 });
+  expect(l.equals(l)).toBe(true);
+})",4,7,snuts
 /test/datetime/zone.test.js,SubOptimalAssert,"{'startLine':218,'endLine':218}","test(""DateTime#setZone handles negative years"", () => {
   const dt = DateTime.fromMillis(-84753824400000).setZone(""Europe/Rome"");
   expect(dt.year).toBe(-716);
@@ -434,12 +479,49 @@ file,type,line,method,methodStart,methodEnd,source
   expect(zonedMore.hour).toBe(4);
   expect(zonedMore.isOffsetFixed).toBe(false);
 })",165,183,snuts
-/test/datetime/tokenParse.test.js,CommentsOnlyTest,"{'startLine':331,'endLine':331}","test(""DateTime.fromFormat() parses offsets"", () => {})",331,331,snuts
-/test/datetime/tokenParse.test.js,IdenticalTestDescription,"{'startLine':1174,'endLine':1177}","test(""DateTime.parseFormatForOpts returns a parsing format"", () => {
+/test/datetime/tokenParse.test.js,CommentsOnlyTest,"{'startLine':351,'endLine':351}","test(""DateTime.fromFormat() parses offsets"", () => {})",351,351,snuts
+/test/datetime/tokenParse.test.js,OvercommentedTest,"{'startLine':273,'endLine':309}","test(""DateTime.fromFormat() parses format month names"", () => {
+  // Test full month name
+  let i = DateTime.fromFormat(""May 25 1982"", ""MMMM dd yyyy"");
+  expect(i.year).toBe(1982);
+  expect(i.month).toBe(5);
+  expect(i.day).toBe(25);
+
+  // Test abbreviated month name
+  i = DateTime.fromFormat(""Sep 25 1982"", ""MMM dd yyyy"");
+  expect(i.year).toBe(1982);
+  expect(i.month).toBe(9);
+  expect(i.day).toBe(25);
+
+  // Test numeric month (single digit)
+  i = DateTime.fromFormat(""5 25 1982"", ""M dd yyyy"");
+  expect(i.year).toBe(1982);
+  expect(i.month).toBe(5);
+  expect(i.day).toBe(25);
+
+  // Test numeric month (zero-padded)
+  i = DateTime.fromFormat(""05 25 1982"", ""MM dd yyyy"");
+  expect(i.year).toBe(1982);
+  expect(i.month).toBe(5);
+  expect(i.day).toBe(25);
+
+  // Test French full month name
+  i = DateTime.fromFormat(""mai 25 1982"", ""MMMM dd yyyy"", { locale: ""fr"" });
+  expect(i.year).toBe(1982);
+  expect(i.month).toBe(5);
+  expect(i.day).toBe(25);
+
+  // Test French abbreviated month name
+  i = DateTime.fromFormat(""janv. 25 1982"", ""MMM dd yyyy"", { locale: ""fr"" });
+  expect(i.year).toBe(1982);
+  expect(i.month).toBe(1);
+  expect(i.day).toBe(25);
+})",273,309,snuts
+/test/datetime/tokenParse.test.js,IdenticalTestDescription,"{'startLine':1194,'endLine':1197}","test(""DateTime.parseFormatForOpts returns a parsing format"", () => {
   const format = DateTime.parseFormatForOpts("""");
   expect(format).toBeNull();
-})",1174,1177,snuts
-/test/datetime/tokenParse.test.js,ConditionalTestLogic,"{'startLine':552,'endLine':560}","test(""DateTime.fromFormat() parses fixed offsets"", () => {
+})",1194,1197,snuts
+/test/datetime/tokenParse.test.js,ConditionalTestLogic,"{'startLine':572,'endLine':580}","test(""DateTime.fromFormat() parses fixed offsets"", () => {
   const formats = [
     [""Z"", ""-4""],
     [""ZZ"", ""-4:00""],
@@ -457,8 +539,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(dt.toUTC().minute).toBe(10);
     }
   }
-})",544,562,snuts
-/test/datetime/tokenParse.test.js,ConditionalTestLogic,"{'startLine':572,'endLine':582}","test(""DateTime.fromFormat() with setZone parses fixed offsets and sets it"", () => {
+})",564,582,snuts
+/test/datetime/tokenParse.test.js,ConditionalTestLogic,"{'startLine':592,'endLine':602}","test(""DateTime.fromFormat() with setZone parses fixed offsets and sets it"", () => {
   const formats = [
     [""Z"", ""-4""],
     [""ZZ"", ""-4:00""],
@@ -478,8 +560,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(dt.toUTC().minute).toBe(10);
     }
   }
-})",564,584,snuts
-/test/datetime/tokenParse.test.js,ConditionalTestLogic,"{'startLine':765,'endLine':773}","test(""DateTime.fromFormat() parses localized macro tokens"", () => {
+})",584,604,snuts
+/test/datetime/tokenParse.test.js,ConditionalTestLogic,"{'startLine':785,'endLine':793}","test(""DateTime.fromFormat() parses localized macro tokens"", () => {
   const formatGroups = [
     {
       formats: [""D"", ""DD"", ""DDD"", ""DDDD""],
@@ -545,8 +627,8 @@ file,type,line,method,methodStart,methodEnd,source
       }
     }
   }
-})",711,777,snuts
-/test/datetime/tokenParse.test.js,NonFunctionalStatement,"{'startLine':331,'endLine':331}","test(""DateTime.fromFormat() parses offsets"", () => {})",331,331,snuts
+})",731,797,snuts
+/test/datetime/tokenParse.test.js,NonFunctionalStatement,"{'startLine':351,'endLine':351}","test(""DateTime.fromFormat() parses offsets"", () => {})",351,351,snuts
 /test/datetime/tokenParse.test.js,VerboseStatement,"{'startLine':27,'endLine':45}","test(""DateTime.fromFormat() parses with variable-length input"", () => {
   let i = DateTime.fromFormat(""1982/05/03 09:07:05.004"", ""y/M/d H:m:s.S"");
   expect(i.year).toBe(1982);
@@ -622,7 +704,44 @@ file,type,line,method,methodStart,methodEnd,source
   expect(i.month).toBe(1);
   expect(i.day).toBe(25);
 })",241,271,snuts
-/test/datetime/tokenParse.test.js,VerboseStatement,"{'startLine':375,'endLine':395}","test(""DateTime.fromFormat() parses ordinals"", () => {
+/test/datetime/tokenParse.test.js,VerboseStatement,"{'startLine':273,'endLine':309}","test(""DateTime.fromFormat() parses format month names"", () => {
+  // Test full month name
+  let i = DateTime.fromFormat(""May 25 1982"", ""MMMM dd yyyy"");
+  expect(i.year).toBe(1982);
+  expect(i.month).toBe(5);
+  expect(i.day).toBe(25);
+
+  // Test abbreviated month name
+  i = DateTime.fromFormat(""Sep 25 1982"", ""MMM dd yyyy"");
+  expect(i.year).toBe(1982);
+  expect(i.month).toBe(9);
+  expect(i.day).toBe(25);
+
+  // Test numeric month (single digit)
+  i = DateTime.fromFormat(""5 25 1982"", ""M dd yyyy"");
+  expect(i.year).toBe(1982);
+  expect(i.month).toBe(5);
+  expect(i.day).toBe(25);
+
+  // Test numeric month (zero-padded)
+  i = DateTime.fromFormat(""05 25 1982"", ""MM dd yyyy"");
+  expect(i.year).toBe(1982);
+  expect(i.month).toBe(5);
+  expect(i.day).toBe(25);
+
+  // Test French full month name
+  i = DateTime.fromFormat(""mai 25 1982"", ""MMMM dd yyyy"", { locale: ""fr"" });
+  expect(i.year).toBe(1982);
+  expect(i.month).toBe(5);
+  expect(i.day).toBe(25);
+
+  // Test French abbreviated month name
+  i = DateTime.fromFormat(""janv. 25 1982"", ""MMM dd yyyy"", { locale: ""fr"" });
+  expect(i.year).toBe(1982);
+  expect(i.month).toBe(1);
+  expect(i.day).toBe(25);
+})",273,309,snuts
+/test/datetime/tokenParse.test.js,VerboseStatement,"{'startLine':395,'endLine':415}","test(""DateTime.fromFormat() parses ordinals"", () => {
   let d = DateTime.fromFormat(""2016 200"", ""yyyy ooo"");
   expect(d.year).toBe(2016);
   expect(d.ordinal).toBe(200);
@@ -642,8 +761,8 @@ file,type,line,method,methodStart,methodEnd,source
   d = DateTime.fromFormat(""2016 16"", ""yyyy o"");
   expect(d.year).toBe(2016);
   expect(d.ordinal).toBe(16);
-})",375,395,snuts
-/test/datetime/tokenParse.test.js,VerboseStatement,"{'startLine':642,'endLine':675}","test(""DateTime.fromFormat() maintains offset that belongs to time zone during overlap"", () => {
+})",395,415,snuts
+/test/datetime/tokenParse.test.js,VerboseStatement,"{'startLine':662,'endLine':695}","test(""DateTime.fromFormat() maintains offset that belongs to time zone during overlap"", () => {
   // On this day, 02:30 exists for both offsets, due to DST ending.
   let i = DateTime.fromFormat(
     ""2021-04-04T02:30:00.000+11:00[Australia/Sydney]"",
@@ -676,8 +795,8 @@ file,type,line,method,methodStart,methodEnd,source
   expect(i.millisecond).toBe(0);
   expect(i.offset).toBe(600); //+10:00
   expect(i.zoneName).toBe(""Australia/Sydney"");
-})",642,675,snuts
-/test/datetime/tokenParse.test.js,VerboseStatement,"{'startLine':888,'endLine':1137}","test(""DateTime.fromFormatExplain() parses localized string with numberingSystem correctly"", () => {
+})",662,695,snuts
+/test/datetime/tokenParse.test.js,VerboseStatement,"{'startLine':908,'endLine':1157}","test(""DateTime.fromFormatExplain() parses localized string with numberingSystem correctly"", () => {
   const cldr = cldrMajorVersion();
   const ex1 = DateTime.fromFormatExplain(
     cldr && cldr < 46
@@ -926,7 +1045,7 @@ file,type,line,method,methodStart,methodEnd,source
   expect(keyCount(ex20.matches)).toBe(7);
   expect(ex20.result).toBeInstanceOf(Object);
   expect(keyCount(ex20.result)).toBe(6);
-})",888,1137,snuts
+})",908,1157,snuts
 /test/datetime/toFormat.test.js,AnonymousTest,"{'startLine':561,'endLine':564}","test(""DateTime#toFormat('n')"", () => {
   expect(DateTime.fromISO(""2012-01-01"", { locale: ""de-DE"" }).toFormat(""n"")).toBe(""52"");
   expect(DateTime.fromISO(""2012-01-01"", { locale: ""en-US"" }).toFormat(""n"")).toBe(""1"");
@@ -1490,51 +1609,6 @@ file,type,line,method,methodStart,methodEnd,source
   expect(dt.month).toBe(1);
   expect(dt.day).toBe(1);
 })",690,712,snuts
-/test/duration/units.test.js,AnonymousTest,"{'startLine':166,'endLine':171}","test(""Duration#normalize de-overflows"", () => {
-  const dur = Duration.fromObject({ years: 2, days: 5000 }).normalize();
-  expect(dur.years).toBe(15);
-  expect(dur.days).toBe(255);
-  expect(dur.toObject()).toEqual({ years: 15, days: 255 });
-})",166,171,snuts
-/test/duration/parse.test.js,VerboseStatement,"{'startLine':23,'endLine':38}","test(""Duration.fromISO can parse mixed or negative durations"", () => {
-  check(""P-5Y-3M"", { years: -5, months: -3 });
-  check(""PT-54M32S"", { minutes: -54, seconds: 32 });
-  check(""P-3DT54M-32S"", { days: -3, minutes: 54, seconds: -32 });
-  check(""P1YT-34000S"", { years: 1, seconds: -34000 });
-  check(""P-1W1DT13H23M34S"", { weeks: -1, days: 1, hours: 13, minutes: 23, seconds: 34 });
-  check(""P-2W"", { weeks: -2 });
-  check(""-P1D"", { days: -1 });
-  check(""-P5Y3M"", { years: -5, months: -3 });
-  check(""-P-5Y-3M"", { years: 5, months: 3 });
-  check(""-P-1W1DT13H-23M34S"", { weeks: 1, days: -1, hours: -13, minutes: 23, seconds: -34 });
-  check(""PT-1.5S"", { seconds: -1, milliseconds: -500 });
-  check(""PT-0.5S"", { seconds: 0, milliseconds: -500 });
-  check(""PT1.5S"", { seconds: 1, milliseconds: 500 });
-  check(""PT0.5S"", { seconds: 0, milliseconds: 500 });
-})",23,38,snuts
-/test/duration/invalid.test.js,AnonymousTest,"{'startLine':12,'endLine':19}","test(""throwOnInvalid throws"", () => {
-  try {
-    Settings.throwOnInvalid = true;
-    expect(() => Duration.invalid(""because"")).toThrow();
-  } finally {
-    Settings.throwOnInvalid = false;
-  }
-})",12,19,snuts
-/test/duration/format.test.js,SubOptimalAssert,"{'startLine':60,'endLine':60}","test(""Duration#toISO returns null for invalid durations"", () => {
-  expect(Duration.invalid(""because"").toISO()).toBe(null);
-})",59,61,snuts
-/test/duration/format.test.js,SubOptimalAssert,"{'startLine':116,'endLine':116}","test(""Duration#toISOTime returns null if the value is outside the range of one day"", () => {
-  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
-  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
-})",115,118,snuts
-/test/duration/format.test.js,SubOptimalAssert,"{'startLine':117,'endLine':117}","test(""Duration#toISOTime returns null if the value is outside the range of one day"", () => {
-  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
-  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
-})",115,118,snuts
-/test/duration/equality.test.js,AnonymousTest,"{'startLine':4,'endLine':7}","test(""equals self"", () => {
-  const l = Duration.fromObject({ years: 5, days: 6 });
-  expect(l.equals(l)).toBe(true);
-})",4,7,snuts
 /test/duration/create.test.js,Duplicate Assert,"{'line': 116, 'column': 2, 'index': 3420}","it(""Duration.fromDurationLike returns a Duration from millis"", () => {
   const dur = Duration.fromDurationLike(1000);
   expect(dur).toBeInstanceOf(Duration);

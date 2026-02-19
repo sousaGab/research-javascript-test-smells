@@ -6,49 +6,6 @@ file,type,line,method,methodStart,methodEnd,source
       done();
     })
   })",34,40,snuts
-/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':39,'endLine':46}","it('logger.log(level, error)', (done) => {
-    const logger = helpers.createLogger(function (info) {
-      assumeExpectedInfo(info);
-      done();
-    }, format.errors());
-
-    logger.log('info', new Error('Errors lack .toJSON() lulz'));
-  })",39,46,snuts
-/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':138,'endLine':145}","it('logger.<level>(error)', (done) => {
-    const logger = helpers.createLogger(function (info) {
-      assumeExpectedInfo(info);
-      done();
-    }, format.errors());
-
-    logger.info(new Error('Errors lack .toJSON() lulz'));
-  })",138,145,snuts
-/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':164,'endLine':176}","it('logger.<level>(error, meta)', (done) => {
-    const meta = {
-      thisIsMeta: true,
-      anyValue: 'a string'
-    };
-
-    const logger = helpers.createLogger(function (info) {
-      assumeExpectedInfo(info, meta);
-      done();
-    }, format.errors());
-
-    logger.info(new Error('Errors lack .toJSON() lulz'), meta);
-  })",164,176,snuts
-/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':200,'endLine':213}","it('logger.<level>(msg, meta<error>)', (done) => {
-    const logger = helpers.createLogger(function (info) {
-      assumeExpectedInfo(info, {
-        message: 'Caught error: Errors lack .toJSON() lulz'
-      });
-
-      done();
-    }, format.combine(
-      format.errors(),
-      format.printf(info => info.message)
-    ));
-
-    logger.info('Caught error:', new Error('Errors lack .toJSON() lulz'));
-  })",200,213,snuts
 /test/unit/winston/profiler.test.js,AnonymousTest,"{'startLine':14,'endLine':18}","it('new Profiler()', function () {
     assume(function () {
       new Profiler();
@@ -94,7 +51,7 @@ file,type,line,method,methodStart,methodEnd,source
       log: function (obj) {
         if (level === 'info') {
           assume(obj).equals(undefined, 'Transport on level info should never be called');
-        } else {
+        } else if (level === 'debug') {
           assume(obj.message).equals('foo');
           assume(obj.level).equals('debug');
           assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'debug', message: 'foo'});
@@ -317,7 +274,35 @@ file,type,line,method,methodStart,methodEnd,source
       log: function (obj) {
         if (level === 'info') {
           assume(obj).equals(undefined, 'Transport on level info should never be called');
-        } else {
+        } else if (level === 'debug') {
+          assume(obj.message).equals('foo');
+          assume(obj.level).equals('debug');
+          assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'debug', message: 'foo'});
+        }
+        done();
+      }
+    });
+  }
+
+  assume(logger.info).is.a('function');
+  assume(logger.debug).is.a('function');
+
+  logger
+    .add(logLevelTransport('info'))
+    .add(logLevelTransport('debug'))
+    .log(expected);
+})",302,329,snuts
+/test/unit/winston/logger.test.js,ConditionalTestLogic,"{'startLine':312,'endLine':316}","it('default levels', function (done) {
+  let logger = winston.createLogger();
+  let expected = {message: 'foo', level: 'debug'};
+
+  function logLevelTransport(level) {
+    return new TransportStream({
+      level: level,
+      log: function (obj) {
+        if (level === 'info') {
+          assume(obj).equals(undefined, 'Transport on level info should never be called');
+        } else if (level === 'debug') {
           assume(obj.message).equals('foo');
           assume(obj.level).equals('debug');
           assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'debug', message: 'foo'});
@@ -811,6 +796,49 @@ file,type,line,method,methodStart,methodEnd,source
       assume(all.someOtherLogger._readableState.pipes).equals(transport);
       assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
     })",81,87,snuts
+/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':39,'endLine':46}","it('logger.log(level, error)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info);
+      done();
+    }, format.errors());
+
+    logger.log('info', new Error('Errors lack .toJSON() lulz'));
+  })",39,46,snuts
+/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':138,'endLine':145}","it('logger.<level>(error)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info);
+      done();
+    }, format.errors());
+
+    logger.info(new Error('Errors lack .toJSON() lulz'));
+  })",138,145,snuts
+/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':164,'endLine':176}","it('logger.<level>(error, meta)', (done) => {
+    const meta = {
+      thisIsMeta: true,
+      anyValue: 'a string'
+    };
+
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, meta);
+      done();
+    }, format.errors());
+
+    logger.info(new Error('Errors lack .toJSON() lulz'), meta);
+  })",164,176,snuts
+/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':200,'endLine':213}","it('logger.<level>(msg, meta<error>)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, {
+        message: 'Caught error: Errors lack .toJSON() lulz'
+      });
+
+      done();
+    }, format.combine(
+      format.errors(),
+      format.printf(info => info.message)
+    ));
+
+    logger.info('Caught error:', new Error('Errors lack .toJSON() lulz'));
+  })",200,213,snuts
 /test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':248,'endLine':272}","it('should not exceed the max files', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
@@ -1303,7 +1331,7 @@ file,type,line,method,methodStart,methodEnd,source
       log: function (obj) {
         if (level === 'info') {
           assume(obj).equals(undefined, 'Transport on level info should never be called');
-        } else {
+        } else if (level === 'debug') {
           assume(obj.message).equals('foo');
           assume(obj.level).equals('debug');
           assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'debug', message: 'foo'});
@@ -1321,7 +1349,35 @@ file,type,line,method,methodStart,methodEnd,source
     .add(logLevelTransport('debug'))
     .log(expected);
 })",302,329,steel
-/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 346, 'column': 12, 'index': 10933}","it('custom levels', function (done) {
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 312, 'column': 15, 'index': 10133}","it('default levels', function (done) {
+  let logger = winston.createLogger();
+  let expected = {message: 'foo', level: 'debug'};
+
+  function logLevelTransport(level) {
+    return new TransportStream({
+      level: level,
+      log: function (obj) {
+        if (level === 'info') {
+          assume(obj).equals(undefined, 'Transport on level info should never be called');
+        } else if (level === 'debug') {
+          assume(obj.message).equals('foo');
+          assume(obj.level).equals('debug');
+          assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'debug', message: 'foo'});
+        }
+        done();
+      }
+    });
+  }
+
+  assume(logger.info).is.a('function');
+  assume(logger.debug).is.a('function');
+
+  logger
+    .add(logLevelTransport('info'))
+    .add(logLevelTransport('debug'))
+    .log(expected);
+})",302,329,steel
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 346, 'column': 12, 'index': 10956}","it('custom levels', function (done) {
       let logger = winston.createLogger({
         levels: {
           bad: 0,
@@ -1357,7 +1413,7 @@ file,type,line,method,methodStart,methodEnd,source
           .add(filterLevelTransport('ok'))
           .log(expected);
     })",331,366,steel
-/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 372, 'column': 10, 'index': 11705}","it('sets transports levels', done => {
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 372, 'column': 10, 'index': 11728}","it('sets transports levels', done => {
       let logger;
       const transport = new TransportStream({
         log(obj) {
@@ -1394,7 +1450,7 @@ file,type,line,method,methodStart,methodEnd,source
         transports: [transport]
       });
     })",368,404,steel
-/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 681, 'column': 10, 'index': 22012}","it(`rethrows errors from user-defined formats`, function () {
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 681, 'column': 10, 'index': 22035}","it(`rethrows errors from user-defined formats`, function () {
       stdMocks.use();
       const logger = winston.createLogger({
         transports: [new winston.transports.Console()],
@@ -1428,7 +1484,7 @@ file,type,line,method,methodStart,methodEnd,source
       assume(actual.stdout).deep.equals(expected.map(msg => `${msg}${EOL}`));
       assume(actual.stderr).deep.equals([]);
     })",675,708,steel
-/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 801, 'column': 10, 'index': 25715}","it(`.info('Hello') preserve meta without splat format`, function (done) {
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 801, 'column': 10, 'index': 25738}","it(`.info('Hello') preserve meta without splat format`, function (done) {
         const logged = [];
         const logger = helpers.createLogger(function (info, enc, next) {
           logged.push(info);
@@ -1440,7 +1496,7 @@ file,type,line,method,methodStart,methodEnd,source
 
         logger.info('Hello', {label: 'world'});
       })",794,805,steel
-/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 814, 'column': 10, 'index': 26137}","it(`.info('Hello %d') does not mutate unnecessarily with string interpolation tokens`, function (done) {
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 814, 'column': 10, 'index': 26160}","it(`.info('Hello %d') does not mutate unnecessarily with string interpolation tokens`, function (done) {
         const logged = [];
         const logger = helpers.createLogger(function (info, enc, next) {
           logged.push(info);
@@ -1452,7 +1508,7 @@ file,type,line,method,methodStart,methodEnd,source
 
         logger.info('Hello %j', {label: 'world'}, {extra: true});
       })",807,818,steel
-/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 827, 'column': 10, 'index': 26563}","it(`.info('Hello') and .info('Hello %d') preserve meta with splat format`, function (done) {
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 827, 'column': 10, 'index': 26586}","it(`.info('Hello') and .info('Hello %d') preserve meta with splat format`, function (done) {
         const logged = [];
         const logger = helpers.createLogger(function (info, enc, next) {
           logged.push(info);
@@ -1465,7 +1521,7 @@ file,type,line,method,methodStart,methodEnd,source
         logger.info('Hello', {label: 'world'});
         logger.info('Hello %d', 100, {label: 'world'});
       })",820,832,steel
-/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 724, 'column': 6, 'index': 23390}","it('ending profiler with object argument should be included in output', function (done) {
+/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 724, 'column': 6, 'index': 23413}","it('ending profiler with object argument should be included in output', function (done) {
       let logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
@@ -1484,7 +1540,7 @@ file,type,line,method,methodStart,methodEnd,source
         })
       }, 100);
     })",712,730,steel
-/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 748, 'column': 6, 'index': 24155}","it('calling profile with a callback function should not make a difference', function (done) {
+/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 748, 'column': 6, 'index': 24178}","it('calling profile with a callback function should not make a difference', function (done) {
       let logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
@@ -1506,7 +1562,7 @@ file,type,line,method,methodStart,methodEnd,source
         })
       }, 100);
     })",733,754,steel
-/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 768, 'column': 6, 'index': 24778}","it('should stop a timer when `done` is called on it', function (done) {
+/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 768, 'column': 6, 'index': 24801}","it('should stop a timer when `done` is called on it', function (done) {
       let logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
@@ -1734,7 +1790,7 @@ file,type,line,method,methodStart,methodEnd,source
       log: function (obj) {
         if (level === 'info') {
           assume(obj).equals(undefined, 'Transport on level info should never be called');
-        } else {
+        } else if (level === 'debug') {
           assume(obj.message).equals('foo');
           assume(obj.level).equals('debug');
           assume(JSON.parse(obj[MESSAGE])).deep.equals({level: 'debug', message: 'foo'});

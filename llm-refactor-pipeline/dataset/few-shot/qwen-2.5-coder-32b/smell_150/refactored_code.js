@@ -55,8 +55,8 @@ it('renders classes bv-d-xs-down-none when more than 3 pages', async () => {
     await waitNT(wrapper.vm)
     expect(wrapper.vm.computedCurrentPage).toBe(4)
     // Grab the page buttons (including bookends)
-    const middlePageButtons = wrapper.findAll('li').wrappers
-    middlePageButtons.forEach((li, index) => {
+    const fourthPageButtons = wrapper.findAll('li').wrappers
+    fourthPageButtons.forEach((li, index) => {
       expect(li.classes()).toContain('page-item')
       if (index === 0) {
         // First button
@@ -93,8 +93,8 @@ it('renders classes bv-d-xs-down-none when more than 3 pages', async () => {
     await waitNT(wrapper.vm)
     expect(wrapper.vm.computedCurrentPage).toBe(7)
     // Grab the page buttons (including bookends)
-    const lastPageButtons = wrapper.findAll('li').wrappers
-    lastPageButtons.forEach((li, index) => {
+    const seventhPageButtons = wrapper.findAll('li').wrappers
+    seventhPageButtons.forEach((li, index) => {
       expect(li.classes()).toContain('page-item')
       // Page number buttons
       if (index >= 2 && index <= 5) {

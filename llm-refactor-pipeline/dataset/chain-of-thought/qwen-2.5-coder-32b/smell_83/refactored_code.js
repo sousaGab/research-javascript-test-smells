@@ -1,4 +1,4 @@
-it('should manage file rotation with tailable option', async function () {
+it('should maintain file rotation with tailable option', async function () {
   const transport = new winston.transports.File({
     ...defaultTransportOptions,
     maxFiles: 4,

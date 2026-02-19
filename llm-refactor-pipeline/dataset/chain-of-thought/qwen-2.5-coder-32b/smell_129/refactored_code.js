@@ -1,4 +1,4 @@
-describe('regularExpressionMatching', () => {
+it('should match regular expressions in a string', () => {
   const testCases = [
     // True cases
     ['', '', true],
@@ -20,8 +20,8 @@ describe('regularExpressionMatching', () => {
     ['ab', '.*', true],
 
     // False cases
-    ['a', 'a', false],
     ['', 'a', false],
+    ['a', '', false],
     ['aab', 'aa', false],
     ['aab', 'baa', false],
     ['aabc', '...', false],
@@ -32,9 +32,7 @@ describe('regularExpressionMatching', () => {
     ['abba', '.*c', false]
   ];
 
-  testCases.forEach(([input1, input2, expected], index) => {
-    it(`should handle case ${index + 1}: "${input1}" matches "${input2}"`, () => {
-      expect(regularExpressionMatching(input1, input2)).toBe(expected);
-    });
+  testCases.forEach(([input1, input2, expected]) => {
+    expect(regularExpressionMatching(input1, input2)).toBe(expected);
   });
 });

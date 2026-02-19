@@ -6,6 +6,49 @@ file,type,line,method,methodStart,methodEnd,source
       done();
     })
   })",34,40,snuts
+/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':39,'endLine':46}","it('logger.log(level, error)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info);
+      done();
+    }, format.errors());
+
+    logger.log('info', new Error('Errors lack .toJSON() lulz'));
+  })",39,46,snuts
+/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':138,'endLine':145}","it('logger.<level>(error)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info);
+      done();
+    }, format.errors());
+
+    logger.info(new Error('Errors lack .toJSON() lulz'));
+  })",138,145,snuts
+/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':164,'endLine':176}","it('logger.<level>(error, meta)', (done) => {
+    const meta = {
+      thisIsMeta: true,
+      anyValue: 'a string'
+    };
+
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, meta);
+      done();
+    }, format.errors());
+
+    logger.info(new Error('Errors lack .toJSON() lulz'), meta);
+  })",164,176,snuts
+/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':200,'endLine':213}","it('logger.<level>(msg, meta<error>)', (done) => {
+    const logger = helpers.createLogger(function (info) {
+      assumeExpectedInfo(info, {
+        message: 'Caught error: Errors lack .toJSON() lulz'
+      });
+
+      done();
+    }, format.combine(
+      format.errors(),
+      format.printf(info => info.message)
+    ));
+
+    logger.info('Caught error:', new Error('Errors lack .toJSON() lulz'));
+  })",200,213,snuts
 /test/unit/winston/profiler.test.js,AnonymousTest,"{'startLine':14,'endLine':18}","it('new Profiler()', function () {
     assume(function () {
       new Profiler();
@@ -768,49 +811,6 @@ file,type,line,method,methodStart,methodEnd,source
       assume(all.someOtherLogger._readableState.pipes).equals(transport);
       assume(all.someOtherLogger._readableState.pipes).equals(all.someLogger._readableState.pipes);
     })",81,87,snuts
-/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':39,'endLine':46}","it('logger.log(level, error)', (done) => {
-    const logger = helpers.createLogger(function (info) {
-      assumeExpectedInfo(info);
-      done();
-    }, format.errors());
-
-    logger.log('info', new Error('Errors lack .toJSON() lulz'));
-  })",39,46,snuts
-/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':138,'endLine':145}","it('logger.<level>(error)', (done) => {
-    const logger = helpers.createLogger(function (info) {
-      assumeExpectedInfo(info);
-      done();
-    }, format.errors());
-
-    logger.info(new Error('Errors lack .toJSON() lulz'));
-  })",138,145,snuts
-/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':164,'endLine':176}","it('logger.<level>(error, meta)', (done) => {
-    const meta = {
-      thisIsMeta: true,
-      anyValue: 'a string'
-    };
-
-    const logger = helpers.createLogger(function (info) {
-      assumeExpectedInfo(info, meta);
-      done();
-    }, format.errors());
-
-    logger.info(new Error('Errors lack .toJSON() lulz'), meta);
-  })",164,176,snuts
-/test/unit/formats/errors.test.js,AnonymousTest,"{'startLine':200,'endLine':213}","it('logger.<level>(msg, meta<error>)', (done) => {
-    const logger = helpers.createLogger(function (info) {
-      assumeExpectedInfo(info, {
-        message: 'Caught error: Errors lack .toJSON() lulz'
-      });
-
-      done();
-    }, format.combine(
-      format.errors(),
-      format.printf(info => info.message)
-    ));
-
-    logger.info('Caught error:', new Error('Errors lack .toJSON() lulz'));
-  })",200,213,snuts
 /test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':248,'endLine':272}","it('should not exceed the max files', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
@@ -1028,7 +1028,7 @@ file,type,line,method,methodStart,methodEnd,source
       assume(transports).length(1);
       assume(transports).contains(transport);
     })",107,112,snuts
-/test/unit/winston/transports/00-file-stress.test.js,ConditionalTestLogic,"{'startLine':136,'endLine':140}","it('should handle a high volume of large writes synchronous', function (done) {
+/test/unit/winston/transports/00-file-stress.test.js,ConditionalTestLogic,"{'startLine':136,'endLine':139}","it('should handle a high volume of large writes synchronous', function (done) {
     const logger = winston.createLogger({
       transports: [new winston.transports.File({
         filename: fileStressLogFile
@@ -1045,101 +1045,24 @@ file,type,line,method,methodStart,methodEnd,source
       message: 'a'.repeat(16384 - os.EOL.length - 1)
     }));
     
-    let writesComplete = false;
-    let readsComplete = false;
+    let writeComplete = false;
+    let readComplete = false;
     let doneCalled = false;
 
     const checkDone = () => {
-      if (writesComplete && readsComplete && !doneCalled) {
+      if (writeComplete && readComplete && !doneCalled) {
         doneCalled = true;
-        logger.close();
         done();
       }
     };
 
     msgs.forEach(msg => logger.info(msg));
 
-    // Listen for write completion by checking file size or using a more reliable method
-    const waitForWrites = () => {
-      fs.stat(fileStressLogFile, (err, stats) => {
-        if (err || stats.size === 0) {
-          setTimeout(waitForWrites, 100);
-        } else {
-          writesComplete = true;
-          checkDone();
-        }
-      });
-    };
-
-    setTimeout(() => {
-      waitForWrites();
-    }, 100);
-
-    helpers.tryRead(fileStressLogFile)
-      .on('error', function (err) {
-        assume(err).false();
-        logger.close();
-        done();
-      })
-      .pipe(split())
-      .on('data', function (d) {
-        const json = JSON.parse(d);
-        assume(json.level).equal('info');
-        assume(json.message).equal('a'.repeat(16384 - os.EOL.length - 1));
-        assume(json.counter).equal(++counters.read);
-      })
-      .on('end', function () {
-        readsComplete = true;
-        checkDone();
-      });
-  })",114,178,snuts
-/test/unit/winston/transports/00-file-stress.test.js,ConditionalTestLogic,"{'startLine':148,'endLine':153}","it('should handle a high volume of large writes synchronous', function (done) {
-    const logger = winston.createLogger({
-      transports: [new winston.transports.File({
-        filename: fileStressLogFile
-      })]
+    logger.on('finish', () => {
+      writeComplete = true;
+      checkDone();
     });
 
-    const counters = {
-      write: 0,
-      read: 0
-    };
-
-    const msgs = new Array(10).fill().map(() => ({
-      counter: ++counters.write,
-      message: 'a'.repeat(16384 - os.EOL.length - 1)
-    }));
-    
-    let writesComplete = false;
-    let readsComplete = false;
-    let doneCalled = false;
-
-    const checkDone = () => {
-      if (writesComplete && readsComplete && !doneCalled) {
-        doneCalled = true;
-        logger.close();
-        done();
-      }
-    };
-
-    msgs.forEach(msg => logger.info(msg));
-
-    // Listen for write completion by checking file size or using a more reliable method
-    const waitForWrites = () => {
-      fs.stat(fileStressLogFile, (err, stats) => {
-        if (err || stats.size === 0) {
-          setTimeout(waitForWrites, 100);
-        } else {
-          writesComplete = true;
-          checkDone();
-        }
-      });
-    };
-
-    setTimeout(() => {
-      waitForWrites();
-    }, 100);
-
     helpers.tryRead(fileStressLogFile)
       .on('error', function (err) {
         assume(err).false();
@@ -1154,10 +1077,10 @@ file,type,line,method,methodStart,methodEnd,source
         assume(json.counter).equal(++counters.read);
       })
       .on('end', function () {
-        readsComplete = true;
+        readComplete = true;
         checkDone();
       });
-  })",114,178,snuts
+  })",114,166,snuts
 /test/helpers/index.js,NonFunctionalStatement,"{'startLine':121,'endLine':121}",Unknown,,,snuts
 /test/helpers/handler-tests.js,AnonymousTest,"{'startLine':36,'endLine':38}","it('.getProcessInfo()', function () {
       helpers.assertProcessInfo(handler.getProcessInfo());
@@ -4021,7 +3944,7 @@ file,type,line,method,methodStart,methodEnd,source
       if (ex && ex.code !== 'ENOENT') { return done(ex); }
     }
   })",23,29,steel
-/test/unit/winston/transports/00-file-stress.test.js,Conditional Test Logic,"{'line': 136, 'column': 6, 'index': 3438}","it('should handle a high volume of large writes synchronous', function (done) {
+/test/unit/winston/transports/00-file-stress.test.js,Conditional Test Logic,"{'line': 136, 'column': 6, 'index': 3436}","it('should handle a high volume of large writes synchronous', function (done) {
     const logger = winston.createLogger({
       transports: [new winston.transports.File({
         filename: fileStressLogFile
@@ -4038,101 +3961,24 @@ file,type,line,method,methodStart,methodEnd,source
       message: 'a'.repeat(16384 - os.EOL.length - 1)
     }));
     
-    let writesComplete = false;
-    let readsComplete = false;
+    let writeComplete = false;
+    let readComplete = false;
     let doneCalled = false;
 
     const checkDone = () => {
-      if (writesComplete && readsComplete && !doneCalled) {
+      if (writeComplete && readComplete && !doneCalled) {
         doneCalled = true;
-        logger.close();
         done();
       }
     };
 
     msgs.forEach(msg => logger.info(msg));
 
-    // Listen for write completion by checking file size or using a more reliable method
-    const waitForWrites = () => {
-      fs.stat(fileStressLogFile, (err, stats) => {
-        if (err || stats.size === 0) {
-          setTimeout(waitForWrites, 100);
-        } else {
-          writesComplete = true;
-          checkDone();
-        }
-      });
-    };
-
-    setTimeout(() => {
-      waitForWrites();
-    }, 100);
-
-    helpers.tryRead(fileStressLogFile)
-      .on('error', function (err) {
-        assume(err).false();
-        logger.close();
-        done();
-      })
-      .pipe(split())
-      .on('data', function (d) {
-        const json = JSON.parse(d);
-        assume(json.level).equal('info');
-        assume(json.message).equal('a'.repeat(16384 - os.EOL.length - 1));
-        assume(json.counter).equal(++counters.read);
-      })
-      .on('end', function () {
-        readsComplete = true;
-        checkDone();
-      });
-  })",114,178,steel
-/test/unit/winston/transports/00-file-stress.test.js,Conditional Test Logic,"{'line': 148, 'column': 8, 'index': 3801}","it('should handle a high volume of large writes synchronous', function (done) {
-    const logger = winston.createLogger({
-      transports: [new winston.transports.File({
-        filename: fileStressLogFile
-      })]
+    logger.on('finish', () => {
+      writeComplete = true;
+      checkDone();
     });
 
-    const counters = {
-      write: 0,
-      read: 0
-    };
-
-    const msgs = new Array(10).fill().map(() => ({
-      counter: ++counters.write,
-      message: 'a'.repeat(16384 - os.EOL.length - 1)
-    }));
-    
-    let writesComplete = false;
-    let readsComplete = false;
-    let doneCalled = false;
-
-    const checkDone = () => {
-      if (writesComplete && readsComplete && !doneCalled) {
-        doneCalled = true;
-        logger.close();
-        done();
-      }
-    };
-
-    msgs.forEach(msg => logger.info(msg));
-
-    // Listen for write completion by checking file size or using a more reliable method
-    const waitForWrites = () => {
-      fs.stat(fileStressLogFile, (err, stats) => {
-        if (err || stats.size === 0) {
-          setTimeout(waitForWrites, 100);
-        } else {
-          writesComplete = true;
-          checkDone();
-        }
-      });
-    };
-
-    setTimeout(() => {
-      waitForWrites();
-    }, 100);
-
     helpers.tryRead(fileStressLogFile)
       .on('error', function (err) {
         assume(err).false();
@@ -4147,10 +3993,10 @@ file,type,line,method,methodStart,methodEnd,source
         assume(json.counter).equal(++counters.read);
       })
       .on('end', function () {
-        readsComplete = true;
+        readComplete = true;
         checkDone();
       });
-  })",114,178,steel
+  })",114,166,steel
 /test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 47, 'column': 4, 'index': 1122}","it('should handle a high volume of writes', function (done) {
     const logger = winston.createLogger({
       transports: [new winston.transports.File({
@@ -4232,137 +4078,7 @@ file,type,line,method,methodStart,methodEnd,source
         });
     }, 10000);
   })",70,112,steel
-/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 149, 'column': 10, 'index': 3842}","it('should handle a high volume of large writes synchronous', function (done) {
-    const logger = winston.createLogger({
-      transports: [new winston.transports.File({
-        filename: fileStressLogFile
-      })]
-    });
-
-    const counters = {
-      write: 0,
-      read: 0
-    };
-
-    const msgs = new Array(10).fill().map(() => ({
-      counter: ++counters.write,
-      message: 'a'.repeat(16384 - os.EOL.length - 1)
-    }));
-    
-    let writesComplete = false;
-    let readsComplete = false;
-    let doneCalled = false;
-
-    const checkDone = () => {
-      if (writesComplete && readsComplete && !doneCalled) {
-        doneCalled = true;
-        logger.close();
-        done();
-      }
-    };
-
-    msgs.forEach(msg => logger.info(msg));
-
-    // Listen for write completion by checking file size or using a more reliable method
-    const waitForWrites = () => {
-      fs.stat(fileStressLogFile, (err, stats) => {
-        if (err || stats.size === 0) {
-          setTimeout(waitForWrites, 100);
-        } else {
-          writesComplete = true;
-          checkDone();
-        }
-      });
-    };
-
-    setTimeout(() => {
-      waitForWrites();
-    }, 100);
-
-    helpers.tryRead(fileStressLogFile)
-      .on('error', function (err) {
-        assume(err).false();
-        logger.close();
-        done();
-      })
-      .pipe(split())
-      .on('data', function (d) {
-        const json = JSON.parse(d);
-        assume(json.level).equal('info');
-        assume(json.message).equal('a'.repeat(16384 - os.EOL.length - 1));
-        assume(json.counter).equal(++counters.read);
-      })
-      .on('end', function () {
-        readsComplete = true;
-        checkDone();
-      });
-  })",114,178,steel
-/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 157, 'column': 4, 'index': 3979}","it('should handle a high volume of large writes synchronous', function (done) {
-    const logger = winston.createLogger({
-      transports: [new winston.transports.File({
-        filename: fileStressLogFile
-      })]
-    });
-
-    const counters = {
-      write: 0,
-      read: 0
-    };
-
-    const msgs = new Array(10).fill().map(() => ({
-      counter: ++counters.write,
-      message: 'a'.repeat(16384 - os.EOL.length - 1)
-    }));
-    
-    let writesComplete = false;
-    let readsComplete = false;
-    let doneCalled = false;
-
-    const checkDone = () => {
-      if (writesComplete && readsComplete && !doneCalled) {
-        doneCalled = true;
-        logger.close();
-        done();
-      }
-    };
-
-    msgs.forEach(msg => logger.info(msg));
-
-    // Listen for write completion by checking file size or using a more reliable method
-    const waitForWrites = () => {
-      fs.stat(fileStressLogFile, (err, stats) => {
-        if (err || stats.size === 0) {
-          setTimeout(waitForWrites, 100);
-        } else {
-          writesComplete = true;
-          checkDone();
-        }
-      });
-    };
-
-    setTimeout(() => {
-      waitForWrites();
-    }, 100);
-
-    helpers.tryRead(fileStressLogFile)
-      .on('error', function (err) {
-        assume(err).false();
-        logger.close();
-        done();
-      })
-      .pipe(split())
-      .on('data', function (d) {
-        const json = JSON.parse(d);
-        assume(json.level).equal('info');
-        assume(json.message).equal('a'.repeat(16384 - os.EOL.length - 1));
-        assume(json.counter).equal(++counters.read);
-      })
-      .on('end', function () {
-        readsComplete = true;
-        checkDone();
-      });
-  })",114,178,steel
-/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 199, 'column': 4, 'index': 4994}","it('should handle a high volume of writes with lazy option enabled', function (done) {
+/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 187, 'column': 4, 'index': 4637}","it('should handle a high volume of writes with lazy option enabled', function (done) {
     const logger = winston.createLogger({
       transports: [
         new winston.transports.File({
@@ -4403,7 +4119,7 @@ file,type,line,method,methodStart,methodEnd,source
           done();
         });
     }, 10000);
-  })",180,221,steel
+  })",168,209,steel
 /test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 31}","it('should handle a high volume of writes', function (done) {
     const logger = winston.createLogger({
       transports: [new winston.transports.File({
@@ -4502,35 +4218,23 @@ file,type,line,method,methodStart,methodEnd,source
       message: 'a'.repeat(16384 - os.EOL.length - 1)
     }));
     
-    let writesComplete = false;
-    let readsComplete = false;
+    let writeComplete = false;
+    let readComplete = false;
     let doneCalled = false;
 
     const checkDone = () => {
-      if (writesComplete && readsComplete && !doneCalled) {
+      if (writeComplete && readComplete && !doneCalled) {
         doneCalled = true;
-        logger.close();
         done();
       }
     };
 
     msgs.forEach(msg => logger.info(msg));
 
-    // Listen for write completion by checking file size or using a more reliable method
-    const waitForWrites = () => {
-      fs.stat(fileStressLogFile, (err, stats) => {
-        if (err || stats.size === 0) {
-          setTimeout(waitForWrites, 100);
-        } else {
-          writesComplete = true;
-          checkDone();
-        }
-      });
-    };
-
-    setTimeout(() => {
-      waitForWrites();
-    }, 100);
+    logger.on('finish', () => {
+      writeComplete = true;
+      checkDone();
+    });
 
     helpers.tryRead(fileStressLogFile)
       .on('error', function (err) {
@@ -4546,11 +4250,11 @@ file,type,line,method,methodStart,methodEnd,source
         assume(json.counter).equal(++counters.read);
       })
       .on('end', function () {
-        readsComplete = true;
+        readComplete = true;
         checkDone();
       });
-  })",114,178,steel
-/test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 180}","it('should handle a high volume of writes with lazy option enabled', function (done) {
+  })",114,166,steel
+/test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 168}","it('should handle a high volume of writes with lazy option enabled', function (done) {
     const logger = winston.createLogger({
       transports: [
         new winston.transports.File({
@@ -4591,7 +4295,7 @@ file,type,line,method,methodStart,methodEnd,source
           done();
         });
     }, 10000);
-  })",180,221,steel
+  })",168,209,steel
 /test/unit/winston/config/config.test.js,Unknown Test,"{'column': 2, 'line': 13}","it('should have expected methods', function () {
     assume(winston.config).is.an('object');
     assume(winston.config.addColors).is.a('function');

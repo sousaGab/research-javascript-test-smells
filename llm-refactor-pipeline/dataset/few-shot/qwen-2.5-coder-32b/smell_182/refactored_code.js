@@ -8,5 +8,5 @@ test('when specify unknown option with program argument and action handler then 
 
     expect(() => {
       program.parse(['node', 'test', 'info', 'a', '--NONSENSE']);
-    }).toThrow(expect.objectContaining({ code: 'commander.unknownOption' }));
+    }).toThrow('commander.unknownOption');
   })

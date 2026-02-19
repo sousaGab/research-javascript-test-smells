@@ -1,4 +1,4 @@
-it('renders dropdown divider with correct structure and attributes', async () => {
+it('renders a dropdown divider with correct structure and attributes', async () => {
     const wrapper = mount(BDropdownDivider)
 
     expect(wrapper.element.tagName).toBe('LI')

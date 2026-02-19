@@ -1,13 +1,12 @@
 it("produces similar or better compaction height", () => {
       // The fast compactor should produce layouts with similar total height
       // (within a small tolerance, since algorithms may differ slightly)
-      const TOTAL_RUNS = 50;
-      const MAX_WORSE_THRESHOLD = 40;
-      const TOLERANCE_PERCENTAGE = 80;
-
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
+      const TOTAL_RUNS = 50;
+      const MAX_WORSE_THRESHOLD = 40;
+      const TOLERANCE_PERCENTAGE = 80;
 
       for (let run = 0; run < TOTAL_RUNS; run++) {
         const layout = generateMessyLayout(30, 12);
@@ -35,5 +34,5 @@ it("produces similar or better compaction height", () => {
 
       // Fast compactor should not be significantly worse
       // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_THRESHOLD);
+      expect(stdBetter).toBeLessThan(MAX_WORSE_THRESHOLD); // At most 80% worse
     })

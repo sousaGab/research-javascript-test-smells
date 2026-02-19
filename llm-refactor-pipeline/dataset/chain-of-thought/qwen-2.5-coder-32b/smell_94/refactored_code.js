@@ -1,4 +1,4 @@
-it('allows unmocked requests when query constraints do not match', async () => {
+it('allow unmocked option works with https for a partial match', async () => {
   const { origin } = await servers.startHttpsServer((request, response) => {
     response.writeHead(201)
     response.write('foo')

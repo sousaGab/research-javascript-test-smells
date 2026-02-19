@@ -4,13 +4,12 @@ test('revert limbo with serverId set', () => {
     
     expect(item.serverId).toBe(fileId);
     
-    const revertSpy = jest.fn();
-    item.revert = revertSpy;
+    const revertSpy = jest.spyOn(item, 'revert');
     
     pond.onremovefile = (error, file) => {
         expect(revertSpy).toHaveBeenCalledWith(expect.any(Function), false);
         expect(error).toBeNull();
-        expect(pond.getFiles().length).toBe(0);
+        expect(pond.getFiles()).toHaveLength(0);
         done();
     };
     

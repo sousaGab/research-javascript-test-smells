@@ -6,7 +6,7 @@ it('can be called without a callback', done => {
       socket.setTimeout(50)
 
       socket.on('timeout', () => {
-        expect(socket.destroyed).toBe(true)
+        expect(request.aborted).toBe(true)
         done()
       })
     })

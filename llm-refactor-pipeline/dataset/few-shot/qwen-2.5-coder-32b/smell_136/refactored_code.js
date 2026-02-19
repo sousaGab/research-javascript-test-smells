@@ -23,34 +23,36 @@ it('should handle a high volume of large writes', function (done) {
       logger.close();
     };
 
-    const checkCompletion = () => {
-      if (counters.write > 0 && counters.write === counters.read) {
+    const validateAndComplete = () => {
+      if (counters.write === counters.read) {
         cleanup();
         done();
       }
     };
 
+    helpers.tryRead(fileStressLogFile)
+      .on('error', function (err) {
+        cleanup();
+        assume(err).false();
+        done();
+      })
+      .pipe(split())
+      .on('data', function (d) {
+        const json = JSON.parse(d);
+        assume(json.level).equal('info');
+        assume(json.message).equal('a'.repeat(16384 - os.EOL.length - 1));
+        assume(json.counter).equal(++counters.read);
+        validateAndComplete();
+      })
+      .on('end', function () {
+        cleanup();
+        assume(counters.write).equal(counters.read);
+        done();
+      });
+
     setTimeout(function () {
       clearInterval(interval);
-      
-      helpers.tryRead(fileStressLogFile)
-        .on('error', function (err) {
-          cleanup();
-          assume(err).false();
-          done();
-        })
-        .pipe(split())
-        .on('data', function (d) {
-          const json = JSON.parse(d);
-          assume(json.level).equal('info');
-          assume(json.message).equal('a'.repeat(16384 - os.EOL.length - 1));
-          assume(json.counter).equal(++counters.read);
-          checkCompletion();
-        })
-        .on('end', function () {
-          assume(counters.write).equal(counters.read);
-          cleanup();
-          done();
-        });
+      // Trigger validation in case we didn't get all data
+      validateAndComplete();
     }, 10000);
   })

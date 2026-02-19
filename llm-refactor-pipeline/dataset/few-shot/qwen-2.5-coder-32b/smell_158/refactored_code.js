@@ -1,16 +1,12 @@
 describe('event options parsing', () => {
-  describe('when passive event support is available', () => {
-    beforeEach(() => {
-      global.HAS_PASSIVE_EVENT_SUPPORT = true
-    })
-
-    it('converts boolean to object', () => {
+  if (HAS_PASSIVE_EVENT_SUPPORT) {
+    it('converts boolean to object when passive event support is available', () => {
       expect(parseEventOptions(true)).toEqual({ capture: true })
       expect(parseEventOptions(false)).toEqual({ capture: false })
       expect(parseEventOptions()).toEqual({ capture: false })
     })
 
-    it('parses object correctly (returns as-is)', () => {
+    it('parses object correctly when passive event support is available', () => {
       expect(parseEventOptions({ capture: false })).toEqual({ capture: false })
       expect(parseEventOptions({ capture: true })).toEqual({ capture: true })
       expect(parseEventOptions({})).toEqual({})
@@ -23,21 +19,15 @@ describe('event options parsing', () => {
         foobar: false
       })
     })
-  })
-
-  describe('when passive event support is not available', () => {
-    beforeEach(() => {
-      global.HAS_PASSIVE_EVENT_SUPPORT = false
-    })
-
-    it('converts non object to boolean', () => {
+  } else {
+    it('converts non object to boolean when passive event support is not available', () => {
       expect(parseEventOptions(true)).toEqual(false)
       expect(parseEventOptions(false)).toEqual(false)
       expect(parseEventOptions()).toEqual(false)
       expect(parseEventOptions(null)).toEqual(false)
     })
 
-    it('converts object to boolean', () => {
+    it('converts object to boolean when passive event support is not available', () => {
       expect(parseEventOptions({ capture: false })).toEqual(false)
       expect(parseEventOptions({ capture: true })).toEqual(true)
       expect(parseEventOptions({})).toEqual(false)
@@ -46,5 +36,5 @@ describe('event options parsing', () => {
       expect(parseEventOptions({ foobar: true })).toEqual(false)
       expect(parseEventOptions({ foobar: false })).toEqual(false)
     })
-  })
+  }
 })

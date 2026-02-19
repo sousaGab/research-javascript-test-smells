@@ -1,4 +1,4 @@
-it("should set path maps correctly", function() {
+it("directly", function() {
     var cache = {};
     var version = 0;
     setPathMaps(

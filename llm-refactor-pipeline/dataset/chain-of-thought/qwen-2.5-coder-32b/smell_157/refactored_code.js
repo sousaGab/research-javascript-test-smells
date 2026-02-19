@@ -118,4 +118,30 @@ it('does not re-render parent child components', async () => {
     expect($inputs2.at(1)).toBeDefined()
     expect(wrapper2.emitted().focus1).not.toBeTruthy()
     expect(wrapper2.emitted().focus2).not.toBeTruthy()
-    expect(input2Render
+    expect(input2RenderCount).toBe(2)
+
+    await $inputs2.at(0).trigger('focus')
+    expect(wrapper2.emitted().focus1).not.toBeTruthy()
+    await $inputs2.at(1).trigger('focus')
+    expect(wrapper2.emitted().focus2).not.toBeTruthy()
+    expect(input2RenderCount).toBe(2)
+
+    // Enable focus events for the first input and trigger it
+    await wrapper2.setProps({ listenFocus1: true })
+    await $inputs2.at(0).trigger('focus')
+    expect(wrapper2.emitted().focus1).toBeTruthy()
+    expect(wrapper2.emitted().focus2).not.toBeTruthy()
+    // With `listenersMixin` only the affected `Input2` is re-rendered
+    expect(input2RenderCount).toBe(2)
+
+    // Enable focus events for the second input and trigger it
+    await wrapper2.setProps({ listenFocus2: true })
+    await $inputs2.at(1).trigger('focus')
+    expect(wrapper2.emitted().focus1).toBeTruthy()
+    expect(wrapper2.emitted().focus2).toBeTruthy()
+    // With `listenersMixin` only the affected `Input2` is re-rendered
+    expect(input2RenderCount).toBe(2)
+
+    wrapper1.destroy()
+    wrapper2.destroy()
+  })

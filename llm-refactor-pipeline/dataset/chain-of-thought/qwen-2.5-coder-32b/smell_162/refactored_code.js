@@ -22,9 +22,8 @@ it("uses correct layout for current breakpoint", () => {
       global.triggerResize(600, 400);
     });
 
-    // Verify layout change was called and check width at sm breakpoint
-    expect(onLayoutChange).toHaveBeenCalled();
-    const lastCall = onLayoutChange.mock.calls.at(-1);
-    const [layout] = lastCall;
+    // Verify layout was updated correctly for sm breakpoint
+    expect(onLayoutChange).toHaveBeenCalledTimes(1);
+    const [[layout]] = onLayoutChange.mock.calls;
     expect(layout[0].w).toBeLessThanOrEqual(6);
   });

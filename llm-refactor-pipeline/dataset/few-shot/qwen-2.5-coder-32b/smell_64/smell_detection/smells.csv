@@ -712,6 +712,61 @@ file,type,line,method,methodStart,methodEnd,source
 /test/Model.spec.js,SubOptimalAssert,"{'startLine':68,'endLine':68}","it(""should construct a new Model when calling the falcor module function"", () => {
         expect(falcor() instanceof falcor.Model).toBe(true);
     })",67,69,snuts
+/test/set/edge-cases.spec.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","it(""set blows away the cache."", function() {
+        var model = new Model({});
+        var get = [[""genreList"", 1, 0, ""summary""]];
+
+        // this mimicks the server setting cycle from the router.
+        var set = [
+            {
+                jsonGraph: {""genreList"": {
+                    ""0"": { ""$type"": $path, ""value"": [""lists"", ""abcd""] },
+                    ""1"": { ""$type"": $path, ""value"": [""lists"", ""my-list""] }
+                }},
+                paths: [['genreList', {to:1}, 0, 'summary']]
+            },
+            {
+                jsonGraph: {""lists"": {
+                    ""abcd"": { ""0"": { ""$type"": $path, ""value"": [""videos"", 1234] } },
+                    ""my-list"": { ""$type"": $path, ""value"": [""lists"", ""1x5x""] }
+                }},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            },
+            {
+                jsonGraph: {""lists"": {""1x5x"": {
+                    ""0"": { ""$type"": $path, ""value"": [""videos"", 553] }
+                }}},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            },
+            {
+                jsonGraph: {""videos"": {""553"": {""summary"": {
+                    ""$size"": 10,
+                    ""$type"": $atom,
+                    ""value"": {
+                        ""title"": ""Running Man"",
+                        ""url"": ""/movies/553""
+                    }
+                }}}},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            }
+        ];
+
+        set.forEach(function(s, i) {
+            model._setJSONGs(model, [s]);
+            if (i === 2) {
+                expect(model._root.cache.lists).toBeDefined();
+            }
+        });
+
+        model._getPathValuesAsPathMap(model, get, function(x) {
+            expect(x).toEqual({ json: { genreList: { 1: { 0: { summary: {
+                    ""title"": ""Running Man"",
+                    ""url"": ""/movies/553""
+                } } } } }
+            });
+        });
+    })",57,110,snuts
+/test/set/edge-cases.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':68,'endLine':68}","it(
         ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
         function() {
@@ -969,61 +1024,6 @@ file,type,line,method,methodStart,methodEnd,source
             expect(onCompletedValues[0]).toBe(undefined);
         }
     )",165,182,snuts
-/test/set/edge-cases.spec.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","it(""set blows away the cache."", function() {
-        var model = new Model({});
-        var get = [[""genreList"", 1, 0, ""summary""]];
-
-        // this mimicks the server setting cycle from the router.
-        var set = [
-            {
-                jsonGraph: {""genreList"": {
-                    ""0"": { ""$type"": $path, ""value"": [""lists"", ""abcd""] },
-                    ""1"": { ""$type"": $path, ""value"": [""lists"", ""my-list""] }
-                }},
-                paths: [['genreList', {to:1}, 0, 'summary']]
-            },
-            {
-                jsonGraph: {""lists"": {
-                    ""abcd"": { ""0"": { ""$type"": $path, ""value"": [""videos"", 1234] } },
-                    ""my-list"": { ""$type"": $path, ""value"": [""lists"", ""1x5x""] }
-                }},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            },
-            {
-                jsonGraph: {""lists"": {""1x5x"": {
-                    ""0"": { ""$type"": $path, ""value"": [""videos"", 553] }
-                }}},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            },
-            {
-                jsonGraph: {""videos"": {""553"": {""summary"": {
-                    ""$size"": 10,
-                    ""$type"": $atom,
-                    ""value"": {
-                        ""title"": ""Running Man"",
-                        ""url"": ""/movies/553""
-                    }
-                }}}},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            }
-        ];
-
-        set.forEach(function(s, i) {
-            model._setJSONGs(model, [s]);
-            if (i === 2) {
-                expect(model._root.cache.lists).toBeDefined();
-            }
-        });
-
-        model._getPathValuesAsPathMap(model, get, function(x) {
-            expect(x).toEqual({ json: { genreList: { 1: { 0: { summary: {
-                    ""title"": ""Running Man"",
-                    ""url"": ""/movies/553""
-                } } } } }
-            });
-        });
-    })",57,110,snuts
-/test/set/edge-cases.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/lru/lru.splice.overwrite.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
 /test/lru/lru.splice.expired.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/lru/lru.promote.set.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
@@ -1906,6 +1906,20 @@ file,type,line,method,methodStart,methodEnd,source
         })",82,91,snuts
 /test/integration/dedupe.spec.js,NonFunctionalStatement,"{'startLine':7,'endLine':7}",Unknown,,,snuts
 /test/integration/call.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/get-core/get.cache.spec.js,NonFunctionalStatement,"{'startLine':37,'endLine':37}","it(""serialized cache should not contain internal keys (including $size, on boxedValues)"", function(done) {
+        var model = new Model({ cache: cacheGenerator(0, 1) });
+
+        model.get(['lolomo', 0, 0, 'item', 'title']).subscribe(function() {}, done, function() {
+            var cache = model.getCache();
+
+            deepExpectations(cache, function(key) {
+                expect(isInternalKey(key)).toBe(false);
+            });
+
+            done();
+        });
+    })",34,46,snuts
+/test/get-core/deref.spec.js,NonFunctionalStatement,"{'startLine':11,'endLine':11}",Unknown,,,snuts
 /test/hardlink/hardlink.remove.spec.js,IdenticalTestDescription,"{'startLine':43,'endLine':49}","it('should perform a hard-link with back references _toJSONG.', function(done) {
             getTest(getPath, '_toJSONG').
                 flatMap(function() {
@@ -1942,20 +1956,6 @@ file,type,line,method,methodStart,methodEnd,source
                 subscribe(noOp, done, done);
         })",59,62,snuts
 /test/hardlink/hardlink.add.spec.js,NonFunctionalStatement,"{'startLine':13,'endLine':13}",Unknown,,,snuts
-/test/get-core/get.cache.spec.js,NonFunctionalStatement,"{'startLine':37,'endLine':37}","it(""serialized cache should not contain internal keys (including $size, on boxedValues)"", function(done) {
-        var model = new Model({ cache: cacheGenerator(0, 1) });
-
-        model.get(['lolomo', 0, 0, 'item', 'title']).subscribe(function() {}, done, function() {
-            var cache = model.getCache();
-
-            deepExpectations(cache, function(key) {
-                expect(isInternalKey(key)).toBe(false);
-            });
-
-            done();
-        });
-    })",34,46,snuts
-/test/get-core/deref.spec.js,NonFunctionalStatement,"{'startLine':11,'endLine':11}",Unknown,,,snuts
 /test/falcor/operations.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/falcor/operations.spec.js,SubOptimalAssert,"{'startLine':32,'endLine':32}","it('should return undefined when undefined is passed into falcor.keys', function() {
         expect(falcor.keys()).toBe(undefined);
@@ -36585,37 +36585,37 @@ file,type,line,method,methodStart,methodEnd,source
             expect(onNextValue).toBe(undefined);
         }
     )",115,129,steel
-/test/response/ModelResponseObserver.spec.js,Global Variable,"{'line': 134, 'column': 8, 'index': 4327}","it(
-    ""should suppress onNext method after ModelResponseObserver is onError'ed"",
-    function() {
-        var onNextValue;
-        var modelResponseObserver = new ModelResponseObserver({
-            onNext: function(value) {
-                onNextValue = value;
-            }
-        });
-        modelResponseObserver.onError();
-        modelResponseObserver.onNext(5);
+/test/response/ModelResponseObserver.spec.js,Global Variable,"{'line': 134, 'column': 12, 'index': 4339}","it(
+        ""should suppress onNext method after ModelResponseObserver is onError'ed"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function(value) {
+                    onNextValue = value;
+                }
+            });
+            modelResponseObserver.onError();
+            modelResponseObserver.onNext(5);
 
-        expect(onNextValue).toBeUndefined();
-    }
-)",131,145,steel
-/test/response/ModelResponseObserver.spec.js,Global Variable,"{'line': 135, 'column': 8, 'index': 4352}","it(
-    ""should suppress onNext method after ModelResponseObserver is onError'ed"",
-    function() {
-        var onNextValue;
-        var modelResponseObserver = new ModelResponseObserver({
-            onNext: function(value) {
-                onNextValue = value;
-            }
-        });
-        modelResponseObserver.onError();
-        modelResponseObserver.onNext(5);
+            expect(onNextValue).toBeUndefined();
+        }
+    )",131,145,steel
+/test/response/ModelResponseObserver.spec.js,Global Variable,"{'line': 135, 'column': 12, 'index': 4368}","it(
+        ""should suppress onNext method after ModelResponseObserver is onError'ed"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function(value) {
+                    onNextValue = value;
+                }
+            });
+            modelResponseObserver.onError();
+            modelResponseObserver.onNext(5);
 
-        expect(onNextValue).toBeUndefined();
-    }
-)",131,145,steel
-/test/response/ModelResponseObserver.spec.js,Global Variable,"{'line': 150, 'column': 12, 'index': 4810}","it(
+            expect(onNextValue).toBeUndefined();
+        }
+    )",131,145,steel
+/test/response/ModelResponseObserver.spec.js,Global Variable,"{'line': 150, 'column': 12, 'index': 4862}","it(
         ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
         function() {
             var onErrorValues = [];
@@ -36632,7 +36632,7 @@ file,type,line,method,methodStart,methodEnd,source
             expect(onErrorValues[0]).toBe(1);
         }
     )",147,163,steel
-/test/response/ModelResponseObserver.spec.js,Global Variable,"{'line': 151, 'column': 12, 'index': 4846}","it(
+/test/response/ModelResponseObserver.spec.js,Global Variable,"{'line': 151, 'column': 12, 'index': 4898}","it(
         ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
         function() {
             var onErrorValues = [];
@@ -36649,7 +36649,7 @@ file,type,line,method,methodStart,methodEnd,source
             expect(onErrorValues[0]).toBe(1);
         }
     )",147,163,steel
-/test/response/ModelResponseObserver.spec.js,Global Variable,"{'line': 168, 'column': 12, 'index': 5435}","it(
+/test/response/ModelResponseObserver.spec.js,Global Variable,"{'line': 168, 'column': 12, 'index': 5487}","it(
         ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
         function() {
             var onCompletedValues = [];
@@ -36667,7 +36667,7 @@ file,type,line,method,methodStart,methodEnd,source
             expect(onCompletedValues[0]).toBe(undefined);
         }
     )",165,182,steel
-/test/response/ModelResponseObserver.spec.js,Global Variable,"{'line': 169, 'column': 12, 'index': 5475}","it(
+/test/response/ModelResponseObserver.spec.js,Global Variable,"{'line': 169, 'column': 12, 'index': 5527}","it(
         ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
         function() {
             var onCompletedValues = [];
@@ -36765,7 +36765,7 @@ file,type,line,method,methodStart,methodEnd,source
             expect(onNextValue).toBe(5);
         }
     )",100,113,steel
-/test/response/ModelResponseObserver.spec.js,Magic Number,"{'line': 160, 'column': 46, 'index': 5196}","it(
+/test/response/ModelResponseObserver.spec.js,Magic Number,"{'line': 160, 'column': 46, 'index': 5248}","it(
         ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
         function() {
             var onErrorValues = [];
@@ -36782,7 +36782,7 @@ file,type,line,method,methodStart,methodEnd,source
             expect(onErrorValues[0]).toBe(1);
         }
     )",147,163,steel
-/test/response/ModelResponseObserver.spec.js,Magic Number,"{'line': 161, 'column': 42, 'index': 5242}","it(
+/test/response/ModelResponseObserver.spec.js,Magic Number,"{'line': 161, 'column': 42, 'index': 5294}","it(
         ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
         function() {
             var onErrorValues = [];
@@ -36799,7 +36799,7 @@ file,type,line,method,methodStart,methodEnd,source
             expect(onErrorValues[0]).toBe(1);
         }
     )",147,163,steel
-/test/response/ModelResponseObserver.spec.js,Magic Number,"{'line': 179, 'column': 50, 'index': 5893}","it(
+/test/response/ModelResponseObserver.spec.js,Magic Number,"{'line': 179, 'column': 50, 'index': 5945}","it(
         ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
         function() {
             var onCompletedValues = [];

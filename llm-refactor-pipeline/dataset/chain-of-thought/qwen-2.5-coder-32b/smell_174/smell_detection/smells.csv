@@ -2526,6 +2526,554 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",227,244,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':25,'endLine':41}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+            $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+        ]);
+
+        expect(strip(cache)).toEqual(strip({
+            movies: {
+                ""pulp-fiction"": {
+                    ""title"": $atom(""Pulp Fiction"")
+                }
+            }
+        }));
+    })",25,41,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':149,'endLine':166}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",149,166,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':200,'endLine':230}","it(""to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope(""grid[0][0..2].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",200,230,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':231,'endLine':258}","it(""from:1, to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope(""grid[0][1..2].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",231,258,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':259,'endLine':289}","it(""length:3"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, {length: 3}, ""director""], ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",259,289,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':290,'endLine':317}","it(""from:1, length:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, {from: 1, length: 2}, ""director""], ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",290,317,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':318,'endLine':348}","it(""[length:3]"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, [{length: 3}], ""director""], ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",318,348,snuts
+/test/set/pathMaps/primitive.spec.js,IdenticalTestDescription,"{'startLine':149,'endLine':166}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",149,166,snuts
+/test/set/pathMaps/expired.spec.js,IdenticalTestDescription,"{'startLine':58,'endLine':80}","it(""sets through an immediately expired reference"", function() {
+
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setPathMaps(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: startTime - 10
+                })),
+                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",58,80,snuts
+/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':27,'endLine':27}","it(""converts a negative $expires value to an absolute time"", function() {
+
+        var cache = {};
+        var version = 0;
+
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: -1000
+                }))
+            ]
+        );
+        var value = cache.grids.id[0];
+        var expires = value.$expires;
+
+        expect(expires > Date.now()).toBe(true);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } }
+        }));
+    })",11,32,snuts
+/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it(""sets through an immediately expired reference"", function() {
+
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setPathMaps(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: 0
+                })),
+                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",34,56,snuts
+/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':75,'endLine':75}","it(""sets through an immediately expired reference"", function() {
+
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setPathMaps(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: startTime - 10
+                })),
+                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",58,80,snuts
+/test/set/pathMaps/branch.spec.js,AnonymousTest,"{'startLine':12,'endLine':26}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathMapEnvelope(""movies['pulp-fiction']"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $atom(""Pulp Fiction"") }
+        }));
+    })",12,26,snuts
+/test/set/pathMaps/branch.spec.js,AnonymousTest,"{'startLine':58,'endLine':72}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathMapEnvelope(""movies['pulp-fiction']"", $error(""oops""))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",58,72,snuts
+/test/set/pathMaps/branch.spec.js,IdenticalTestDescription,"{'startLine':58,'endLine':72}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathMapEnvelope(""movies['pulp-fiction']"", $error(""oops""))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",58,72,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':11,'endLine':35}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""movies['pulp-fiction'].summary"", $atom({
+                    title: ""Pulp Fiction"",
+                    url: ""/movies/id/pulp-fiction""
+                }))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: {
+                ""pulp-fiction"": {
+                    ""summary"": $atom({
+                        title: ""Pulp Fiction"",
+                        url: ""/movies/id/pulp-fiction""
+                    })
+                }
+            }
+        }));
+    })",11,35,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':208,'endLine':225}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",208,225,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':259,'endLine':289}","it(""to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope(""grid[0][0..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",259,289,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':290,'endLine':317}","it(""from:1, to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope(""grid[0][1..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",290,317,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':318,'endLine':348}","it(""length:3"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, {length: 3}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",318,348,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':349,'endLine':376}","it(""from:1, length:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, {from: 1, length: 2}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",349,376,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':377,'endLine':407}","it(""[length:3]"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, [{length: 3}], ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",377,407,snuts
+/test/set/pathMaps/atom.spec.js,IdenticalTestDescription,"{'startLine':208,'endLine':225}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",208,225,snuts
 /test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':51,'endLine':70}","it(""directly"", function() {
 
         var cache = {};
@@ -4697,554 +5245,6 @@ file,type,line,method,methodStart,methodEnd,source
         disposable();
     })",177,215,snuts
 /test/internal/request/GetRequest.add.spec.js,NonFunctionalStatement,"{'startLine':10,'endLine':10}",Unknown,,,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':25,'endLine':41}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-            $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-        ]);
-
-        expect(strip(cache)).toEqual(strip({
-            movies: {
-                ""pulp-fiction"": {
-                    ""title"": $atom(""Pulp Fiction"")
-                }
-            }
-        }));
-    })",25,41,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':149,'endLine':166}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",149,166,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':200,'endLine':230}","it(""to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope(""grid[0][0..2].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",200,230,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':231,'endLine':258}","it(""from:1, to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope(""grid[0][1..2].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",231,258,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':259,'endLine':289}","it(""length:3"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, {length: 3}, ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",259,289,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':290,'endLine':317}","it(""from:1, length:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, {from: 1, length: 2}, ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",290,317,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':318,'endLine':348}","it(""[length:3]"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, [{length: 3}], ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",318,348,snuts
-/test/set/pathMaps/primitive.spec.js,IdenticalTestDescription,"{'startLine':149,'endLine':166}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",149,166,snuts
-/test/set/pathMaps/expired.spec.js,IdenticalTestDescription,"{'startLine':58,'endLine':80}","it(""sets through an immediately expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathMaps(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: startTime - 10
-                })),
-                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",58,80,snuts
-/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':27,'endLine':27}","it(""converts a negative $expires value to an absolute time"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: -1000
-                }))
-            ]
-        );
-        var value = cache.grids.id[0];
-        var expires = value.$expires;
-
-        expect(expires > Date.now()).toBe(true);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } }
-        }));
-    })",11,32,snuts
-/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it(""sets through an immediately expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathMaps(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: 0
-                })),
-                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",34,56,snuts
-/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':75,'endLine':75}","it(""sets through an immediately expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathMaps(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: startTime - 10
-                })),
-                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",58,80,snuts
-/test/set/pathMaps/branch.spec.js,AnonymousTest,"{'startLine':12,'endLine':26}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathMapEnvelope(""movies['pulp-fiction']"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $atom(""Pulp Fiction"") }
-        }));
-    })",12,26,snuts
-/test/set/pathMaps/branch.spec.js,AnonymousTest,"{'startLine':58,'endLine':72}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathMapEnvelope(""movies['pulp-fiction']"", $error(""oops""))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",58,72,snuts
-/test/set/pathMaps/branch.spec.js,IdenticalTestDescription,"{'startLine':58,'endLine':72}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathMapEnvelope(""movies['pulp-fiction']"", $error(""oops""))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",58,72,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':11,'endLine':35}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""movies['pulp-fiction'].summary"", $atom({
-                    title: ""Pulp Fiction"",
-                    url: ""/movies/id/pulp-fiction""
-                }))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: {
-                ""pulp-fiction"": {
-                    ""summary"": $atom({
-                        title: ""Pulp Fiction"",
-                        url: ""/movies/id/pulp-fiction""
-                    })
-                }
-            }
-        }));
-    })",11,35,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':208,'endLine':225}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",208,225,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':259,'endLine':289}","it(""to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope(""grid[0][0..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",259,289,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':290,'endLine':317}","it(""from:1, to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope(""grid[0][1..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",290,317,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':318,'endLine':348}","it(""length:3"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, {length: 3}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",318,348,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':349,'endLine':376}","it(""from:1, length:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, {from: 1, length: 2}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",349,376,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':377,'endLine':407}","it(""[length:3]"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, [{length: 3}], ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",377,407,snuts
-/test/set/pathMaps/atom.spec.js,IdenticalTestDescription,"{'startLine':208,'endLine':225}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",208,225,snuts
 /test/falcor/set/set.pathSyntax.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/falcor/set/set.dataSource-only.spec.js,ConditionalTestLogic,"{'startLine':160,'endLine':188}","it(""should report paths progressively."", done => {
         const onSet = function(source, tmpGraph, jsonGraphFromSet) {
@@ -5652,6 +5652,7 @@ file,type,line,method,methodStart,methodEnd,source
                         done();
                     });
         })",183,222,snuts
+/test/falcor/invalidate/invalidate.cache-only.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/get/get.pathSyntax.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/falcor/get/get.model.adapter.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
 /test/falcor/get/get.gen.spec.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should get a version', function() {
@@ -6440,187 +6441,6 @@ file,type,line,method,methodStart,methodEnd,source
                 }, done);
         })",64,92,snuts
 /test/falcor/get/get.cache-only.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
-/test/falcor/invalidate/invalidate.cache-only.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
-/test/falcor/deref/deref.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,OvercommentedTest,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
-        var cache = cacheGenerator(0, 30);
-        var model = new Model({
-            cache: cache,
-            maxSize: 3600,
-
-            // Only clean up 5% of the cache
-            collectRatio: 0.95
-        })._fromWhenceYouCame();
-
-        var lolomoModel;
-        var listModel;
-
-        // this is sync, no dataSource
-        // lolomo should be in the back of the cache again.
-        model.
-            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
-            subscribe(function(x) {
-                var lolomo = x.json.lolomo;
-                lolomoModel = model.deref(lolomo);
-                listModel = model.deref(lolomo[0]);
-            });
-
-        // Move the other references to the front of the LRU list.
-        // One of the problems in dealing with small amounts of data / size
-        // Is when things clean up, it causes side effects with references
-        // and what was cleaned up.  But that is only in these single request
-        // trivial tests
-        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
-
-        listModel.
-            set({
-                json: {
-                    10: {
-                        item: {
-                            title: 'Running man',
-                            rating: 5
-                        }
-                    },
-                    11: {
-                        item: {
-                            title: 'Commando',
-                            rating: 5
-                        }
-                    }
-                }
-            }).
-            subscribe();
-
-        var node = model._root[__head];
-        while (node) {
-            expect(node[__key]).not.toBe('lolomo');
-            node = node[__next];
-        }
-
-        var foundA, foundB, foundC;
-        var node = model._root[__head];
-        while (node) {
-            foundA = foundA || node.value[1] === 'A';
-            foundB = foundB || node.value[1] === 'B';
-            foundC = foundC || node.value[1] === 'C';
-            node = node[__next];
-        }
-        expect(foundA).toBe(true);
-        expect(foundB).toBe(true);
-        expect(foundC).toBe(true);
-
-        expect(lolomoModel._hasValidParentReference()).toBe(false);
-    })",115,183,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,VerboseStatement,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
-        var cache = cacheGenerator(0, 30);
-        var model = new Model({
-            cache: cache,
-            maxSize: 3600,
-
-            // Only clean up 5% of the cache
-            collectRatio: 0.95
-        })._fromWhenceYouCame();
-
-        var lolomoModel;
-        var listModel;
-
-        // this is sync, no dataSource
-        // lolomo should be in the back of the cache again.
-        model.
-            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
-            subscribe(function(x) {
-                var lolomo = x.json.lolomo;
-                lolomoModel = model.deref(lolomo);
-                listModel = model.deref(lolomo[0]);
-            });
-
-        // Move the other references to the front of the LRU list.
-        // One of the problems in dealing with small amounts of data / size
-        // Is when things clean up, it causes side effects with references
-        // and what was cleaned up.  But that is only in these single request
-        // trivial tests
-        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
-
-        listModel.
-            set({
-                json: {
-                    10: {
-                        item: {
-                            title: 'Running man',
-                            rating: 5
-                        }
-                    },
-                    11: {
-                        item: {
-                            title: 'Commando',
-                            rating: 5
-                        }
-                    }
-                }
-            }).
-            subscribe();
-
-        var node = model._root[__head];
-        while (node) {
-            expect(node[__key]).not.toBe('lolomo');
-            node = node[__next];
-        }
-
-        var foundA, foundB, foundC;
-        var node = model._root[__head];
-        while (node) {
-            foundA = foundA || node.value[1] === 'A';
-            foundB = foundB || node.value[1] === 'B';
-            foundC = foundC || node.value[1] === 'C';
-            node = node[__next];
-        }
-        expect(foundA).toBe(true);
-        expect(foundB).toBe(true);
-        expect(foundC).toBe(true);
-
-        expect(lolomoModel._hasValidParentReference()).toBe(false);
-    })",115,183,snuts
-/test/falcor/deref/deref.errors.spec.js,ConditionalTestLogic,"{'startLine':42,'endLine':44}","it('should error on a shorted deref path.', function(done) {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
-        });
-
-        var onNext = jest.fn();
-        model.
-            get(['lolomo', 0, 0, 'item', 'title']).
-            subscribe(onNext, noOp, function() {
-                expect(onNext).toHaveBeenCalledTimes(1);
-
-                var json = onNext.mock.calls[0][0].json;
-                var lolomoModel = model.deref(json.lolomo);
-                model.
-                    set({
-                        json: {
-                            lolomos: 'ohh no'
-                        }
-                    }).
-                    subscribe();
-
-                toObservable(lolomoModel.
-                    get([0, 0, 'item', 'title'])).
-                    doAction(onNext, function(err) {
-                        expect(onNext).toHaveBeenCalledTimes(1);
-                        expect(err.name).toBe(InvalidModelError.name);
-                    }).
-                    subscribe(
-                        noOp,
-                        function(err) {
-                            if (isAssertionError(err)) {
-                                return done(err);
-                            }
-                            done();
-                        },
-                        done.bind(null, new Error('onCompleted shouldnt be called')));
-            });
-    })",12,49,snuts
-/test/falcor/deref/deref.errors.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
-/test/falcor/call/call.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':65,'endLine':69}","it(""should get a hard error from the DataSource with _treatDataSourceErrorsAsJSONGraphErrors."", function(done) {
         var model = new Model({
             source: new ErrorDataSource(503, ""Timeout""),
@@ -6868,6 +6688,186 @@ file,type,line,method,methodStart,methodEnd,source
             }).
             subscribe(noOp, doneOnError(done), errorOnCompleted(done));
     })",107,144,snuts
+/test/falcor/deref/deref.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,OvercommentedTest,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
+        var cache = cacheGenerator(0, 30);
+        var model = new Model({
+            cache: cache,
+            maxSize: 3600,
+
+            // Only clean up 5% of the cache
+            collectRatio: 0.95
+        })._fromWhenceYouCame();
+
+        var lolomoModel;
+        var listModel;
+
+        // this is sync, no dataSource
+        // lolomo should be in the back of the cache again.
+        model.
+            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
+            subscribe(function(x) {
+                var lolomo = x.json.lolomo;
+                lolomoModel = model.deref(lolomo);
+                listModel = model.deref(lolomo[0]);
+            });
+
+        // Move the other references to the front of the LRU list.
+        // One of the problems in dealing with small amounts of data / size
+        // Is when things clean up, it causes side effects with references
+        // and what was cleaned up.  But that is only in these single request
+        // trivial tests
+        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
+
+        listModel.
+            set({
+                json: {
+                    10: {
+                        item: {
+                            title: 'Running man',
+                            rating: 5
+                        }
+                    },
+                    11: {
+                        item: {
+                            title: 'Commando',
+                            rating: 5
+                        }
+                    }
+                }
+            }).
+            subscribe();
+
+        var node = model._root[__head];
+        while (node) {
+            expect(node[__key]).not.toBe('lolomo');
+            node = node[__next];
+        }
+
+        var foundA, foundB, foundC;
+        var node = model._root[__head];
+        while (node) {
+            foundA = foundA || node.value[1] === 'A';
+            foundB = foundB || node.value[1] === 'B';
+            foundC = foundC || node.value[1] === 'C';
+            node = node[__next];
+        }
+        expect(foundA).toBe(true);
+        expect(foundB).toBe(true);
+        expect(foundC).toBe(true);
+
+        expect(lolomoModel._hasValidParentReference()).toBe(false);
+    })",115,183,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,VerboseStatement,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
+        var cache = cacheGenerator(0, 30);
+        var model = new Model({
+            cache: cache,
+            maxSize: 3600,
+
+            // Only clean up 5% of the cache
+            collectRatio: 0.95
+        })._fromWhenceYouCame();
+
+        var lolomoModel;
+        var listModel;
+
+        // this is sync, no dataSource
+        // lolomo should be in the back of the cache again.
+        model.
+            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
+            subscribe(function(x) {
+                var lolomo = x.json.lolomo;
+                lolomoModel = model.deref(lolomo);
+                listModel = model.deref(lolomo[0]);
+            });
+
+        // Move the other references to the front of the LRU list.
+        // One of the problems in dealing with small amounts of data / size
+        // Is when things clean up, it causes side effects with references
+        // and what was cleaned up.  But that is only in these single request
+        // trivial tests
+        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
+
+        listModel.
+            set({
+                json: {
+                    10: {
+                        item: {
+                            title: 'Running man',
+                            rating: 5
+                        }
+                    },
+                    11: {
+                        item: {
+                            title: 'Commando',
+                            rating: 5
+                        }
+                    }
+                }
+            }).
+            subscribe();
+
+        var node = model._root[__head];
+        while (node) {
+            expect(node[__key]).not.toBe('lolomo');
+            node = node[__next];
+        }
+
+        var foundA, foundB, foundC;
+        var node = model._root[__head];
+        while (node) {
+            foundA = foundA || node.value[1] === 'A';
+            foundB = foundB || node.value[1] === 'B';
+            foundC = foundC || node.value[1] === 'C';
+            node = node[__next];
+        }
+        expect(foundA).toBe(true);
+        expect(foundB).toBe(true);
+        expect(foundC).toBe(true);
+
+        expect(lolomoModel._hasValidParentReference()).toBe(false);
+    })",115,183,snuts
+/test/falcor/deref/deref.errors.spec.js,ConditionalTestLogic,"{'startLine':42,'endLine':44}","it('should error on a shorted deref path.', function(done) {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
+        });
+
+        var onNext = jest.fn();
+        model.
+            get(['lolomo', 0, 0, 'item', 'title']).
+            subscribe(onNext, noOp, function() {
+                expect(onNext).toHaveBeenCalledTimes(1);
+
+                var json = onNext.mock.calls[0][0].json;
+                var lolomoModel = model.deref(json.lolomo);
+                model.
+                    set({
+                        json: {
+                            lolomos: 'ohh no'
+                        }
+                    }).
+                    subscribe();
+
+                toObservable(lolomoModel.
+                    get([0, 0, 'item', 'title'])).
+                    doAction(onNext, function(err) {
+                        expect(onNext).toHaveBeenCalledTimes(1);
+                        expect(err.name).toBe(InvalidModelError.name);
+                    }).
+                    subscribe(
+                        noOp,
+                        function(err) {
+                            if (isAssertionError(err)) {
+                                return done(err);
+                            }
+                            done();
+                        },
+                        done.bind(null, new Error('onCompleted shouldnt be called')));
+            });
+    })",12,49,snuts
+/test/falcor/deref/deref.errors.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
+/test/falcor/call/call.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/getTestRunner.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/testRunner.js,NonFunctionalStatement,"{'startLine':7,'endLine':7}",Unknown,,,snuts
 /test/data/ErrorDataSource.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts

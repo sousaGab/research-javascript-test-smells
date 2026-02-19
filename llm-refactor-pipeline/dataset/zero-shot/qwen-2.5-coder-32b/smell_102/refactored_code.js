@@ -6,7 +6,7 @@ it('oneYearAgo() works with leap year date', async () => {
     expect(formatYMD(oneYearAgo(parseYMD('2020-02-28')))).toEqual('2019-02-28')
   })
 
-  it('oneYearAgo() works with end of month date', async () => {
+  it('oneYearAgo() works with month end date', async () => {
     expect(formatYMD(oneYearAgo(parseYMD('2020-01-31')))).toEqual('2019-01-31')
   })
 

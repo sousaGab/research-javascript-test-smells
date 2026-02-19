@@ -1,4 +1,4 @@
-it("updates director for multiple movies", function() {
+it("sets director for multiple movies", function() {
                 var cache = {};
                 var version = 0;
                 setPathValues(

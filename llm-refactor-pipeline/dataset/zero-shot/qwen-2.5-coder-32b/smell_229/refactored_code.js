@@ -13,4 +13,4 @@ test('Same props', () => {
     ownerDifferences: false,
   });
   expect(updateInfos).toHaveLength(1);
-})
+});

@@ -1236,430 +1236,6 @@ file,type,line,method,methodStart,methodEnd,source
     },
   ]);
 })",463,477,snuts
-/tests/hooks/useSyncExternalStore.test.js,AnonymousTest,"{'startLine':39,'endLine':71}","test('same value', () => {
-    const store = createSimpleStore('c');
-
-    const ComponentWithSyncExternalStore = ({a, b}) => {
-      const valueFromStore = React.useSyncExternalStore(
-        store.subscribe,
-        store.getState
-      );
-
-      return (
-        <div>
-          hi! {a} {b} {valueFromStore}
-        </div>
-      );
-    };
-    ComponentWithSyncExternalStore.whyDidYouRender = true;
-
-    const OuterComponent = () => {
-      React.useLayoutEffect(() => {
-        store.setState('c');
-      }, []);
-
-      return (
-        <div>
-          <ComponentWithSyncExternalStore a={1} b={2} />
-        </div>
-      );
-    };
-
-    rtl.render(<OuterComponent />);
-
-    expect(updateInfos).toHaveLength(0);
-  })",39,71,snuts
-/tests/hooks/useSyncExternalStore.test.js,AnonymousTest,"{'startLine':73,'endLine':118}","test('deep equals', () => {
-    const store = createSimpleStore({c: 'c'});
-
-    const ComponentWithSyncExternalStore = ({a, b}) => {
-      const valueFromStore = React.useSyncExternalStore(
-        store.subscribe,
-        store.getState
-      );
-
-      return (
-        <div>
-          hi! {a} {b} {valueFromStore.c}
-        </div>
-      );
-    };
-    ComponentWithSyncExternalStore.whyDidYouRender = true;
-
-    const OuterComponent = () => {
-      React.useLayoutEffect(() => {
-        store.setState({c: 'c'});
-      }, []);
-
-      return (
-        <div>
-          <ComponentWithSyncExternalStore a={1} b={2} />
-        </div>
-      );
-    };
-
-    rtl.render(<OuterComponent />);
-
-    expect(updateInfos).toHaveLength(1);
-    expect(updateInfos[0].reason).toEqual({
-      hookDifferences: [
-        {
-          diffType: diffTypes.deepEquals,
-          pathString: '',
-          nextValue: {c: 'c'},
-          prevValue: {c: 'c'},
-        },
-      ],
-      propsDifferences: false,
-      stateDifferences: false,
-      ownerDifferences: false,
-    });
-  })",73,118,snuts
-/tests/hooks/useState.test.js,AnonymousTest,"{'startLine':135,'endLine':161}","test('same value', () => {
-    const value = {b: 'b'};
-
-    let effectCalled = false;
-
-    const ComponentWithHooks = ({a}) => {
-      const [currentState, setCurrentState] = React.useState(value);
-
-      React.useLayoutEffect(() => {
-        effectCalled = true;
-        setCurrentState(value);
-      }, []);
-
-      return (
-        <div>hi! {a} {currentState.b}</div>
-      );
-    };
-
-    ComponentWithHooks.whyDidYouRender = true;
-
-    rtl.render(
-      <ComponentWithHooks a={1}/>
-    );
-
-    expect(updateInfos).toHaveLength(0);
-    expect(effectCalled).toBeTruthy();
-  })",135,161,snuts
-/tests/hooks/useState.test.js,AnonymousTest,"{'startLine':188,'endLine':219}","test('deep equals', () => {
-    const ComponentWithHooks = ({a}) => {
-      const [currentState, setCurrentState] = React.useState({b: 'b'});
-
-      React.useLayoutEffect(() => {
-        setCurrentState({b: 'b'});
-      }, []);
-
-      return (
-        <div>hi! {a} {currentState.b}</div>
-      );
-    };
-
-    ComponentWithHooks.whyDidYouRender = true;
-
-    rtl.render(
-      <ComponentWithHooks a={1}/>
-    );
-
-    expect(updateInfos).toHaveLength(1);
-    expect(updateInfos[0].reason).toEqual({
-      hookDifferences: [{
-        diffType: diffTypes.deepEquals,
-        pathString: '',
-        nextValue: {b: 'b'},
-        prevValue: {b: 'b'},
-      }],
-      propsDifferences: false,
-      stateDifferences: false,
-      ownerDifferences: false,
-    });
-  })",188,219,snuts
-/tests/hooks/useReducer.test.js,AnonymousTest,"{'startLine':21,'endLine':50}","test('same value', () => {
-    const initialState = {b: 'b'};
-
-    function reducer() {
-      return initialState;
-    }
-
-    let numOfRenders = 0;
-    const ComponentWithHooks = () => {
-      numOfRenders++;
-      const [state, dispatch] = React.useReducer(reducer, initialState);
-
-      React.useLayoutEffect(() => {
-        dispatch({type: 'something'});
-      }, []);
-
-      return (
-        <div>hi! {state.b}</div>
-      );
-    };
-
-    ComponentWithHooks.whyDidYouRender = true;
-
-    rtl.render(
-      <ComponentWithHooks/>
-    );
-
-    expect(numOfRenders).toBe(2);
-    expect(updateInfos).toHaveLength(0);
-  })",21,50,snuts
-/tests/hooks/useReducer.test.js,AnonymousTest,"{'startLine':52,'endLine':89}","test('different value', () => {
-    const initialState = {b: 'b'};
-
-    function reducer() {
-      return {a: 'a'};
-    }
-
-    const ComponentWithHooks = ({a}) => {
-      const [state, dispatch] = React.useReducer(reducer, initialState);
-
-      React.useLayoutEffect(() => {
-        dispatch({type: 'something'});
-      }, []);
-
-      return (
-        <div data-testid=""test"">hi! {a} {state.b}</div>
-      );
-    };
-
-    ComponentWithHooks.whyDidYouRender = true;
-
-    rtl.render(
-      <ComponentWithHooks a={1}/>
-    );
-
-    expect(updateInfos).toHaveLength(1);
-    expect(updateInfos[0].reason).toEqual({
-      hookDifferences: [{
-        pathString: '',
-        diffType: diffTypes.different,
-        prevValue: {b: 'b'},
-        nextValue: {a: 'a'},
-      }],
-      propsDifferences: false,
-      stateDifferences: false,
-      ownerDifferences: false,
-    });
-  })",52,89,snuts
-/tests/hooks/useContext.test.js,AnonymousTest,"{'startLine':21,'endLine':54}","test('same value', () => {
-    const MyContext = React.createContext('c');
-
-    const ComponentWithContextHook = ({a, b}) => {
-      const valueFromContext = React.useContext(MyContext);
-
-      return (
-        <div>hi! {a} {b} {valueFromContext}</div>
-      );
-    };
-    ComponentWithContextHook.whyDidYouRender = true;
-
-    const OuterComponent = () => {
-      const [currentState, setCurrentState] = React.useState('c');
-
-      React.useLayoutEffect(() => {
-        setCurrentState('c');
-      }, []);
-
-      return (
-        <MyContext.Provider value={currentState}>
-          <div>
-            <ComponentWithContextHook a={1} b={2}/>
-          </div>
-        </MyContext.Provider>
-      );
-    };
-
-    rtl.render(
-      <OuterComponent/>
-    );
-
-    expect(updateInfos).toHaveLength(0);
-  })",21,54,snuts
-/tests/hooks/hooks.test.js,AnonymousTest,"{'startLine':24,'endLine':41}","test('no whyDidYouRender=true', () => {
-      const ComponentWithHooks = ({a}) => {
-        const [currentState] = React.useState({b: 'b'});
-
-        return (
-          <div>hi! {a} {currentState.b}</div>
-        );
-      };
-
-      const {rerender} = rtl.render(
-        <ComponentWithHooks a={1}/>
-      );
-      rerender(
-        <ComponentWithHooks a={2}/>
-      );
-
-      expect(updateInfos).toHaveLength(0);
-    })",24,41,snuts
-/tests/hooks/hooks.test.js,AnonymousTest,"{'startLine':83,'endLine':113}","test('track component', () => {
-      const ComponentWithHooks = ({a}) => {
-        const [currentState] = React.useState({b: 'b'});
-
-        return (
-          <div>hi! {a} {currentState.b}</div>
-        );
-      };
-
-      ComponentWithHooks.whyDidYouRender = true;
-
-      const {rerender} = rtl.render(
-        <ComponentWithHooks a={1}/>
-      );
-      rerender(
-        <ComponentWithHooks a={2}/>
-      );
-
-      expect(updateInfos).toHaveLength(1);
-      expect(updateInfos[0].reason).toEqual({
-        propsDifferences: [{
-          pathString: 'a',
-          diffType: diffTypes.different,
-          prevValue: 1,
-          nextValue: 2,
-        }],
-        stateDifferences: false,
-        hookDifferences: false,
-        ownerDifferences: false,
-      });
-    })",83,113,snuts
-/tests/hooks/hooks.test.js,AnonymousTest,"{'startLine':165,'endLine':182}","test('no whyDidYouRender=true', () => {
-      const ComponentWithHooks = ({a}) => {
-        const [currentState] = React.useState({b: 'b'});
-
-        return (
-          <div>hi! {a} {currentState.b}</div>
-        );
-      };
-
-      const {rerender} = rtl.render(
-        <ComponentWithHooks a={1}/>
-      );
-      rerender(
-        <ComponentWithHooks a={2}/>
-      );
-
-      expect(updateInfos).toHaveLength(0);
-    })",165,182,snuts
-/tests/hooks/hooks.test.js,AnonymousTest,"{'startLine':184,'endLine':201}","test('with whyDidYouRender=true', () => {
-      const ComponentWithHooks = ({a}) => {
-        const [currentState, setCurrentState] = React.useState({b: 'b'});
-        React.useLayoutEffect(() => {
-          setCurrentState({b: 'b'});
-        }, []);
-        return (
-          <div>hi! {a} {currentState.b}</div>
-        );
-      };
-      ComponentWithHooks.whyDidYouRender = true;
-
-      rtl.render(
-        <ComponentWithHooks a={1}/>
-      );
-
-      expect(updateInfos).toHaveLength(0);
-    })",184,201,snuts
-/tests/hooks/hooks.test.js,IdenticalTestDescription,"{'startLine':165,'endLine':182}","test('no whyDidYouRender=true', () => {
-      const ComponentWithHooks = ({a}) => {
-        const [currentState] = React.useState({b: 'b'});
-
-        return (
-          <div>hi! {a} {currentState.b}</div>
-        );
-      };
-
-      const {rerender} = rtl.render(
-        <ComponentWithHooks a={1}/>
-      );
-      rerender(
-        <ComponentWithHooks a={2}/>
-      );
-
-      expect(updateInfos).toHaveLength(0);
-    })",165,182,snuts
-/tests/hooks/hooks.test.js,IdenticalTestDescription,"{'startLine':203,'endLine':222}","test('after removing WDYR', () => {
-      React.__REVERT_WHY_DID_YOU_RENDER__();
-
-      const ComponentWithHooks = ({a}) => {
-        const [currentState, setCurrentState] = React.useState({b: 'b'});
-        React.useLayoutEffect(() => {
-          setCurrentState({b: 'b'});
-        }, []);
-        return (
-          <div>hi! {a} {currentState.b}</div>
-        );
-      };
-      ComponentWithHooks.whyDidYouRender = true;
-
-      rtl.render(
-        <ComponentWithHooks a={1}/>
-      );
-
-      expect(updateInfos).toHaveLength(0);
-    })",203,222,snuts
-/tests/hooks/childrenUsingHookResults.test.js,AnonymousTest,"{'startLine':26,'endLine':86}","test('without dependencies', () => {
-    const AChild = () => <div>hi!</div>;
-    AChild.whyDidYouRender = true;
-
-    const ComponentWithMemoHook = () => {
-      const [currentState, setCurrentState] = React.useState({c: 'c'});
-      
-      React.useLayoutEffect(() => {
-        setCurrentState({c: 'c'});
-      }, []);
-
-      const fnUseCallback = React.useCallback(() => someFn(currentState.c));
-      const fnUseMemo = React.useMemo(() => () => someFn(currentState.c));
-      const fnRegular = () => someFn(currentState.c);
-
-      return (
-        <AChild type=""button"" fnRegular={fnRegular} fnUseMemo={fnUseMemo} fnUseCallback={fnUseCallback}/>
-      );
-    };
-
-    rtl.render(
-      <ComponentWithMemoHook/>
-    );
-
-    expect(updateInfos).toHaveLength(1);
-    expect(updateInfos[0].reason).toEqual({
-      hookDifferences: false,
-      stateDifferences: false,
-      propsDifferences: [
-        expect.objectContaining({
-          pathString: 'fnRegular',
-          diffType: 'function',
-        }),
-        expect.objectContaining({
-          pathString: 'fnUseMemo',
-          diffType: 'function',
-        }),
-        expect.objectContaining({
-          pathString: 'fnUseCallback',
-          diffType: 'function',
-        }),
-      ],
-      ownerDifferences: {
-        hookDifferences: [
-          {
-            differences: [
-              {
-                diffType: 'deepEquals',
-                nextValue: {c: 'c'},
-                pathString: '',
-                prevValue: {c: 'c'},
-              },
-            ],
-            hookName: 'useState',
-          },
-        ],
-        propsDifferences: false,
-        stateDifferences: false,
-      },
-    });
-  })",26,86,snuts
 /tests/patches/patchMemoComponent.test.js,ConditionalTestLogic,"{'startLine':136,'endLine':138}","test('memo a forward ref component', () => {
   const content = 'My component!!!';
 
@@ -2302,6 +1878,430 @@ file,type,line,method,methodStart,methodEnd,source
       },
     }));
   })",257,296,snuts
+/tests/hooks/useSyncExternalStore.test.js,AnonymousTest,"{'startLine':39,'endLine':71}","test('same value', () => {
+    const store = createSimpleStore('c');
+
+    const ComponentWithSyncExternalStore = ({a, b}) => {
+      const valueFromStore = React.useSyncExternalStore(
+        store.subscribe,
+        store.getState
+      );
+
+      return (
+        <div>
+          hi! {a} {b} {valueFromStore}
+        </div>
+      );
+    };
+    ComponentWithSyncExternalStore.whyDidYouRender = true;
+
+    const OuterComponent = () => {
+      React.useLayoutEffect(() => {
+        store.setState('c');
+      }, []);
+
+      return (
+        <div>
+          <ComponentWithSyncExternalStore a={1} b={2} />
+        </div>
+      );
+    };
+
+    rtl.render(<OuterComponent />);
+
+    expect(updateInfos).toHaveLength(0);
+  })",39,71,snuts
+/tests/hooks/useSyncExternalStore.test.js,AnonymousTest,"{'startLine':73,'endLine':118}","test('deep equals', () => {
+    const store = createSimpleStore({c: 'c'});
+
+    const ComponentWithSyncExternalStore = ({a, b}) => {
+      const valueFromStore = React.useSyncExternalStore(
+        store.subscribe,
+        store.getState
+      );
+
+      return (
+        <div>
+          hi! {a} {b} {valueFromStore.c}
+        </div>
+      );
+    };
+    ComponentWithSyncExternalStore.whyDidYouRender = true;
+
+    const OuterComponent = () => {
+      React.useLayoutEffect(() => {
+        store.setState({c: 'c'});
+      }, []);
+
+      return (
+        <div>
+          <ComponentWithSyncExternalStore a={1} b={2} />
+        </div>
+      );
+    };
+
+    rtl.render(<OuterComponent />);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [
+        {
+          diffType: diffTypes.deepEquals,
+          pathString: '',
+          nextValue: {c: 'c'},
+          prevValue: {c: 'c'},
+        },
+      ],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",73,118,snuts
+/tests/hooks/useState.test.js,AnonymousTest,"{'startLine':135,'endLine':161}","test('same value', () => {
+    const value = {b: 'b'};
+
+    let effectCalled = false;
+
+    const ComponentWithHooks = ({a}) => {
+      const [currentState, setCurrentState] = React.useState(value);
+
+      React.useLayoutEffect(() => {
+        effectCalled = true;
+        setCurrentState(value);
+      }, []);
+
+      return (
+        <div>hi! {a} {currentState.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(0);
+    expect(effectCalled).toBeTruthy();
+  })",135,161,snuts
+/tests/hooks/useState.test.js,AnonymousTest,"{'startLine':188,'endLine':219}","test('deep equals', () => {
+    const ComponentWithHooks = ({a}) => {
+      const [currentState, setCurrentState] = React.useState({b: 'b'});
+
+      React.useLayoutEffect(() => {
+        setCurrentState({b: 'b'});
+      }, []);
+
+      return (
+        <div>hi! {a} {currentState.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {b: 'b'},
+        prevValue: {b: 'b'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",188,219,snuts
+/tests/hooks/useReducer.test.js,AnonymousTest,"{'startLine':21,'endLine':50}","test('same value', () => {
+    const initialState = {b: 'b'};
+
+    function reducer() {
+      return initialState;
+    }
+
+    let numOfRenders = 0;
+    const ComponentWithHooks = () => {
+      numOfRenders++;
+      const [state, dispatch] = React.useReducer(reducer, initialState);
+
+      React.useLayoutEffect(() => {
+        dispatch({type: 'something'});
+      }, []);
+
+      return (
+        <div>hi! {state.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks/>
+    );
+
+    expect(numOfRenders).toBe(2);
+    expect(updateInfos).toHaveLength(0);
+  })",21,50,snuts
+/tests/hooks/useReducer.test.js,AnonymousTest,"{'startLine':52,'endLine':89}","test('different value', () => {
+    const initialState = {b: 'b'};
+
+    function reducer() {
+      return {a: 'a'};
+    }
+
+    const ComponentWithHooks = ({a}) => {
+      const [state, dispatch] = React.useReducer(reducer, initialState);
+
+      React.useLayoutEffect(() => {
+        dispatch({type: 'something'});
+      }, []);
+
+      return (
+        <div data-testid=""test"">hi! {a} {state.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [{
+        pathString: '',
+        diffType: diffTypes.different,
+        prevValue: {b: 'b'},
+        nextValue: {a: 'a'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",52,89,snuts
+/tests/hooks/useContext.test.js,AnonymousTest,"{'startLine':21,'endLine':54}","test('same value', () => {
+    const MyContext = React.createContext('c');
+
+    const ComponentWithContextHook = ({a, b}) => {
+      const valueFromContext = React.useContext(MyContext);
+
+      return (
+        <div>hi! {a} {b} {valueFromContext}</div>
+      );
+    };
+    ComponentWithContextHook.whyDidYouRender = true;
+
+    const OuterComponent = () => {
+      const [currentState, setCurrentState] = React.useState('c');
+
+      React.useLayoutEffect(() => {
+        setCurrentState('c');
+      }, []);
+
+      return (
+        <MyContext.Provider value={currentState}>
+          <div>
+            <ComponentWithContextHook a={1} b={2}/>
+          </div>
+        </MyContext.Provider>
+      );
+    };
+
+    rtl.render(
+      <OuterComponent/>
+    );
+
+    expect(updateInfos).toHaveLength(0);
+  })",21,54,snuts
+/tests/hooks/hooks.test.js,AnonymousTest,"{'startLine':24,'endLine':41}","test('no whyDidYouRender=true', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState] = React.useState({b: 'b'});
+
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+
+      const {rerender} = rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+      rerender(
+        <ComponentWithHooks a={2}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",24,41,snuts
+/tests/hooks/hooks.test.js,AnonymousTest,"{'startLine':83,'endLine':113}","test('track component', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState] = React.useState({b: 'b'});
+
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+
+      ComponentWithHooks.whyDidYouRender = true;
+
+      const {rerender} = rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+      rerender(
+        <ComponentWithHooks a={2}/>
+      );
+
+      expect(updateInfos).toHaveLength(1);
+      expect(updateInfos[0].reason).toEqual({
+        propsDifferences: [{
+          pathString: 'a',
+          diffType: diffTypes.different,
+          prevValue: 1,
+          nextValue: 2,
+        }],
+        stateDifferences: false,
+        hookDifferences: false,
+        ownerDifferences: false,
+      });
+    })",83,113,snuts
+/tests/hooks/hooks.test.js,AnonymousTest,"{'startLine':165,'endLine':182}","test('no whyDidYouRender=true', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState] = React.useState({b: 'b'});
+
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+
+      const {rerender} = rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+      rerender(
+        <ComponentWithHooks a={2}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",165,182,snuts
+/tests/hooks/hooks.test.js,AnonymousTest,"{'startLine':184,'endLine':201}","test('with whyDidYouRender=true', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState, setCurrentState] = React.useState({b: 'b'});
+        React.useLayoutEffect(() => {
+          setCurrentState({b: 'b'});
+        }, []);
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+      ComponentWithHooks.whyDidYouRender = true;
+
+      rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",184,201,snuts
+/tests/hooks/hooks.test.js,IdenticalTestDescription,"{'startLine':165,'endLine':182}","test('no whyDidYouRender=true', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState] = React.useState({b: 'b'});
+
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+
+      const {rerender} = rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+      rerender(
+        <ComponentWithHooks a={2}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",165,182,snuts
+/tests/hooks/hooks.test.js,IdenticalTestDescription,"{'startLine':203,'endLine':222}","test('after removing WDYR', () => {
+      React.__REVERT_WHY_DID_YOU_RENDER__();
+
+      const ComponentWithHooks = ({a}) => {
+        const [currentState, setCurrentState] = React.useState({b: 'b'});
+        React.useLayoutEffect(() => {
+          setCurrentState({b: 'b'});
+        }, []);
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+      ComponentWithHooks.whyDidYouRender = true;
+
+      rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",203,222,snuts
+/tests/hooks/childrenUsingHookResults.test.js,AnonymousTest,"{'startLine':26,'endLine':86}","test('without dependencies', () => {
+    const AChild = () => <div>hi!</div>;
+    AChild.whyDidYouRender = true;
+
+    const ComponentWithMemoHook = () => {
+      const [currentState, setCurrentState] = React.useState({c: 'c'});
+      
+      React.useLayoutEffect(() => {
+        setCurrentState({c: 'c'});
+      }, []);
+
+      const fnUseCallback = React.useCallback(() => someFn(currentState.c));
+      const fnUseMemo = React.useMemo(() => () => someFn(currentState.c));
+      const fnRegular = () => someFn(currentState.c);
+
+      return (
+        <AChild type=""button"" fnRegular={fnRegular} fnUseMemo={fnUseMemo} fnUseCallback={fnUseCallback}/>
+      );
+    };
+
+    rtl.render(
+      <ComponentWithMemoHook/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: false,
+      stateDifferences: false,
+      propsDifferences: [
+        expect.objectContaining({
+          pathString: 'fnRegular',
+          diffType: 'function',
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseMemo',
+          diffType: 'function',
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseCallback',
+          diffType: 'function',
+        }),
+      ],
+      ownerDifferences: {
+        hookDifferences: [
+          {
+            differences: [
+              {
+                diffType: 'deepEquals',
+                nextValue: {c: 'c'},
+                pathString: '',
+                prevValue: {c: 'c'},
+              },
+            ],
+            hookName: 'useState',
+          },
+        ],
+        propsDifferences: false,
+        stateDifferences: false,
+      },
+    });
+  })",26,86,snuts
 /tests/utils.test.js,Duplicate Assert,"{'line': 23, 'column': 4, 'index': 522}","test('class component', () => {
     let isStrictMode;
     class TestComponent extends React.Component {
@@ -5279,7 +5279,7 @@ file,type,line,method,methodStart,methodEnd,source
       ownerDifferences: false,
     });
   })",52,89,steel
-/tests/hooks/useReducer.test.js,Magic Number,"{'line': 116, 'column': 35, 'index': 2480}","test('component re-renders due to state change with deep equality check', () => {
+/tests/hooks/useReducer.test.js,Magic Number,"{'line': 116, 'column': 35, 'index': 2464}","test('renders component with deep equal hook difference', () => {
   const initialState = {b: 'b'};
 
   function reducer() {

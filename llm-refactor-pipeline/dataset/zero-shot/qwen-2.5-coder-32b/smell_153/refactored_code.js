@@ -27,9 +27,5 @@ it('accepts aria props', async () => {
     expect($slot.classes().length).toBe(2)
     expect($slot.text()).toEqual('')
 
-    if (!isVue3) {
-      expect($slot.findComponent(PortalTarget).exists()).toBe(true)
-    }
-
     wrapper.destroy()
   })

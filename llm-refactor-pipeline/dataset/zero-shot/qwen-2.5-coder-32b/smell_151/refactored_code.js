@@ -24,10 +24,12 @@ it('renders with correct basic inner structure', async () => {
       expect(pageLink).toBeDefined()
       
       if (index === 2) {
+        // Active page item
         expect(li.classes()).toContain('active')
         expect(li.classes()).not.toContain('disabled')
         expect(pageLink.element.tagName).toBe('BUTTON')
       } else {
+        // Disabled page items
         expect(li.classes()).not.toContain('active')
         expect(li.classes()).toContain('disabled')
         expect(pageLink.element.tagName).toBe('SPAN')

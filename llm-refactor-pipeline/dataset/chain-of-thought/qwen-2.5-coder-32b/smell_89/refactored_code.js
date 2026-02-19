@@ -30,7 +30,9 @@ it("re-observes element after switching from placeholder to composed component",
     global.triggerResize(1000);
   });
 
-  expect(container.querySelector(".react-grid-layout")).toBeInTheDocument();
+  expect(
+    container.querySelector(".react-grid-layout")
+  ).toBeInTheDocument();
 
   if (originalOffsetWidth) {
     Object.defineProperty(

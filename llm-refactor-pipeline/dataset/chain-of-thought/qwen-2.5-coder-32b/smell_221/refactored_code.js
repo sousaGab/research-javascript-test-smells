@@ -35,16 +35,17 @@ it('works with $router to detect path and use-router set and linkGen returns str
   await waitRAF()
   await waitNT(wrapper.vm)
 
-  expect(wrapper.findComponent(BPaginationNav).exists()).toBe(true)
-  expect(wrapper.findComponent(BPaginationNav).vm.currentPage).toBe(2)
+  const paginationNav = wrapper.findComponent(BPaginationNav)
+  expect(paginationNav.exists()).toBe(true)
+  expect(paginationNav.vm.currentPage).toBe(2)
 
   wrapper.vm.$router.push('/3')
   await waitNT(wrapper.vm)
   await waitRAF()
   await waitNT(wrapper.vm)
 
-  expect(wrapper.findComponent(BPaginationNav).exists()).toBe(true)
-  expect(wrapper.findComponent(BPaginationNav).vm.currentPage).toBe(3)
+  expect(paginationNav.exists()).toBe(true)
+  expect(paginationNav.vm.currentPage).toBe(3)
 
   wrapper.destroy()
 })

@@ -1,4 +1,4 @@
-it('should show tooltip on click', async () => {
+it('should show tooltip on click with proper aria attributes and DOM structure', async () => {
   jest.useFakeTimers()
 
   const App = {

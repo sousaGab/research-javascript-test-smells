@@ -1,10 +1,12 @@
 test('onprocessfileabort calls done when file processing is aborted', done => {
         createPond();
+        const mockDone = jest.fn(done);
         pond.onprocessfileabort = () => {
-            expect(pond.files[0].status).toBe(4); // Assuming 4 represents aborted status
-            done();
+            mockDone();
         };
         pond.files = [data];
-
         pond.getFile().abortProcessing();
+        
+        // Verify that done was called
+        expect(mockDone).toHaveBeenCalled();
     })

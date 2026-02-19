@@ -32,7 +32,7 @@ it('should match regular expressions in a string', () => {
     ['abba', '.*c', false]
   ];
 
-  testCases.forEach(([input1, input2, expected]) => {
-    expect(regularExpressionMatching(input1, input2)).toBe(expected);
+  testCases.forEach(([s, p, expected]) => {
+    expect(regularExpressionMatching(s, p)).toBe(expected);
   });
 });

@@ -407,88 +407,69 @@ file,type,line,method,methodStart,methodEnd,source
       // await serverlessExpressInstance(event)
       // expect(customLogger.debug.mock.calls.length).toBe(0)
     })",524,557,snuts
-/__tests__/integration.js,AnonymousTest,"{'startLine':559,'endLine':639}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
+/__tests__/integration.js,AnonymousTest,"{'startLine':559,'endLine':620}","test('custom levels', () => {
+  const setupLoggerAndVerify = (level, calls) => {
+    const logger = serverlessExpressLogger({ level })
+    calls.forEach(({ method, message, shouldCall }) => {
+      logger[method](message)
     })
+    
+    const expectedCalls = calls.filter(call => call.shouldCall)
+    const unexpectedCalls = calls.filter(call => !call.shouldCall)
+
+    unexpectedCalls.forEach(call => {
+      expect(global.console[call.method]).not.toHaveBeenCalled()
+    })
+
+    if (expectedCalls.length > 0) {
+      const lastCall = expectedCalls[expectedCalls.length - 1]
+      expect(global.console[lastCall.method]).toHaveBeenLastCalledWith({
+        message: lastCall.message
+      })
+    }
   }
 
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
+  setupLoggerAndVerify('error', [
+    { method: 'error', message: 'error', shouldCall: true },
+    { method: 'info', message: 'nocall', shouldCall: false },
+    { method: 'warn', message: 'nocall', shouldCall: false },
+    { method: 'debug', message: 'nocall', shouldCall: false },
+    { method: 'verbose', message: 'nocall', shouldCall: false }
   ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
 
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
+  setupLoggerAndVerify('warn', [
+    { method: 'error', message: 'error2', shouldCall: true },
+    { method: 'warn', message: 'warn2', shouldCall: true },
+    { method: 'info', message: 'nocall', shouldCall: false },
+    { method: 'debug', message: 'nocall', shouldCall: false },
+    { method: 'verbose', message: 'nocall', shouldCall: false }
   ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
 
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
+  setupLoggerAndVerify('info', [
+    { method: 'error', message: 'error3', shouldCall: true },
+    { method: 'warn', message: 'warn3', shouldCall: true },
+    { method: 'info', message: 'info3', shouldCall: true },
+    { method: 'debug', message: 'nocall', shouldCall: false },
+    { method: 'verbose', message: 'nocall', shouldCall: false }
   ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
 
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
+  setupLoggerAndVerify('verbose', [
+    { method: 'error', message: 'error4', shouldCall: true },
+    { method: 'warn', message: 'warn4', shouldCall: true },
+    { method: 'info', message: 'info4', shouldCall: true },
+    { method: 'verbose', message: 'verbose4', shouldCall: true },
+    { method: 'debug', message: 'nocall', shouldCall: false }
   ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
 
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
+  setupLoggerAndVerify('debug', [
+    { method: 'error', message: 'error5', shouldCall: true },
+    { method: 'warn', message: 'warn5', shouldCall: true },
+    { method: 'info', message: 'info5', shouldCall: true },
+    { method: 'verbose', message: 'verbose5', shouldCall: true },
+    { method: 'debug', message: 'debug5', shouldCall: true }
   ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,snuts
-/__tests__/integration.js,AnonymousTest,"{'startLine':679,'endLine':710}","test('legacy/deprecated createServer', async () => {
+})",559,620,snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':660,'endLine':691}","test('legacy/deprecated createServer', async () => {
     const serverlessExpressMiddleware = require('../src/middleware')
     app = express()
     router = express.Router()
@@ -519,8 +500,8 @@ file,type,line,method,methodStart,methodEnd,source
       statusCode: 200
     })
     expect(response).toEqual(expectedResponse)
-  })",679,710,snuts
-/__tests__/integration.js,AnonymousTest,"{'startLine':712,'endLine':738}","test('legacy/deprecated handler', async () => {
+  })",660,691,snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':693,'endLine':719}","test('legacy/deprecated handler', async () => {
     const serverlessExpressMiddleware = require('../src/middleware')
     router.use(serverlessExpressMiddleware.eventContext())
     router.get('/users', (req, res) => {
@@ -546,8 +527,8 @@ file,type,line,method,methodStart,methodEnd,source
       statusCode: 200
     })
     expect(response).toEqual(expectedResponse)
-  })",712,738,snuts
-/__tests__/integration.js,AnonymousTest,"{'startLine':740,'endLine':766}","test('legacy/deprecated proxy', async () => {
+  })",693,719,snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':721,'endLine':747}","test('legacy/deprecated proxy', async () => {
     const serverlessExpressMiddleware = require('../src/middleware')
     router.use(serverlessExpressMiddleware.eventContext())
     router.get('/users', (req, res) => {
@@ -573,7 +554,7 @@ file,type,line,method,methodStart,methodEnd,source
       statusCode: 200
     })
     expect(response).toEqual(expectedResponse)
-  })",740,766,snuts
+  })",721,747,snuts
 /__tests__/integration.js,OvercommentedTest,"{'startLine':524,'endLine':557}","test('custom logger', async () => {
       app = express()
       router = express.Router()
@@ -608,6 +589,68 @@ file,type,line,method,methodStart,methodEnd,source
       // await serverlessExpressInstance(event)
       // expect(customLogger.debug.mock.calls.length).toBe(0)
     })",524,557,snuts
+/__tests__/integration.js,ConditionalTestLogic,"{'startLine':573,'endLine':578}","test('custom levels', () => {
+  const setupLoggerAndVerify = (level, calls) => {
+    const logger = serverlessExpressLogger({ level })
+    calls.forEach(({ method, message, shouldCall }) => {
+      logger[method](message)
+    })
+    
+    const expectedCalls = calls.filter(call => call.shouldCall)
+    const unexpectedCalls = calls.filter(call => !call.shouldCall)
+
+    unexpectedCalls.forEach(call => {
+      expect(global.console[call.method]).not.toHaveBeenCalled()
+    })
+
+    if (expectedCalls.length > 0) {
+      const lastCall = expectedCalls[expectedCalls.length - 1]
+      expect(global.console[lastCall.method]).toHaveBeenLastCalledWith({
+        message: lastCall.message
+      })
+    }
+  }
+
+  setupLoggerAndVerify('error', [
+    { method: 'error', message: 'error', shouldCall: true },
+    { method: 'info', message: 'nocall', shouldCall: false },
+    { method: 'warn', message: 'nocall', shouldCall: false },
+    { method: 'debug', message: 'nocall', shouldCall: false },
+    { method: 'verbose', message: 'nocall', shouldCall: false }
+  ])
+
+  setupLoggerAndVerify('warn', [
+    { method: 'error', message: 'error2', shouldCall: true },
+    { method: 'warn', message: 'warn2', shouldCall: true },
+    { method: 'info', message: 'nocall', shouldCall: false },
+    { method: 'debug', message: 'nocall', shouldCall: false },
+    { method: 'verbose', message: 'nocall', shouldCall: false }
+  ])
+
+  setupLoggerAndVerify('info', [
+    { method: 'error', message: 'error3', shouldCall: true },
+    { method: 'warn', message: 'warn3', shouldCall: true },
+    { method: 'info', message: 'info3', shouldCall: true },
+    { method: 'debug', message: 'nocall', shouldCall: false },
+    { method: 'verbose', message: 'nocall', shouldCall: false }
+  ])
+
+  setupLoggerAndVerify('verbose', [
+    { method: 'error', message: 'error4', shouldCall: true },
+    { method: 'warn', message: 'warn4', shouldCall: true },
+    { method: 'info', message: 'info4', shouldCall: true },
+    { method: 'verbose', message: 'verbose4', shouldCall: true },
+    { method: 'debug', message: 'nocall', shouldCall: false }
+  ])
+
+  setupLoggerAndVerify('debug', [
+    { method: 'error', message: 'error5', shouldCall: true },
+    { method: 'warn', message: 'warn5', shouldCall: true },
+    { method: 'info', message: 'info5', shouldCall: true },
+    { method: 'verbose', message: 'verbose5', shouldCall: true },
+    { method: 'debug', message: 'debug5', shouldCall: true }
+  ])
+})",559,620,snuts
 /__tests__/integration.js,SubOptimalAssert,"{'startLine':546,'endLine':546}","test('custom logger', async () => {
       app = express()
       router = express.Router()
@@ -714,87 +757,6 @@ file,type,line,method,methodStart,methodEnd,source
 
     expect(response).toEqual(expectedResponse)
   })",432,503,snuts
-/__tests__/integration.js,VerboseStatement,"{'startLine':559,'endLine':639}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,snuts
 /__tests__/unit.js,Ignored Test,"{'line': 175, 'column': 9, 'index': 5830}","describe.skip('forwardResponse: content-type encoding', () => {
   test('content-type header missing', async (done) => {
     const binaryMimeTypes = []
@@ -1114,6 +1076,68 @@ file,type,line,method,methodStart,methodEnd,source
 /__tests__/integration.js,Conditional Test Logic,"{'line': 521, 'column': 6, 'index': 15828}","afterEach(() => {
       for (const mock of mocks) mock.mockRestore()
     })",520,522,steel
+/__tests__/integration.js,Conditional Test Logic,"{'line': 573, 'column': 4, 'index': 17419}","test('custom levels', () => {
+  const setupLoggerAndVerify = (level, calls) => {
+    const logger = serverlessExpressLogger({ level })
+    calls.forEach(({ method, message, shouldCall }) => {
+      logger[method](message)
+    })
+    
+    const expectedCalls = calls.filter(call => call.shouldCall)
+    const unexpectedCalls = calls.filter(call => !call.shouldCall)
+
+    unexpectedCalls.forEach(call => {
+      expect(global.console[call.method]).not.toHaveBeenCalled()
+    })
+
+    if (expectedCalls.length > 0) {
+      const lastCall = expectedCalls[expectedCalls.length - 1]
+      expect(global.console[lastCall.method]).toHaveBeenLastCalledWith({
+        message: lastCall.message
+      })
+    }
+  }
+
+  setupLoggerAndVerify('error', [
+    { method: 'error', message: 'error', shouldCall: true },
+    { method: 'info', message: 'nocall', shouldCall: false },
+    { method: 'warn', message: 'nocall', shouldCall: false },
+    { method: 'debug', message: 'nocall', shouldCall: false },
+    { method: 'verbose', message: 'nocall', shouldCall: false }
+  ])
+
+  setupLoggerAndVerify('warn', [
+    { method: 'error', message: 'error2', shouldCall: true },
+    { method: 'warn', message: 'warn2', shouldCall: true },
+    { method: 'info', message: 'nocall', shouldCall: false },
+    { method: 'debug', message: 'nocall', shouldCall: false },
+    { method: 'verbose', message: 'nocall', shouldCall: false }
+  ])
+
+  setupLoggerAndVerify('info', [
+    { method: 'error', message: 'error3', shouldCall: true },
+    { method: 'warn', message: 'warn3', shouldCall: true },
+    { method: 'info', message: 'info3', shouldCall: true },
+    { method: 'debug', message: 'nocall', shouldCall: false },
+    { method: 'verbose', message: 'nocall', shouldCall: false }
+  ])
+
+  setupLoggerAndVerify('verbose', [
+    { method: 'error', message: 'error4', shouldCall: true },
+    { method: 'warn', message: 'warn4', shouldCall: true },
+    { method: 'info', message: 'info4', shouldCall: true },
+    { method: 'verbose', message: 'verbose4', shouldCall: true },
+    { method: 'debug', message: 'nocall', shouldCall: false }
+  ])
+
+  setupLoggerAndVerify('debug', [
+    { method: 'error', message: 'error5', shouldCall: true },
+    { method: 'warn', message: 'warn5', shouldCall: true },
+    { method: 'info', message: 'info5', shouldCall: true },
+    { method: 'verbose', message: 'verbose5', shouldCall: true },
+    { method: 'debug', message: 'debug5', shouldCall: true }
+  ])
+})",559,620,steel
 /__tests__/integration.js,Duplicate Assert,"{'line': 281, 'column': 8, 'index': 8873}","test('GET image', async () => {
     const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
     router.get('/sam', (req, res) => {
@@ -1642,2032 +1666,7 @@ file,type,line,method,methodStart,methodEnd,source
     }
     expect(response).toEqual(expectedResponse)
   })",239,304,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 579, 'column': 2, 'index': 17575}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 580, 'column': 2, 'index': 17628}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 580, 'column': 2, 'index': 17628}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 581, 'column': 2, 'index': 17682}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 581, 'column': 2, 'index': 17682}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 582, 'column': 2, 'index': 17735}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 593, 'column': 2, 'index': 18038}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 593, 'column': 2, 'index': 18038}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 594, 'column': 2, 'index': 18092}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 594, 'column': 2, 'index': 18092}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 595, 'column': 2, 'index': 18145}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 596, 'column': 2, 'index': 18224}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 607, 'column': 2, 'index': 18525}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 607, 'column': 2, 'index': 18525}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 608, 'column': 2, 'index': 18579}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 609, 'column': 2, 'index': 18658}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 610, 'column': 2, 'index': 18735}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 621, 'column': 2, 'index': 19050}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 622, 'column': 2, 'index': 19129}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 623, 'column': 2, 'index': 19206}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 624, 'column': 2, 'index': 19283}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 635, 'column': 2, 'index': 19594}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 636, 'column': 2, 'index': 19673}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 637, 'column': 2, 'index': 19750}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 638, 'column': 2, 'index': 19827}","test('custom levels', () => {
-  const setupLogger = (level) => serverlessExpressLogger({ level })
-  const callLoggerMethods = (logger, calls) => {
-    calls.forEach(([method, message]) => logger[method](message))
-  }
-  const assertConsoleCalls = (expectedCalls) => {
-    expectedCalls.forEach(({ method, message }) => {
-      expect(global.console[method]).toHaveBeenLastCalledWith({ message })
-    })
-  }
-
-  // Test error level
-  const loggerError = setupLogger('error')
-  callLoggerMethods(loggerError, [
-    ['error', 'error'],
-    ['info', 'nocall'],
-    ['warn', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.warn).not.toHaveBeenCalled()
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error' })
-
-  // Test warn level
-  const loggerWarn = setupLogger('warn')
-  callLoggerMethods(loggerWarn, [
-    ['error', 'error2'],
-    ['warn', 'warn2'],
-    ['info', 'nocall'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.info).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error2' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn2' })
-
-  // Test info level
-  const loggerInfo = setupLogger('info')
-  callLoggerMethods(loggerInfo, [
-    ['error', 'error3'],
-    ['warn', 'warn3'],
-    ['info', 'info3'],
-    ['debug', 'nocall'],
-    ['verbose', 'nocall']
-  ])
-  expect(global.console.debug).not.toHaveBeenCalled()
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error3' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn3' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info3' })
-
-  // Test verbose level
-  const loggerVerbose = setupLogger('verbose')
-  callLoggerMethods(loggerVerbose, [
-    ['error', 'error4'],
-    ['warn', 'warn4'],
-    ['info', 'info4'],
-    ['verbose', 'verbose4'],
-    ['debug', 'nocall']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error4' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn4' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info4' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'verbose4' })
-
-  // Test debug level
-  const loggerDebug = setupLogger('debug')
-  callLoggerMethods(loggerDebug, [
-    ['error', 'error5'],
-    ['warn', 'warn5'],
-    ['info', 'info5'],
-    ['verbose', 'verbose5'],
-    ['debug', 'debug5']
-  ])
-  expect(global.console.error).toHaveBeenLastCalledWith({ message: 'error5' })
-  expect(global.console.warn).toHaveBeenLastCalledWith({ message: 'warn5' })
-  expect(global.console.info).toHaveBeenLastCalledWith({ message: 'info5' })
-  expect(global.console.debug).toHaveBeenLastCalledWith({ message: 'debug5' })
-})",559,639,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 649, 'column': 6, 'index': 20193}","test('lazy print of logger', async () => {
+/__tests__/integration.js,Duplicate Assert,"{'line': 630, 'column': 6, 'index': 19680}","test('lazy print of logger', async () => {
       const logger = serverlessExpressLogger({ level: 'debug' })
 
       logger.debug('simple message')
@@ -3702,8 +1701,8 @@ file,type,line,method,methodStart,methodEnd,source
           0: ['message']
         }
       )
-    })",641,676,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 655, 'column': 6, 'index': 20328}","test('lazy print of logger', async () => {
+    })",622,657,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 636, 'column': 6, 'index': 19815}","test('lazy print of logger', async () => {
       const logger = serverlessExpressLogger({ level: 'debug' })
 
       logger.debug('simple message')
@@ -3738,8 +1737,8 @@ file,type,line,method,methodStart,methodEnd,source
           0: ['message']
         }
       )
-    })",641,676,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 663, 'column': 6, 'index': 20499}","test('lazy print of logger', async () => {
+    })",622,657,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 644, 'column': 6, 'index': 19986}","test('lazy print of logger', async () => {
       const logger = serverlessExpressLogger({ level: 'debug' })
 
       logger.debug('simple message')
@@ -3774,8 +1773,8 @@ file,type,line,method,methodStart,methodEnd,source
           0: ['message']
         }
       )
-    })",641,676,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 669, 'column': 6, 'index': 20625}","test('lazy print of logger', async () => {
+    })",622,657,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 650, 'column': 6, 'index': 20112}","test('lazy print of logger', async () => {
       const logger = serverlessExpressLogger({ level: 'debug' })
 
       logger.debug('simple message')
@@ -3810,7 +1809,7 @@ file,type,line,method,methodStart,methodEnd,source
           0: ['message']
         }
       )
-    })",641,676,steel
+    })",622,657,steel
 /__tests__/integration.js,Ignored Test,"{'line': 423, 'column': 7, 'index': 13127}","test.skip('respondToEventSourceWithError', async () => {
     const response = await serverlessExpressInstance(null)
     expect(response).toEqual({

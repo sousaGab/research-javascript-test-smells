@@ -4,7 +4,7 @@ it('datesEqual() works with matching dates', async () => {
     expect(datesEqual('2020-01-15', new Date(2020, 0, 15))).toBe(true)
   })
 
-  it('datesEqual() works with non-matching dates', async () => {
+it('datesEqual() works with non-matching dates', async () => {
     expect(datesEqual('2020-01-15', '2020-12-15')).toBe(false)
     expect(datesEqual(new Date(2020, 0, 15), '2020-12-15')).toBe(false)
     expect(datesEqual('2020-02-15', new Date(2020, 0, 15))).toBe(false)

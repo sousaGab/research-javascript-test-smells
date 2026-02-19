@@ -25,7 +25,7 @@ it('should handle a high volume of large writes', function (done) {
         resolve();
       }, 5000); // Reduced timeout for faster execution
 
-      // Listen for read completion
+      // Listen for completion of reads
       const readStream = helpers.tryRead(fileStressLogFile)
         .on('error', function (err) {
           clearInterval(interval);
@@ -49,5 +49,5 @@ it('should handle a high volume of large writes', function (done) {
         });
     });
 
-    waitForWritesAndRead.then(() => done()).catch(done);
-});
+    waitForWritesAndRead.then(() => done()).catch(err => done(err));
+  })

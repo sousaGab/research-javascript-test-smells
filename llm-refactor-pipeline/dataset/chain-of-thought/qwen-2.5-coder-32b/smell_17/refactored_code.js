@@ -6,4 +6,4 @@ test("Decreases loading count", () => {
     setSources(img, settings, instance);
     cancelLoading(img, entry, settings, instance);
     expect(instance.loadingCount).toBe(EXPECTED_LOADING_COUNT);
-  })
+});

@@ -263,7 +263,6 @@ class HuggingFaceRefactorClient:
         smell_detection: str = "",
         temperature: float = 0.3,
         top_p: float = 1.0,
-        repetition_penalty: float = 1.05,
         max_tokens: int = 1400,
     ) -> str:
         """
@@ -280,7 +279,6 @@ class HuggingFaceRefactorClient:
             smell_detection: Detection criteria description for CoT (optional)
             temperature: Sampling temperature (0.0 to 2.0)
             top_p: Nucleus sampling parameter (0.0 to 1.0)
-            repetition_penalty: Penalty for repeating tokens (1.0 = no penalty)
             max_tokens: Maximum tokens to generate
         
         Returns:
@@ -311,10 +309,7 @@ class HuggingFaceRefactorClient:
                 messages=messages,
                 temperature=temperature,
                 top_p=top_p,
-                max_tokens=max_tokens,
-                extra_body={
-                    "repetition_penalty": repetition_penalty
-                }
+                max_tokens=max_tokens
             )
             
             output = response.choices[0].message.content.strip()

@@ -399,51 +399,6 @@ file,type,line,method,methodStart,methodEnd,source
   expect(formatString(Formats.DATETIME_HUGE_WITH_SECONDS)).toBe(""EEEE, LLLL d, yyyy, h:mm:ss a"");
   expect(formatString(""Default"")).toBe(""EEEE, LLLL d, yyyy, h:mm a"");
 })",83,107,snuts
-/test/duration/units.test.js,AnonymousTest,"{'startLine':166,'endLine':171}","test(""Duration#normalize de-overflows"", () => {
-  const dur = Duration.fromObject({ years: 2, days: 5000 }).normalize();
-  expect(dur.years).toBe(15);
-  expect(dur.days).toBe(255);
-  expect(dur.toObject()).toEqual({ years: 15, days: 255 });
-})",166,171,snuts
-/test/duration/parse.test.js,VerboseStatement,"{'startLine':23,'endLine':38}","test(""Duration.fromISO can parse mixed or negative durations"", () => {
-  check(""P-5Y-3M"", { years: -5, months: -3 });
-  check(""PT-54M32S"", { minutes: -54, seconds: 32 });
-  check(""P-3DT54M-32S"", { days: -3, minutes: 54, seconds: -32 });
-  check(""P1YT-34000S"", { years: 1, seconds: -34000 });
-  check(""P-1W1DT13H23M34S"", { weeks: -1, days: 1, hours: 13, minutes: 23, seconds: 34 });
-  check(""P-2W"", { weeks: -2 });
-  check(""-P1D"", { days: -1 });
-  check(""-P5Y3M"", { years: -5, months: -3 });
-  check(""-P-5Y-3M"", { years: 5, months: 3 });
-  check(""-P-1W1DT13H-23M34S"", { weeks: 1, days: -1, hours: -13, minutes: 23, seconds: -34 });
-  check(""PT-1.5S"", { seconds: -1, milliseconds: -500 });
-  check(""PT-0.5S"", { seconds: 0, milliseconds: -500 });
-  check(""PT1.5S"", { seconds: 1, milliseconds: 500 });
-  check(""PT0.5S"", { seconds: 0, milliseconds: 500 });
-})",23,38,snuts
-/test/duration/invalid.test.js,AnonymousTest,"{'startLine':12,'endLine':19}","test(""throwOnInvalid throws"", () => {
-  try {
-    Settings.throwOnInvalid = true;
-    expect(() => Duration.invalid(""because"")).toThrow();
-  } finally {
-    Settings.throwOnInvalid = false;
-  }
-})",12,19,snuts
-/test/duration/format.test.js,SubOptimalAssert,"{'startLine':60,'endLine':60}","test(""Duration#toISO returns null for invalid durations"", () => {
-  expect(Duration.invalid(""because"").toISO()).toBe(null);
-})",59,61,snuts
-/test/duration/format.test.js,SubOptimalAssert,"{'startLine':116,'endLine':116}","test(""Duration#toISOTime returns null if the value is outside the range of one day"", () => {
-  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
-  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
-})",115,118,snuts
-/test/duration/format.test.js,SubOptimalAssert,"{'startLine':117,'endLine':117}","test(""Duration#toISOTime returns null if the value is outside the range of one day"", () => {
-  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
-  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
-})",115,118,snuts
-/test/duration/equality.test.js,AnonymousTest,"{'startLine':4,'endLine':7}","test(""equals self"", () => {
-  const l = Duration.fromObject({ years: 5, days: 6 });
-  expect(l.equals(l)).toBe(true);
-})",4,7,snuts
 /test/datetime/zone.test.js,SubOptimalAssert,"{'startLine':218,'endLine':218}","test(""DateTime#setZone handles negative years"", () => {
   const dt = DateTime.fromMillis(-84753824400000).setZone(""Europe/Rome"");
   expect(dt.year).toBe(-716);
@@ -1566,6 +1521,51 @@ file,type,line,method,methodStart,methodEnd,source
   expect(dt.month).toBe(1);
   expect(dt.day).toBe(1);
 })",690,712,snuts
+/test/duration/units.test.js,AnonymousTest,"{'startLine':166,'endLine':171}","test(""Duration#normalize de-overflows"", () => {
+  const dur = Duration.fromObject({ years: 2, days: 5000 }).normalize();
+  expect(dur.years).toBe(15);
+  expect(dur.days).toBe(255);
+  expect(dur.toObject()).toEqual({ years: 15, days: 255 });
+})",166,171,snuts
+/test/duration/parse.test.js,VerboseStatement,"{'startLine':23,'endLine':38}","test(""Duration.fromISO can parse mixed or negative durations"", () => {
+  check(""P-5Y-3M"", { years: -5, months: -3 });
+  check(""PT-54M32S"", { minutes: -54, seconds: 32 });
+  check(""P-3DT54M-32S"", { days: -3, minutes: 54, seconds: -32 });
+  check(""P1YT-34000S"", { years: 1, seconds: -34000 });
+  check(""P-1W1DT13H23M34S"", { weeks: -1, days: 1, hours: 13, minutes: 23, seconds: 34 });
+  check(""P-2W"", { weeks: -2 });
+  check(""-P1D"", { days: -1 });
+  check(""-P5Y3M"", { years: -5, months: -3 });
+  check(""-P-5Y-3M"", { years: 5, months: 3 });
+  check(""-P-1W1DT13H-23M34S"", { weeks: 1, days: -1, hours: -13, minutes: 23, seconds: -34 });
+  check(""PT-1.5S"", { seconds: -1, milliseconds: -500 });
+  check(""PT-0.5S"", { seconds: 0, milliseconds: -500 });
+  check(""PT1.5S"", { seconds: 1, milliseconds: 500 });
+  check(""PT0.5S"", { seconds: 0, milliseconds: 500 });
+})",23,38,snuts
+/test/duration/invalid.test.js,AnonymousTest,"{'startLine':12,'endLine':19}","test(""throwOnInvalid throws"", () => {
+  try {
+    Settings.throwOnInvalid = true;
+    expect(() => Duration.invalid(""because"")).toThrow();
+  } finally {
+    Settings.throwOnInvalid = false;
+  }
+})",12,19,snuts
+/test/duration/format.test.js,SubOptimalAssert,"{'startLine':60,'endLine':60}","test(""Duration#toISO returns null for invalid durations"", () => {
+  expect(Duration.invalid(""because"").toISO()).toBe(null);
+})",59,61,snuts
+/test/duration/format.test.js,SubOptimalAssert,"{'startLine':116,'endLine':116}","test(""Duration#toISOTime returns null if the value is outside the range of one day"", () => {
+  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
+  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
+})",115,118,snuts
+/test/duration/format.test.js,SubOptimalAssert,"{'startLine':117,'endLine':117}","test(""Duration#toISOTime returns null if the value is outside the range of one day"", () => {
+  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
+  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
+})",115,118,snuts
+/test/duration/equality.test.js,AnonymousTest,"{'startLine':4,'endLine':7}","test(""equals self"", () => {
+  const l = Duration.fromObject({ years: 5, days: 6 });
+  expect(l.equals(l)).toBe(true);
+})",4,7,snuts
 /test/duration/create.test.js,Duplicate Assert,"{'line': 116, 'column': 2, 'index': 3420}","it(""Duration.fromDurationLike returns a Duration from millis"", () => {
   const dur = Duration.fromDurationLike(1000);
   expect(dur).toBeInstanceOf(Duration);
@@ -2212,40 +2212,36 @@ file,type,line,method,methodStart,methodEnd,source
     const dt = DateTime.fromISO(""2023-08-07"", { locale: ""de-DE"" });
     expect(dt.localWeekday).toBe(1);
   })",187,190,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 193, 'column': 33, 'index': 7714}","test(""Tuesday should be reported as the 2nd day of the week"", () => {
-    const dt = DateTime.fromISO(""2023-08-08"", { locale: ""de-DE"" });
-    expect(dt.localWeekday).toBe(2);
-  })",191,194,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 197, 'column': 33, 'index': 7899}","test(""Wednesday should be reported as the 3rd day of the week"", () => {
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 198, 'column': 33, 'index': 7928}","test(""Wednesday should be reported as the 3rd day of the week"", () => {
     const dt = DateTime.fromISO(""2023-08-09"", { locale: ""de-DE"" });
     expect(dt.localWeekday).toBe(3);
-  })",195,198,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 201, 'column': 33, 'index': 8083}","test(""Thursday should be reported as the 4th day of the week"", () => {
+  })",196,199,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 202, 'column': 33, 'index': 8112}","test(""Thursday should be reported as the 4th day of the week"", () => {
     const dt = DateTime.fromISO(""2023-08-10"", { locale: ""de-DE"" });
     expect(dt.localWeekday).toBe(4);
-  })",199,202,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 205, 'column': 33, 'index': 8265}","test(""Friday should be reported as the 5th day of the week"", () => {
+  })",200,203,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 206, 'column': 33, 'index': 8294}","test(""Friday should be reported as the 5th day of the week"", () => {
     const dt = DateTime.fromISO(""2023-08-11"", { locale: ""de-DE"" });
     expect(dt.localWeekday).toBe(5);
-  })",203,206,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 209, 'column': 33, 'index': 8449}","test(""Saturday should be reported as the 6th day of the week"", () => {
+  })",204,207,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 210, 'column': 33, 'index': 8478}","test(""Saturday should be reported as the 6th day of the week"", () => {
     const dt = DateTime.fromISO(""2023-08-12"", { locale: ""de-DE"" });
     expect(dt.localWeekday).toBe(6);
-  })",207,210,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 213, 'column': 33, 'index': 8631}","test(""Sunday should be reported as the 7th day of the week"", () => {
+  })",208,211,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 214, 'column': 33, 'index': 8660}","test(""Sunday should be reported as the 7th day of the week"", () => {
     const dt = DateTime.fromISO(""2023-08-13"", { locale: ""de-DE"" });
     expect(dt.localWeekday).toBe(7);
-  })",211,214,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 219, 'column': 86, 'index': 8826}","test(""2018 should have 53 weeks in en-US"", () => {
+  })",212,215,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 220, 'column': 86, 'index': 8855}","test(""2018 should have 53 weeks in en-US"", () => {
     expect(DateTime.local(2018, 6, 1, { locale: ""en-US"" }).weeksInLocalWeekYear).toBe(52);
-  })",218,220,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 227, 'column': 86, 'index': 9174}","test(""2022 should have 52 weeks in de-DE"", () => {
+  })",219,221,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 228, 'column': 86, 'index': 9203}","test(""2022 should have 52 weeks in de-DE"", () => {
     expect(DateTime.local(2022, 6, 1, { locale: ""de-DE"" }).weeksInLocalWeekYear).toBe(52);
-  })",226,228,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 230, 'column': 86, 'index': 9324}","test(""2020 should have 53 weeks in de-DE"", () => {
+  })",227,229,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 231, 'column': 86, 'index': 9353}","test(""2020 should have 53 weeks in de-DE"", () => {
     expect(DateTime.local(2020, 6, 1, { locale: ""de-DE"" }).weeksInLocalWeekYear).toBe(53);
-  })",229,231,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 240, 'column': 69, 'index': 9602}","test(""2018 should have 52 weeks with minDays 1, start 7"", () => {
+  })",230,232,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 241, 'column': 69, 'index': 9631}","test(""2018 should have 52 weeks with minDays 1, start 7"", () => {
     withDefaultWeekSettings(
       {
         minimalDays: 1,
@@ -2256,8 +2252,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(DateTime.local(2018, 6, 1).weeksInLocalWeekYear).toBe(52);
       }
     );
-  })",232,243,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 252, 'column': 69, 'index': 9895}","test(""2022 should have 53 weeks with minDays 1, start 7"", () => {
+  })",233,244,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 253, 'column': 69, 'index': 9924}","test(""2022 should have 53 weeks with minDays 1, start 7"", () => {
     withDefaultWeekSettings(
       {
         minimalDays: 1,
@@ -2268,46 +2264,46 @@ file,type,line,method,methodStart,methodEnd,source
         expect(DateTime.local(2022, 6, 1).weeksInLocalWeekYear).toBe(53);
       }
     );
-  })",244,255,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 261, 'column': 41, 'index': 10171}","test(""Overridden week info should be reported by Info"", () => {
+  })",245,256,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 262, 'column': 41, 'index': 10200}","test(""Overridden week info should be reported by Info"", () => {
     withDefaultWeekSettings({ firstDay: 3, minimalDays: 5, weekend: [4, 6] }, () => {
       expect(Info.getStartOfWeek()).toBe(3);
       expect(Info.getMinimumDaysInFirstWeek()).toBe(5);
       expect(Info.getWeekendWeekdays()).toEqual([4, 6]);
     });
-  })",259,265,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 262, 'column': 52, 'index': 10227}","test(""Overridden week info should be reported by Info"", () => {
+  })",260,266,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 263, 'column': 52, 'index': 10256}","test(""Overridden week info should be reported by Info"", () => {
     withDefaultWeekSettings({ firstDay: 3, minimalDays: 5, weekend: [4, 6] }, () => {
       expect(Info.getStartOfWeek()).toBe(3);
       expect(Info.getMinimumDaysInFirstWeek()).toBe(5);
       expect(Info.getWeekendWeekdays()).toEqual([4, 6]);
     });
-  })",259,265,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 281, 'column': 35, 'index': 11198}","test(""Overridden week info should be respected by DateTime accessors"", () => {
+  })",260,266,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 282, 'column': 35, 'index': 11227}","test(""Overridden week info should be respected by DateTime accessors"", () => {
     withDefaultWeekSettings({ firstDay: 7, minimalDays: 1, weekend: [6, 7] }, () => {
       const dt = DateTime.local(2022, 1, 1, { locale: ""de-DE"" });
       expect(dt.localWeekday).toBe(7);
       expect(dt.localWeekNumber).toBe(1);
       expect(dt.localWeekYear).toBe(2022);
     });
-  })",278,285,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 282, 'column': 38, 'index': 11240}","test(""Overridden week info should be respected by DateTime accessors"", () => {
+  })",279,286,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 283, 'column': 38, 'index': 11269}","test(""Overridden week info should be respected by DateTime accessors"", () => {
     withDefaultWeekSettings({ firstDay: 7, minimalDays: 1, weekend: [6, 7] }, () => {
       const dt = DateTime.local(2022, 1, 1, { locale: ""de-DE"" });
       expect(dt.localWeekday).toBe(7);
       expect(dt.localWeekNumber).toBe(1);
       expect(dt.localWeekYear).toBe(2022);
     });
-  })",278,285,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 283, 'column': 36, 'index': 11280}","test(""Overridden week info should be respected by DateTime accessors"", () => {
+  })",279,286,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 284, 'column': 36, 'index': 11309}","test(""Overridden week info should be respected by DateTime accessors"", () => {
     withDefaultWeekSettings({ firstDay: 7, minimalDays: 1, weekend: [6, 7] }, () => {
       const dt = DateTime.local(2022, 1, 1, { locale: ""de-DE"" });
       expect(dt.localWeekday).toBe(7);
       expect(dt.localWeekNumber).toBe(1);
       expect(dt.localWeekYear).toBe(2022);
     });
-  })",278,285,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 290, 'column': 33, 'index': 11613}","test(""Overridden week info should be respected by DateTime#set"", () => {
+  })",279,286,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 291, 'column': 33, 'index': 11642}","test(""Overridden week info should be respected by DateTime#set"", () => {
     withDefaultWeekSettings({ firstDay: 7, minimalDays: 1, weekend: [6, 7] }, () => {
       const dt = DateTime.local(2022, 1, 1, { locale: ""de-DE"" });
       const modified = dt.set({ localWeekday: 1 });
@@ -2315,8 +2311,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(modified.month).toBe(12);
       expect(modified.day).toBe(26);
     });
-  })",286,294,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 291, 'column': 34, 'index': 11654}","test(""Overridden week info should be respected by DateTime#set"", () => {
+  })",287,295,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 292, 'column': 34, 'index': 11683}","test(""Overridden week info should be respected by DateTime#set"", () => {
     withDefaultWeekSettings({ firstDay: 7, minimalDays: 1, weekend: [6, 7] }, () => {
       const dt = DateTime.local(2022, 1, 1, { locale: ""de-DE"" });
       const modified = dt.set({ localWeekday: 1 });
@@ -2324,8 +2320,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(modified.month).toBe(12);
       expect(modified.day).toBe(26);
     });
-  })",286,294,steel
-/test/datetime/localeWeek.test.js,Magic Number,"{'line': 292, 'column': 32, 'index': 11691}","test(""Overridden week info should be respected by DateTime#set"", () => {
+  })",287,295,steel
+/test/datetime/localeWeek.test.js,Magic Number,"{'line': 293, 'column': 32, 'index': 11720}","test(""Overridden week info should be respected by DateTime#set"", () => {
     withDefaultWeekSettings({ firstDay: 7, minimalDays: 1, weekend: [6, 7] }, () => {
       const dt = DateTime.local(2022, 1, 1, { locale: ""de-DE"" });
       const modified = dt.set({ localWeekday: 1 });
@@ -2333,7 +2329,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(modified.month).toBe(12);
       expect(modified.day).toBe(26);
     });
-  })",286,294,steel
+  })",287,295,steel
 /test/datetime/dst.test.js,Conditional Test Logic,"{'line': 12, 'column': 0, 'index': 352}",Unknown,,,steel
 /test/datetime/dst.test.js,Conditional Test Logic,"{'line': 20, 'column': 4, 'index': 629}","describe(`DateTime.${name}`, () => {
     test(""Hole dates are bumped forward"", () => {

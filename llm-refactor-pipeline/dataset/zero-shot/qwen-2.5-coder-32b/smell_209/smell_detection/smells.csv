@@ -2400,19 +2400,26 @@ file,type,line,method,methodStart,methodEnd,source
           helpers.assertTrace(data.trace);
           assume(data.message).includes('uncaughtException: ' + expectedMessage);
         })",122,141,steel
-/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 158, 'column': 8, 'index': 5511}","it('with the default winston logger', async () => {
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 165, 'column': 8, 'index': 5679}","it('with the default winston logger', async () => {
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
-        winston.exceptions.handle([
-          new winston.transports.File({
+        const logFileReady = new Promise(resolve => {
+          const fileTransport = new winston.transports.File({
             filename: filePath,
-            handleExceptions: true
-          })
-        ]);
+            handleExceptions: true,
+            maxsize: 1024 * 1024,
+            maxFiles: 1
+          });
+          
+          fileTransport.on('logged', () => {
+            resolve();
+          });
+          
+          winston.exceptions.handle([fileTransport]);
+        });
 
         process.emit('uncaughtException', expectedMessage);
-
-        // Wait for the exception handler to complete processing
-        await new Promise(resolve => setImmediate(resolve));
+        
+        await logFileReady;
 
         expect(processExitSpy).toHaveBeenCalledTimes(1);
         expect(processExitSpy).toHaveBeenCalledWith(1);
@@ -2427,20 +2434,27 @@ file,type,line,method,methodStart,methodEnd,source
         helpers.assertOsInfo(data.os);
         helpers.assertTrace(data.trace);
         assume(data.message).includes('uncaughtException: ' + expectedMessage);
-      })",144,171,steel
-/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 159, 'column': 8, 'index': 5568}","it('with the default winston logger', async () => {
+      })",144,178,steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 166, 'column': 8, 'index': 5736}","it('with the default winston logger', async () => {
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
-        winston.exceptions.handle([
-          new winston.transports.File({
+        const logFileReady = new Promise(resolve => {
+          const fileTransport = new winston.transports.File({
             filename: filePath,
-            handleExceptions: true
-          })
-        ]);
+            handleExceptions: true,
+            maxsize: 1024 * 1024,
+            maxFiles: 1
+          });
+          
+          fileTransport.on('logged', () => {
+            resolve();
+          });
+          
+          winston.exceptions.handle([fileTransport]);
+        });
 
         process.emit('uncaughtException', expectedMessage);
-
-        // Wait for the exception handler to complete processing
-        await new Promise(resolve => setImmediate(resolve));
+        
+        await logFileReady;
 
         expect(processExitSpy).toHaveBeenCalledTimes(1);
         expect(processExitSpy).toHaveBeenCalledWith(1);
@@ -2455,7 +2469,7 @@ file,type,line,method,methodStart,methodEnd,source
         helpers.assertOsInfo(data.os);
         helpers.assertTrace(data.trace);
         assume(data.message).includes('uncaughtException: ' + expectedMessage);
-      })",144,171,steel
+      })",144,178,steel
 /test/unit/winston/log-exception.test.js,Global Variable,"{'line': 24, 'column': 6, 'index': 764}","it('does not log to any transports', function (done) {
       var logFile = path.join(testLogFixturesPath, 'unhandle-exception.log');
 
@@ -2523,19 +2537,26 @@ file,type,line,method,methodStart,methodEnd,source
           helpers.assertTrace(data.trace);
           assume(data.message).includes('uncaughtException: ' + expectedMessage);
         })",122,141,steel
-/test/unit/winston/log-exception.test.js,Magic Number,"{'line': 159, 'column': 52, 'index': 5612}","it('with the default winston logger', async () => {
+/test/unit/winston/log-exception.test.js,Magic Number,"{'line': 166, 'column': 52, 'index': 5780}","it('with the default winston logger', async () => {
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
-        winston.exceptions.handle([
-          new winston.transports.File({
+        const logFileReady = new Promise(resolve => {
+          const fileTransport = new winston.transports.File({
             filename: filePath,
-            handleExceptions: true
-          })
-        ]);
+            handleExceptions: true,
+            maxsize: 1024 * 1024,
+            maxFiles: 1
+          });
+          
+          fileTransport.on('logged', () => {
+            resolve();
+          });
+          
+          winston.exceptions.handle([fileTransport]);
+        });
 
         process.emit('uncaughtException', expectedMessage);
-
-        // Wait for the exception handler to complete processing
-        await new Promise(resolve => setImmediate(resolve));
+        
+        await logFileReady;
 
         expect(processExitSpy).toHaveBeenCalledTimes(1);
         expect(processExitSpy).toHaveBeenCalledWith(1);
@@ -2550,7 +2571,7 @@ file,type,line,method,methodStart,methodEnd,source
         helpers.assertOsInfo(data.os);
         helpers.assertTrace(data.trace);
         assume(data.message).includes('uncaughtException: ' + expectedMessage);
-      })",144,171,steel
+      })",144,178,steel
 /test/unit/winston/log-exception.test.js,Mystery Guest,"{'column': 10, 'line': 30}","it('does not log to any transports', function (done) {
       var logFile = path.join(testLogFixturesPath, 'unhandle-exception.log');
 

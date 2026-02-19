@@ -2490,6 +2490,554 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",227,244,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':25,'endLine':41}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+            $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+        ]);
+
+        expect(strip(cache)).toEqual(strip({
+            movies: {
+                ""pulp-fiction"": {
+                    ""title"": $atom(""Pulp Fiction"")
+                }
+            }
+        }));
+    })",25,41,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':149,'endLine':166}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",149,166,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':200,'endLine':230}","it(""to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope(""grid[0][0..2].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",200,230,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':231,'endLine':258}","it(""from:1, to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope(""grid[0][1..2].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",231,258,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':259,'endLine':289}","it(""length:3"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, {length: 3}, ""director""], ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",259,289,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':290,'endLine':317}","it(""from:1, length:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, {from: 1, length: 2}, ""director""], ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",290,317,snuts
+/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':318,'endLine':348}","it(""[length:3]"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, [{length: 3}], ""director""], ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",318,348,snuts
+/test/set/pathMaps/primitive.spec.js,IdenticalTestDescription,"{'startLine':149,'endLine':166}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",149,166,snuts
+/test/set/pathMaps/expired.spec.js,IdenticalTestDescription,"{'startLine':58,'endLine':80}","it(""sets through an immediately expired reference"", function() {
+
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setPathMaps(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: startTime - 10
+                })),
+                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",58,80,snuts
+/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':27,'endLine':27}","it(""converts a negative $expires value to an absolute time"", function() {
+
+        var cache = {};
+        var version = 0;
+
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: -1000
+                }))
+            ]
+        );
+        var value = cache.grids.id[0];
+        var expires = value.$expires;
+
+        expect(expires > Date.now()).toBe(true);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } }
+        }));
+    })",11,32,snuts
+/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it(""sets through an immediately expired reference"", function() {
+
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setPathMaps(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: 0
+                })),
+                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",34,56,snuts
+/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':75,'endLine':75}","it(""sets through an immediately expired reference"", function() {
+
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setPathMaps(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: startTime - 10
+                })),
+                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",58,80,snuts
+/test/set/pathMaps/branch.spec.js,AnonymousTest,"{'startLine':12,'endLine':26}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathMapEnvelope(""movies['pulp-fiction']"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $atom(""Pulp Fiction"") }
+        }));
+    })",12,26,snuts
+/test/set/pathMaps/branch.spec.js,AnonymousTest,"{'startLine':58,'endLine':72}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathMapEnvelope(""movies['pulp-fiction']"", $error(""oops""))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",58,72,snuts
+/test/set/pathMaps/branch.spec.js,IdenticalTestDescription,"{'startLine':58,'endLine':72}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathMapEnvelope(""movies['pulp-fiction']"", $error(""oops""))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",58,72,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':11,'endLine':35}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+
+        setPathMaps(
+            getModel({ cache: cache, version: version++ }), [
+                $pathMapEnvelope(""movies['pulp-fiction'].summary"", $atom({
+                    title: ""Pulp Fiction"",
+                    url: ""/movies/id/pulp-fiction""
+                }))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: {
+                ""pulp-fiction"": {
+                    ""summary"": $atom({
+                        title: ""Pulp Fiction"",
+                        url: ""/movies/id/pulp-fiction""
+                    })
+                }
+            }
+        }));
+    })",11,35,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':208,'endLine':225}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",208,225,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':259,'endLine':289}","it(""to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope(""grid[0][0..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",259,289,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':290,'endLine':317}","it(""from:1, to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope(""grid[0][1..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",290,317,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':318,'endLine':348}","it(""length:3"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, {length: 3}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",318,348,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':349,'endLine':376}","it(""from:1, length:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, {from: 1, length: 2}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",349,376,snuts
+/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':377,'endLine':407}","it(""[length:3]"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
+                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathMapEnvelope([""grid"", 0, [{length: 3}], ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",377,407,snuts
+/test/set/pathMaps/atom.spec.js,IdenticalTestDescription,"{'startLine':208,'endLine':225}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathMaps(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",208,225,snuts
 /test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':51,'endLine':70}","it(""directly"", function() {
 
         var cache = {};
@@ -3207,554 +3755,6 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",220,239,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':25,'endLine':41}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-            $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-        ]);
-
-        expect(strip(cache)).toEqual(strip({
-            movies: {
-                ""pulp-fiction"": {
-                    ""title"": $atom(""Pulp Fiction"")
-                }
-            }
-        }));
-    })",25,41,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':149,'endLine':166}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",149,166,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':200,'endLine':230}","it(""to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope(""grid[0][0..2].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",200,230,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':231,'endLine':258}","it(""from:1, to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope(""grid[0][1..2].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",231,258,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':259,'endLine':289}","it(""length:3"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, {length: 3}, ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",259,289,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':290,'endLine':317}","it(""from:1, length:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, {from: 1, length: 2}, ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",290,317,snuts
-/test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':318,'endLine':348}","it(""[length:3]"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].director"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, [{length: 3}], ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",318,348,snuts
-/test/set/pathMaps/primitive.spec.js,IdenticalTestDescription,"{'startLine':149,'endLine':166}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",149,166,snuts
-/test/set/pathMaps/expired.spec.js,IdenticalTestDescription,"{'startLine':58,'endLine':80}","it(""sets through an immediately expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathMaps(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: startTime - 10
-                })),
-                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",58,80,snuts
-/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':27,'endLine':27}","it(""converts a negative $expires value to an absolute time"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: -1000
-                }))
-            ]
-        );
-        var value = cache.grids.id[0];
-        var expires = value.$expires;
-
-        expect(expires > Date.now()).toBe(true);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } }
-        }));
-    })",11,32,snuts
-/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it(""sets through an immediately expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathMaps(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: 0
-                })),
-                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",34,56,snuts
-/test/set/pathMaps/expired.spec.js,SubOptimalAssert,"{'startLine':75,'endLine':75}","it(""sets through an immediately expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathMaps(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: startTime - 10
-                })),
-                $pathMapEnvelope(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",58,80,snuts
-/test/set/pathMaps/branch.spec.js,AnonymousTest,"{'startLine':12,'endLine':26}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathMapEnvelope(""movies['pulp-fiction']"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $atom(""Pulp Fiction"") }
-        }));
-    })",12,26,snuts
-/test/set/pathMaps/branch.spec.js,AnonymousTest,"{'startLine':58,'endLine':72}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathMapEnvelope(""movies['pulp-fiction']"", $error(""oops""))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",58,72,snuts
-/test/set/pathMaps/branch.spec.js,IdenticalTestDescription,"{'startLine':58,'endLine':72}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathMapEnvelope(""movies['pulp-fiction']"", $error(""oops""))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",58,72,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':11,'endLine':35}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setPathMaps(
-            getModel({ cache: cache, version: version++ }), [
-                $pathMapEnvelope(""movies['pulp-fiction'].summary"", $atom({
-                    title: ""Pulp Fiction"",
-                    url: ""/movies/id/pulp-fiction""
-                }))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: {
-                ""pulp-fiction"": {
-                    ""summary"": $atom({
-                        title: ""Pulp Fiction"",
-                        url: ""/movies/id/pulp-fiction""
-                    })
-                }
-            }
-        }));
-    })",11,35,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':208,'endLine':225}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",208,225,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':259,'endLine':289}","it(""to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope(""grid[0][0..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",259,289,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':290,'endLine':317}","it(""from:1, to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope(""grid[0][1..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",290,317,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':318,'endLine':348}","it(""length:3"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, {length: 3}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",318,348,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':349,'endLine':376}","it(""from:1, length:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, {from: 1, length: 2}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",349,376,snuts
-/test/set/pathMaps/atom.spec.js,AnonymousTest,"{'startLine':377,'endLine':407}","it(""[length:3]"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""grid"", $ref(""grids['id']"")),
-                        $pathMapEnvelope(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathMapEnvelope(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathMapEnvelope(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathMapEnvelope(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathMapEnvelope(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathMapEnvelope([""grid"", 0, [{length: 3}], ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",377,407,snuts
-/test/set/pathMaps/atom.spec.js,IdenticalTestDescription,"{'startLine':208,'endLine':225}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathMaps(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathMapEnvelope(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",208,225,snuts
 /test/internal/request/complement.spec.js,IdenticalTestDescription,"{'startLine':80,'endLine':92}","it(""returns the complement and intersection consisting of paths than can be partially deduped"", () => {
             const partialMatchingRequestedPath = [""videos"", 123, [""title"", ""boxart""]];
             const partialMatchingOptimizedPath = [""some"", ""weird"", ""long"", ""ref"", 456, [""title"", ""boxart""]];
@@ -9316,7 +9316,7 @@ file,type,line,method,methodStart,methodEnd,source
             bar: { value: $atom(""foo-value-2"") }
         }));
     })",146,163,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 170, 'column': 16, 'index': 5804}","it(""updates director for multiple movies"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 170, 'column': 16, 'index': 5801}","it(""sets director for multiple movies"", function() {
                 var cache = {};
                 var version = 0;
                 setPathValues(
@@ -9333,7 +9333,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",167,183,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 171, 'column': 20, 'index': 5839}","it(""updates director for multiple movies"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 171, 'column': 20, 'index': 5836}","it(""sets director for multiple movies"", function() {
                 var cache = {};
                 var version = 0;
                 setPathValues(
@@ -9350,7 +9350,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",167,183,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 176, 'column': 23, 'index': 6078}","it(""updates director for multiple movies"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 176, 'column': 23, 'index': 6075}","it(""sets director for multiple movies"", function() {
                 var cache = {};
                 var version = 0;
                 setPathValues(
@@ -9367,7 +9367,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",167,183,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 176, 'column': 45, 'index': 6100}","it(""updates director for multiple movies"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 176, 'column': 45, 'index': 6097}","it(""sets director for multiple movies"", function() {
                 var cache = {};
                 var version = 0;
                 setPathValues(
@@ -9384,7 +9384,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",167,183,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 188, 'column': 16, 'index': 6619}","it(""through successful, short-circuit, and broken references"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 188, 'column': 16, 'index': 6616}","it(""through successful, short-circuit, and broken references"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9415,7 +9415,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",184,214,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 189, 'column': 20, 'index': 6654}","it(""through successful, short-circuit, and broken references"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 189, 'column': 20, 'index': 6651}","it(""through successful, short-circuit, and broken references"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9446,7 +9446,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",184,214,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 200, 'column': 23, 'index': 7332}","it(""through successful, short-circuit, and broken references"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 200, 'column': 23, 'index': 7329}","it(""through successful, short-circuit, and broken references"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9477,7 +9477,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",184,214,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 200, 'column': 45, 'index': 7354}","it(""through successful, short-circuit, and broken references"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 200, 'column': 45, 'index': 7351}","it(""through successful, short-circuit, and broken references"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9508,7 +9508,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",184,214,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 221, 'column': 16, 'index': 8223}","it(""to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 221, 'column': 16, 'index': 8220}","it(""to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9539,7 +9539,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",217,247,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 222, 'column': 20, 'index': 8258}","it(""to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 222, 'column': 20, 'index': 8255}","it(""to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9570,7 +9570,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",217,247,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 233, 'column': 23, 'index': 8933}","it(""to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 233, 'column': 23, 'index': 8930}","it(""to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9601,7 +9601,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",217,247,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 233, 'column': 45, 'index': 8955}","it(""to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 233, 'column': 45, 'index': 8952}","it(""to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9632,7 +9632,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",217,247,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 252, 'column': 16, 'index': 9777}","it(""from:1, to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 252, 'column': 16, 'index': 9774}","it(""from:1, to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9660,7 +9660,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",248,275,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 253, 'column': 20, 'index': 9812}","it(""from:1, to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 253, 'column': 20, 'index': 9809}","it(""from:1, to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9688,7 +9688,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",248,275,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 263, 'column': 23, 'index': 10401}","it(""from:1, to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 263, 'column': 23, 'index': 10398}","it(""from:1, to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9716,7 +9716,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",248,275,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 263, 'column': 45, 'index': 10423}","it(""from:1, to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 263, 'column': 45, 'index': 10420}","it(""from:1, to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9744,7 +9744,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",248,275,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 280, 'column': 16, 'index': 11098}","it(""length:3"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 280, 'column': 16, 'index': 11095}","it(""length:3"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9775,7 +9775,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",276,306,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 281, 'column': 20, 'index': 11133}","it(""length:3"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 281, 'column': 20, 'index': 11130}","it(""length:3"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9806,7 +9806,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",276,306,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 292, 'column': 23, 'index': 11820}","it(""length:3"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 292, 'column': 23, 'index': 11817}","it(""length:3"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9837,7 +9837,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",276,306,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 292, 'column': 45, 'index': 11842}","it(""length:3"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 292, 'column': 45, 'index': 11839}","it(""length:3"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9868,7 +9868,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",276,306,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 311, 'column': 16, 'index': 12668}","it(""from:1, length:2"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 311, 'column': 16, 'index': 12665}","it(""from:1, length:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9896,7 +9896,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",307,334,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 312, 'column': 20, 'index': 12703}","it(""from:1, length:2"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 312, 'column': 20, 'index': 12700}","it(""from:1, length:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9924,7 +9924,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",307,334,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 322, 'column': 23, 'index': 13313}","it(""from:1, length:2"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 322, 'column': 23, 'index': 13310}","it(""from:1, length:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9952,7 +9952,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",307,334,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 322, 'column': 45, 'index': 13335}","it(""from:1, length:2"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 322, 'column': 45, 'index': 13332}","it(""from:1, length:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -9980,7 +9980,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",307,334,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 339, 'column': 16, 'index': 14012}","it(""[length:3]"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 339, 'column': 16, 'index': 14009}","it(""[length:3]"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10011,7 +10011,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",335,365,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 340, 'column': 20, 'index': 14047}","it(""[length:3]"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 340, 'column': 20, 'index': 14044}","it(""[length:3]"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10042,7 +10042,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",335,365,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 351, 'column': 23, 'index': 14736}","it(""[length:3]"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 351, 'column': 23, 'index': 14733}","it(""[length:3]"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10073,7 +10073,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",335,365,steel
-/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 351, 'column': 45, 'index': 14758}","it(""[length:3]"", function() {
+/test/set/pathValues/primitive.spec.js,Eager Test,"{'line': 351, 'column': 45, 'index': 14755}","it(""[length:3]"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10435,7 +10435,7 @@ file,type,line,method,methodStart,methodEnd,source
             bar: { value: $atom(""foo-value-2"") }
         }));
     })",146,163,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 168, 'column': 16, 'index': 5739}","it(""updates director for multiple movies"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 168, 'column': 16, 'index': 5736}","it(""sets director for multiple movies"", function() {
                 var cache = {};
                 var version = 0;
                 setPathValues(
@@ -10452,7 +10452,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",167,183,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 169, 'column': 16, 'index': 5771}","it(""updates director for multiple movies"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 169, 'column': 16, 'index': 5768}","it(""sets director for multiple movies"", function() {
                 var cache = {};
                 var version = 0;
                 setPathValues(
@@ -10469,7 +10469,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",167,183,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 186, 'column': 16, 'index': 6554}","it(""through successful, short-circuit, and broken references"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 186, 'column': 16, 'index': 6551}","it(""through successful, short-circuit, and broken references"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10500,7 +10500,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",184,214,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 187, 'column': 16, 'index': 6586}","it(""through successful, short-circuit, and broken references"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 187, 'column': 16, 'index': 6583}","it(""through successful, short-circuit, and broken references"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10531,7 +10531,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",184,214,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 219, 'column': 16, 'index': 8158}","it(""to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 219, 'column': 16, 'index': 8155}","it(""to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10562,7 +10562,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",217,247,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 220, 'column': 16, 'index': 8190}","it(""to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 220, 'column': 16, 'index': 8187}","it(""to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10593,7 +10593,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",217,247,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 250, 'column': 16, 'index': 9712}","it(""from:1, to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 250, 'column': 16, 'index': 9709}","it(""from:1, to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10621,7 +10621,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",248,275,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 251, 'column': 16, 'index': 9744}","it(""from:1, to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 251, 'column': 16, 'index': 9741}","it(""from:1, to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10649,7 +10649,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",248,275,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 278, 'column': 16, 'index': 11033}","it(""length:3"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 278, 'column': 16, 'index': 11030}","it(""length:3"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10680,7 +10680,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",276,306,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 279, 'column': 16, 'index': 11065}","it(""length:3"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 279, 'column': 16, 'index': 11062}","it(""length:3"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10711,7 +10711,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",276,306,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 309, 'column': 16, 'index': 12603}","it(""from:1, length:2"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 309, 'column': 16, 'index': 12600}","it(""from:1, length:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10739,7 +10739,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",307,334,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 310, 'column': 16, 'index': 12635}","it(""from:1, length:2"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 310, 'column': 16, 'index': 12632}","it(""from:1, length:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10767,7 +10767,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",307,334,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 337, 'column': 16, 'index': 13947}","it(""[length:3]"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 337, 'column': 16, 'index': 13944}","it(""[length:3]"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -10798,7 +10798,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",335,365,steel
-/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 338, 'column': 16, 'index': 13979}","it(""[length:3]"", function() {
+/test/set/pathValues/primitive.spec.js,Global Variable,"{'line': 338, 'column': 16, 'index': 13976}","it(""[length:3]"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11253,7 +11253,7 @@ file,type,line,method,methodStart,methodEnd,source
             bar: { value: $atom(""foo-value-2"") }
         }));
     })",146,163,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 170, 'column': 16, 'index': 5804}","it(""updates director for multiple movies"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 170, 'column': 16, 'index': 5801}","it(""sets director for multiple movies"", function() {
                 var cache = {};
                 var version = 0;
                 setPathValues(
@@ -11270,7 +11270,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",167,183,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 171, 'column': 20, 'index': 5839}","it(""updates director for multiple movies"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 171, 'column': 20, 'index': 5836}","it(""sets director for multiple movies"", function() {
                 var cache = {};
                 var version = 0;
                 setPathValues(
@@ -11287,7 +11287,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",167,183,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 176, 'column': 23, 'index': 6078}","it(""updates director for multiple movies"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 176, 'column': 23, 'index': 6075}","it(""sets director for multiple movies"", function() {
                 var cache = {};
                 var version = 0;
                 setPathValues(
@@ -11304,7 +11304,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",167,183,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 188, 'column': 16, 'index': 6619}","it(""through successful, short-circuit, and broken references"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 188, 'column': 16, 'index': 6616}","it(""through successful, short-circuit, and broken references"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11335,7 +11335,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",184,214,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 189, 'column': 20, 'index': 6654}","it(""through successful, short-circuit, and broken references"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 189, 'column': 20, 'index': 6651}","it(""through successful, short-circuit, and broken references"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11366,7 +11366,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",184,214,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 200, 'column': 23, 'index': 7332}","it(""through successful, short-circuit, and broken references"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 200, 'column': 23, 'index': 7329}","it(""through successful, short-circuit, and broken references"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11397,7 +11397,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",184,214,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 221, 'column': 16, 'index': 8223}","it(""to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 221, 'column': 16, 'index': 8220}","it(""to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11428,7 +11428,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",217,247,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 222, 'column': 20, 'index': 8258}","it(""to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 222, 'column': 20, 'index': 8255}","it(""to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11459,7 +11459,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",217,247,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 233, 'column': 23, 'index': 8933}","it(""to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 233, 'column': 23, 'index': 8930}","it(""to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11490,7 +11490,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",217,247,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 252, 'column': 16, 'index': 9777}","it(""from:1, to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 252, 'column': 16, 'index': 9774}","it(""from:1, to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11518,7 +11518,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",248,275,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 253, 'column': 20, 'index': 9812}","it(""from:1, to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 253, 'column': 20, 'index': 9809}","it(""from:1, to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11546,7 +11546,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",248,275,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 263, 'column': 23, 'index': 10401}","it(""from:1, to:2"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 263, 'column': 23, 'index': 10398}","it(""from:1, to:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11574,7 +11574,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",248,275,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 280, 'column': 16, 'index': 11098}","it(""length:3"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 280, 'column': 16, 'index': 11095}","it(""length:3"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11605,7 +11605,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",276,306,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 281, 'column': 20, 'index': 11133}","it(""length:3"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 281, 'column': 20, 'index': 11130}","it(""length:3"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11636,7 +11636,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",276,306,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 292, 'column': 23, 'index': 11820}","it(""length:3"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 292, 'column': 23, 'index': 11817}","it(""length:3"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11667,7 +11667,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",276,306,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 311, 'column': 16, 'index': 12668}","it(""from:1, length:2"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 311, 'column': 16, 'index': 12665}","it(""from:1, length:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11695,7 +11695,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",307,334,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 312, 'column': 20, 'index': 12703}","it(""from:1, length:2"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 312, 'column': 20, 'index': 12700}","it(""from:1, length:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11723,7 +11723,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",307,334,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 322, 'column': 23, 'index': 13313}","it(""from:1, length:2"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 322, 'column': 23, 'index': 13310}","it(""from:1, length:2"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11751,7 +11751,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",307,334,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 339, 'column': 16, 'index': 14012}","it(""[length:3]"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 339, 'column': 16, 'index': 14009}","it(""[length:3]"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11782,7 +11782,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",335,365,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 340, 'column': 20, 'index': 14047}","it(""[length:3]"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 340, 'column': 20, 'index': 14044}","it(""[length:3]"", function() {
 
                 var cache = {};
                 var version = 0;
@@ -11813,7 +11813,7 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",335,365,steel
-/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 351, 'column': 23, 'index': 14736}","it(""[length:3]"", function() {
+/test/set/pathValues/primitive.spec.js,Lazy Test,"{'line': 351, 'column': 23, 'index': 14733}","it(""[length:3]"", function() {
 
                 var cache = {};
                 var version = 0;

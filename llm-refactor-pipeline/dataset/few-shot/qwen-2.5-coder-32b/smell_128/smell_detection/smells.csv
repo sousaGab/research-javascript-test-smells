@@ -1034,6 +1034,48 @@ file,type,line,method,methodStart,methodEnd,source
     expect(maxHeap.remove(7).toString()).toEqual('8');
     expect(maxHeap.remove(8).toString()).toEqual('');
   })",126,150,snuts
+/src/data-structures/hash-table/__test__/HashTable.test.js,OvercommentedTest,"{'startLine':20,'endLine':61}","it('should handle data operations with collisions', () => {
+    const hashTable = new HashTable(3);
+
+    // Test hashing function
+    expect(hashTable.hash('a')).toBe(1);
+    expect(hashTable.hash('b')).toBe(2);
+    expect(hashTable.hash('c')).toBe(0);
+    expect(hashTable.hash('d')).toBe(1);
+
+    // Test setting and retrieving values
+    hashTable.set('a', 'sky-old');
+    hashTable.set('a', 'sky');
+    hashTable.set('b', 'sea');
+    hashTable.set('c', 'earth');
+    hashTable.set('d', 'ocean');
+
+    // Test existence checks
+    expect(hashTable.has('x')).toBe(false);
+    expect(hashTable.has('b')).toBe(true);
+    expect(hashTable.has('c')).toBe(true);
+
+    // Test bucket contents
+    const stringifier = (value) => `${value.key}:${value.value}`;
+    expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
+    expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
+    expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
+
+    // Test retrieval
+    expect(hashTable.get('a')).toBe('sky');
+    expect(hashTable.get('d')).toBe('ocean');
+    expect(hashTable.get('x')).not.toBeDefined();
+
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('not-existing')).toBeNull();
+    expect(hashTable.get('a')).not.toBeDefined();
+    expect(hashTable.get('d')).toBe('ocean');
+
+    // Test reassignment
+    hashTable.set('d', 'ocean-new');
+    expect(hashTable.get('d')).toBe('ocean-new');
+  })",20,61,snuts
 /src/data-structures/hash-table/__test__/HashTable.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should create hash table of certain size', () => {
     const defaultHashTable = new HashTable();
     expect(defaultHashTable.buckets.length).toBe(32);
@@ -1048,223 +1090,48 @@ file,type,line,method,methodStart,methodEnd,source
     const biggerHashTable = new HashTable(64);
     expect(biggerHashTable.buckets.length).toBe(64);
   })",4,10,snuts
-/src/data-structures/hash-table/__test__/HashTable.test.js,VerboseStatement,"{'startLine':20,'endLine':55}","it('should handle data operations with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,VerboseStatement,"{'startLine':20,'endLine':61}","it('should handle data operations with collisions', () => {
     const hashTable = new HashTable(3);
 
+    // Test hashing function
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('c')).toBe(0);
     expect(hashTable.hash('d')).toBe(1);
 
+    // Test setting and retrieving values
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
     hashTable.set('b', 'sea');
     hashTable.set('c', 'earth');
     hashTable.set('d', 'ocean');
 
+    // Test existence checks
     expect(hashTable.has('x')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('c')).toBe(true);
 
+    // Test bucket contents
     const stringifier = (value) => `${value.key}:${value.value}`;
     expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
     expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
     expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
 
+    // Test retrieval
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    hashTable.delete('a');
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
     expect(hashTable.delete('not-existing')).toBeNull();
-
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
+    // Test reassignment
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,55,snuts
-/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,ConditionalTestLogic,"{'startLine':208,'endLine':210}","it('should find node by means of custom compare function', () => {
-    const comparatorFunction = (a, b) => {
-      if (a.customValue === b.customValue) {
-        return 0;
-      }
-
-      return a.customValue < b.customValue ? -1 : 1;
-    };
-
-    const linkedList = new DoublyLinkedList(comparatorFunction);
-
-    linkedList
-      .append({ value: 1, customValue: 'test1' })
-      .append({ value: 2, customValue: 'test2' })
-      .append({ value: 3, customValue: 'test3' });
-
-    const node = linkedList.find({
-      value: { value: 2, customValue: 'test2' },
-    });
-
-    expect(node).toBeDefined();
-    expect(node.value.value).toBe(2);
-    expect(node.value.customValue).toBe('test2');
-    expect(linkedList.find({ value: 2, customValue: 'test5' })).toBeNull();
-  })",206,230,snuts
-/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':46,'endLine':94}","it('should delete node by value from linked list', () => {
-    const linkedList = new DoublyLinkedList();
-
-    expect(linkedList.delete(5)).toBeNull();
-
-    linkedList.append(1);
-    linkedList.append(1);
-    linkedList.append(2);
-    linkedList.append(3);
-    linkedList.append(3);
-    linkedList.append(3);
-    linkedList.append(4);
-    linkedList.append(5);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('5');
-
-    const deletedNode = linkedList.delete(3);
-    expect(deletedNode.value).toBe(3);
-    expect(linkedList.tail.previous.previous.value).toBe(2);
-    expect(linkedList.toString()).toBe('1,1,2,4,5');
-
-    linkedList.delete(3);
-    expect(linkedList.toString()).toBe('1,1,2,4,5');
-
-    linkedList.delete(1);
-    expect(linkedList.toString()).toBe('2,4,5');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.head.next.next).toBe(linkedList.tail);
-    expect(linkedList.tail.previous.previous).toBe(linkedList.head);
-    expect(linkedList.tail.toString()).toBe('5');
-
-    linkedList.delete(5);
-    expect(linkedList.toString()).toBe('2,4');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('4');
-
-    linkedList.delete(4);
-    expect(linkedList.toString()).toBe('2');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('2');
-    expect(linkedList.head).toBe(linkedList.tail);
-
-    linkedList.delete(2);
-    expect(linkedList.toString()).toBe('');
-  })",46,94,snuts
-/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':96,'endLine':128}","it('should delete linked list tail', () => {
-    const linkedList = new DoublyLinkedList();
-
-    expect(linkedList.deleteTail()).toBeNull();
-
-    linkedList.append(1);
-    linkedList.append(2);
-    linkedList.append(3);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('3');
-
-    const deletedNode1 = linkedList.deleteTail();
-
-    expect(deletedNode1.value).toBe(3);
-    expect(linkedList.toString()).toBe('1,2');
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode2 = linkedList.deleteTail();
-
-    expect(deletedNode2.value).toBe(2);
-    expect(linkedList.toString()).toBe('1');
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('1');
-
-    const deletedNode3 = linkedList.deleteTail();
-
-    expect(deletedNode3.value).toBe(1);
-    expect(linkedList.toString()).toBe('');
-    expect(linkedList.head).toBeNull();
-    expect(linkedList.tail).toBeNull();
-  })",96,128,snuts
-/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':130,'endLine':155}","it('should delete linked list head', () => {
-    const linkedList = new DoublyLinkedList();
-
-    expect(linkedList.deleteHead()).toBeNull();
-
-    linkedList.append(1);
-    linkedList.append(2);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode1 = linkedList.deleteHead();
-
-    expect(deletedNode1.value).toBe(1);
-    expect(linkedList.head.previous).toBeNull();
-    expect(linkedList.toString()).toBe('2');
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode2 = linkedList.deleteHead();
-
-    expect(deletedNode2.value).toBe(2);
-    expect(linkedList.toString()).toBe('');
-    expect(linkedList.head).toBeNull();
-    expect(linkedList.tail).toBeNull();
-  })",130,155,snuts
-/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':232,'endLine':279}","it('should reverse linked list', () => {
-    const linkedList = new DoublyLinkedList();
-
-    // Add test values to linked list.
-    linkedList
-      .append(1)
-      .append(2)
-      .append(3)
-      .append(4);
-
-    expect(linkedList.toString()).toBe('1,2,3,4');
-    expect(linkedList.head.value).toBe(1);
-    expect(linkedList.tail.value).toBe(4);
-
-    // Reverse linked list.
-    linkedList.reverse();
-
-    expect(linkedList.toString()).toBe('4,3,2,1');
-
-    expect(linkedList.head.previous).toBeNull();
-    expect(linkedList.head.value).toBe(4);
-    expect(linkedList.head.next.value).toBe(3);
-    expect(linkedList.head.next.next.value).toBe(2);
-    expect(linkedList.head.next.next.next.value).toBe(1);
-
-    expect(linkedList.tail.next).toBeNull();
-    expect(linkedList.tail.value).toBe(1);
-    expect(linkedList.tail.previous.value).toBe(2);
-    expect(linkedList.tail.previous.previous.value).toBe(3);
-    expect(linkedList.tail.previous.previous.previous.value).toBe(4);
-
-    // Reverse linked list back to initial state.
-    linkedList.reverse();
-
-    expect(linkedList.toString()).toBe('1,2,3,4');
-
-    expect(linkedList.head.previous).toBeNull();
-    expect(linkedList.head.value).toBe(1);
-    expect(linkedList.head.next.value).toBe(2);
-    expect(linkedList.head.next.next.value).toBe(3);
-    expect(linkedList.head.next.next.next.value).toBe(4);
-
-    expect(linkedList.tail.next).toBeNull();
-    expect(linkedList.tail.value).toBe(4);
-    expect(linkedList.tail.previous.value).toBe(3);
-    expect(linkedList.tail.previous.previous.value).toBe(2);
-    expect(linkedList.tail.previous.previous.previous.value).toBe(1);
-  })",232,279,snuts
+  })",20,61,snuts
 /src/data-structures/graph/__test__/GraphVertex.test.js,SubOptimalAssert,"{'startLine':36,'endLine':36}","it('should add edges to vertex and check if it exists', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -2241,6 +2108,187 @@ file,type,line,method,methodStart,methodEnd,source
     expect(graph.getNeighbors(vertexD).length).toBe(1);
     expect(graph.getNeighbors(vertexD)[0].getKey()).toBe(vertexC.getKey());
   })",269,306,snuts
+/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,ConditionalTestLogic,"{'startLine':208,'endLine':210}","it('should find node by means of custom compare function', () => {
+    const comparatorFunction = (a, b) => {
+      if (a.customValue === b.customValue) {
+        return 0;
+      }
+
+      return a.customValue < b.customValue ? -1 : 1;
+    };
+
+    const linkedList = new DoublyLinkedList(comparatorFunction);
+
+    linkedList
+      .append({ value: 1, customValue: 'test1' })
+      .append({ value: 2, customValue: 'test2' })
+      .append({ value: 3, customValue: 'test3' });
+
+    const node = linkedList.find({
+      value: { value: 2, customValue: 'test2' },
+    });
+
+    expect(node).toBeDefined();
+    expect(node.value.value).toBe(2);
+    expect(node.value.customValue).toBe('test2');
+    expect(linkedList.find({ value: 2, customValue: 'test5' })).toBeNull();
+  })",206,230,snuts
+/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':46,'endLine':94}","it('should delete node by value from linked list', () => {
+    const linkedList = new DoublyLinkedList();
+
+    expect(linkedList.delete(5)).toBeNull();
+
+    linkedList.append(1);
+    linkedList.append(1);
+    linkedList.append(2);
+    linkedList.append(3);
+    linkedList.append(3);
+    linkedList.append(3);
+    linkedList.append(4);
+    linkedList.append(5);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('5');
+
+    const deletedNode = linkedList.delete(3);
+    expect(deletedNode.value).toBe(3);
+    expect(linkedList.tail.previous.previous.value).toBe(2);
+    expect(linkedList.toString()).toBe('1,1,2,4,5');
+
+    linkedList.delete(3);
+    expect(linkedList.toString()).toBe('1,1,2,4,5');
+
+    linkedList.delete(1);
+    expect(linkedList.toString()).toBe('2,4,5');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.head.next.next).toBe(linkedList.tail);
+    expect(linkedList.tail.previous.previous).toBe(linkedList.head);
+    expect(linkedList.tail.toString()).toBe('5');
+
+    linkedList.delete(5);
+    expect(linkedList.toString()).toBe('2,4');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('4');
+
+    linkedList.delete(4);
+    expect(linkedList.toString()).toBe('2');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('2');
+    expect(linkedList.head).toBe(linkedList.tail);
+
+    linkedList.delete(2);
+    expect(linkedList.toString()).toBe('');
+  })",46,94,snuts
+/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':96,'endLine':128}","it('should delete linked list tail', () => {
+    const linkedList = new DoublyLinkedList();
+
+    expect(linkedList.deleteTail()).toBeNull();
+
+    linkedList.append(1);
+    linkedList.append(2);
+    linkedList.append(3);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('3');
+
+    const deletedNode1 = linkedList.deleteTail();
+
+    expect(deletedNode1.value).toBe(3);
+    expect(linkedList.toString()).toBe('1,2');
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode2 = linkedList.deleteTail();
+
+    expect(deletedNode2.value).toBe(2);
+    expect(linkedList.toString()).toBe('1');
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('1');
+
+    const deletedNode3 = linkedList.deleteTail();
+
+    expect(deletedNode3.value).toBe(1);
+    expect(linkedList.toString()).toBe('');
+    expect(linkedList.head).toBeNull();
+    expect(linkedList.tail).toBeNull();
+  })",96,128,snuts
+/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':130,'endLine':155}","it('should delete linked list head', () => {
+    const linkedList = new DoublyLinkedList();
+
+    expect(linkedList.deleteHead()).toBeNull();
+
+    linkedList.append(1);
+    linkedList.append(2);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode1 = linkedList.deleteHead();
+
+    expect(deletedNode1.value).toBe(1);
+    expect(linkedList.head.previous).toBeNull();
+    expect(linkedList.toString()).toBe('2');
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode2 = linkedList.deleteHead();
+
+    expect(deletedNode2.value).toBe(2);
+    expect(linkedList.toString()).toBe('');
+    expect(linkedList.head).toBeNull();
+    expect(linkedList.tail).toBeNull();
+  })",130,155,snuts
+/src/data-structures/doubly-linked-list/__test__/DoublyLinkedList.test.js,VerboseStatement,"{'startLine':232,'endLine':279}","it('should reverse linked list', () => {
+    const linkedList = new DoublyLinkedList();
+
+    // Add test values to linked list.
+    linkedList
+      .append(1)
+      .append(2)
+      .append(3)
+      .append(4);
+
+    expect(linkedList.toString()).toBe('1,2,3,4');
+    expect(linkedList.head.value).toBe(1);
+    expect(linkedList.tail.value).toBe(4);
+
+    // Reverse linked list.
+    linkedList.reverse();
+
+    expect(linkedList.toString()).toBe('4,3,2,1');
+
+    expect(linkedList.head.previous).toBeNull();
+    expect(linkedList.head.value).toBe(4);
+    expect(linkedList.head.next.value).toBe(3);
+    expect(linkedList.head.next.next.value).toBe(2);
+    expect(linkedList.head.next.next.next.value).toBe(1);
+
+    expect(linkedList.tail.next).toBeNull();
+    expect(linkedList.tail.value).toBe(1);
+    expect(linkedList.tail.previous.value).toBe(2);
+    expect(linkedList.tail.previous.previous.value).toBe(3);
+    expect(linkedList.tail.previous.previous.previous.value).toBe(4);
+
+    // Reverse linked list back to initial state.
+    linkedList.reverse();
+
+    expect(linkedList.toString()).toBe('1,2,3,4');
+
+    expect(linkedList.head.previous).toBeNull();
+    expect(linkedList.head.value).toBe(1);
+    expect(linkedList.head.next.value).toBe(2);
+    expect(linkedList.head.next.next.value).toBe(3);
+    expect(linkedList.head.next.next.next.value).toBe(4);
+
+    expect(linkedList.tail.next).toBeNull();
+    expect(linkedList.tail.value).toBe(4);
+    expect(linkedList.tail.previous.value).toBe(3);
+    expect(linkedList.tail.previous.previous.value).toBe(2);
+    expect(linkedList.tail.previous.previous.previous.value).toBe(1);
+  })",232,279,snuts
 /src/data-structures/disjoint-set/__test__/DisjointSetItem.test.js,SubOptimalAssert,"{'startLine':26,'endLine':26}","it('should do basic manipulation with disjoint set item', () => {
     const itemA = new DisjointSetItem('A');
     const itemB = new DisjointSetItem('B');
@@ -3737,292 +3785,72 @@ file,type,line,method,methodStart,methodEnd,source
     expect(tree.root.height).toBe(2);
     expect(tree.root.balanceFactor).toBe(0);
   })",271,302,snuts
-/src/algorithms/tree/breadth-first-search/__test__/breadthFirstSearch.test.js,OvercommentedTest,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
-    const nodeA = new BinaryTreeNode('A');
-    const nodeB = new BinaryTreeNode('B');
-    const nodeC = new BinaryTreeNode('C');
-    const nodeD = new BinaryTreeNode('D');
-    const nodeE = new BinaryTreeNode('E');
-    const nodeF = new BinaryTreeNode('F');
-    const nodeG = new BinaryTreeNode('G');
+/src/algorithms/uncategorized/rain-terraces/__test__/dpRainTerraces.test.js,VerboseStatement,"{'startLine':4,'endLine':20}","it('should find the amount of water collected after raining', () => {
+    expect(dpRainTerraces([1])).toBe(0);
+    expect(dpRainTerraces([1, 0])).toBe(0);
+    expect(dpRainTerraces([0, 1])).toBe(0);
+    expect(dpRainTerraces([0, 1, 0])).toBe(0);
+    expect(dpRainTerraces([0, 1, 0, 0])).toBe(0);
+    expect(dpRainTerraces([0, 1, 0, 0, 1, 0])).toBe(2);
+    expect(dpRainTerraces([0, 2, 0, 0, 1, 0])).toBe(2);
+    expect(dpRainTerraces([2, 0, 2])).toBe(2);
+    expect(dpRainTerraces([2, 0, 5])).toBe(2);
+    expect(dpRainTerraces([3, 0, 0, 2, 0, 4])).toBe(10);
+    expect(dpRainTerraces([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1])).toBe(6);
+    expect(dpRainTerraces([1, 1, 1, 1, 1])).toBe(0);
+    expect(dpRainTerraces([1, 2, 3, 4, 5])).toBe(0);
+    expect(dpRainTerraces([4, 1, 3, 1, 2, 1, 2, 1])).toBe(4);
+    expect(dpRainTerraces([0, 2, 4, 3, 4, 2, 4, 0, 8, 7, 0])).toBe(7);
+  })",4,20,snuts
+/src/algorithms/uncategorized/rain-terraces/__test__/bfRainTerraces.test.js,VerboseStatement,"{'startLine':4,'endLine':20}","it('should find the amount of water collected after raining', () => {
+    expect(bfRainTerraces([1])).toBe(0);
+    expect(bfRainTerraces([1, 0])).toBe(0);
+    expect(bfRainTerraces([0, 1])).toBe(0);
+    expect(bfRainTerraces([0, 1, 0])).toBe(0);
+    expect(bfRainTerraces([0, 1, 0, 0])).toBe(0);
+    expect(bfRainTerraces([0, 1, 0, 0, 1, 0])).toBe(2);
+    expect(bfRainTerraces([0, 2, 0, 0, 1, 0])).toBe(2);
+    expect(bfRainTerraces([2, 0, 2])).toBe(2);
+    expect(bfRainTerraces([2, 0, 5])).toBe(2);
+    expect(bfRainTerraces([3, 0, 0, 2, 0, 4])).toBe(10);
+    expect(bfRainTerraces([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1])).toBe(6);
+    expect(bfRainTerraces([1, 1, 1, 1, 1])).toBe(0);
+    expect(bfRainTerraces([1, 2, 3, 4, 5])).toBe(0);
+    expect(bfRainTerraces([4, 1, 3, 1, 2, 1, 2, 1])).toBe(4);
+    expect(bfRainTerraces([0, 2, 4, 3, 4, 2, 4, 0, 8, 7, 0])).toBe(7);
+  })",4,20,snuts
+/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should not hae solution for 3 queens', () => {
+    const solutions = nQueens(3);
+    expect(solutions.length).toBe(0);
+  })",4,7,snuts
+/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':11,'endLine':11}","it('should solve n-queens problem for 4 queens', () => {
+    const solutions = nQueens(4);
+    expect(solutions.length).toBe(2);
 
-    nodeA.setLeft(nodeB).setRight(nodeC);
-    nodeB.setLeft(nodeD).setRight(nodeE);
-    nodeC.setLeft(nodeF).setRight(nodeG);
+    // First solution.
+    expect(solutions[0][0].toString()).toBe('0,1');
+    expect(solutions[0][1].toString()).toBe('1,3');
+    expect(solutions[0][2].toString()).toBe('2,0');
+    expect(solutions[0][3].toString()).toBe('3,2');
 
-    // In-order traversing.
-    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
+    // Second solution (mirrored).
+    expect(solutions[1][0].toString()).toBe('0,2');
+    expect(solutions[1][1].toString()).toBe('1,0');
+    expect(solutions[1][2].toString()).toBe('2,3');
+    expect(solutions[1][3].toString()).toBe('3,1');
+  })",9,24,snuts
+/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':28,'endLine':28}","it('should solve n-queens problem for 6 queens', () => {
+    const solutions = nQueens(6);
+    expect(solutions.length).toBe(4);
 
-    const enterNodeCallback = jest.fn();
-    const leaveNodeCallback = jest.fn();
-
-    // Traverse tree without callbacks first to check default ones.
-    breadthFirstSearch(nodeA);
-
-    // Traverse tree with callbacks.
-    breadthFirstSearch(nodeA, {
-      allowTraversal: (node, child) => {
-        // Forbid traversing left half of the tree.
-        return child.value !== 'B';
-      },
-      enterNode: enterNodeCallback,
-      leaveNode: leaveNodeCallback,
-    });
-
-    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
-    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
-
-    // Check node entering.
-    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
-    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
-    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
-
-    // Check node leaving.
-    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('C');
-    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('F');
-    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('G');
-  })",55,101,snuts
-/src/algorithms/tree/breadth-first-search/__test__/breadthFirstSearch.test.js,VerboseStatement,"{'startLine':5,'endLine':53}","it('should perform BFS operation on tree', () => {
-    const nodeA = new BinaryTreeNode('A');
-    const nodeB = new BinaryTreeNode('B');
-    const nodeC = new BinaryTreeNode('C');
-    const nodeD = new BinaryTreeNode('D');
-    const nodeE = new BinaryTreeNode('E');
-    const nodeF = new BinaryTreeNode('F');
-    const nodeG = new BinaryTreeNode('G');
-
-    nodeA.setLeft(nodeB).setRight(nodeC);
-    nodeB.setLeft(nodeD).setRight(nodeE);
-    nodeC.setLeft(nodeF).setRight(nodeG);
-
-    // In-order traversing.
-    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
-
-    const enterNodeCallback = jest.fn();
-    const leaveNodeCallback = jest.fn();
-
-    // Traverse tree without callbacks first to check default ones.
-    breadthFirstSearch(nodeA);
-
-    // Traverse tree with callbacks.
-    breadthFirstSearch(nodeA, {
-      enterNode: enterNodeCallback,
-      leaveNode: leaveNodeCallback,
-    });
-
-    expect(enterNodeCallback).toHaveBeenCalledTimes(7);
-    expect(leaveNodeCallback).toHaveBeenCalledTimes(7);
-
-    // Check node entering.
-    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('B');
-    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('C');
-    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('D');
-    expect(enterNodeCallback.mock.calls[4][0].value).toEqual('E');
-    expect(enterNodeCallback.mock.calls[5][0].value).toEqual('F');
-    expect(enterNodeCallback.mock.calls[6][0].value).toEqual('G');
-
-    // Check node leaving.
-    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('B');
-    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
-    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('D');
-    expect(leaveNodeCallback.mock.calls[4][0].value).toEqual('E');
-    expect(leaveNodeCallback.mock.calls[5][0].value).toEqual('F');
-    expect(leaveNodeCallback.mock.calls[6][0].value).toEqual('G');
-  })",5,53,snuts
-/src/algorithms/tree/breadth-first-search/__test__/breadthFirstSearch.test.js,VerboseStatement,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
-    const nodeA = new BinaryTreeNode('A');
-    const nodeB = new BinaryTreeNode('B');
-    const nodeC = new BinaryTreeNode('C');
-    const nodeD = new BinaryTreeNode('D');
-    const nodeE = new BinaryTreeNode('E');
-    const nodeF = new BinaryTreeNode('F');
-    const nodeG = new BinaryTreeNode('G');
-
-    nodeA.setLeft(nodeB).setRight(nodeC);
-    nodeB.setLeft(nodeD).setRight(nodeE);
-    nodeC.setLeft(nodeF).setRight(nodeG);
-
-    // In-order traversing.
-    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
-
-    const enterNodeCallback = jest.fn();
-    const leaveNodeCallback = jest.fn();
-
-    // Traverse tree without callbacks first to check default ones.
-    breadthFirstSearch(nodeA);
-
-    // Traverse tree with callbacks.
-    breadthFirstSearch(nodeA, {
-      allowTraversal: (node, child) => {
-        // Forbid traversing left half of the tree.
-        return child.value !== 'B';
-      },
-      enterNode: enterNodeCallback,
-      leaveNode: leaveNodeCallback,
-    });
-
-    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
-    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
-
-    // Check node entering.
-    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
-    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
-    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
-
-    // Check node leaving.
-    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('C');
-    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('F');
-    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('G');
-  })",55,101,snuts
-/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,OvercommentedTest,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
-    const nodeA = new BinaryTreeNode('A');
-    const nodeB = new BinaryTreeNode('B');
-    const nodeC = new BinaryTreeNode('C');
-    const nodeD = new BinaryTreeNode('D');
-    const nodeE = new BinaryTreeNode('E');
-    const nodeF = new BinaryTreeNode('F');
-    const nodeG = new BinaryTreeNode('G');
-
-    nodeA.setLeft(nodeB).setRight(nodeC);
-    nodeB.setLeft(nodeD).setRight(nodeE);
-    nodeC.setLeft(nodeF).setRight(nodeG);
-
-    // In-order traversing.
-    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
-
-    const enterNodeCallback = jest.fn();
-    const leaveNodeCallback = jest.fn();
-
-    // Traverse tree without callbacks first to check default ones.
-    depthFirstSearch(nodeA);
-
-    // Traverse tree with callbacks.
-    depthFirstSearch(nodeA, {
-      allowTraversal: (node, child) => {
-        // Forbid traversing left part of the tree.
-        return child.value !== 'B';
-      },
-      enterNode: enterNodeCallback,
-      leaveNode: leaveNodeCallback,
-    });
-
-    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
-    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
-
-    // Check node entering.
-    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
-    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
-    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
-
-    // Check node leaving.
-    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('F');
-    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('G');
-    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
-    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('A');
-  })",55,101,snuts
-/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':5,'endLine':53}","it('should perform DFS operation on tree', () => {
-    const nodeA = new BinaryTreeNode('A');
-    const nodeB = new BinaryTreeNode('B');
-    const nodeC = new BinaryTreeNode('C');
-    const nodeD = new BinaryTreeNode('D');
-    const nodeE = new BinaryTreeNode('E');
-    const nodeF = new BinaryTreeNode('F');
-    const nodeG = new BinaryTreeNode('G');
-
-    nodeA.setLeft(nodeB).setRight(nodeC);
-    nodeB.setLeft(nodeD).setRight(nodeE);
-    nodeC.setLeft(nodeF).setRight(nodeG);
-
-    // In-order traversing.
-    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
-
-    const enterNodeCallback = jest.fn();
-    const leaveNodeCallback = jest.fn();
-
-    // Traverse tree without callbacks first to check default ones.
-    depthFirstSearch(nodeA);
-
-    // Traverse tree with callbacks.
-    depthFirstSearch(nodeA, {
-      enterNode: enterNodeCallback,
-      leaveNode: leaveNodeCallback,
-    });
-
-    expect(enterNodeCallback).toHaveBeenCalledTimes(7);
-    expect(leaveNodeCallback).toHaveBeenCalledTimes(7);
-
-    // Check node entering.
-    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('B');
-    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('D');
-    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('E');
-    expect(enterNodeCallback.mock.calls[4][0].value).toEqual('C');
-    expect(enterNodeCallback.mock.calls[5][0].value).toEqual('F');
-    expect(enterNodeCallback.mock.calls[6][0].value).toEqual('G');
-
-    // Check node leaving.
-    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('D');
-    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('E');
-    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('B');
-    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('F');
-    expect(leaveNodeCallback.mock.calls[4][0].value).toEqual('G');
-    expect(leaveNodeCallback.mock.calls[5][0].value).toEqual('C');
-    expect(leaveNodeCallback.mock.calls[6][0].value).toEqual('A');
-  })",5,53,snuts
-/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
-    const nodeA = new BinaryTreeNode('A');
-    const nodeB = new BinaryTreeNode('B');
-    const nodeC = new BinaryTreeNode('C');
-    const nodeD = new BinaryTreeNode('D');
-    const nodeE = new BinaryTreeNode('E');
-    const nodeF = new BinaryTreeNode('F');
-    const nodeG = new BinaryTreeNode('G');
-
-    nodeA.setLeft(nodeB).setRight(nodeC);
-    nodeB.setLeft(nodeD).setRight(nodeE);
-    nodeC.setLeft(nodeF).setRight(nodeG);
-
-    // In-order traversing.
-    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
-
-    const enterNodeCallback = jest.fn();
-    const leaveNodeCallback = jest.fn();
-
-    // Traverse tree without callbacks first to check default ones.
-    depthFirstSearch(nodeA);
-
-    // Traverse tree with callbacks.
-    depthFirstSearch(nodeA, {
-      allowTraversal: (node, child) => {
-        // Forbid traversing left part of the tree.
-        return child.value !== 'B';
-      },
-      enterNode: enterNodeCallback,
-      leaveNode: leaveNodeCallback,
-    });
-
-    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
-    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
-
-    // Check node entering.
-    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
-    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
-    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
-    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
-
-    // Check node leaving.
-    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('F');
-    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('G');
-    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
-    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('A');
-  })",55,101,snuts
+    // First solution.
+    expect(solutions[0][0].toString()).toBe('0,1');
+    expect(solutions[0][1].toString()).toBe('1,3');
+    expect(solutions[0][2].toString()).toBe('2,5');
+    expect(solutions[0][3].toString()).toBe('3,0');
+    expect(solutions[0][4].toString()).toBe('4,2');
+    expect(solutions[0][5].toString()).toBe('5,4');
+  })",26,37,snuts
 /src/algorithms/uncategorized/knight-tour/__test__/knightTour.test.js,SubOptimalAssert,"{'startLine':7,'endLine':7}","it('should not find solution on 3x3 board', () => {
     const moves = knightTour(3);
 
@@ -4061,73 +3889,6 @@ file,type,line,method,methodStart,methodEnd,source
       [0, 4],
     ]);
   })",10,42,snuts
-/src/algorithms/uncategorized/rain-terraces/__test__/dpRainTerraces.test.js,VerboseStatement,"{'startLine':4,'endLine':20}","it('should find the amount of water collected after raining', () => {
-    expect(dpRainTerraces([1])).toBe(0);
-    expect(dpRainTerraces([1, 0])).toBe(0);
-    expect(dpRainTerraces([0, 1])).toBe(0);
-    expect(dpRainTerraces([0, 1, 0])).toBe(0);
-    expect(dpRainTerraces([0, 1, 0, 0])).toBe(0);
-    expect(dpRainTerraces([0, 1, 0, 0, 1, 0])).toBe(2);
-    expect(dpRainTerraces([0, 2, 0, 0, 1, 0])).toBe(2);
-    expect(dpRainTerraces([2, 0, 2])).toBe(2);
-    expect(dpRainTerraces([2, 0, 5])).toBe(2);
-    expect(dpRainTerraces([3, 0, 0, 2, 0, 4])).toBe(10);
-    expect(dpRainTerraces([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1])).toBe(6);
-    expect(dpRainTerraces([1, 1, 1, 1, 1])).toBe(0);
-    expect(dpRainTerraces([1, 2, 3, 4, 5])).toBe(0);
-    expect(dpRainTerraces([4, 1, 3, 1, 2, 1, 2, 1])).toBe(4);
-    expect(dpRainTerraces([0, 2, 4, 3, 4, 2, 4, 0, 8, 7, 0])).toBe(7);
-  })",4,20,snuts
-/src/algorithms/uncategorized/rain-terraces/__test__/bfRainTerraces.test.js,VerboseStatement,"{'startLine':4,'endLine':20}","it('should find the amount of water collected after raining', () => {
-    expect(bfRainTerraces([1])).toBe(0);
-    expect(bfRainTerraces([1, 0])).toBe(0);
-    expect(bfRainTerraces([0, 1])).toBe(0);
-    expect(bfRainTerraces([0, 1, 0])).toBe(0);
-    expect(bfRainTerraces([0, 1, 0, 0])).toBe(0);
-    expect(bfRainTerraces([0, 1, 0, 0, 1, 0])).toBe(2);
-    expect(bfRainTerraces([0, 2, 0, 0, 1, 0])).toBe(2);
-    expect(bfRainTerraces([2, 0, 2])).toBe(2);
-    expect(bfRainTerraces([2, 0, 5])).toBe(2);
-    expect(bfRainTerraces([3, 0, 0, 2, 0, 4])).toBe(10);
-    expect(bfRainTerraces([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1])).toBe(6);
-    expect(bfRainTerraces([1, 1, 1, 1, 1])).toBe(0);
-    expect(bfRainTerraces([1, 2, 3, 4, 5])).toBe(0);
-    expect(bfRainTerraces([4, 1, 3, 1, 2, 1, 2, 1])).toBe(4);
-    expect(bfRainTerraces([0, 2, 4, 3, 4, 2, 4, 0, 8, 7, 0])).toBe(7);
-  })",4,20,snuts
-/src/algorithms/uncategorized/hanoi-tower/__test__/hanoiTower.test.js,VerboseStatement,"{'startLine':5,'endLine':37}","it('should solve tower of hanoi puzzle with 2 discs', () => {
-    const moveCallback = jest.fn();
-    const numberOfDiscs = 2;
-
-    const fromPole = new Stack();
-    const withPole = new Stack();
-    const toPole = new Stack();
-
-    hanoiTower({
-      numberOfDiscs,
-      moveCallback,
-      fromPole,
-      withPole,
-      toPole,
-    });
-
-    expect(moveCallback).toHaveBeenCalledTimes((2 ** numberOfDiscs) - 1);
-
-    expect(fromPole.toArray()).toEqual([]);
-    expect(toPole.toArray()).toEqual([1, 2]);
-
-    expect(moveCallback.mock.calls[0][0]).toBe(1);
-    expect(moveCallback.mock.calls[0][1]).toEqual([1, 2]);
-    expect(moveCallback.mock.calls[0][2]).toEqual([]);
-
-    expect(moveCallback.mock.calls[1][0]).toBe(2);
-    expect(moveCallback.mock.calls[1][1]).toEqual([2]);
-    expect(moveCallback.mock.calls[1][2]).toEqual([]);
-
-    expect(moveCallback.mock.calls[2][0]).toBe(1);
-    expect(moveCallback.mock.calls[2][1]).toEqual([1]);
-    expect(moveCallback.mock.calls[2][2]).toEqual([2]);
-  })",5,37,snuts
 /src/algorithms/uncategorized/best-time-to-buy-sell-stocks/__tests__/peakvalleyBestTimeToBuySellStocks.test.js,VerboseStatement,"{'startLine':4,'endLine':47}","it('should find the best time to buy and sell stocks', () => {
     let visit;
 
@@ -4304,6 +4065,149 @@ file,type,line,method,methodStart,methodEnd,source
     )).toEqual(19);
     expect(visit).toHaveBeenCalledTimes(20);
   })",4,47,snuts
+/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,OvercommentedTest,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
+    const nodeA = new BinaryTreeNode('A');
+    const nodeB = new BinaryTreeNode('B');
+    const nodeC = new BinaryTreeNode('C');
+    const nodeD = new BinaryTreeNode('D');
+    const nodeE = new BinaryTreeNode('E');
+    const nodeF = new BinaryTreeNode('F');
+    const nodeG = new BinaryTreeNode('G');
+
+    nodeA.setLeft(nodeB).setRight(nodeC);
+    nodeB.setLeft(nodeD).setRight(nodeE);
+    nodeC.setLeft(nodeF).setRight(nodeG);
+
+    // In-order traversing.
+    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
+
+    const enterNodeCallback = jest.fn();
+    const leaveNodeCallback = jest.fn();
+
+    // Traverse tree without callbacks first to check default ones.
+    depthFirstSearch(nodeA);
+
+    // Traverse tree with callbacks.
+    depthFirstSearch(nodeA, {
+      allowTraversal: (node, child) => {
+        // Forbid traversing left part of the tree.
+        return child.value !== 'B';
+      },
+      enterNode: enterNodeCallback,
+      leaveNode: leaveNodeCallback,
+    });
+
+    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
+    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
+
+    // Check node entering.
+    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
+    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
+    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
+
+    // Check node leaving.
+    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('F');
+    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('G');
+    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
+    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('A');
+  })",55,101,snuts
+/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':5,'endLine':53}","it('should perform DFS operation on tree', () => {
+    const nodeA = new BinaryTreeNode('A');
+    const nodeB = new BinaryTreeNode('B');
+    const nodeC = new BinaryTreeNode('C');
+    const nodeD = new BinaryTreeNode('D');
+    const nodeE = new BinaryTreeNode('E');
+    const nodeF = new BinaryTreeNode('F');
+    const nodeG = new BinaryTreeNode('G');
+
+    nodeA.setLeft(nodeB).setRight(nodeC);
+    nodeB.setLeft(nodeD).setRight(nodeE);
+    nodeC.setLeft(nodeF).setRight(nodeG);
+
+    // In-order traversing.
+    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
+
+    const enterNodeCallback = jest.fn();
+    const leaveNodeCallback = jest.fn();
+
+    // Traverse tree without callbacks first to check default ones.
+    depthFirstSearch(nodeA);
+
+    // Traverse tree with callbacks.
+    depthFirstSearch(nodeA, {
+      enterNode: enterNodeCallback,
+      leaveNode: leaveNodeCallback,
+    });
+
+    expect(enterNodeCallback).toHaveBeenCalledTimes(7);
+    expect(leaveNodeCallback).toHaveBeenCalledTimes(7);
+
+    // Check node entering.
+    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('B');
+    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('D');
+    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('E');
+    expect(enterNodeCallback.mock.calls[4][0].value).toEqual('C');
+    expect(enterNodeCallback.mock.calls[5][0].value).toEqual('F');
+    expect(enterNodeCallback.mock.calls[6][0].value).toEqual('G');
+
+    // Check node leaving.
+    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('D');
+    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('E');
+    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('B');
+    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('F');
+    expect(leaveNodeCallback.mock.calls[4][0].value).toEqual('G');
+    expect(leaveNodeCallback.mock.calls[5][0].value).toEqual('C');
+    expect(leaveNodeCallback.mock.calls[6][0].value).toEqual('A');
+  })",5,53,snuts
+/src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
+    const nodeA = new BinaryTreeNode('A');
+    const nodeB = new BinaryTreeNode('B');
+    const nodeC = new BinaryTreeNode('C');
+    const nodeD = new BinaryTreeNode('D');
+    const nodeE = new BinaryTreeNode('E');
+    const nodeF = new BinaryTreeNode('F');
+    const nodeG = new BinaryTreeNode('G');
+
+    nodeA.setLeft(nodeB).setRight(nodeC);
+    nodeB.setLeft(nodeD).setRight(nodeE);
+    nodeC.setLeft(nodeF).setRight(nodeG);
+
+    // In-order traversing.
+    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
+
+    const enterNodeCallback = jest.fn();
+    const leaveNodeCallback = jest.fn();
+
+    // Traverse tree without callbacks first to check default ones.
+    depthFirstSearch(nodeA);
+
+    // Traverse tree with callbacks.
+    depthFirstSearch(nodeA, {
+      allowTraversal: (node, child) => {
+        // Forbid traversing left part of the tree.
+        return child.value !== 'B';
+      },
+      enterNode: enterNodeCallback,
+      leaveNode: leaveNodeCallback,
+    });
+
+    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
+    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
+
+    // Check node entering.
+    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
+    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
+    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
+
+    // Check node leaving.
+    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('F');
+    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('G');
+    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
+    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('A');
+  })",55,101,snuts
 /src/algorithms/string/regular-expression-matching/__test__/regularExpressionMatching.test.js,VerboseStatement,"{'startLine':4,'endLine':33}","it('should match regular expressions in a string', () => {
     expect(regularExpressionMatching('', '')).toBe(true);
     expect(regularExpressionMatching('a', 'a')).toBe(true);
@@ -4334,6 +4238,39 @@ file,type,line,method,methodStart,methodEnd,source
     expect(regularExpressionMatching('abba', 'a*b*.c')).toBe(false);
     expect(regularExpressionMatching('abba', '.*c')).toBe(false);
   })",4,33,snuts
+/src/algorithms/uncategorized/hanoi-tower/__test__/hanoiTower.test.js,VerboseStatement,"{'startLine':5,'endLine':37}","it('should solve tower of hanoi puzzle with 2 discs', () => {
+    const moveCallback = jest.fn();
+    const numberOfDiscs = 2;
+
+    const fromPole = new Stack();
+    const withPole = new Stack();
+    const toPole = new Stack();
+
+    hanoiTower({
+      numberOfDiscs,
+      moveCallback,
+      fromPole,
+      withPole,
+      toPole,
+    });
+
+    expect(moveCallback).toHaveBeenCalledTimes((2 ** numberOfDiscs) - 1);
+
+    expect(fromPole.toArray()).toEqual([]);
+    expect(toPole.toArray()).toEqual([1, 2]);
+
+    expect(moveCallback.mock.calls[0][0]).toBe(1);
+    expect(moveCallback.mock.calls[0][1]).toEqual([1, 2]);
+    expect(moveCallback.mock.calls[0][2]).toEqual([]);
+
+    expect(moveCallback.mock.calls[1][0]).toBe(2);
+    expect(moveCallback.mock.calls[1][1]).toEqual([2]);
+    expect(moveCallback.mock.calls[1][2]).toEqual([]);
+
+    expect(moveCallback.mock.calls[2][0]).toBe(1);
+    expect(moveCallback.mock.calls[2][1]).toEqual([1]);
+    expect(moveCallback.mock.calls[2][2]).toEqual([2]);
+  })",5,37,snuts
 /src/algorithms/string/levenshtein-distance/__test__/levenshteinDistance.test.js,OvercommentedTest,"{'startLine':4,'endLine':28}","it('should calculate edit distance between two strings', () => {
     expect(levenshteinDistance('', '')).toBe(0);
     expect(levenshteinDistance('a', '')).toBe(1);
@@ -4433,38 +4370,149 @@ file,type,line,method,methodStart,methodEnd,source
       expect(counter[itemIndex]).toBeLessThan(ATTEMPTS_NUM * weights[itemIndex] + THRESHOLD);
     }
   })",27,63,snuts
-/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should not hae solution for 3 queens', () => {
-    const solutions = nQueens(3);
-    expect(solutions.length).toBe(0);
-  })",4,7,snuts
-/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':11,'endLine':11}","it('should solve n-queens problem for 4 queens', () => {
-    const solutions = nQueens(4);
-    expect(solutions.length).toBe(2);
+/src/algorithms/tree/breadth-first-search/__test__/breadthFirstSearch.test.js,OvercommentedTest,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
+    const nodeA = new BinaryTreeNode('A');
+    const nodeB = new BinaryTreeNode('B');
+    const nodeC = new BinaryTreeNode('C');
+    const nodeD = new BinaryTreeNode('D');
+    const nodeE = new BinaryTreeNode('E');
+    const nodeF = new BinaryTreeNode('F');
+    const nodeG = new BinaryTreeNode('G');
 
-    // First solution.
-    expect(solutions[0][0].toString()).toBe('0,1');
-    expect(solutions[0][1].toString()).toBe('1,3');
-    expect(solutions[0][2].toString()).toBe('2,0');
-    expect(solutions[0][3].toString()).toBe('3,2');
+    nodeA.setLeft(nodeB).setRight(nodeC);
+    nodeB.setLeft(nodeD).setRight(nodeE);
+    nodeC.setLeft(nodeF).setRight(nodeG);
 
-    // Second solution (mirrored).
-    expect(solutions[1][0].toString()).toBe('0,2');
-    expect(solutions[1][1].toString()).toBe('1,0');
-    expect(solutions[1][2].toString()).toBe('2,3');
-    expect(solutions[1][3].toString()).toBe('3,1');
-  })",9,24,snuts
-/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':28,'endLine':28}","it('should solve n-queens problem for 6 queens', () => {
-    const solutions = nQueens(6);
-    expect(solutions.length).toBe(4);
+    // In-order traversing.
+    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
 
-    // First solution.
-    expect(solutions[0][0].toString()).toBe('0,1');
-    expect(solutions[0][1].toString()).toBe('1,3');
-    expect(solutions[0][2].toString()).toBe('2,5');
-    expect(solutions[0][3].toString()).toBe('3,0');
-    expect(solutions[0][4].toString()).toBe('4,2');
-    expect(solutions[0][5].toString()).toBe('5,4');
-  })",26,37,snuts
+    const enterNodeCallback = jest.fn();
+    const leaveNodeCallback = jest.fn();
+
+    // Traverse tree without callbacks first to check default ones.
+    breadthFirstSearch(nodeA);
+
+    // Traverse tree with callbacks.
+    breadthFirstSearch(nodeA, {
+      allowTraversal: (node, child) => {
+        // Forbid traversing left half of the tree.
+        return child.value !== 'B';
+      },
+      enterNode: enterNodeCallback,
+      leaveNode: leaveNodeCallback,
+    });
+
+    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
+    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
+
+    // Check node entering.
+    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
+    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
+    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
+
+    // Check node leaving.
+    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('C');
+    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('F');
+    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('G');
+  })",55,101,snuts
+/src/algorithms/tree/breadth-first-search/__test__/breadthFirstSearch.test.js,VerboseStatement,"{'startLine':5,'endLine':53}","it('should perform BFS operation on tree', () => {
+    const nodeA = new BinaryTreeNode('A');
+    const nodeB = new BinaryTreeNode('B');
+    const nodeC = new BinaryTreeNode('C');
+    const nodeD = new BinaryTreeNode('D');
+    const nodeE = new BinaryTreeNode('E');
+    const nodeF = new BinaryTreeNode('F');
+    const nodeG = new BinaryTreeNode('G');
+
+    nodeA.setLeft(nodeB).setRight(nodeC);
+    nodeB.setLeft(nodeD).setRight(nodeE);
+    nodeC.setLeft(nodeF).setRight(nodeG);
+
+    // In-order traversing.
+    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
+
+    const enterNodeCallback = jest.fn();
+    const leaveNodeCallback = jest.fn();
+
+    // Traverse tree without callbacks first to check default ones.
+    breadthFirstSearch(nodeA);
+
+    // Traverse tree with callbacks.
+    breadthFirstSearch(nodeA, {
+      enterNode: enterNodeCallback,
+      leaveNode: leaveNodeCallback,
+    });
+
+    expect(enterNodeCallback).toHaveBeenCalledTimes(7);
+    expect(leaveNodeCallback).toHaveBeenCalledTimes(7);
+
+    // Check node entering.
+    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('B');
+    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('C');
+    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('D');
+    expect(enterNodeCallback.mock.calls[4][0].value).toEqual('E');
+    expect(enterNodeCallback.mock.calls[5][0].value).toEqual('F');
+    expect(enterNodeCallback.mock.calls[6][0].value).toEqual('G');
+
+    // Check node leaving.
+    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('B');
+    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('C');
+    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('D');
+    expect(leaveNodeCallback.mock.calls[4][0].value).toEqual('E');
+    expect(leaveNodeCallback.mock.calls[5][0].value).toEqual('F');
+    expect(leaveNodeCallback.mock.calls[6][0].value).toEqual('G');
+  })",5,53,snuts
+/src/algorithms/tree/breadth-first-search/__test__/breadthFirstSearch.test.js,VerboseStatement,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
+    const nodeA = new BinaryTreeNode('A');
+    const nodeB = new BinaryTreeNode('B');
+    const nodeC = new BinaryTreeNode('C');
+    const nodeD = new BinaryTreeNode('D');
+    const nodeE = new BinaryTreeNode('E');
+    const nodeF = new BinaryTreeNode('F');
+    const nodeG = new BinaryTreeNode('G');
+
+    nodeA.setLeft(nodeB).setRight(nodeC);
+    nodeB.setLeft(nodeD).setRight(nodeE);
+    nodeC.setLeft(nodeF).setRight(nodeG);
+
+    // In-order traversing.
+    expect(nodeA.toString()).toBe('D,B,E,A,F,C,G');
+
+    const enterNodeCallback = jest.fn();
+    const leaveNodeCallback = jest.fn();
+
+    // Traverse tree without callbacks first to check default ones.
+    breadthFirstSearch(nodeA);
+
+    // Traverse tree with callbacks.
+    breadthFirstSearch(nodeA, {
+      allowTraversal: (node, child) => {
+        // Forbid traversing left half of the tree.
+        return child.value !== 'B';
+      },
+      enterNode: enterNodeCallback,
+      leaveNode: leaveNodeCallback,
+    });
+
+    expect(enterNodeCallback).toHaveBeenCalledTimes(4);
+    expect(leaveNodeCallback).toHaveBeenCalledTimes(4);
+
+    // Check node entering.
+    expect(enterNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(enterNodeCallback.mock.calls[1][0].value).toEqual('C');
+    expect(enterNodeCallback.mock.calls[2][0].value).toEqual('F');
+    expect(enterNodeCallback.mock.calls[3][0].value).toEqual('G');
+
+    // Check node leaving.
+    expect(leaveNodeCallback.mock.calls[0][0].value).toEqual('A');
+    expect(leaveNodeCallback.mock.calls[1][0].value).toEqual('C');
+    expect(leaveNodeCallback.mock.calls[2][0].value).toEqual('F');
+    expect(leaveNodeCallback.mock.calls[3][0].value).toEqual('G');
+  })",55,101,snuts
 /src/algorithms/sets/permutations/__test__/permutateWithoutRepetitions.test.js,SubOptimalAssert,"{'startLine':12,'endLine':12}","it('should permutate string', () => {
     const permutations1 = permutateWithoutRepetitions(['A']);
     expect(permutations1).toEqual([
@@ -5341,27 +5389,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     expect(combinations.length).toBe(expectedNumberOfCombinations);
   })",5,58,snuts
-/src/algorithms/search/linear-search/__test__/linearSearch.test.js,ConditionalTestLogic,"{'startLine':22,'endLine':24}","it('should search through objects as well', () => {
-    const comparatorCallback = (a, b) => {
-      if (a.key === b.key) {
-        return 0;
-      }
-
-      return a.key <= b.key ? -1 : 1;
-    };
-
-    const array = [
-      { key: 5 },
-      { key: 6 },
-      { key: 7 },
-      { key: 6 },
-    ];
-
-    expect(linearSearch(array, { key: 10 }, comparatorCallback)).toEqual([]);
-    expect(linearSearch(array, { key: 5 }, comparatorCallback)).toEqual([0]);
-    expect(linearSearch(array, { key: 6 }, comparatorCallback)).toEqual([1, 3]);
-  })",20,39,snuts
-/src/algorithms/search/jump-search/__test__/jumpSearch.test.js,ConditionalTestLogic,"{'startLine':29,'endLine':29}","it('should search object in sorted array', () => {
+/src/algorithms/search/binary-search/__test__/binarySearch.test.js,ConditionalTestLogic,"{'startLine':24,'endLine':24}","it('should search object in sorted array', () => {
     const sortedArrayOfObjects = [
       { key: 1, value: 'value1' },
       { key: 2, value: 'value2' },
@@ -5373,28 +5401,12 @@ file,type,line,method,methodStart,methodEnd,source
       return a.key < b.key ? -1 : 1;
     };
 
-    expect(jumpSearch([], { key: 1 }, comparator)).toBe(-1);
-    expect(jumpSearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
-    expect(jumpSearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
-    expect(jumpSearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
-    expect(jumpSearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
-  })",21,38,snuts
-/src/algorithms/search/jump-search/__test__/jumpSearch.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should search for an element in sorted array', () => {
-    expect(jumpSearch([], 1)).toBe(-1);
-    expect(jumpSearch([1], 2)).toBe(-1);
-    expect(jumpSearch([1], 1)).toBe(0);
-    expect(jumpSearch([1, 2], 1)).toBe(0);
-    expect(jumpSearch([1, 2], 1)).toBe(0);
-    expect(jumpSearch([1, 1, 1], 1)).toBe(0);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 2)).toBe(1);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 0)).toBe(-1);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 0)).toBe(-1);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 7)).toBe(-1);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 5)).toBe(2);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 20)).toBe(4);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 30)).toBe(7);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 48)).toBe(8);
-  })",4,19,snuts
+    expect(binarySearch([], { key: 1 }, comparator)).toBe(-1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
+    expect(binarySearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
+  })",16,33,snuts
 /src/algorithms/search/interpolation-search/__test__/interpolationSearch.test.js,VerboseStatement,"{'startLine':4,'endLine':23}","it('should search elements in sorted array of numbers', () => {
     expect(interpolationSearch([], 1)).toBe(-1);
     expect(interpolationSearch([1], 1)).toBe(0);
@@ -5415,24 +5427,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 19000], 800)).toBe(4);
     expect(interpolationSearch([0, 10, 11, 12, 13, 14, 15], 10)).toBe(1);
   })",4,23,snuts
-/src/algorithms/search/binary-search/__test__/binarySearch.test.js,ConditionalTestLogic,"{'startLine':24,'endLine':24}","it('should search object in sorted array', () => {
-    const sortedArrayOfObjects = [
-      { key: 1, value: 'value1' },
-      { key: 2, value: 'value2' },
-      { key: 3, value: 'value3' },
-    ];
-
-    const comparator = (a, b) => {
-      if (a.key === b.key) return 0;
-      return a.key < b.key ? -1 : 1;
-    };
-
-    expect(binarySearch([], { key: 1 }, comparator)).toBe(-1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
-    expect(binarySearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
-  })",16,33,snuts
 /src/algorithms/ml/knn/__test__/knn.test.js,IdenticalTestDescription,"{'startLine':24,'endLine':29}","it('should throw an error on not giving classification vector', () => {
     const inconsistent = () => {
       kNN([[1, 1]], [1], [1]);
@@ -5528,43 +5522,97 @@ file,type,line,method,methodStart,methodEnd,source
     expect(primeFactors(8735463)).toEqual([3, 3, 11, 88237]);
     expect(primeFactors(873452453)).toEqual([149, 1637, 3581]);
   })",17,37,snuts
-/src/algorithms/math/is-power-of-two/__test__/isPowerOfTwoBitwise.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should check if the number is made by multiplying twos', () => {
-    expect(isPowerOfTwoBitwise(-1)).toBe(false);
-    expect(isPowerOfTwoBitwise(0)).toBe(false);
-    expect(isPowerOfTwoBitwise(1)).toBe(true);
-    expect(isPowerOfTwoBitwise(2)).toBe(true);
-    expect(isPowerOfTwoBitwise(3)).toBe(false);
-    expect(isPowerOfTwoBitwise(4)).toBe(true);
-    expect(isPowerOfTwoBitwise(5)).toBe(false);
-    expect(isPowerOfTwoBitwise(6)).toBe(false);
-    expect(isPowerOfTwoBitwise(7)).toBe(false);
-    expect(isPowerOfTwoBitwise(8)).toBe(true);
-    expect(isPowerOfTwoBitwise(10)).toBe(false);
-    expect(isPowerOfTwoBitwise(12)).toBe(false);
-    expect(isPowerOfTwoBitwise(16)).toBe(true);
-    expect(isPowerOfTwoBitwise(31)).toBe(false);
-    expect(isPowerOfTwoBitwise(64)).toBe(true);
-    expect(isPowerOfTwoBitwise(1024)).toBe(true);
-    expect(isPowerOfTwoBitwise(1023)).toBe(false);
+/src/algorithms/search/linear-search/__test__/linearSearch.test.js,ConditionalTestLogic,"{'startLine':22,'endLine':24}","it('should search through objects as well', () => {
+    const comparatorCallback = (a, b) => {
+      if (a.key === b.key) {
+        return 0;
+      }
+
+      return a.key <= b.key ? -1 : 1;
+    };
+
+    const array = [
+      { key: 5 },
+      { key: 6 },
+      { key: 7 },
+      { key: 6 },
+    ];
+
+    expect(linearSearch(array, { key: 10 }, comparatorCallback)).toEqual([]);
+    expect(linearSearch(array, { key: 5 }, comparatorCallback)).toEqual([0]);
+    expect(linearSearch(array, { key: 6 }, comparatorCallback)).toEqual([1, 3]);
+  })",20,39,snuts
+/src/algorithms/search/jump-search/__test__/jumpSearch.test.js,ConditionalTestLogic,"{'startLine':29,'endLine':29}","it('should search object in sorted array', () => {
+    const sortedArrayOfObjects = [
+      { key: 1, value: 'value1' },
+      { key: 2, value: 'value2' },
+      { key: 3, value: 'value3' },
+    ];
+
+    const comparator = (a, b) => {
+      if (a.key === b.key) return 0;
+      return a.key < b.key ? -1 : 1;
+    };
+
+    expect(jumpSearch([], { key: 1 }, comparator)).toBe(-1);
+    expect(jumpSearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
+    expect(jumpSearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
+    expect(jumpSearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
+    expect(jumpSearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
+  })",21,38,snuts
+/src/algorithms/search/jump-search/__test__/jumpSearch.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should search for an element in sorted array', () => {
+    expect(jumpSearch([], 1)).toBe(-1);
+    expect(jumpSearch([1], 2)).toBe(-1);
+    expect(jumpSearch([1], 1)).toBe(0);
+    expect(jumpSearch([1, 2], 1)).toBe(0);
+    expect(jumpSearch([1, 2], 1)).toBe(0);
+    expect(jumpSearch([1, 1, 1], 1)).toBe(0);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 2)).toBe(1);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 0)).toBe(-1);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 0)).toBe(-1);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 7)).toBe(-1);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 5)).toBe(2);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 20)).toBe(4);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 30)).toBe(7);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 48)).toBe(8);
+  })",4,19,snuts
+/src/algorithms/math/fibonacci/__test__/fibonacciNth.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should calculate fibonacci correctly', () => {
+    expect(fibonacciNth(1)).toBe(1);
+    expect(fibonacciNth(2)).toBe(1);
+    expect(fibonacciNth(3)).toBe(2);
+    expect(fibonacciNth(4)).toBe(3);
+    expect(fibonacciNth(5)).toBe(5);
+    expect(fibonacciNth(6)).toBe(8);
+    expect(fibonacciNth(7)).toBe(13);
+    expect(fibonacciNth(8)).toBe(21);
+    expect(fibonacciNth(20)).toBe(6765);
+    expect(fibonacciNth(30)).toBe(832040);
+    expect(fibonacciNth(50)).toBe(12586269025);
+    expect(fibonacciNth(70)).toBe(190392490709135);
+    expect(fibonacciNth(71)).toBe(308061521170129);
+    expect(fibonacciNth(72)).toBe(498454011879264);
+    expect(fibonacciNth(73)).toBe(806515533049393);
+    expect(fibonacciNth(74)).toBe(1304969544928657);
+    expect(fibonacciNth(75)).toBe(2111485077978050);
   })",4,22,snuts
-/src/algorithms/math/is-power-of-two/__test__/isPowerOfTwo.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should check if the number is made by multiplying twos', () => {
-    expect(isPowerOfTwo(-1)).toBe(false);
-    expect(isPowerOfTwo(0)).toBe(false);
-    expect(isPowerOfTwo(1)).toBe(true);
-    expect(isPowerOfTwo(2)).toBe(true);
-    expect(isPowerOfTwo(3)).toBe(false);
-    expect(isPowerOfTwo(4)).toBe(true);
-    expect(isPowerOfTwo(5)).toBe(false);
-    expect(isPowerOfTwo(6)).toBe(false);
-    expect(isPowerOfTwo(7)).toBe(false);
-    expect(isPowerOfTwo(8)).toBe(true);
-    expect(isPowerOfTwo(10)).toBe(false);
-    expect(isPowerOfTwo(12)).toBe(false);
-    expect(isPowerOfTwo(16)).toBe(true);
-    expect(isPowerOfTwo(31)).toBe(false);
-    expect(isPowerOfTwo(64)).toBe(true);
-    expect(isPowerOfTwo(1024)).toBe(true);
-    expect(isPowerOfTwo(1023)).toBe(false);
+/src/algorithms/math/fast-powering/__test__/fastPowering.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should compute power in log(n) time', () => {
+    expect(fastPowering(1, 1)).toBe(1);
+    expect(fastPowering(2, 0)).toBe(1);
+    expect(fastPowering(2, 2)).toBe(4);
+    expect(fastPowering(2, 3)).toBe(8);
+    expect(fastPowering(2, 4)).toBe(16);
+    expect(fastPowering(2, 5)).toBe(32);
+    expect(fastPowering(2, 6)).toBe(64);
+    expect(fastPowering(2, 7)).toBe(128);
+    expect(fastPowering(2, 8)).toBe(256);
+    expect(fastPowering(3, 4)).toBe(81);
+    expect(fastPowering(190, 2)).toBe(36100);
+    expect(fastPowering(11, 5)).toBe(161051);
+    expect(fastPowering(13, 11)).toBe(1792160394037);
+    expect(fastPowering(9, 16)).toBe(1853020188851841);
+    expect(fastPowering(16, 16)).toBe(18446744073709552000);
+    expect(fastPowering(7, 21)).toBe(558545864083284000);
+    expect(fastPowering(100, 9)).toBe(1000000000000000000);
   })",4,22,snuts
 /src/algorithms/math/euclidean-algorithm/__test__/euclideanAlgorithmIterative.test.js,VerboseStatement,"{'startLine':4,'endLine':25}","it('should calculate GCD iteratively', () => {
     expect(euclideanAlgorithmIterative(0, 0)).toBe(0);
@@ -5713,64 +5761,6 @@ file,type,line,method,methodStart,methodEnd,source
       expect(bitsToFloat64(bits)).toBeCloseTo(decimal, 14);
     }
   })",25,31,snuts
-/src/algorithms/math/fast-powering/__test__/fastPowering.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should compute power in log(n) time', () => {
-    expect(fastPowering(1, 1)).toBe(1);
-    expect(fastPowering(2, 0)).toBe(1);
-    expect(fastPowering(2, 2)).toBe(4);
-    expect(fastPowering(2, 3)).toBe(8);
-    expect(fastPowering(2, 4)).toBe(16);
-    expect(fastPowering(2, 5)).toBe(32);
-    expect(fastPowering(2, 6)).toBe(64);
-    expect(fastPowering(2, 7)).toBe(128);
-    expect(fastPowering(2, 8)).toBe(256);
-    expect(fastPowering(3, 4)).toBe(81);
-    expect(fastPowering(190, 2)).toBe(36100);
-    expect(fastPowering(11, 5)).toBe(161051);
-    expect(fastPowering(13, 11)).toBe(1792160394037);
-    expect(fastPowering(9, 16)).toBe(1853020188851841);
-    expect(fastPowering(16, 16)).toBe(18446744073709552000);
-    expect(fastPowering(7, 21)).toBe(558545864083284000);
-    expect(fastPowering(100, 9)).toBe(1000000000000000000);
-  })",4,22,snuts
-/src/algorithms/cryptography/polynomial-hash/__test__/PolynomialHash.test.js,OvercommentedTest,"{'startLine':4,'endLine':42}","it('should calculate new hash based on previous one', () => {
-    const bases = [3, 79, 101, 3251, 13229, 122743, 3583213];
-    const mods = [79, 101];
-    const frameSizes = [5, 20];
-
-    // @TODO: Provide Unicode support.
-    const text = 'Lorem Ipsum is simply dummy text of the printing and '
-      + 'typesetting industry. Lorem Ipsum has been the industry\'s standard '
-      + 'galley of type and \u{ffff} scrambled it to make a type specimen book. It '
-      + 'electronic 耀 typesetting, remaining essentially unchanged. It was '
-      // + 'popularised in the \u{20005} \u{20000}1960s with the release of Letraset sheets '
-      + 'publishing software like Aldus PageMaker 耀 including versions of Lorem.';
-
-    // Check hashing for different prime base.
-    bases.forEach((base) => {
-      mods.forEach((modulus) => {
-        const polynomialHash = new PolynomialHash({ base, modulus });
-
-        // Check hashing for different word lengths.
-        frameSizes.forEach((frameSize) => {
-          let previousWord = text.substr(0, frameSize);
-          let previousHash = polynomialHash.hash(previousWord);
-
-          // Shift frame through the whole text.
-          for (let frameShift = 1; frameShift < (text.length - frameSize); frameShift += 1) {
-            const currentWord = text.substr(frameShift, frameSize);
-            const currentHash = polynomialHash.hash(currentWord);
-            const currentRollingHash = polynomialHash.roll(previousHash, previousWord, currentWord);
-
-            // Check that rolling hash is the same as directly calculated hash.
-            expect(currentRollingHash).toBe(currentHash);
-
-            previousWord = currentWord;
-            previousHash = currentHash;
-          }
-        });
-      });
-    });
-  })",4,42,snuts
 /src/algorithms/graph/travelling-salesman/__test__/bfTravellingSalesman.test.js,SubOptimalAssert,"{'startLine':44,'endLine':44}","it('should solve problem for simple graph', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -7725,6 +7715,44 @@ file,type,line,method,methodStart,methodEnd,source
       E: vertexD,
     });
   })",7,41,snuts
+/src/algorithms/math/is-power-of-two/__test__/isPowerOfTwoBitwise.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should check if the number is made by multiplying twos', () => {
+    expect(isPowerOfTwoBitwise(-1)).toBe(false);
+    expect(isPowerOfTwoBitwise(0)).toBe(false);
+    expect(isPowerOfTwoBitwise(1)).toBe(true);
+    expect(isPowerOfTwoBitwise(2)).toBe(true);
+    expect(isPowerOfTwoBitwise(3)).toBe(false);
+    expect(isPowerOfTwoBitwise(4)).toBe(true);
+    expect(isPowerOfTwoBitwise(5)).toBe(false);
+    expect(isPowerOfTwoBitwise(6)).toBe(false);
+    expect(isPowerOfTwoBitwise(7)).toBe(false);
+    expect(isPowerOfTwoBitwise(8)).toBe(true);
+    expect(isPowerOfTwoBitwise(10)).toBe(false);
+    expect(isPowerOfTwoBitwise(12)).toBe(false);
+    expect(isPowerOfTwoBitwise(16)).toBe(true);
+    expect(isPowerOfTwoBitwise(31)).toBe(false);
+    expect(isPowerOfTwoBitwise(64)).toBe(true);
+    expect(isPowerOfTwoBitwise(1024)).toBe(true);
+    expect(isPowerOfTwoBitwise(1023)).toBe(false);
+  })",4,22,snuts
+/src/algorithms/math/is-power-of-two/__test__/isPowerOfTwo.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should check if the number is made by multiplying twos', () => {
+    expect(isPowerOfTwo(-1)).toBe(false);
+    expect(isPowerOfTwo(0)).toBe(false);
+    expect(isPowerOfTwo(1)).toBe(true);
+    expect(isPowerOfTwo(2)).toBe(true);
+    expect(isPowerOfTwo(3)).toBe(false);
+    expect(isPowerOfTwo(4)).toBe(true);
+    expect(isPowerOfTwo(5)).toBe(false);
+    expect(isPowerOfTwo(6)).toBe(false);
+    expect(isPowerOfTwo(7)).toBe(false);
+    expect(isPowerOfTwo(8)).toBe(true);
+    expect(isPowerOfTwo(10)).toBe(false);
+    expect(isPowerOfTwo(12)).toBe(false);
+    expect(isPowerOfTwo(16)).toBe(true);
+    expect(isPowerOfTwo(31)).toBe(false);
+    expect(isPowerOfTwo(64)).toBe(true);
+    expect(isPowerOfTwo(1024)).toBe(true);
+    expect(isPowerOfTwo(1023)).toBe(false);
+  })",4,22,snuts
 /src/algorithms/graph/depth-first-search/__test__/depthFirstSearch.test.js,VerboseStatement,"{'startLine':7,'endLine':85}","it('should perform DFS operation on graph', () => {
     const graph = new Graph(true);
 
@@ -7882,6 +7910,172 @@ file,type,line,method,methodStart,methodEnd,source
       expect(params.previousVertex).toEqual(leaveVertexParamsMap[callIndex].previousVertex);
     }
   })",87,164,snuts
+/src/algorithms/graph/breadth-first-search/__test__/breadthFirstSearch.test.js,VerboseStatement,"{'startLine':7,'endLine':90}","it('should perform BFS operation on graph', () => {
+    const graph = new Graph(true);
+
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+    const vertexH = new GraphVertex('H');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCG = new GraphEdge(vertexC, vertexG);
+    const edgeAD = new GraphEdge(vertexA, vertexD);
+    const edgeAE = new GraphEdge(vertexA, vertexE);
+    const edgeEF = new GraphEdge(vertexE, vertexF);
+    const edgeFD = new GraphEdge(vertexF, vertexD);
+    const edgeDH = new GraphEdge(vertexD, vertexH);
+    const edgeGH = new GraphEdge(vertexG, vertexH);
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeCG)
+      .addEdge(edgeAD)
+      .addEdge(edgeAE)
+      .addEdge(edgeEF)
+      .addEdge(edgeFD)
+      .addEdge(edgeDH)
+      .addEdge(edgeGH);
+
+    expect(graph.toString()).toBe('A,B,C,G,D,E,F,H');
+
+    const enterVertexCallback = jest.fn();
+    const leaveVertexCallback = jest.fn();
+
+    // Traverse graphs without callbacks first.
+    breadthFirstSearch(graph, vertexA);
+
+    // Traverse graph with enterVertex and leaveVertex callbacks.
+    breadthFirstSearch(graph, vertexA, {
+      enterVertex: enterVertexCallback,
+      leaveVertex: leaveVertexCallback,
+    });
+
+    expect(enterVertexCallback).toHaveBeenCalledTimes(8);
+    expect(leaveVertexCallback).toHaveBeenCalledTimes(8);
+
+    const enterVertexParamsMap = [
+      { currentVertex: vertexA, previousVertex: null },
+      { currentVertex: vertexB, previousVertex: vertexA },
+      { currentVertex: vertexD, previousVertex: vertexB },
+      { currentVertex: vertexE, previousVertex: vertexD },
+      { currentVertex: vertexC, previousVertex: vertexE },
+      { currentVertex: vertexH, previousVertex: vertexC },
+      { currentVertex: vertexF, previousVertex: vertexH },
+      { currentVertex: vertexG, previousVertex: vertexF },
+    ];
+
+    for (let callIndex = 0; callIndex < graph.getAllVertices().length; callIndex += 1) {
+      const params = enterVertexCallback.mock.calls[callIndex][0];
+      expect(params.currentVertex).toEqual(enterVertexParamsMap[callIndex].currentVertex);
+      expect(params.previousVertex).toEqual(enterVertexParamsMap[callIndex].previousVertex);
+    }
+
+    const leaveVertexParamsMap = [
+      { currentVertex: vertexA, previousVertex: null },
+      { currentVertex: vertexB, previousVertex: vertexA },
+      { currentVertex: vertexD, previousVertex: vertexB },
+      { currentVertex: vertexE, previousVertex: vertexD },
+      { currentVertex: vertexC, previousVertex: vertexE },
+      { currentVertex: vertexH, previousVertex: vertexC },
+      { currentVertex: vertexF, previousVertex: vertexH },
+      { currentVertex: vertexG, previousVertex: vertexF },
+    ];
+
+    for (let callIndex = 0; callIndex < graph.getAllVertices().length; callIndex += 1) {
+      const params = leaveVertexCallback.mock.calls[callIndex][0];
+      expect(params.currentVertex).toEqual(leaveVertexParamsMap[callIndex].currentVertex);
+      expect(params.previousVertex).toEqual(leaveVertexParamsMap[callIndex].previousVertex);
+    }
+  })",7,90,snuts
+/src/algorithms/graph/breadth-first-search/__test__/breadthFirstSearch.test.js,VerboseStatement,"{'startLine':92,'endLine':173}","it('should allow to create custom vertex visiting logic', () => {
+    const graph = new Graph(true);
+
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+    const vertexH = new GraphVertex('H');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCG = new GraphEdge(vertexC, vertexG);
+    const edgeAD = new GraphEdge(vertexA, vertexD);
+    const edgeAE = new GraphEdge(vertexA, vertexE);
+    const edgeEF = new GraphEdge(vertexE, vertexF);
+    const edgeFD = new GraphEdge(vertexF, vertexD);
+    const edgeDH = new GraphEdge(vertexD, vertexH);
+    const edgeGH = new GraphEdge(vertexG, vertexH);
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeCG)
+      .addEdge(edgeAD)
+      .addEdge(edgeAE)
+      .addEdge(edgeEF)
+      .addEdge(edgeFD)
+      .addEdge(edgeDH)
+      .addEdge(edgeGH);
+
+    expect(graph.toString()).toBe('A,B,C,G,D,E,F,H');
+
+    const enterVertexCallback = jest.fn();
+    const leaveVertexCallback = jest.fn();
+
+    // Traverse graph with enterVertex and leaveVertex callbacks.
+    breadthFirstSearch(graph, vertexA, {
+      enterVertex: enterVertexCallback,
+      leaveVertex: leaveVertexCallback,
+      allowTraversal: ({ currentVertex, nextVertex }) => {
+        return !(currentVertex === vertexA && nextVertex === vertexB);
+      },
+    });
+
+    expect(enterVertexCallback).toHaveBeenCalledTimes(7);
+    expect(leaveVertexCallback).toHaveBeenCalledTimes(7);
+
+    const enterVertexParamsMap = [
+      { currentVertex: vertexA, previousVertex: null },
+      { currentVertex: vertexD, previousVertex: vertexA },
+      { currentVertex: vertexE, previousVertex: vertexD },
+      { currentVertex: vertexH, previousVertex: vertexE },
+      { currentVertex: vertexF, previousVertex: vertexH },
+      { currentVertex: vertexD, previousVertex: vertexF },
+      { currentVertex: vertexH, previousVertex: vertexD },
+    ];
+
+    for (let callIndex = 0; callIndex < 7; callIndex += 1) {
+      const params = enterVertexCallback.mock.calls[callIndex][0];
+      expect(params.currentVertex).toEqual(enterVertexParamsMap[callIndex].currentVertex);
+      expect(params.previousVertex).toEqual(enterVertexParamsMap[callIndex].previousVertex);
+    }
+
+    const leaveVertexParamsMap = [
+      { currentVertex: vertexA, previousVertex: null },
+      { currentVertex: vertexD, previousVertex: vertexA },
+      { currentVertex: vertexE, previousVertex: vertexD },
+      { currentVertex: vertexH, previousVertex: vertexE },
+      { currentVertex: vertexF, previousVertex: vertexH },
+      { currentVertex: vertexD, previousVertex: vertexF },
+      { currentVertex: vertexH, previousVertex: vertexD },
+    ];
+
+    for (let callIndex = 0; callIndex < 7; callIndex += 1) {
+      const params = leaveVertexCallback.mock.calls[callIndex][0];
+      expect(params.currentVertex).toEqual(leaveVertexParamsMap[callIndex].currentVertex);
+      expect(params.previousVertex).toEqual(leaveVertexParamsMap[callIndex].previousVertex);
+    }
+  })",92,173,snuts
 /src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':26,'endLine':26}","it('should find bridges in simple graph', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -8349,191 +8543,45 @@ file,type,line,method,methodStart,methodEnd,source
     expect(previousVertices.A.getKey()).toBe('D');
     expect(previousVertices.D.getKey()).toBe('E');
   })",68,116,snuts
-/src/algorithms/math/fibonacci/__test__/fibonacciNth.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should calculate fibonacci correctly', () => {
-    expect(fibonacciNth(1)).toBe(1);
-    expect(fibonacciNth(2)).toBe(1);
-    expect(fibonacciNth(3)).toBe(2);
-    expect(fibonacciNth(4)).toBe(3);
-    expect(fibonacciNth(5)).toBe(5);
-    expect(fibonacciNth(6)).toBe(8);
-    expect(fibonacciNth(7)).toBe(13);
-    expect(fibonacciNth(8)).toBe(21);
-    expect(fibonacciNth(20)).toBe(6765);
-    expect(fibonacciNth(30)).toBe(832040);
-    expect(fibonacciNth(50)).toBe(12586269025);
-    expect(fibonacciNth(70)).toBe(190392490709135);
-    expect(fibonacciNth(71)).toBe(308061521170129);
-    expect(fibonacciNth(72)).toBe(498454011879264);
-    expect(fibonacciNth(73)).toBe(806515533049393);
-    expect(fibonacciNth(74)).toBe(1304969544928657);
-    expect(fibonacciNth(75)).toBe(2111485077978050);
-  })",4,22,snuts
-/src/algorithms/graph/breadth-first-search/__test__/breadthFirstSearch.test.js,VerboseStatement,"{'startLine':7,'endLine':90}","it('should perform BFS operation on graph', () => {
-    const graph = new Graph(true);
+/src/algorithms/cryptography/polynomial-hash/__test__/PolynomialHash.test.js,OvercommentedTest,"{'startLine':4,'endLine':42}","it('should calculate new hash based on previous one', () => {
+    const bases = [3, 79, 101, 3251, 13229, 122743, 3583213];
+    const mods = [79, 101];
+    const frameSizes = [5, 20];
 
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-    const vertexH = new GraphVertex('H');
+    // @TODO: Provide Unicode support.
+    const text = 'Lorem Ipsum is simply dummy text of the printing and '
+      + 'typesetting industry. Lorem Ipsum has been the industry\'s standard '
+      + 'galley of type and \u{ffff} scrambled it to make a type specimen book. It '
+      + 'electronic 耀 typesetting, remaining essentially unchanged. It was '
+      // + 'popularised in the \u{20005} \u{20000}1960s with the release of Letraset sheets '
+      + 'publishing software like Aldus PageMaker 耀 including versions of Lorem.';
 
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCG = new GraphEdge(vertexC, vertexG);
-    const edgeAD = new GraphEdge(vertexA, vertexD);
-    const edgeAE = new GraphEdge(vertexA, vertexE);
-    const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeFD = new GraphEdge(vertexF, vertexD);
-    const edgeDH = new GraphEdge(vertexD, vertexH);
-    const edgeGH = new GraphEdge(vertexG, vertexH);
+    // Check hashing for different prime base.
+    bases.forEach((base) => {
+      mods.forEach((modulus) => {
+        const polynomialHash = new PolynomialHash({ base, modulus });
 
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeCG)
-      .addEdge(edgeAD)
-      .addEdge(edgeAE)
-      .addEdge(edgeEF)
-      .addEdge(edgeFD)
-      .addEdge(edgeDH)
-      .addEdge(edgeGH);
+        // Check hashing for different word lengths.
+        frameSizes.forEach((frameSize) => {
+          let previousWord = text.substr(0, frameSize);
+          let previousHash = polynomialHash.hash(previousWord);
 
-    expect(graph.toString()).toBe('A,B,C,G,D,E,F,H');
+          // Shift frame through the whole text.
+          for (let frameShift = 1; frameShift < (text.length - frameSize); frameShift += 1) {
+            const currentWord = text.substr(frameShift, frameSize);
+            const currentHash = polynomialHash.hash(currentWord);
+            const currentRollingHash = polynomialHash.roll(previousHash, previousWord, currentWord);
 
-    const enterVertexCallback = jest.fn();
-    const leaveVertexCallback = jest.fn();
+            // Check that rolling hash is the same as directly calculated hash.
+            expect(currentRollingHash).toBe(currentHash);
 
-    // Traverse graphs without callbacks first.
-    breadthFirstSearch(graph, vertexA);
-
-    // Traverse graph with enterVertex and leaveVertex callbacks.
-    breadthFirstSearch(graph, vertexA, {
-      enterVertex: enterVertexCallback,
-      leaveVertex: leaveVertexCallback,
+            previousWord = currentWord;
+            previousHash = currentHash;
+          }
+        });
+      });
     });
-
-    expect(enterVertexCallback).toHaveBeenCalledTimes(8);
-    expect(leaveVertexCallback).toHaveBeenCalledTimes(8);
-
-    const enterVertexParamsMap = [
-      { currentVertex: vertexA, previousVertex: null },
-      { currentVertex: vertexB, previousVertex: vertexA },
-      { currentVertex: vertexD, previousVertex: vertexB },
-      { currentVertex: vertexE, previousVertex: vertexD },
-      { currentVertex: vertexC, previousVertex: vertexE },
-      { currentVertex: vertexH, previousVertex: vertexC },
-      { currentVertex: vertexF, previousVertex: vertexH },
-      { currentVertex: vertexG, previousVertex: vertexF },
-    ];
-
-    for (let callIndex = 0; callIndex < graph.getAllVertices().length; callIndex += 1) {
-      const params = enterVertexCallback.mock.calls[callIndex][0];
-      expect(params.currentVertex).toEqual(enterVertexParamsMap[callIndex].currentVertex);
-      expect(params.previousVertex).toEqual(enterVertexParamsMap[callIndex].previousVertex);
-    }
-
-    const leaveVertexParamsMap = [
-      { currentVertex: vertexA, previousVertex: null },
-      { currentVertex: vertexB, previousVertex: vertexA },
-      { currentVertex: vertexD, previousVertex: vertexB },
-      { currentVertex: vertexE, previousVertex: vertexD },
-      { currentVertex: vertexC, previousVertex: vertexE },
-      { currentVertex: vertexH, previousVertex: vertexC },
-      { currentVertex: vertexF, previousVertex: vertexH },
-      { currentVertex: vertexG, previousVertex: vertexF },
-    ];
-
-    for (let callIndex = 0; callIndex < graph.getAllVertices().length; callIndex += 1) {
-      const params = leaveVertexCallback.mock.calls[callIndex][0];
-      expect(params.currentVertex).toEqual(leaveVertexParamsMap[callIndex].currentVertex);
-      expect(params.previousVertex).toEqual(leaveVertexParamsMap[callIndex].previousVertex);
-    }
-  })",7,90,snuts
-/src/algorithms/graph/breadth-first-search/__test__/breadthFirstSearch.test.js,VerboseStatement,"{'startLine':92,'endLine':173}","it('should allow to create custom vertex visiting logic', () => {
-    const graph = new Graph(true);
-
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-    const vertexH = new GraphVertex('H');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCG = new GraphEdge(vertexC, vertexG);
-    const edgeAD = new GraphEdge(vertexA, vertexD);
-    const edgeAE = new GraphEdge(vertexA, vertexE);
-    const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeFD = new GraphEdge(vertexF, vertexD);
-    const edgeDH = new GraphEdge(vertexD, vertexH);
-    const edgeGH = new GraphEdge(vertexG, vertexH);
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeCG)
-      .addEdge(edgeAD)
-      .addEdge(edgeAE)
-      .addEdge(edgeEF)
-      .addEdge(edgeFD)
-      .addEdge(edgeDH)
-      .addEdge(edgeGH);
-
-    expect(graph.toString()).toBe('A,B,C,G,D,E,F,H');
-
-    const enterVertexCallback = jest.fn();
-    const leaveVertexCallback = jest.fn();
-
-    // Traverse graph with enterVertex and leaveVertex callbacks.
-    breadthFirstSearch(graph, vertexA, {
-      enterVertex: enterVertexCallback,
-      leaveVertex: leaveVertexCallback,
-      allowTraversal: ({ currentVertex, nextVertex }) => {
-        return !(currentVertex === vertexA && nextVertex === vertexB);
-      },
-    });
-
-    expect(enterVertexCallback).toHaveBeenCalledTimes(7);
-    expect(leaveVertexCallback).toHaveBeenCalledTimes(7);
-
-    const enterVertexParamsMap = [
-      { currentVertex: vertexA, previousVertex: null },
-      { currentVertex: vertexD, previousVertex: vertexA },
-      { currentVertex: vertexE, previousVertex: vertexD },
-      { currentVertex: vertexH, previousVertex: vertexE },
-      { currentVertex: vertexF, previousVertex: vertexH },
-      { currentVertex: vertexD, previousVertex: vertexF },
-      { currentVertex: vertexH, previousVertex: vertexD },
-    ];
-
-    for (let callIndex = 0; callIndex < 7; callIndex += 1) {
-      const params = enterVertexCallback.mock.calls[callIndex][0];
-      expect(params.currentVertex).toEqual(enterVertexParamsMap[callIndex].currentVertex);
-      expect(params.previousVertex).toEqual(enterVertexParamsMap[callIndex].previousVertex);
-    }
-
-    const leaveVertexParamsMap = [
-      { currentVertex: vertexA, previousVertex: null },
-      { currentVertex: vertexD, previousVertex: vertexA },
-      { currentVertex: vertexE, previousVertex: vertexD },
-      { currentVertex: vertexH, previousVertex: vertexE },
-      { currentVertex: vertexF, previousVertex: vertexH },
-      { currentVertex: vertexD, previousVertex: vertexF },
-      { currentVertex: vertexH, previousVertex: vertexD },
-    ];
-
-    for (let callIndex = 0; callIndex < 7; callIndex += 1) {
-      const params = leaveVertexCallback.mock.calls[callIndex][0];
-      expect(params.currentVertex).toEqual(leaveVertexParamsMap[callIndex].currentVertex);
-      expect(params.previousVertex).toEqual(leaveVertexParamsMap[callIndex].previousVertex);
-    }
-  })",92,173,snuts
+  })",4,42,snuts
 /src/algorithms/graph/articulation-points/__test__/articulationPoints.test.js,SubOptimalAssert,"{'startLine':26,'endLine':26}","it('should find articulation points in simple graph', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -49152,259 +49200,301 @@ file,type,line,method,methodStart,methodEnd,source
     expect(maxHeap.remove(11).toString()).toEqual('10,3');
     expect(maxHeap.remove(10).peek()).toEqual(3);
   })",109,124,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 43, 'column': 4, 'index': 1423}","it('should handle data operations with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 48, 'column': 4, 'index': 1573}","it('should handle data operations with collisions', () => {
     const hashTable = new HashTable(3);
 
+    // Test hashing function
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('c')).toBe(0);
     expect(hashTable.hash('d')).toBe(1);
 
+    // Test setting and retrieving values
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
     hashTable.set('b', 'sea');
     hashTable.set('c', 'earth');
     hashTable.set('d', 'ocean');
 
+    // Test existence checks
     expect(hashTable.has('x')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('c')).toBe(true);
 
+    // Test bucket contents
     const stringifier = (value) => `${value.key}:${value.value}`;
     expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
     expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
     expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
 
+    // Test retrieval
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    hashTable.delete('a');
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
     expect(hashTable.delete('not-existing')).toBeNull();
-
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
+    // Test reassignment
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,55,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 44, 'column': 4, 'index': 1467}","it('should handle data operations with collisions', () => {
+  })",20,61,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 49, 'column': 4, 'index': 1617}","it('should handle data operations with collisions', () => {
     const hashTable = new HashTable(3);
 
+    // Test hashing function
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('c')).toBe(0);
     expect(hashTable.hash('d')).toBe(1);
 
+    // Test setting and retrieving values
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
     hashTable.set('b', 'sea');
     hashTable.set('c', 'earth');
     hashTable.set('d', 'ocean');
 
+    // Test existence checks
     expect(hashTable.has('x')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('c')).toBe(true);
 
+    // Test bucket contents
     const stringifier = (value) => `${value.key}:${value.value}`;
     expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
     expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
     expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
 
+    // Test retrieval
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    hashTable.delete('a');
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
     expect(hashTable.delete('not-existing')).toBeNull();
-
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
+    // Test reassignment
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,55,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 44, 'column': 4, 'index': 1467}","it('should handle data operations with collisions', () => {
+  })",20,61,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 49, 'column': 4, 'index': 1617}","it('should handle data operations with collisions', () => {
     const hashTable = new HashTable(3);
 
+    // Test hashing function
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('c')).toBe(0);
     expect(hashTable.hash('d')).toBe(1);
 
+    // Test setting and retrieving values
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
     hashTable.set('b', 'sea');
     hashTable.set('c', 'earth');
     hashTable.set('d', 'ocean');
 
+    // Test existence checks
     expect(hashTable.has('x')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('c')).toBe(true);
 
+    // Test bucket contents
     const stringifier = (value) => `${value.key}:${value.value}`;
     expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
     expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
     expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
 
+    // Test retrieval
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    hashTable.delete('a');
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
     expect(hashTable.delete('not-existing')).toBeNull();
-
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
+    // Test reassignment
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,55,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 50, 'column': 4, 'index': 1649}","it('should handle data operations with collisions', () => {
+  })",20,61,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 55, 'column': 4, 'index': 1841}","it('should handle data operations with collisions', () => {
     const hashTable = new HashTable(3);
 
+    // Test hashing function
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('c')).toBe(0);
     expect(hashTable.hash('d')).toBe(1);
 
+    // Test setting and retrieving values
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
     hashTable.set('b', 'sea');
     hashTable.set('c', 'earth');
     hashTable.set('d', 'ocean');
 
+    // Test existence checks
     expect(hashTable.has('x')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('c')).toBe(true);
 
+    // Test bucket contents
     const stringifier = (value) => `${value.key}:${value.value}`;
     expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
     expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
     expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
 
+    // Test retrieval
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    hashTable.delete('a');
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
     expect(hashTable.delete('not-existing')).toBeNull();
-
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
+    // Test reassignment
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,55,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 51, 'column': 4, 'index': 1699}","it('should handle data operations with collisions', () => {
+  })",20,61,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 56, 'column': 4, 'index': 1891}","it('should handle data operations with collisions', () => {
     const hashTable = new HashTable(3);
 
+    // Test hashing function
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('c')).toBe(0);
     expect(hashTable.hash('d')).toBe(1);
 
+    // Test setting and retrieving values
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
     hashTable.set('b', 'sea');
     hashTable.set('c', 'earth');
     hashTable.set('d', 'ocean');
 
+    // Test existence checks
     expect(hashTable.has('x')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('c')).toBe(true);
 
+    // Test bucket contents
     const stringifier = (value) => `${value.key}:${value.value}`;
     expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
     expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
     expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
 
+    // Test retrieval
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    hashTable.delete('a');
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
     expect(hashTable.delete('not-existing')).toBeNull();
-
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
+    // Test reassignment
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,55,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 51, 'column': 4, 'index': 1699}","it('should handle data operations with collisions', () => {
+  })",20,61,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 56, 'column': 4, 'index': 1891}","it('should handle data operations with collisions', () => {
     const hashTable = new HashTable(3);
 
+    // Test hashing function
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('c')).toBe(0);
     expect(hashTable.hash('d')).toBe(1);
 
+    // Test setting and retrieving values
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
     hashTable.set('b', 'sea');
     hashTable.set('c', 'earth');
     hashTable.set('d', 'ocean');
 
+    // Test existence checks
     expect(hashTable.has('x')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('c')).toBe(true);
 
+    // Test bucket contents
     const stringifier = (value) => `${value.key}:${value.value}`;
     expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
     expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
     expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
 
+    // Test retrieval
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    hashTable.delete('a');
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
     expect(hashTable.delete('not-existing')).toBeNull();
-
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
+    // Test reassignment
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,55,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 54, 'column': 4, 'index': 1783}","it('should handle data operations with collisions', () => {
+  })",20,61,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 60, 'column': 4, 'index': 2000}","it('should handle data operations with collisions', () => {
     const hashTable = new HashTable(3);
 
+    // Test hashing function
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('c')).toBe(0);
     expect(hashTable.hash('d')).toBe(1);
 
+    // Test setting and retrieving values
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
     hashTable.set('b', 'sea');
     hashTable.set('c', 'earth');
     hashTable.set('d', 'ocean');
 
+    // Test existence checks
     expect(hashTable.has('x')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('c')).toBe(true);
 
+    // Test bucket contents
     const stringifier = (value) => `${value.key}:${value.value}`;
     expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
     expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
     expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
 
+    // Test retrieval
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    hashTable.delete('a');
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
     expect(hashTable.delete('not-existing')).toBeNull();
-
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
+    // Test reassignment
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,55,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 78, 'column': 4, 'index': 2474}","it('should track actual keys', () => {
+  })",20,61,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 84, 'column': 4, 'index': 2691}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49422,8 +49512,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('a')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
-  })",68,86,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 79, 'column': 4, 'index': 2517}","it('should track actual keys', () => {
+  })",74,92,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 85, 'column': 4, 'index': 2734}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49441,8 +49531,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('a')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
-  })",68,86,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 79, 'column': 4, 'index': 2517}","it('should track actual keys', () => {
+  })",74,92,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 85, 'column': 4, 'index': 2734}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49460,8 +49550,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('a')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
-  })",68,86,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 83, 'column': 4, 'index': 2590}","it('should track actual keys', () => {
+  })",74,92,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 89, 'column': 4, 'index': 2807}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49479,8 +49569,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('a')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
-  })",68,86,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 85, 'column': 4, 'index': 2677}","it('should track actual keys', () => {
+  })",74,92,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 91, 'column': 4, 'index': 2894}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49498,8 +49588,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('a')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
-  })",68,86,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 85, 'column': 4, 'index': 2677}","it('should track actual keys', () => {
+  })",74,92,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 91, 'column': 4, 'index': 2894}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49517,7 +49607,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('a')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
-  })",68,86,steel
+  })",74,92,steel
 /src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 6, 'column': 49, 'index': 221}","it('should create hash table of certain size', () => {
     const defaultHashTable = new HashTable();
     expect(defaultHashTable.buckets.length).toBe(32);
@@ -49553,150 +49643,174 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('abc')).toBe(6);
   })",12,18,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 23, 'column': 37, 'index': 709}","it('should handle data operations with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 24, 'column': 37, 'index': 738}","it('should handle data operations with collisions', () => {
     const hashTable = new HashTable(3);
 
+    // Test hashing function
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('c')).toBe(0);
     expect(hashTable.hash('d')).toBe(1);
 
+    // Test setting and retrieving values
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
     hashTable.set('b', 'sea');
     hashTable.set('c', 'earth');
     hashTable.set('d', 'ocean');
 
+    // Test existence checks
     expect(hashTable.has('x')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('c')).toBe(true);
 
+    // Test bucket contents
     const stringifier = (value) => `${value.key}:${value.value}`;
     expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
     expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
     expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
 
+    // Test retrieval
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    hashTable.delete('a');
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
     expect(hashTable.delete('not-existing')).toBeNull();
-
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
+    // Test reassignment
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,55,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 24, 'column': 37, 'index': 750}","it('should handle data operations with collisions', () => {
+  })",20,61,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 25, 'column': 37, 'index': 779}","it('should handle data operations with collisions', () => {
     const hashTable = new HashTable(3);
 
+    // Test hashing function
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('c')).toBe(0);
     expect(hashTable.hash('d')).toBe(1);
 
+    // Test setting and retrieving values
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
     hashTable.set('b', 'sea');
     hashTable.set('c', 'earth');
     hashTable.set('d', 'ocean');
 
+    // Test existence checks
     expect(hashTable.has('x')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('c')).toBe(true);
 
+    // Test bucket contents
     const stringifier = (value) => `${value.key}:${value.value}`;
     expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
     expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
     expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
 
+    // Test retrieval
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    hashTable.delete('a');
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
     expect(hashTable.delete('not-existing')).toBeNull();
-
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
+    // Test reassignment
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,55,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 25, 'column': 37, 'index': 791}","it('should handle data operations with collisions', () => {
+  })",20,61,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 26, 'column': 37, 'index': 820}","it('should handle data operations with collisions', () => {
     const hashTable = new HashTable(3);
 
+    // Test hashing function
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('c')).toBe(0);
     expect(hashTable.hash('d')).toBe(1);
 
+    // Test setting and retrieving values
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
     hashTable.set('b', 'sea');
     hashTable.set('c', 'earth');
     hashTable.set('d', 'ocean');
 
+    // Test existence checks
     expect(hashTable.has('x')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('c')).toBe(true);
 
+    // Test bucket contents
     const stringifier = (value) => `${value.key}:${value.value}`;
     expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
     expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
     expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
 
+    // Test retrieval
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    hashTable.delete('a');
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
     expect(hashTable.delete('not-existing')).toBeNull();
-
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
+    // Test reassignment
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,55,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 26, 'column': 37, 'index': 832}","it('should handle data operations with collisions', () => {
+  })",20,61,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 27, 'column': 37, 'index': 861}","it('should handle data operations with collisions', () => {
     const hashTable = new HashTable(3);
 
+    // Test hashing function
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('c')).toBe(0);
     expect(hashTable.hash('d')).toBe(1);
 
+    // Test setting and retrieving values
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
     hashTable.set('b', 'sea');
     hashTable.set('c', 'earth');
     hashTable.set('d', 'ocean');
 
+    // Test existence checks
     expect(hashTable.has('x')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('c')).toBe(true);
 
+    // Test bucket contents
     const stringifier = (value) => `${value.key}:${value.value}`;
     expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
     expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
     expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
 
+    // Test retrieval
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    hashTable.delete('a');
+    // Test deletion
+    expect(hashTable.delete('a')).toBeDefined();
     expect(hashTable.delete('not-existing')).toBeNull();
-
     expect(hashTable.get('a')).not.toBeDefined();
     expect(hashTable.get('d')).toBe('ocean');
 
+    // Test reassignment
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,55,steel
+  })",20,61,steel
 /src/data-structures/graph/__test__/GraphVertex.test.js,Duplicate Assert,"{'line': 51, 'column': 4, 'index': 1489}","it('should delete edges from vertex', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');

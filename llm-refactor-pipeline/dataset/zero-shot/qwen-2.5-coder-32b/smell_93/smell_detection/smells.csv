@@ -69,6 +69,44 @@ file,type,line,method,methodStart,methodEnd,source
     expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
     expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
   })",25,49,snuts
+/src/data-structures/trie/__test__/Trie.test.js,VerboseStatement,"{'startLine':26,'endLine':63}","it('should delete words from trie', () => {
+    const trie = new Trie();
+
+    trie.addWord('carpet');
+    trie.addWord('car');
+    trie.addWord('cat');
+    trie.addWord('cart');
+    expect(trie.doesWordExist('carpet')).toBe(true);
+    expect(trie.doesWordExist('car')).toBe(true);
+    expect(trie.doesWordExist('cart')).toBe(true);
+    expect(trie.doesWordExist('cat')).toBe(true);
+
+    // Try to delete not-existing word first.
+    trie.deleteWord('carpool');
+    expect(trie.doesWordExist('carpet')).toBe(true);
+    expect(trie.doesWordExist('car')).toBe(true);
+    expect(trie.doesWordExist('cart')).toBe(true);
+    expect(trie.doesWordExist('cat')).toBe(true);
+
+    trie.deleteWord('carpet');
+    expect(trie.doesWordExist('carpet')).toEqual(false);
+    expect(trie.doesWordExist('car')).toEqual(true);
+    expect(trie.doesWordExist('cart')).toBe(true);
+    expect(trie.doesWordExist('cat')).toBe(true);
+
+    trie.deleteWord('cat');
+    expect(trie.doesWordExist('car')).toEqual(true);
+    expect(trie.doesWordExist('cart')).toBe(true);
+    expect(trie.doesWordExist('cat')).toBe(false);
+
+    trie.deleteWord('car');
+    expect(trie.doesWordExist('car')).toEqual(false);
+    expect(trie.doesWordExist('cart')).toBe(true);
+
+    trie.deleteWord('cart');
+    expect(trie.doesWordExist('car')).toEqual(false);
+    expect(trie.doesWordExist('cart')).toBe(false);
+  })",26,63,snuts
 /src/data-structures/tree/__test__/BinaryTreeNode.test.js,VerboseStatement,"{'startLine':76,'endLine':107}","it('should replace child node', () => {
     const leftNode = new BinaryTreeNode(1);
     const rightNode = new BinaryTreeNode(3);
@@ -209,236 +247,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(child.uncle).toBeDefined();
     expect(child.uncle).toEqual(uncle);
   })",236,259,snuts
-/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':4,'endLine':24}","it('should set and get values to and from the cache', () => {
-    const cache = new LRUCache(100);
-    expect(cache.get('key-1')).toBeUndefined();
-
-    cache.set('key-1', 15);
-    cache.set('key-2', 16);
-    cache.set('key-3', 17);
-    expect(cache.get('key-1')).toBe(15);
-    expect(cache.get('key-2')).toBe(16);
-    expect(cache.get('key-3')).toBe(17);
-    expect(cache.get('key-3')).toBe(17);
-    expect(cache.get('key-2')).toBe(16);
-    expect(cache.get('key-1')).toBe(15);
-
-    cache.set('key-1', 5);
-    cache.set('key-2', 6);
-    cache.set('key-3', 7);
-    expect(cache.get('key-1')).toBe(5);
-    expect(cache.get('key-2')).toBe(6);
-    expect(cache.get('key-3')).toBe(7);
-  })",4,24,snuts
-/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':26,'endLine':45}","it('should evict least recently used items from cache with cache size of 1', () => {
-    const cache = new LRUCache(1);
-    expect(cache.get('key-1')).toBeUndefined();
-
-    cache.set('key-1', 15);
-    expect(cache.get('key-1')).toBe(15);
-
-    cache.set('key-2', 16);
-    expect(cache.get('key-1')).toBeUndefined();
-    expect(cache.get('key-2')).toBe(16);
-
-    cache.set('key-2', 17);
-    expect(cache.get('key-2')).toBe(17);
-
-    cache.set('key-3', 18);
-    cache.set('key-4', 19);
-    expect(cache.get('key-2')).toBeUndefined();
-    expect(cache.get('key-3')).toBeUndefined();
-    expect(cache.get('key-4')).toBe(19);
-  })",26,45,snuts
-/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':47,'endLine':71}","it('should evict least recently used items from cache with cache size of 2', () => {
-    const cache = new LRUCache(2);
-    expect(cache.get('key-21')).toBeUndefined();
-
-    cache.set('key-21', 15);
-    expect(cache.get('key-21')).toBe(15);
-
-    cache.set('key-22', 16);
-    expect(cache.get('key-21')).toBe(15);
-    expect(cache.get('key-22')).toBe(16);
-
-    cache.set('key-22', 17);
-    expect(cache.get('key-22')).toBe(17);
-
-    cache.set('key-23', 18);
-    expect(cache.get('key-21')).toBeUndefined();
-    expect(cache.get('key-22')).toBe(17);
-    expect(cache.get('key-23')).toBe(18);
-
-    cache.set('key-24', 19);
-    expect(cache.get('key-21')).toBeUndefined();
-    expect(cache.get('key-22')).toBeUndefined();
-    expect(cache.get('key-23')).toBe(18);
-    expect(cache.get('key-24')).toBe(19);
-  })",47,71,snuts
-/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':73,'endLine':93}","it('should evict least recently used items from cache with cache size of 3', () => {
-    const cache = new LRUCache(3);
-
-    cache.set('key-1', 1);
-    cache.set('key-2', 2);
-    cache.set('key-3', 3);
-    expect(cache.get('key-1')).toBe(1);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(3);
-
-    cache.set('key-3', 4);
-    expect(cache.get('key-1')).toBe(1);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(4);
-
-    cache.set('key-4', 5);
-    expect(cache.get('key-1')).toBeUndefined();
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(4);
-    expect(cache.get('key-4')).toBe(5);
-  })",73,93,snuts
-/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':121,'endLine':147}","it('should promote the recently accessed item with cache size of 4', () => {
-    const cache = new LRUCache(4);
-
-    cache.set('key-1', 1);
-    cache.set('key-2', 2);
-    cache.set('key-3', 3);
-    cache.set('key-4', 4);
-    expect(cache.get('key-4')).toBe(4);
-    expect(cache.get('key-3')).toBe(3);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-1')).toBe(1);
-
-    cache.set('key-5', 5);
-    expect(cache.get('key-1')).toBe(1);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(3);
-    expect(cache.get('key-4')).toBeUndefined();
-    expect(cache.get('key-5')).toBe(5);
-
-    cache.set('key-6', 6);
-    expect(cache.get('key-1')).toBeUndefined();
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(3);
-    expect(cache.get('key-4')).toBeUndefined();
-    expect(cache.get('key-5')).toBe(5);
-    expect(cache.get('key-6')).toBe(6);
-  })",121,147,snuts
-/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':4,'endLine':24}","it('should set and get values to and from the cache', () => {
-    const cache = new LRUCache(100);
-    expect(cache.get('key-1')).toBeUndefined();
-
-    cache.set('key-1', 15);
-    cache.set('key-2', 16);
-    cache.set('key-3', 17);
-    expect(cache.get('key-1')).toBe(15);
-    expect(cache.get('key-2')).toBe(16);
-    expect(cache.get('key-3')).toBe(17);
-    expect(cache.get('key-3')).toBe(17);
-    expect(cache.get('key-2')).toBe(16);
-    expect(cache.get('key-1')).toBe(15);
-
-    cache.set('key-1', 5);
-    cache.set('key-2', 6);
-    cache.set('key-3', 7);
-    expect(cache.get('key-1')).toBe(5);
-    expect(cache.get('key-2')).toBe(6);
-    expect(cache.get('key-3')).toBe(7);
-  })",4,24,snuts
-/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':26,'endLine':45}","it('should evict least recently used items from cache with cache size of 1', () => {
-    const cache = new LRUCache(1);
-    expect(cache.get('key-1')).toBeUndefined();
-
-    cache.set('key-1', 15);
-    expect(cache.get('key-1')).toBe(15);
-
-    cache.set('key-2', 16);
-    expect(cache.get('key-1')).toBeUndefined();
-    expect(cache.get('key-2')).toBe(16);
-
-    cache.set('key-2', 17);
-    expect(cache.get('key-2')).toBe(17);
-
-    cache.set('key-3', 18);
-    cache.set('key-4', 19);
-    expect(cache.get('key-2')).toBeUndefined();
-    expect(cache.get('key-3')).toBeUndefined();
-    expect(cache.get('key-4')).toBe(19);
-  })",26,45,snuts
-/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':47,'endLine':73}","it('should evict least recently used items from cache with cache size of 2', () => {
-    const cache = new LRUCache(2);
-    expect(cache.get('key-21')).toBeUndefined();
-
-    cache.set('key-21', 15);
-    expect(cache.get('key-21')).toBe(15);
-
-    cache.set('key-22', 16);
-    expect(cache.get('key-21')).toBe(15);
-    expect(cache.get('key-22')).toBe(16);
-
-    cache.set('key-22', 17);
-    expect(cache.get('key-22')).toBe(17);
-
-    cache.set('key-23', 18);
-    expect(cache.size).toBe(2);
-    expect(cache.get('key-21')).toBeUndefined();
-    expect(cache.get('key-22')).toBe(17);
-    expect(cache.get('key-23')).toBe(18);
-
-    cache.set('key-24', 19);
-    expect(cache.size).toBe(2);
-    expect(cache.get('key-21')).toBeUndefined();
-    expect(cache.get('key-22')).toBeUndefined();
-    expect(cache.get('key-23')).toBe(18);
-    expect(cache.get('key-24')).toBe(19);
-  })",47,73,snuts
-/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':75,'endLine':95}","it('should evict least recently used items from cache with cache size of 3', () => {
-    const cache = new LRUCache(3);
-
-    cache.set('key-1', 1);
-    cache.set('key-2', 2);
-    cache.set('key-3', 3);
-    expect(cache.get('key-1')).toBe(1);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(3);
-
-    cache.set('key-3', 4);
-    expect(cache.get('key-1')).toBe(1);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(4);
-
-    cache.set('key-4', 5);
-    expect(cache.get('key-1')).toBeUndefined();
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(4);
-    expect(cache.get('key-4')).toBe(5);
-  })",75,95,snuts
-/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':123,'endLine':149}","it('should promote the recently accessed item with cache size of 4', () => {
-    const cache = new LRUCache(4);
-
-    cache.set('key-1', 1);
-    cache.set('key-2', 2);
-    cache.set('key-3', 3);
-    cache.set('key-4', 4);
-    expect(cache.get('key-4')).toBe(4);
-    expect(cache.get('key-3')).toBe(3);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-1')).toBe(1);
-
-    cache.set('key-5', 5);
-    expect(cache.get('key-1')).toBe(1);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(3);
-    expect(cache.get('key-4')).toBeUndefined();
-    expect(cache.get('key-5')).toBe(5);
-
-    cache.set('key-6', 6);
-    expect(cache.get('key-1')).toBeUndefined();
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(3);
-    expect(cache.get('key-4')).toBeUndefined();
-    expect(cache.get('key-5')).toBe(5);
-    expect(cache.get('key-6')).toBe(6);
-  })",123,149,snuts
 /src/data-structures/linked-list/__test__/LinkedList.test.js,ConditionalTestLogic,"{'startLine':212,'endLine':214}","it('should find node by means of custom compare function', () => {
     const comparatorFunction = (a, b) => {
       if (a.customValue === b.customValue) {
@@ -565,44 +373,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(linkedList.head).toBeNull();
     expect(linkedList.tail).toBeNull();
   })",128,152,snuts
-/src/data-structures/trie/__test__/Trie.test.js,VerboseStatement,"{'startLine':26,'endLine':63}","it('should delete words from trie', () => {
-    const trie = new Trie();
-
-    trie.addWord('carpet');
-    trie.addWord('car');
-    trie.addWord('cat');
-    trie.addWord('cart');
-    expect(trie.doesWordExist('carpet')).toBe(true);
-    expect(trie.doesWordExist('car')).toBe(true);
-    expect(trie.doesWordExist('cart')).toBe(true);
-    expect(trie.doesWordExist('cat')).toBe(true);
-
-    // Try to delete not-existing word first.
-    trie.deleteWord('carpool');
-    expect(trie.doesWordExist('carpet')).toBe(true);
-    expect(trie.doesWordExist('car')).toBe(true);
-    expect(trie.doesWordExist('cart')).toBe(true);
-    expect(trie.doesWordExist('cat')).toBe(true);
-
-    trie.deleteWord('carpet');
-    expect(trie.doesWordExist('carpet')).toEqual(false);
-    expect(trie.doesWordExist('car')).toEqual(true);
-    expect(trie.doesWordExist('cart')).toBe(true);
-    expect(trie.doesWordExist('cat')).toBe(true);
-
-    trie.deleteWord('cat');
-    expect(trie.doesWordExist('car')).toEqual(true);
-    expect(trie.doesWordExist('cart')).toBe(true);
-    expect(trie.doesWordExist('cat')).toBe(false);
-
-    trie.deleteWord('car');
-    expect(trie.doesWordExist('car')).toEqual(false);
-    expect(trie.doesWordExist('cart')).toBe(true);
-
-    trie.deleteWord('cart');
-    expect(trie.doesWordExist('car')).toEqual(false);
-    expect(trie.doesWordExist('cart')).toBe(false);
-  })",26,63,snuts
 /src/data-structures/heap/__test__/MinHeapAdhoc.test.js,SubOptimalAssert,"{'startLine':8,'endLine':8}","it('should create an empty min heap', () => {
     const minHeap = new MinHeapAdhoc();
 
@@ -1034,6 +804,236 @@ file,type,line,method,methodStart,methodEnd,source
     expect(maxHeap.remove(7).toString()).toEqual('8');
     expect(maxHeap.remove(8).toString()).toEqual('');
   })",126,150,snuts
+/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':4,'endLine':24}","it('should set and get values to and from the cache', () => {
+    const cache = new LRUCache(100);
+    expect(cache.get('key-1')).toBeUndefined();
+
+    cache.set('key-1', 15);
+    cache.set('key-2', 16);
+    cache.set('key-3', 17);
+    expect(cache.get('key-1')).toBe(15);
+    expect(cache.get('key-2')).toBe(16);
+    expect(cache.get('key-3')).toBe(17);
+    expect(cache.get('key-3')).toBe(17);
+    expect(cache.get('key-2')).toBe(16);
+    expect(cache.get('key-1')).toBe(15);
+
+    cache.set('key-1', 5);
+    cache.set('key-2', 6);
+    cache.set('key-3', 7);
+    expect(cache.get('key-1')).toBe(5);
+    expect(cache.get('key-2')).toBe(6);
+    expect(cache.get('key-3')).toBe(7);
+  })",4,24,snuts
+/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':26,'endLine':45}","it('should evict least recently used items from cache with cache size of 1', () => {
+    const cache = new LRUCache(1);
+    expect(cache.get('key-1')).toBeUndefined();
+
+    cache.set('key-1', 15);
+    expect(cache.get('key-1')).toBe(15);
+
+    cache.set('key-2', 16);
+    expect(cache.get('key-1')).toBeUndefined();
+    expect(cache.get('key-2')).toBe(16);
+
+    cache.set('key-2', 17);
+    expect(cache.get('key-2')).toBe(17);
+
+    cache.set('key-3', 18);
+    cache.set('key-4', 19);
+    expect(cache.get('key-2')).toBeUndefined();
+    expect(cache.get('key-3')).toBeUndefined();
+    expect(cache.get('key-4')).toBe(19);
+  })",26,45,snuts
+/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':47,'endLine':71}","it('should evict least recently used items from cache with cache size of 2', () => {
+    const cache = new LRUCache(2);
+    expect(cache.get('key-21')).toBeUndefined();
+
+    cache.set('key-21', 15);
+    expect(cache.get('key-21')).toBe(15);
+
+    cache.set('key-22', 16);
+    expect(cache.get('key-21')).toBe(15);
+    expect(cache.get('key-22')).toBe(16);
+
+    cache.set('key-22', 17);
+    expect(cache.get('key-22')).toBe(17);
+
+    cache.set('key-23', 18);
+    expect(cache.get('key-21')).toBeUndefined();
+    expect(cache.get('key-22')).toBe(17);
+    expect(cache.get('key-23')).toBe(18);
+
+    cache.set('key-24', 19);
+    expect(cache.get('key-21')).toBeUndefined();
+    expect(cache.get('key-22')).toBeUndefined();
+    expect(cache.get('key-23')).toBe(18);
+    expect(cache.get('key-24')).toBe(19);
+  })",47,71,snuts
+/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':73,'endLine':93}","it('should evict least recently used items from cache with cache size of 3', () => {
+    const cache = new LRUCache(3);
+
+    cache.set('key-1', 1);
+    cache.set('key-2', 2);
+    cache.set('key-3', 3);
+    expect(cache.get('key-1')).toBe(1);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(3);
+
+    cache.set('key-3', 4);
+    expect(cache.get('key-1')).toBe(1);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(4);
+
+    cache.set('key-4', 5);
+    expect(cache.get('key-1')).toBeUndefined();
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(4);
+    expect(cache.get('key-4')).toBe(5);
+  })",73,93,snuts
+/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':121,'endLine':147}","it('should promote the recently accessed item with cache size of 4', () => {
+    const cache = new LRUCache(4);
+
+    cache.set('key-1', 1);
+    cache.set('key-2', 2);
+    cache.set('key-3', 3);
+    cache.set('key-4', 4);
+    expect(cache.get('key-4')).toBe(4);
+    expect(cache.get('key-3')).toBe(3);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-1')).toBe(1);
+
+    cache.set('key-5', 5);
+    expect(cache.get('key-1')).toBe(1);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(3);
+    expect(cache.get('key-4')).toBeUndefined();
+    expect(cache.get('key-5')).toBe(5);
+
+    cache.set('key-6', 6);
+    expect(cache.get('key-1')).toBeUndefined();
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(3);
+    expect(cache.get('key-4')).toBeUndefined();
+    expect(cache.get('key-5')).toBe(5);
+    expect(cache.get('key-6')).toBe(6);
+  })",121,147,snuts
+/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':4,'endLine':24}","it('should set and get values to and from the cache', () => {
+    const cache = new LRUCache(100);
+    expect(cache.get('key-1')).toBeUndefined();
+
+    cache.set('key-1', 15);
+    cache.set('key-2', 16);
+    cache.set('key-3', 17);
+    expect(cache.get('key-1')).toBe(15);
+    expect(cache.get('key-2')).toBe(16);
+    expect(cache.get('key-3')).toBe(17);
+    expect(cache.get('key-3')).toBe(17);
+    expect(cache.get('key-2')).toBe(16);
+    expect(cache.get('key-1')).toBe(15);
+
+    cache.set('key-1', 5);
+    cache.set('key-2', 6);
+    cache.set('key-3', 7);
+    expect(cache.get('key-1')).toBe(5);
+    expect(cache.get('key-2')).toBe(6);
+    expect(cache.get('key-3')).toBe(7);
+  })",4,24,snuts
+/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':26,'endLine':45}","it('should evict least recently used items from cache with cache size of 1', () => {
+    const cache = new LRUCache(1);
+    expect(cache.get('key-1')).toBeUndefined();
+
+    cache.set('key-1', 15);
+    expect(cache.get('key-1')).toBe(15);
+
+    cache.set('key-2', 16);
+    expect(cache.get('key-1')).toBeUndefined();
+    expect(cache.get('key-2')).toBe(16);
+
+    cache.set('key-2', 17);
+    expect(cache.get('key-2')).toBe(17);
+
+    cache.set('key-3', 18);
+    cache.set('key-4', 19);
+    expect(cache.get('key-2')).toBeUndefined();
+    expect(cache.get('key-3')).toBeUndefined();
+    expect(cache.get('key-4')).toBe(19);
+  })",26,45,snuts
+/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':47,'endLine':73}","it('should evict least recently used items from cache with cache size of 2', () => {
+    const cache = new LRUCache(2);
+    expect(cache.get('key-21')).toBeUndefined();
+
+    cache.set('key-21', 15);
+    expect(cache.get('key-21')).toBe(15);
+
+    cache.set('key-22', 16);
+    expect(cache.get('key-21')).toBe(15);
+    expect(cache.get('key-22')).toBe(16);
+
+    cache.set('key-22', 17);
+    expect(cache.get('key-22')).toBe(17);
+
+    cache.set('key-23', 18);
+    expect(cache.size).toBe(2);
+    expect(cache.get('key-21')).toBeUndefined();
+    expect(cache.get('key-22')).toBe(17);
+    expect(cache.get('key-23')).toBe(18);
+
+    cache.set('key-24', 19);
+    expect(cache.size).toBe(2);
+    expect(cache.get('key-21')).toBeUndefined();
+    expect(cache.get('key-22')).toBeUndefined();
+    expect(cache.get('key-23')).toBe(18);
+    expect(cache.get('key-24')).toBe(19);
+  })",47,73,snuts
+/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':75,'endLine':95}","it('should evict least recently used items from cache with cache size of 3', () => {
+    const cache = new LRUCache(3);
+
+    cache.set('key-1', 1);
+    cache.set('key-2', 2);
+    cache.set('key-3', 3);
+    expect(cache.get('key-1')).toBe(1);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(3);
+
+    cache.set('key-3', 4);
+    expect(cache.get('key-1')).toBe(1);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(4);
+
+    cache.set('key-4', 5);
+    expect(cache.get('key-1')).toBeUndefined();
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(4);
+    expect(cache.get('key-4')).toBe(5);
+  })",75,95,snuts
+/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':123,'endLine':149}","it('should promote the recently accessed item with cache size of 4', () => {
+    const cache = new LRUCache(4);
+
+    cache.set('key-1', 1);
+    cache.set('key-2', 2);
+    cache.set('key-3', 3);
+    cache.set('key-4', 4);
+    expect(cache.get('key-4')).toBe(4);
+    expect(cache.get('key-3')).toBe(3);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-1')).toBe(1);
+
+    cache.set('key-5', 5);
+    expect(cache.get('key-1')).toBe(1);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(3);
+    expect(cache.get('key-4')).toBeUndefined();
+    expect(cache.get('key-5')).toBe(5);
+
+    cache.set('key-6', 6);
+    expect(cache.get('key-1')).toBeUndefined();
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(3);
+    expect(cache.get('key-4')).toBeUndefined();
+    expect(cache.get('key-5')).toBe(5);
+    expect(cache.get('key-6')).toBe(6);
+  })",123,149,snuts
 /src/data-structures/hash-table/__test__/HashTable.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should create hash table of certain size', () => {
     const defaultHashTable = new HashTable();
     expect(defaultHashTable.buckets.length).toBe(32);
@@ -4841,38 +4841,6 @@ file,type,line,method,methodStart,methodEnd,source
     const permutations4 = permutateWithRepetitions(['A', 'B', 'C', 'D']);
     expect(permutations4.length).toBe(4 * 4 * 4 * 4);
   })",4,51,snuts
-/src/algorithms/sets/longest-increasing-subsequence/__test__/dpLongestIncreasingSubsequence.test.js,OvercommentedTest,"{'startLine':4,'endLine':35}","it('should find longest increasing subsequence length', () => {
-    // Should be:
-    // 9 or
-    // 8 or
-    // 7 or
-    // 6 or
-    // ...
-    expect(dpLongestIncreasingSubsequence([
-      9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
-    ])).toBe(1);
-
-    // Should be:
-    // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-    expect(dpLongestIncreasingSubsequence([
-      0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-    ])).toBe(10);
-
-    // Should be:
-    // -1, 0, 2, 3
-    expect(dpLongestIncreasingSubsequence([
-      3, 4, -1, 0, 6, 2, 3,
-    ])).toBe(4);
-
-    // Should be:
-    // 0, 2, 6, 9, 11, 15 or
-    // 0, 4, 6, 9, 11, 15 or
-    // 0, 2, 6, 9, 13, 15 or
-    // 0, 4, 6, 9, 13, 15
-    expect(dpLongestIncreasingSubsequence([
-      0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15,
-    ])).toBe(6);
-  })",4,35,snuts
 /src/algorithms/sets/knapsack-problem/__test__/KnapsackItem.test.js,VerboseStatement,"{'startLine':4,'endLine':34}","it('should create knapsack item and count its total weight and value', () => {
     const knapsackItem = new KnapsackItem({ value: 3, weight: 2 });
 
@@ -5055,6 +5023,38 @@ file,type,line,method,methodStart,methodEnd,source
     expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
     expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 2');
   })",138,161,snuts
+/src/algorithms/sets/longest-increasing-subsequence/__test__/dpLongestIncreasingSubsequence.test.js,OvercommentedTest,"{'startLine':4,'endLine':35}","it('should find longest increasing subsequence length', () => {
+    // Should be:
+    // 9 or
+    // 8 or
+    // 7 or
+    // 6 or
+    // ...
+    expect(dpLongestIncreasingSubsequence([
+      9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+    ])).toBe(1);
+
+    // Should be:
+    // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    expect(dpLongestIncreasingSubsequence([
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+    ])).toBe(10);
+
+    // Should be:
+    // -1, 0, 2, 3
+    expect(dpLongestIncreasingSubsequence([
+      3, 4, -1, 0, 6, 2, 3,
+    ])).toBe(4);
+
+    // Should be:
+    // 0, 2, 6, 9, 11, 15 or
+    // 0, 4, 6, 9, 11, 15 or
+    // 0, 2, 6, 9, 13, 15 or
+    // 0, 4, 6, 9, 13, 15
+    expect(dpLongestIncreasingSubsequence([
+      0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15,
+    ])).toBe(6);
+  })",4,35,snuts
 /src/algorithms/sets/fisher-yates/__test__/fisherYates.test.js,SubOptimalAssert,"{'startLine':15,'endLine':15}","it('should shuffle array randomly', () => {
     const shuffledArray = fisherYates(sortedArr);
     const sorter = new QuickSort();
@@ -5291,6 +5291,26 @@ file,type,line,method,methodStart,methodEnd,source
 
     expect(combinations.length).toBe(expectedNumberOfCombinations);
   })",5,58,snuts
+/src/algorithms/search/linear-search/__test__/linearSearch.test.js,ConditionalTestLogic,"{'startLine':22,'endLine':24}","it('should search through objects as well', () => {
+    const comparatorCallback = (a, b) => {
+      if (a.key === b.key) {
+        return 0;
+      }
+
+      return a.key <= b.key ? -1 : 1;
+    };
+
+    const array = [
+      { key: 5 },
+      { key: 6 },
+      { key: 7 },
+      { key: 6 },
+    ];
+
+    expect(linearSearch(array, { key: 10 }, comparatorCallback)).toEqual([]);
+    expect(linearSearch(array, { key: 5 }, comparatorCallback)).toEqual([0]);
+    expect(linearSearch(array, { key: 6 }, comparatorCallback)).toEqual([1, 3]);
+  })",20,39,snuts
 /src/algorithms/search/jump-search/__test__/jumpSearch.test.js,ConditionalTestLogic,"{'startLine':29,'endLine':29}","it('should search object in sorted array', () => {
     const sortedArrayOfObjects = [
       { key: 1, value: 'value1' },
@@ -5325,26 +5345,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 30)).toBe(7);
     expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 48)).toBe(8);
   })",4,19,snuts
-/src/algorithms/search/linear-search/__test__/linearSearch.test.js,ConditionalTestLogic,"{'startLine':22,'endLine':24}","it('should search through objects as well', () => {
-    const comparatorCallback = (a, b) => {
-      if (a.key === b.key) {
-        return 0;
-      }
-
-      return a.key <= b.key ? -1 : 1;
-    };
-
-    const array = [
-      { key: 5 },
-      { key: 6 },
-      { key: 7 },
-      { key: 6 },
-    ];
-
-    expect(linearSearch(array, { key: 10 }, comparatorCallback)).toEqual([]);
-    expect(linearSearch(array, { key: 5 }, comparatorCallback)).toEqual([0]);
-    expect(linearSearch(array, { key: 6 }, comparatorCallback)).toEqual([1, 3]);
-  })",20,39,snuts
 /src/algorithms/search/interpolation-search/__test__/interpolationSearch.test.js,VerboseStatement,"{'startLine':4,'endLine':23}","it('should search elements in sorted array of numbers', () => {
     expect(interpolationSearch([], 1)).toBe(-1);
     expect(interpolationSearch([1], 1)).toBe(0);
@@ -5598,38 +5598,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(euclideanAlgorithm(462, -1071)).toBe(21);
     expect(euclideanAlgorithm(-462, -1071)).toBe(21);
   })",4,25,snuts
-/src/algorithms/math/bits/__test__/isPowerOfTwo.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should detect if the number is power of two', () => {
-    expect(isPowerOfTwo(1)).toBe(true);
-    expect(isPowerOfTwo(2)).toBe(true);
-    expect(isPowerOfTwo(3)).toBe(false);
-    expect(isPowerOfTwo(4)).toBe(true);
-    expect(isPowerOfTwo(5)).toBe(false);
-    expect(isPowerOfTwo(6)).toBe(false);
-    expect(isPowerOfTwo(7)).toBe(false);
-    expect(isPowerOfTwo(8)).toBe(true);
-    expect(isPowerOfTwo(9)).toBe(false);
-    expect(isPowerOfTwo(16)).toBe(true);
-    expect(isPowerOfTwo(23)).toBe(false);
-    expect(isPowerOfTwo(32)).toBe(true);
-    expect(isPowerOfTwo(127)).toBe(false);
-    expect(isPowerOfTwo(128)).toBe(true);
-  })",4,19,snuts
-/src/algorithms/math/bits/__test__/countSetBits.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should return number of set bits', () => {
-    expect(countSetBits(0)).toBe(0);
-    expect(countSetBits(1)).toBe(1);
-    expect(countSetBits(2)).toBe(1);
-    expect(countSetBits(3)).toBe(2);
-    expect(countSetBits(4)).toBe(1);
-    expect(countSetBits(5)).toBe(2);
-    expect(countSetBits(21)).toBe(3);
-    expect(countSetBits(255)).toBe(8);
-    expect(countSetBits(1023)).toBe(10);
-    expect(countSetBits(-1)).toBe(32);
-    expect(countSetBits(-21)).toBe(30);
-    expect(countSetBits(-255)).toBe(25);
-    expect(countSetBits(-1023)).toBe(23);
-    expect(countSetBits(-4294967296)).toBe(0);
-  })",4,19,snuts
 /src/algorithms/math/complex-number/__test__/ComplexNumber.test.js,VerboseStatement,"{'startLine':130,'endLine':180}","it('should return complex number in polar form', () => {
     const complexNumber1 = new ComplexNumber({ re: 3, im: 3 });
     expect(complexNumber1.getPolarForm().radius).toBe(Math.sqrt((3 ** 2) + (3 ** 2)));
@@ -5681,6 +5649,38 @@ file,type,line,method,methodStart,methodEnd,source
     expect(complexNumber10.getPolarForm().phase).toBeCloseTo(0);
     expect(complexNumber10.getPolarForm(false).phase).toBeCloseTo(0);
   })",130,180,snuts
+/src/algorithms/math/bits/__test__/isPowerOfTwo.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should detect if the number is power of two', () => {
+    expect(isPowerOfTwo(1)).toBe(true);
+    expect(isPowerOfTwo(2)).toBe(true);
+    expect(isPowerOfTwo(3)).toBe(false);
+    expect(isPowerOfTwo(4)).toBe(true);
+    expect(isPowerOfTwo(5)).toBe(false);
+    expect(isPowerOfTwo(6)).toBe(false);
+    expect(isPowerOfTwo(7)).toBe(false);
+    expect(isPowerOfTwo(8)).toBe(true);
+    expect(isPowerOfTwo(9)).toBe(false);
+    expect(isPowerOfTwo(16)).toBe(true);
+    expect(isPowerOfTwo(23)).toBe(false);
+    expect(isPowerOfTwo(32)).toBe(true);
+    expect(isPowerOfTwo(127)).toBe(false);
+    expect(isPowerOfTwo(128)).toBe(true);
+  })",4,19,snuts
+/src/algorithms/math/bits/__test__/countSetBits.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should return number of set bits', () => {
+    expect(countSetBits(0)).toBe(0);
+    expect(countSetBits(1)).toBe(1);
+    expect(countSetBits(2)).toBe(1);
+    expect(countSetBits(3)).toBe(2);
+    expect(countSetBits(4)).toBe(1);
+    expect(countSetBits(5)).toBe(2);
+    expect(countSetBits(21)).toBe(3);
+    expect(countSetBits(255)).toBe(8);
+    expect(countSetBits(1023)).toBe(10);
+    expect(countSetBits(-1)).toBe(32);
+    expect(countSetBits(-21)).toBe(30);
+    expect(countSetBits(-255)).toBe(25);
+    expect(countSetBits(-1023)).toBe(23);
+    expect(countSetBits(-4294967296)).toBe(0);
+  })",4,19,snuts
 /src/algorithms/math/binary-floating-point/__tests__/floatAsBinaryString.test.js,IdenticalTestDescription,"{'startLine':14,'endLine':19}","it('should create a binary representation of the floating numbers', () => {
     for (let testCaseIndex = 0; testCaseIndex < testCases64Bits.length; testCaseIndex += 1) {
       const [decimal, binary] = testCases64Bits[testCaseIndex];

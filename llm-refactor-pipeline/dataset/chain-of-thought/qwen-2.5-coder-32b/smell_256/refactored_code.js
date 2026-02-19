@@ -16,11 +16,9 @@ it('should trigger both handlers', function (done) {
     isDone()
   })
   
-  const spy1 = spyOn(list, 'on').and.callThrough();
-  const spy2 = spyOn(list, 'on').and.callThrough();
-  
   list.search('jonny')
   
-  expect(spy1).toHaveBeenCalledWith('updated', jasmine.any(Function));
-  expect(spy2).toHaveBeenCalledWith('updated', jasmine.any(Function));
+  // Add assertions to verify the handlers were called
+  expect(done1).toBe(true)
+  expect(done2).toBe(true)
 })

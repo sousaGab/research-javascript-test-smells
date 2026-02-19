@@ -17,8 +17,8 @@ it("extracts x, y, w, h from data-grid (with compactType=null)", () => {
 
     const [layout] = onLayoutChange.mock.calls[0];
     const item = layout.find(l => l.i === "test");
+    
     expect(item).toBeDefined();
-
     expect(item.x).toBe(3);
     expect(item.y).toBe(5);
     expect(item.w).toBe(4);

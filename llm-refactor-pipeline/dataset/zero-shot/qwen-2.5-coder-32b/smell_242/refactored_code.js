@@ -13,7 +13,7 @@ it("compares with static items (200 items, 20 static)", () => {
 
       expect(stdTime).toBeGreaterThan(0);
       expect(fastTime).toBeGreaterThan(0);
-      expect(fastTime).toBeLessThan(stdTime);
+      expect(stdTime / fastTime).toBeGreaterThan(1);
 
       console.log(
         [

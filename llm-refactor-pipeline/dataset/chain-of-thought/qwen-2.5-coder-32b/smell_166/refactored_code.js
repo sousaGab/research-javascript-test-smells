@@ -2,7 +2,7 @@ it("onDrag provides newItem with updated position during drag", () => {
     const onDrag = jest.fn();
     const layout = [{ i: "a", x: 0, y: 0, w: 2, h: 2 }];
 
-    render(
+    const { container } = render(
       <ReactGridLayout
         layout={layout}
         width={1200}
@@ -14,7 +14,9 @@ it("onDrag provides newItem with updated position during drag", () => {
       </ReactGridLayout>
     );
 
-    const item = document.querySelector(".react-grid-item");
+    const item = container.querySelector(".react-grid-item");
+    expect(item).toBeInTheDocument();
+
     fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
     // Move significantly right and down
     fireEvent.mouseMove(document, { clientX: 400, clientY: 200 });
@@ -22,8 +24,9 @@ it("onDrag provides newItem with updated position during drag", () => {
     expect(onDrag).toHaveBeenCalledTimes(1);
     const [, oldItem, newItem] = onDrag.mock.calls[0];
     // newItem should reflect the new position (different from old)
+    // $FlowIgnore - test assertion, we know these exist
     expect(newItem.i).toBe("a");
     // Position should have changed
-    expect(newItem.x).not.toBe(oldItem.x);
-    expect(newItem.y).not.toBe(oldItem.y);
+    // $FlowIgnore - test assertion, we know these exist
+    expect(newItem.x !== oldItem.x || newItem.y !== oldItem.y).toBe(true);
   })

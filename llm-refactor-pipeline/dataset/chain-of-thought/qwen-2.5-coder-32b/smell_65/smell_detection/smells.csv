@@ -252,12 +252,44 @@ file,type,line,method,methodStart,methodEnd,source
         }
         pond.removeFile(item);
     })",119,131,snuts
+/src/js/__tests__/removeFile.test.js,ConditionalTestLogic,"{'startLine':67,'endLine':69}","test('processes file and removes it successfully', async () => {
+    const pond = {
+        files: [DUMMY_FILE],
+        getFiles: () => [],
+        onremovefile: null,
+        onaddfile: null,
+        processFile: () => Promise.resolve(),
+        removeFile: () => {
+            if (pond.onremovefile) {
+                pond.onremovefile(null, DUMMY_FILE);
+            }
+        }
+    };
+
+    const promise = new Promise((resolve) => {
+        pond.onremovefile = (error, file) => {
+            expect(error).toBeNull();
+            expect(pond.getFiles()).toHaveLength(0);
+            resolve();
+        };
+    });
+
+    pond.onaddfile = () => {
+        pond.processFile().then(() => {
+            pond.removeFile();
+        });
+    };
+
+    pond.onaddfile();
+    
+    await promise;
+})",59,90,snuts
 /src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':56,'endLine':56}","test('remove file object', () => {
         pond.files = [DUMMY_FILE];
         pond.removeFile();
         expect(pond.getFiles().length).toBe(0);
     })",53,57,snuts
-/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':90,'endLine':90}","test('remove file object from client and from server', done => {
+/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':103,'endLine':103}","test('remove file object from client and from server', done => {
         pond.server = {
             ...server,
             remove: (source, load, error) => {
@@ -278,8 +310,8 @@ file,type,line,method,methodStart,methodEnd,source
         };
 
         pond.files = [LOCAL_FILE];
-    })",79,100,snuts
-/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':91,'endLine':91}","test('remove file object from client and from server', done => {
+    })",92,113,snuts
+/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':104,'endLine':104}","test('remove file object from client and from server', done => {
         pond.server = {
             ...server,
             remove: (source, load, error) => {
@@ -300,8 +332,8 @@ file,type,line,method,methodStart,methodEnd,source
         };
 
         pond.files = [LOCAL_FILE];
-    })",79,100,snuts
-/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':118,'endLine':118}","test('remove file object from client and fail to remove from server', done => {
+    })",92,113,snuts
+/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':131,'endLine':131}","test('remove file object from client and fail to remove from server', done => {
         pond.server = {
             ...server,
             remove: (source, load, error) => {
@@ -326,7 +358,7 @@ file,type,line,method,methodStart,methodEnd,source
         };
 
         pond.files = [LOCAL_FILE];
-    })",102,127,snuts
+    })",115,140,snuts
 /src/js/__tests__/createInstance.test.js,AnonymousTest,"{'startLine':5,'endLine':7}","test('without parameters', () => {
         expect(create()).toBeDefined();
     })",5,7,snuts
@@ -669,31 +701,76 @@ file,type,line,method,methodStart,methodEnd,source
             get: jest.fn(() => 1),
         });
     })",38,51,steel
-/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 56, 'column': 44, 'index': 1357}","test('remove file object', () => {
-        pond.files = [DUMMY_FILE];
-        pond.removeFile();
-        expect(pond.getFiles().length).toBe(0);
-    })",53,57,steel
-/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 65, 'column': 49, 'index': 1641}","test('processes file and removes it successfully', () => {
-    const mockFile = DUMMY_FILE;
-    
-    return new Promise(resolve => {
+/src/js/__tests__/removeFile.test.js,Conditional Test Logic,"{'line': 67, 'column': 12, 'index': 1654}","test('processes file and removes it successfully', async () => {
+    const pond = {
+        files: [DUMMY_FILE],
+        getFiles: () => [],
+        onremovefile: null,
+        onaddfile: null,
+        processFile: () => Promise.resolve(),
+        removeFile: () => {
+            if (pond.onremovefile) {
+                pond.onremovefile(null, DUMMY_FILE);
+            }
+        }
+    };
+
+    const promise = new Promise((resolve) => {
         pond.onremovefile = (error, file) => {
             expect(error).toBeNull();
             expect(pond.getFiles()).toHaveLength(0);
             resolve();
         };
-        
-        pond.onaddfile = () => {
-            pond.processFile().then(() => {
-                pond.removeFile();
-            });
-        };
-        
-        pond.files = [mockFile];
     });
-})",59,77,steel
-/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 91, 'column': 48, 'index': 2293}","test('remove file object from client and from server', done => {
+
+    pond.onaddfile = () => {
+        pond.processFile().then(() => {
+            pond.removeFile();
+        });
+    };
+
+    pond.onaddfile();
+    
+    await promise;
+})",59,90,steel
+/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 56, 'column': 44, 'index': 1357}","test('remove file object', () => {
+        pond.files = [DUMMY_FILE];
+        pond.removeFile();
+        expect(pond.getFiles().length).toBe(0);
+    })",53,57,steel
+/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 76, 'column': 49, 'index': 1945}","test('processes file and removes it successfully', async () => {
+    const pond = {
+        files: [DUMMY_FILE],
+        getFiles: () => [],
+        onremovefile: null,
+        onaddfile: null,
+        processFile: () => Promise.resolve(),
+        removeFile: () => {
+            if (pond.onremovefile) {
+                pond.onremovefile(null, DUMMY_FILE);
+            }
+        }
+    };
+
+    const promise = new Promise((resolve) => {
+        pond.onremovefile = (error, file) => {
+            expect(error).toBeNull();
+            expect(pond.getFiles()).toHaveLength(0);
+            resolve();
+        };
+    });
+
+    pond.onaddfile = () => {
+        pond.processFile().then(() => {
+            pond.removeFile();
+        });
+    };
+
+    pond.onaddfile();
+    
+    await promise;
+})",59,90,steel
+/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 104, 'column': 48, 'index': 2574}","test('remove file object from client and from server', done => {
         pond.server = {
             ...server,
             remove: (source, load, error) => {
@@ -714,8 +791,8 @@ file,type,line,method,methodStart,methodEnd,source
         };
 
         pond.files = [LOCAL_FILE];
-    })",79,100,steel
-/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 118, 'column': 48, 'index': 3029}","test('remove file object from client and fail to remove from server', done => {
+    })",92,113,steel
+/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 131, 'column': 48, 'index': 3310}","test('remove file object from client and fail to remove from server', done => {
         pond.server = {
             ...server,
             remove: (source, load, error) => {
@@ -740,8 +817,8 @@ file,type,line,method,methodStart,methodEnd,source
         };
 
         pond.files = [LOCAL_FILE];
-    })",102,127,steel
-/src/js/__tests__/removeFile.test.js,Sleepy Test,"{'line': 83, 'column': 16, 'index': 2062}","test('remove file object from client and from server', done => {
+    })",115,140,steel
+/src/js/__tests__/removeFile.test.js,Sleepy Test,"{'line': 96, 'column': 16, 'index': 2343}","test('remove file object from client and from server', done => {
         pond.server = {
             ...server,
             remove: (source, load, error) => {
@@ -762,8 +839,8 @@ file,type,line,method,methodStart,methodEnd,source
         };
 
         pond.files = [LOCAL_FILE];
-    })",79,100,steel
-/src/js/__tests__/removeFile.test.js,Sleepy Test,"{'line': 106, 'column': 16, 'index': 2643}","test('remove file object from client and fail to remove from server', done => {
+    })",92,113,steel
+/src/js/__tests__/removeFile.test.js,Sleepy Test,"{'line': 119, 'column': 16, 'index': 2924}","test('remove file object from client and fail to remove from server', done => {
         pond.server = {
             ...server,
             remove: (source, load, error) => {
@@ -788,7 +865,7 @@ file,type,line,method,methodStart,methodEnd,source
         };
 
         pond.files = [LOCAL_FILE];
-    })",102,127,steel
+    })",115,140,steel
 /src/js/__tests__/contentDisposition.test.js,Conditional Test Logic,"{'line': 42, 'column': 6, 'index': 1640}","describe('parse filename', () => {
     [
         { value: ``, expected: null },

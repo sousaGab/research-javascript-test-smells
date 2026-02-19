@@ -1,4 +1,4 @@
-test('component re-renders due to state change with deep equality check', () => {
+test('renders component with deep equal hook difference', () => {
   const initialState = {b: 'b'};
 
   function reducer() {

@@ -38,6 +38,7 @@ it('should attach basic click events', (done) => {
     expect(calledSecondTest).toBe(true);
 
     // reset
+    calledFirstTest = false;
     calledSecondTest = false;
 
     render(null, container);

@@ -1,17 +1,13 @@
 it('when strings are thrown as errors', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
-          const exitPromise = new Promise(resolve => {
-            const originalExit = process.exit;
-            process.exit = function(code) {
-              process.exit = originalExit;
-              processExitSpy(code);
-              resolve();
-            };
+          const logFileWritten = new Promise(resolve => {
+            fsPromise.readFile(filePath, { encoding: 'utf8' }).then(() => resolve());
           });
 
           process.emit('uncaughtException', expectedMessage);
-          await exitPromise;
+          
+          await logFileWritten;
 
           expect(processExitSpy).toHaveBeenCalledTimes(1);
           expect(processExitSpy).toHaveBeenCalledWith(1);

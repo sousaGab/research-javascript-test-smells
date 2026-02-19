@@ -22,11 +22,11 @@ it('default levels', function () {
 
         enabledLevels.forEach(level => {
           assume(logger.isLevelEnabled(level)).true();
-          assume(logger.isLevelEnabled()(level)).true();
+          assume(logger.isLevelEnabled(level)()).true();
         });
 
         disabledLevels.forEach(level => {
           assume(logger.isLevelEnabled(level)).false();
-          assume(logger.isLevelEnabled()(level)).false();
+          assume(logger.isLevelEnabled(level)()).false();
         });
       })

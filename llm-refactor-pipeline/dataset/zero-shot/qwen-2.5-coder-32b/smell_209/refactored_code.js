@@ -1,16 +1,23 @@
 it('with the default winston logger', async () => {
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
-        winston.exceptions.handle([
-          new winston.transports.File({
+        const logFileReady = new Promise(resolve => {
+          const fileTransport = new winston.transports.File({
             filename: filePath,
-            handleExceptions: true
-          })
-        ]);
+            handleExceptions: true,
+            maxsize: 1024 * 1024,
+            maxFiles: 1
+          });
+          
+          fileTransport.on('logged', () => {
+            resolve();
+          });
+          
+          winston.exceptions.handle([fileTransport]);
+        });
 
         process.emit('uncaughtException', expectedMessage);
-
-        // Wait for the exception handler to complete processing
-        await new Promise(resolve => setImmediate(resolve));
+        
+        await logFileReady;
 
         expect(processExitSpy).toHaveBeenCalledTimes(1);
         expect(processExitSpy).toHaveBeenCalledWith(1);
