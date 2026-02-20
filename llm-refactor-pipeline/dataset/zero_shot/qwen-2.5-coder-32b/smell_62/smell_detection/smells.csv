@@ -247,6 +247,132 @@ file,type,line,method,methodStart,methodEnd,source
     expect(child.uncle).toBeDefined();
     expect(child.uncle).toEqual(uncle);
   })",236,259,snuts
+/src/data-structures/linked-list/__test__/LinkedList.test.js,ConditionalTestLogic,"{'startLine':212,'endLine':214}","it('should find node by means of custom compare function', () => {
+    const comparatorFunction = (a, b) => {
+      if (a.customValue === b.customValue) {
+        return 0;
+      }
+
+      return a.customValue < b.customValue ? -1 : 1;
+    };
+
+    const linkedList = new LinkedList(comparatorFunction);
+
+    linkedList
+      .append({ value: 1, customValue: 'test1' })
+      .append({ value: 2, customValue: 'test2' })
+      .append({ value: 3, customValue: 'test3' });
+
+    const node = linkedList.find({
+      value: { value: 2, customValue: 'test2' },
+    });
+
+    expect(node).toBeDefined();
+    expect(node.value.value).toBe(2);
+    expect(node.value.customValue).toBe('test2');
+    expect(linkedList.find({ value: { value: 2, customValue: 'test5' } })).toBeNull();
+  })",210,234,snuts
+/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':50,'endLine':94}","it('should delete node by value from linked list', () => {
+    const linkedList = new LinkedList();
+
+    expect(linkedList.delete(5)).toBeNull();
+
+    linkedList.append(1);
+    linkedList.append(1);
+    linkedList.append(2);
+    linkedList.append(3);
+    linkedList.append(3);
+    linkedList.append(3);
+    linkedList.append(4);
+    linkedList.append(5);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('5');
+
+    const deletedNode = linkedList.delete(3);
+    expect(deletedNode.value).toBe(3);
+    expect(linkedList.toString()).toBe('1,1,2,4,5');
+
+    linkedList.delete(3);
+    expect(linkedList.toString()).toBe('1,1,2,4,5');
+
+    linkedList.delete(1);
+    expect(linkedList.toString()).toBe('2,4,5');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('5');
+
+    linkedList.delete(5);
+    expect(linkedList.toString()).toBe('2,4');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('4');
+
+    linkedList.delete(4);
+    expect(linkedList.toString()).toBe('2');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    linkedList.delete(2);
+    expect(linkedList.toString()).toBe('');
+  })",50,94,snuts
+/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':96,'endLine':126}","it('should delete linked list tail', () => {
+    const linkedList = new LinkedList();
+
+    linkedList.append(1);
+    linkedList.append(2);
+    linkedList.append(3);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('3');
+
+    const deletedNode1 = linkedList.deleteTail();
+
+    expect(deletedNode1.value).toBe(3);
+    expect(linkedList.toString()).toBe('1,2');
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode2 = linkedList.deleteTail();
+
+    expect(deletedNode2.value).toBe(2);
+    expect(linkedList.toString()).toBe('1');
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('1');
+
+    const deletedNode3 = linkedList.deleteTail();
+
+    expect(deletedNode3.value).toBe(1);
+    expect(linkedList.toString()).toBe('');
+    expect(linkedList.head).toBeNull();
+    expect(linkedList.tail).toBeNull();
+  })",96,126,snuts
+/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':128,'endLine':152}","it('should delete linked list head', () => {
+    const linkedList = new LinkedList();
+
+    expect(linkedList.deleteHead()).toBeNull();
+
+    linkedList.append(1);
+    linkedList.append(2);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode1 = linkedList.deleteHead();
+
+    expect(deletedNode1.value).toBe(1);
+    expect(linkedList.toString()).toBe('2');
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode2 = linkedList.deleteHead();
+
+    expect(deletedNode2.value).toBe(2);
+    expect(linkedList.toString()).toBe('');
+    expect(linkedList.head).toBeNull();
+    expect(linkedList.tail).toBeNull();
+  })",128,152,snuts
 /src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':4,'endLine':24}","it('should set and get values to and from the cache', () => {
     const cache = new LRUCache(100);
     expect(cache.get('key-1')).toBeUndefined();
@@ -477,132 +603,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(cache.get('key-5')).toBe(5);
     expect(cache.get('key-6')).toBe(6);
   })",123,149,snuts
-/src/data-structures/linked-list/__test__/LinkedList.test.js,ConditionalTestLogic,"{'startLine':212,'endLine':214}","it('should find node by means of custom compare function', () => {
-    const comparatorFunction = (a, b) => {
-      if (a.customValue === b.customValue) {
-        return 0;
-      }
-
-      return a.customValue < b.customValue ? -1 : 1;
-    };
-
-    const linkedList = new LinkedList(comparatorFunction);
-
-    linkedList
-      .append({ value: 1, customValue: 'test1' })
-      .append({ value: 2, customValue: 'test2' })
-      .append({ value: 3, customValue: 'test3' });
-
-    const node = linkedList.find({
-      value: { value: 2, customValue: 'test2' },
-    });
-
-    expect(node).toBeDefined();
-    expect(node.value.value).toBe(2);
-    expect(node.value.customValue).toBe('test2');
-    expect(linkedList.find({ value: { value: 2, customValue: 'test5' } })).toBeNull();
-  })",210,234,snuts
-/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':50,'endLine':94}","it('should delete node by value from linked list', () => {
-    const linkedList = new LinkedList();
-
-    expect(linkedList.delete(5)).toBeNull();
-
-    linkedList.append(1);
-    linkedList.append(1);
-    linkedList.append(2);
-    linkedList.append(3);
-    linkedList.append(3);
-    linkedList.append(3);
-    linkedList.append(4);
-    linkedList.append(5);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('5');
-
-    const deletedNode = linkedList.delete(3);
-    expect(deletedNode.value).toBe(3);
-    expect(linkedList.toString()).toBe('1,1,2,4,5');
-
-    linkedList.delete(3);
-    expect(linkedList.toString()).toBe('1,1,2,4,5');
-
-    linkedList.delete(1);
-    expect(linkedList.toString()).toBe('2,4,5');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('5');
-
-    linkedList.delete(5);
-    expect(linkedList.toString()).toBe('2,4');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('4');
-
-    linkedList.delete(4);
-    expect(linkedList.toString()).toBe('2');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    linkedList.delete(2);
-    expect(linkedList.toString()).toBe('');
-  })",50,94,snuts
-/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':96,'endLine':126}","it('should delete linked list tail', () => {
-    const linkedList = new LinkedList();
-
-    linkedList.append(1);
-    linkedList.append(2);
-    linkedList.append(3);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('3');
-
-    const deletedNode1 = linkedList.deleteTail();
-
-    expect(deletedNode1.value).toBe(3);
-    expect(linkedList.toString()).toBe('1,2');
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode2 = linkedList.deleteTail();
-
-    expect(deletedNode2.value).toBe(2);
-    expect(linkedList.toString()).toBe('1');
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('1');
-
-    const deletedNode3 = linkedList.deleteTail();
-
-    expect(deletedNode3.value).toBe(1);
-    expect(linkedList.toString()).toBe('');
-    expect(linkedList.head).toBeNull();
-    expect(linkedList.tail).toBeNull();
-  })",96,126,snuts
-/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':128,'endLine':152}","it('should delete linked list head', () => {
-    const linkedList = new LinkedList();
-
-    expect(linkedList.deleteHead()).toBeNull();
-
-    linkedList.append(1);
-    linkedList.append(2);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode1 = linkedList.deleteHead();
-
-    expect(deletedNode1.value).toBe(1);
-    expect(linkedList.toString()).toBe('2');
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode2 = linkedList.deleteHead();
-
-    expect(deletedNode2.value).toBe(2);
-    expect(linkedList.toString()).toBe('');
-    expect(linkedList.head).toBeNull();
-    expect(linkedList.tail).toBeNull();
-  })",128,152,snuts
 /src/data-structures/heap/__test__/MinHeapAdhoc.test.js,SubOptimalAssert,"{'startLine':8,'endLine':8}","it('should create an empty min heap', () => {
     const minHeap = new MinHeapAdhoc();
 
@@ -1034,6 +1034,20 @@ file,type,line,method,methodStart,methodEnd,source
     expect(maxHeap.remove(7).toString()).toEqual('8');
     expect(maxHeap.remove(8).toString()).toEqual('');
   })",126,150,snuts
+/src/data-structures/hash-table/__test__/HashTable.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should create hash table of certain size', () => {
+    const defaultHashTable = new HashTable();
+    expect(defaultHashTable.buckets.length).toBe(32);
+
+    const biggerHashTable = new HashTable(64);
+    expect(biggerHashTable.buckets.length).toBe(64);
+  })",4,10,snuts
+/src/data-structures/hash-table/__test__/HashTable.test.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should create hash table of certain size', () => {
+    const defaultHashTable = new HashTable();
+    expect(defaultHashTable.buckets.length).toBe(32);
+
+    const biggerHashTable = new HashTable(64);
+    expect(biggerHashTable.buckets.length).toBe(64);
+  })",4,10,snuts
 /src/data-structures/hash-table/__test__/HashTable.test.js,VerboseStatement,"{'startLine':20,'endLine':57}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
@@ -2938,50 +2952,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(bloomFilter.hash2(str2)).toBe(61);
     expect(bloomFilter.hash3(str2)).toBe(10);
   })",26,46,snuts
-/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should build tree for input array #0 with length of power of two', () => {
-    const array = [-1, 2];
-    const segmentTree = new SegmentTree(array, Math.min, Infinity);
-
-    expect(segmentTree.segmentTree).toEqual([-1, -1, 2]);
-    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
-  })",4,10,snuts
-/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':17,'endLine':17}","it('should build tree for input array #1 with length of power of two', () => {
-    const array = [-1, 2, 4, 0];
-    const segmentTree = new SegmentTree(array, Math.min, Infinity);
-
-    expect(segmentTree.segmentTree).toEqual([-1, -1, 0, -1, 2, 4, 0]);
-    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
-  })",12,18,snuts
-/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':25,'endLine':25}","it('should build tree for input array #0 with length not of power of two', () => {
-    const array = [0, 1, 2];
-    const segmentTree = new SegmentTree(array, Math.min, Infinity);
-
-    expect(segmentTree.segmentTree).toEqual([0, 0, 2, 0, 1, null, null]);
-    expect(segmentTree.segmentTree.length).toBe((2 * 4) - 1);
-  })",20,26,snuts
-/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':35,'endLine':35}","it('should build tree for input array #1 with length not of power of two', () => {
-    const array = [-1, 3, 4, 0, 2, 1];
-    const segmentTree = new SegmentTree(array, Math.min, Infinity);
-
-    expect(segmentTree.segmentTree).toEqual([
-      -1, -1, 0, -1, 4, 0, 1, -1, 3, null, null, 0, 2, null, null,
-    ]);
-    expect(segmentTree.segmentTree.length).toBe((2 * 8) - 1);
-  })",28,36,snuts
-/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':43,'endLine':43}","it('should build max array', () => {
-    const array = [-1, 2, 4, 0];
-    const segmentTree = new SegmentTree(array, Math.max, -Infinity);
-
-    expect(segmentTree.segmentTree).toEqual([4, 2, 4, -1, 2, 4, 0]);
-    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
-  })",38,44,snuts
-/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it('should build sum array', () => {
-    const array = [-1, 2, 4, 0];
-    const segmentTree = new SegmentTree(array, (a, b) => (a + b), 0);
-
-    expect(segmentTree.segmentTree).toEqual([5, 1, 4, -1, 2, 4, 0]);
-    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
-  })",46,52,snuts
 /src/data-structures/tree/red-black-tree/__test__/RedBlackTree.test.js,VerboseStatement,"{'startLine':46,'endLine':106}","it('should balance itself when parent is black', () => {
     const tree = new RedBlackTree();
 
@@ -3337,6 +3307,188 @@ file,type,line,method,methodStart,methodEnd,source
     expect(tree.queryRange(2, 4)).toBe(8);
     expect(tree.queryRange(6, 9)).toBe(11);
   })",16,63,snuts
+/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should build tree for input array #0 with length of power of two', () => {
+    const array = [-1, 2];
+    const segmentTree = new SegmentTree(array, Math.min, Infinity);
+
+    expect(segmentTree.segmentTree).toEqual([-1, -1, 2]);
+    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
+  })",4,10,snuts
+/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':17,'endLine':17}","it('should build tree for input array #1 with length of power of two', () => {
+    const array = [-1, 2, 4, 0];
+    const segmentTree = new SegmentTree(array, Math.min, Infinity);
+
+    expect(segmentTree.segmentTree).toEqual([-1, -1, 0, -1, 2, 4, 0]);
+    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
+  })",12,18,snuts
+/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':25,'endLine':25}","it('should build tree for input array #0 with length not of power of two', () => {
+    const array = [0, 1, 2];
+    const segmentTree = new SegmentTree(array, Math.min, Infinity);
+
+    expect(segmentTree.segmentTree).toEqual([0, 0, 2, 0, 1, null, null]);
+    expect(segmentTree.segmentTree.length).toBe((2 * 4) - 1);
+  })",20,26,snuts
+/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':35,'endLine':35}","it('should build tree for input array #1 with length not of power of two', () => {
+    const array = [-1, 3, 4, 0, 2, 1];
+    const segmentTree = new SegmentTree(array, Math.min, Infinity);
+
+    expect(segmentTree.segmentTree).toEqual([
+      -1, -1, 0, -1, 4, 0, 1, -1, 3, null, null, 0, 2, null, null,
+    ]);
+    expect(segmentTree.segmentTree.length).toBe((2 * 8) - 1);
+  })",28,36,snuts
+/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':43,'endLine':43}","it('should build max array', () => {
+    const array = [-1, 2, 4, 0];
+    const segmentTree = new SegmentTree(array, Math.max, -Infinity);
+
+    expect(segmentTree.segmentTree).toEqual([4, 2, 4, -1, 2, 4, 0]);
+    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
+  })",38,44,snuts
+/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it('should build sum array', () => {
+    const array = [-1, 2, 4, 0];
+    const segmentTree = new SegmentTree(array, (a, b) => (a + b), 0);
+
+    expect(segmentTree.segmentTree).toEqual([5, 1, 4, -1, 2, 4, 0]);
+    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
+  })",46,52,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,ConditionalTestLogic,"{'startLine':221,'endLine':223}","it('should be possible to use objects as node values', () => {
+    const nodeValueComparatorCallback = (a, b) => {
+      const normalizedA = a || { value: null };
+      const normalizedB = b || { value: null };
+
+      if (normalizedA.value === normalizedB.value) {
+        return 0;
+      }
+
+      return normalizedA.value < normalizedB.value ? -1 : 1;
+    };
+
+    const obj1 = { key: 'obj1', value: 1, toString: () => 'obj1' };
+    const obj2 = { key: 'obj2', value: 2, toString: () => 'obj2' };
+    const obj3 = { key: 'obj3', value: 3, toString: () => 'obj3' };
+
+    const bstNode = new BinarySearchTreeNode(obj2, nodeValueComparatorCallback);
+    bstNode.insert(obj1);
+
+    expect(bstNode.toString()).toBe('obj1,obj2');
+    expect(bstNode.contains(obj1)).toBe(true);
+    expect(bstNode.contains(obj3)).toBe(false);
+
+    bstNode.insert(obj3);
+
+    expect(bstNode.toString()).toBe('obj1,obj2,obj3');
+    expect(bstNode.contains(obj3)).toBe(true);
+
+    expect(bstNode.findMin().value).toEqual(obj1);
+  })",216,245,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':21,'endLine':54}","it('should insert nodes in correct order', () => {
+    const bstNode = new BinarySearchTreeNode(2);
+    const insertedNode1 = bstNode.insert(1);
+
+    expect(insertedNode1.value).toBe(1);
+    expect(bstNode.toString()).toBe('1,2');
+    expect(bstNode.contains(1)).toBe(true);
+    expect(bstNode.contains(3)).toBe(false);
+
+    const insertedNode2 = bstNode.insert(3);
+
+    expect(insertedNode2.value).toBe(3);
+    expect(bstNode.toString()).toBe('1,2,3');
+    expect(bstNode.contains(3)).toBe(true);
+    expect(bstNode.contains(4)).toBe(false);
+
+    bstNode.insert(7);
+
+    expect(bstNode.toString()).toBe('1,2,3,7');
+    expect(bstNode.contains(7)).toBe(true);
+    expect(bstNode.contains(8)).toBe(false);
+
+    bstNode.insert(4);
+
+    expect(bstNode.toString()).toBe('1,2,3,4,7');
+    expect(bstNode.contains(4)).toBe(true);
+    expect(bstNode.contains(8)).toBe(false);
+
+    bstNode.insert(6);
+
+    expect(bstNode.toString()).toBe('1,2,3,4,6,7');
+    expect(bstNode.contains(6)).toBe(true);
+    expect(bstNode.contains(8)).toBe(false);
+  })",21,54,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':84,'endLine':103}","it('should be possible to attach meta information to binary search tree nodes', () => {
+    const node = new BinarySearchTreeNode(10);
+
+    node.insert(20);
+    const node1 = node.insert(30);
+    node.insert(5);
+    node.insert(40);
+    const node2 = node.insert(1);
+
+    node.meta.set('color', 'red');
+    node1.meta.set('color', 'black');
+    node2.meta.set('color', 'white');
+
+    expect(node.meta.get('color')).toBe('red');
+
+    expect(node.findMin()).not.toBeNull();
+    expect(node.findMin().value).toBe(1);
+    expect(node.findMin().meta.get('color')).toBe('white');
+    expect(node.find(30).meta.get('color')).toBe('black');
+  })",84,103,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':157,'endLine':186}","it('should remove nodes with two children', () => {
+    const bstRootNode = new BinarySearchTreeNode();
+
+    bstRootNode.insert(10);
+    bstRootNode.insert(20);
+    bstRootNode.insert(5);
+    bstRootNode.insert(30);
+    bstRootNode.insert(15);
+    bstRootNode.insert(25);
+
+    expect(bstRootNode.toString()).toBe('5,10,15,20,25,30');
+    expect(bstRootNode.find(20).left.value).toBe(15);
+    expect(bstRootNode.find(20).right.value).toBe(30);
+
+    bstRootNode.remove(20);
+    expect(bstRootNode.toString()).toBe('5,10,15,25,30');
+
+    bstRootNode.remove(15);
+    expect(bstRootNode.toString()).toBe('5,10,25,30');
+
+    bstRootNode.remove(10);
+    expect(bstRootNode.toString()).toBe('5,25,30');
+    expect(bstRootNode.value).toBe(25);
+
+    bstRootNode.remove(25);
+    expect(bstRootNode.toString()).toBe('5,30');
+
+    bstRootNode.remove(5);
+    expect(bstRootNode.toString()).toBe('30');
+  })",157,186,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTree.test.js,ConditionalTestLogic,"{'startLine':60,'endLine':62}","it('should insert object values', () => {
+    const nodeValueCompareFunction = (a, b) => {
+      const normalizedA = a || { value: null };
+      const normalizedB = b || { value: null };
+
+      if (normalizedA.value === normalizedB.value) {
+        return 0;
+      }
+
+      return normalizedA.value < normalizedB.value ? -1 : 1;
+    };
+
+    const obj1 = { key: 'obj1', value: 1, toString: () => 'obj1' };
+    const obj2 = { key: 'obj2', value: 2, toString: () => 'obj2' };
+    const obj3 = { key: 'obj3', value: 3, toString: () => 'obj3' };
+
+    const bst = new BinarySearchTree(nodeValueCompareFunction);
+
+    bst.insert(obj2);
+    bst.insert(obj3);
+    bst.insert(obj1);
+
+    expect(bst.toString()).toBe('obj1,obj2,obj3');
+  })",55,78,snuts
 /src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,IdenticalTestDescription,"{'startLine':211,'endLine':231}","it('should do left right rotation and keeping left right node safe', () => {
     const tree = new AvlTree();
 
@@ -3587,144 +3739,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(tree.root.height).toBe(2);
     expect(tree.root.balanceFactor).toBe(0);
   })",271,302,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,ConditionalTestLogic,"{'startLine':221,'endLine':223}","it('should be possible to use objects as node values', () => {
-    const nodeValueComparatorCallback = (a, b) => {
-      const normalizedA = a || { value: null };
-      const normalizedB = b || { value: null };
-
-      if (normalizedA.value === normalizedB.value) {
-        return 0;
-      }
-
-      return normalizedA.value < normalizedB.value ? -1 : 1;
-    };
-
-    const obj1 = { key: 'obj1', value: 1, toString: () => 'obj1' };
-    const obj2 = { key: 'obj2', value: 2, toString: () => 'obj2' };
-    const obj3 = { key: 'obj3', value: 3, toString: () => 'obj3' };
-
-    const bstNode = new BinarySearchTreeNode(obj2, nodeValueComparatorCallback);
-    bstNode.insert(obj1);
-
-    expect(bstNode.toString()).toBe('obj1,obj2');
-    expect(bstNode.contains(obj1)).toBe(true);
-    expect(bstNode.contains(obj3)).toBe(false);
-
-    bstNode.insert(obj3);
-
-    expect(bstNode.toString()).toBe('obj1,obj2,obj3');
-    expect(bstNode.contains(obj3)).toBe(true);
-
-    expect(bstNode.findMin().value).toEqual(obj1);
-  })",216,245,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':21,'endLine':54}","it('should insert nodes in correct order', () => {
-    const bstNode = new BinarySearchTreeNode(2);
-    const insertedNode1 = bstNode.insert(1);
-
-    expect(insertedNode1.value).toBe(1);
-    expect(bstNode.toString()).toBe('1,2');
-    expect(bstNode.contains(1)).toBe(true);
-    expect(bstNode.contains(3)).toBe(false);
-
-    const insertedNode2 = bstNode.insert(3);
-
-    expect(insertedNode2.value).toBe(3);
-    expect(bstNode.toString()).toBe('1,2,3');
-    expect(bstNode.contains(3)).toBe(true);
-    expect(bstNode.contains(4)).toBe(false);
-
-    bstNode.insert(7);
-
-    expect(bstNode.toString()).toBe('1,2,3,7');
-    expect(bstNode.contains(7)).toBe(true);
-    expect(bstNode.contains(8)).toBe(false);
-
-    bstNode.insert(4);
-
-    expect(bstNode.toString()).toBe('1,2,3,4,7');
-    expect(bstNode.contains(4)).toBe(true);
-    expect(bstNode.contains(8)).toBe(false);
-
-    bstNode.insert(6);
-
-    expect(bstNode.toString()).toBe('1,2,3,4,6,7');
-    expect(bstNode.contains(6)).toBe(true);
-    expect(bstNode.contains(8)).toBe(false);
-  })",21,54,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':84,'endLine':103}","it('should be possible to attach meta information to binary search tree nodes', () => {
-    const node = new BinarySearchTreeNode(10);
-
-    node.insert(20);
-    const node1 = node.insert(30);
-    node.insert(5);
-    node.insert(40);
-    const node2 = node.insert(1);
-
-    node.meta.set('color', 'red');
-    node1.meta.set('color', 'black');
-    node2.meta.set('color', 'white');
-
-    expect(node.meta.get('color')).toBe('red');
-
-    expect(node.findMin()).not.toBeNull();
-    expect(node.findMin().value).toBe(1);
-    expect(node.findMin().meta.get('color')).toBe('white');
-    expect(node.find(30).meta.get('color')).toBe('black');
-  })",84,103,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':157,'endLine':186}","it('should remove nodes with two children', () => {
-    const bstRootNode = new BinarySearchTreeNode();
-
-    bstRootNode.insert(10);
-    bstRootNode.insert(20);
-    bstRootNode.insert(5);
-    bstRootNode.insert(30);
-    bstRootNode.insert(15);
-    bstRootNode.insert(25);
-
-    expect(bstRootNode.toString()).toBe('5,10,15,20,25,30');
-    expect(bstRootNode.find(20).left.value).toBe(15);
-    expect(bstRootNode.find(20).right.value).toBe(30);
-
-    bstRootNode.remove(20);
-    expect(bstRootNode.toString()).toBe('5,10,15,25,30');
-
-    bstRootNode.remove(15);
-    expect(bstRootNode.toString()).toBe('5,10,25,30');
-
-    bstRootNode.remove(10);
-    expect(bstRootNode.toString()).toBe('5,25,30');
-    expect(bstRootNode.value).toBe(25);
-
-    bstRootNode.remove(25);
-    expect(bstRootNode.toString()).toBe('5,30');
-
-    bstRootNode.remove(5);
-    expect(bstRootNode.toString()).toBe('30');
-  })",157,186,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTree.test.js,ConditionalTestLogic,"{'startLine':60,'endLine':62}","it('should insert object values', () => {
-    const nodeValueCompareFunction = (a, b) => {
-      const normalizedA = a || { value: null };
-      const normalizedB = b || { value: null };
-
-      if (normalizedA.value === normalizedB.value) {
-        return 0;
-      }
-
-      return normalizedA.value < normalizedB.value ? -1 : 1;
-    };
-
-    const obj1 = { key: 'obj1', value: 1, toString: () => 'obj1' };
-    const obj2 = { key: 'obj2', value: 2, toString: () => 'obj2' };
-    const obj3 = { key: 'obj3', value: 3, toString: () => 'obj3' };
-
-    const bst = new BinarySearchTree(nodeValueCompareFunction);
-
-    bst.insert(obj2);
-    bst.insert(obj3);
-    bst.insert(obj1);
-
-    expect(bst.toString()).toBe('obj1,obj2,obj3');
-  })",55,78,snuts
 /src/algorithms/uncategorized/rain-terraces/__test__/dpRainTerraces.test.js,VerboseStatement,"{'startLine':4,'endLine':20}","it('should find the amount of water collected after raining', () => {
     expect(dpRainTerraces([1])).toBe(0);
     expect(dpRainTerraces([1, 0])).toBe(0);
@@ -4911,6 +4925,196 @@ file,type,line,method,methodStart,methodEnd,source
       0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15,
     ])).toBe(6);
   })",4,35,snuts
+/src/algorithms/sets/knapsack-problem/__test__/KnapsackItem.test.js,VerboseStatement,"{'startLine':4,'endLine':34}","it('should create knapsack item and count its total weight and value', () => {
+    const knapsackItem = new KnapsackItem({ value: 3, weight: 2 });
+
+    expect(knapsackItem.value).toBe(3);
+    expect(knapsackItem.weight).toBe(2);
+    expect(knapsackItem.quantity).toBe(1);
+    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
+    expect(knapsackItem.toString()).toBe('v3 w2 x 1');
+    expect(knapsackItem.totalValue).toBe(3);
+    expect(knapsackItem.totalWeight).toBe(2);
+
+    knapsackItem.quantity = 0;
+
+    expect(knapsackItem.value).toBe(3);
+    expect(knapsackItem.weight).toBe(2);
+    expect(knapsackItem.quantity).toBe(0);
+    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
+    expect(knapsackItem.toString()).toBe('v3 w2 x 0');
+    expect(knapsackItem.totalValue).toBe(0);
+    expect(knapsackItem.totalWeight).toBe(0);
+
+    knapsackItem.quantity = 2;
+
+    expect(knapsackItem.value).toBe(3);
+    expect(knapsackItem.weight).toBe(2);
+    expect(knapsackItem.quantity).toBe(2);
+    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
+    expect(knapsackItem.toString()).toBe('v3 w2 x 2');
+    expect(knapsackItem.totalValue).toBe(6);
+    expect(knapsackItem.totalWeight).toBe(4);
+  })",4,34,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':21,'endLine':21}","it('should solve 0/1 knapsack problem', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 1, weight: 1 }),
+      new KnapsackItem({ value: 4, weight: 3 }),
+      new KnapsackItem({ value: 5, weight: 4 }),
+      new KnapsackItem({ value: 7, weight: 5 }),
+    ];
+
+    const maxKnapsackWeight = 7;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveZeroOneKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(9);
+    expect(knapsack.totalWeight).toBe(7);
+    expect(knapsack.selectedItems.length).toBe(2);
+    expect(knapsack.selectedItems[0].toString()).toBe('v5 w4 x 1');
+    expect(knapsack.selectedItems[1].toString()).toBe('v4 w3 x 1');
+  })",5,24,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':42,'endLine':42}","it('should solve 0/1 knapsack problem regardless of items order', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 5, weight: 4 }),
+      new KnapsackItem({ value: 1, weight: 1 }),
+      new KnapsackItem({ value: 7, weight: 5 }),
+      new KnapsackItem({ value: 4, weight: 3 }),
+    ];
+
+    const maxKnapsackWeight = 7;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveZeroOneKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(9);
+    expect(knapsack.totalWeight).toBe(7);
+    expect(knapsack.selectedItems.length).toBe(2);
+    expect(knapsack.selectedItems[0].toString()).toBe('v5 w4 x 1');
+    expect(knapsack.selectedItems[1].toString()).toBe('v4 w3 x 1');
+  })",26,45,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':63,'endLine':63}","it('should solve 0/1 knapsack problem with impossible items set', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 5, weight: 40 }),
+      new KnapsackItem({ value: 1, weight: 10 }),
+      new KnapsackItem({ value: 7, weight: 50 }),
+      new KnapsackItem({ value: 4, weight: 30 }),
+    ];
+
+    const maxKnapsackWeight = 7;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveZeroOneKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(0);
+    expect(knapsack.totalWeight).toBe(0);
+    expect(knapsack.selectedItems.length).toBe(0);
+  })",47,64,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':84,'endLine':84}","it('should solve 0/1 knapsack problem with all equal weights', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 5, weight: 1 }),
+      new KnapsackItem({ value: 1, weight: 1 }),
+      new KnapsackItem({ value: 7, weight: 1 }),
+      new KnapsackItem({ value: 4, weight: 1 }),
+      new KnapsackItem({ value: 4, weight: 1 }),
+      new KnapsackItem({ value: 4, weight: 1 }),
+    ];
+
+    const maxKnapsackWeight = 3;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveZeroOneKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(16);
+    expect(knapsack.totalWeight).toBe(3);
+    expect(knapsack.selectedItems.length).toBe(3);
+    expect(knapsack.selectedItems[0].toString()).toBe('v4 w1 x 1');
+    expect(knapsack.selectedItems[1].toString()).toBe('v5 w1 x 1');
+    expect(knapsack.selectedItems[2].toString()).toBe('v7 w1 x 1');
+  })",66,88,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':107,'endLine':107}","it('should solve unbound knapsack problem', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 84, weight: 7 }), // v/w ratio is 12
+      new KnapsackItem({ value: 5, weight: 2 }), // v/w ratio is 2.5
+      new KnapsackItem({ value: 12, weight: 3 }), // v/w ratio is 4
+      new KnapsackItem({ value: 10, weight: 1 }), // v/w ratio is 10
+      new KnapsackItem({ value: 20, weight: 2 }), // v/w ratio is 10
+    ];
+
+    const maxKnapsackWeight = 15;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveUnboundedKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(84 + 20 + 12 + 10 + 5);
+    expect(knapsack.totalWeight).toBe(15);
+    expect(knapsack.selectedItems.length).toBe(5);
+    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 1');
+    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 1');
+    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 1');
+    expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
+    expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 1');
+  })",90,113,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':132,'endLine':132}","it('should solve unbound knapsack problem with items in stock', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 84, weight: 7, itemsInStock: 3 }), // v/w ratio is 12
+      new KnapsackItem({ value: 5, weight: 2, itemsInStock: 2 }), // v/w ratio is 2.5
+      new KnapsackItem({ value: 12, weight: 3, itemsInStock: 1 }), // v/w ratio is 4
+      new KnapsackItem({ value: 10, weight: 1, itemsInStock: 6 }), // v/w ratio is 10
+      new KnapsackItem({ value: 20, weight: 2, itemsInStock: 8 }), // v/w ratio is 10
+    ];
+
+    const maxKnapsackWeight = 17;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveUnboundedKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(84 + 84 + 20 + 10);
+    expect(knapsack.totalWeight).toBe(17);
+    expect(knapsack.selectedItems.length).toBe(3);
+    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 2');
+    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 1');
+    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 1');
+  })",115,136,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':155,'endLine':155}","it('should solve unbound knapsack problem with items in stock and max weight more than sum of all items', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 84, weight: 7, itemsInStock: 3 }), // v/w ratio is 12
+      new KnapsackItem({ value: 5, weight: 2, itemsInStock: 2 }), // v/w ratio is 2.5
+      new KnapsackItem({ value: 12, weight: 3, itemsInStock: 1 }), // v/w ratio is 4
+      new KnapsackItem({ value: 10, weight: 1, itemsInStock: 6 }), // v/w ratio is 10
+      new KnapsackItem({ value: 20, weight: 2, itemsInStock: 8 }), // v/w ratio is 10
+    ];
+
+    const maxKnapsackWeight = 60;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveUnboundedKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe((3 * 84) + (2 * 5) + (1 * 12) + (6 * 10) + (8 * 20));
+    expect(knapsack.totalWeight).toBe((3 * 7) + (2 * 2) + (1 * 3) + (6 * 1) + (8 * 2));
+    expect(knapsack.selectedItems.length).toBe(5);
+    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 3');
+    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 8');
+    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 6');
+    expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
+    expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 2');
+  })",138,161,snuts
+/src/algorithms/sets/fisher-yates/__test__/fisherYates.test.js,SubOptimalAssert,"{'startLine':15,'endLine':15}","it('should shuffle array randomly', () => {
+    const shuffledArray = fisherYates(sortedArr);
+    const sorter = new QuickSort();
+
+    expect(shuffledArray.length).toBe(sortedArr.length);
+    expect(shuffledArray).not.toEqual(sortedArr);
+    expect(sorter.sort(shuffledArray)).toEqual(sortedArr);
+  })",11,18,snuts
 /src/algorithms/sets/combinations/__test__/combineWithoutRepetitions.test.js,SubOptimalAssert,"{'startLine':59,'endLine':59}","it('should combine string without repetitions', () => {
     expect(combineWithoutRepetitions(['A', 'B'], 3)).toEqual([]);
 
@@ -5364,33 +5568,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(isPowerOfTwo(1024)).toBe(true);
     expect(isPowerOfTwo(1023)).toBe(false);
   })",4,22,snuts
-/src/algorithms/sets/fisher-yates/__test__/fisherYates.test.js,SubOptimalAssert,"{'startLine':15,'endLine':15}","it('should shuffle array randomly', () => {
-    const shuffledArray = fisherYates(sortedArr);
-    const sorter = new QuickSort();
-
-    expect(shuffledArray.length).toBe(sortedArr.length);
-    expect(shuffledArray).not.toEqual(sortedArr);
-    expect(sorter.sort(shuffledArray)).toEqual(sortedArr);
-  })",11,18,snuts
-/src/algorithms/math/fibonacci/__test__/fibonacciNth.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should calculate fibonacci correctly', () => {
-    expect(fibonacciNth(1)).toBe(1);
-    expect(fibonacciNth(2)).toBe(1);
-    expect(fibonacciNth(3)).toBe(2);
-    expect(fibonacciNth(4)).toBe(3);
-    expect(fibonacciNth(5)).toBe(5);
-    expect(fibonacciNth(6)).toBe(8);
-    expect(fibonacciNth(7)).toBe(13);
-    expect(fibonacciNth(8)).toBe(21);
-    expect(fibonacciNth(20)).toBe(6765);
-    expect(fibonacciNth(30)).toBe(832040);
-    expect(fibonacciNth(50)).toBe(12586269025);
-    expect(fibonacciNth(70)).toBe(190392490709135);
-    expect(fibonacciNth(71)).toBe(308061521170129);
-    expect(fibonacciNth(72)).toBe(498454011879264);
-    expect(fibonacciNth(73)).toBe(806515533049393);
-    expect(fibonacciNth(74)).toBe(1304969544928657);
-    expect(fibonacciNth(75)).toBe(2111485077978050);
-  })",4,22,snuts
 /src/algorithms/math/fast-powering/__test__/fastPowering.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should compute power in log(n) time', () => {
     expect(fastPowering(1, 1)).toBe(1);
     expect(fastPowering(2, 0)).toBe(1);
@@ -5409,6 +5586,25 @@ file,type,line,method,methodStart,methodEnd,source
     expect(fastPowering(16, 16)).toBe(18446744073709552000);
     expect(fastPowering(7, 21)).toBe(558545864083284000);
     expect(fastPowering(100, 9)).toBe(1000000000000000000);
+  })",4,22,snuts
+/src/algorithms/math/fibonacci/__test__/fibonacciNth.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should calculate fibonacci correctly', () => {
+    expect(fibonacciNth(1)).toBe(1);
+    expect(fibonacciNth(2)).toBe(1);
+    expect(fibonacciNth(3)).toBe(2);
+    expect(fibonacciNth(4)).toBe(3);
+    expect(fibonacciNth(5)).toBe(5);
+    expect(fibonacciNth(6)).toBe(8);
+    expect(fibonacciNth(7)).toBe(13);
+    expect(fibonacciNth(8)).toBe(21);
+    expect(fibonacciNth(20)).toBe(6765);
+    expect(fibonacciNth(30)).toBe(832040);
+    expect(fibonacciNth(50)).toBe(12586269025);
+    expect(fibonacciNth(70)).toBe(190392490709135);
+    expect(fibonacciNth(71)).toBe(308061521170129);
+    expect(fibonacciNth(72)).toBe(498454011879264);
+    expect(fibonacciNth(73)).toBe(806515533049393);
+    expect(fibonacciNth(74)).toBe(1304969544928657);
+    expect(fibonacciNth(75)).toBe(2111485077978050);
   })",4,22,snuts
 /src/algorithms/math/euclidean-algorithm/__test__/euclideanAlgorithmIterative.test.js,VerboseStatement,"{'startLine':4,'endLine':25}","it('should calculate GCD iteratively', () => {
     expect(euclideanAlgorithmIterative(0, 0)).toBe(0);
@@ -5537,6 +5733,26 @@ file,type,line,method,methodStart,methodEnd,source
     expect(countSetBits(-1023)).toBe(23);
     expect(countSetBits(-4294967296)).toBe(0);
   })",4,19,snuts
+/src/algorithms/math/binary-floating-point/__tests__/floatAsBinaryString.test.js,IdenticalTestDescription,"{'startLine':14,'endLine':19}","it('should create a binary representation of the floating numbers', () => {
+    for (let testCaseIndex = 0; testCaseIndex < testCases64Bits.length; testCaseIndex += 1) {
+      const [decimal, binary] = testCases64Bits[testCaseIndex];
+      expect(floatAs64BinaryString(decimal)).toBe(binary);
+    }
+  })",14,19,snuts
+/src/algorithms/math/binary-floating-point/__tests__/bitsToFloat.test.js,IdenticalTestDescription,"{'startLine':15,'endLine':21}","it('should convert floating point binary bits to floating point decimal number', () => {
+    for (let testCaseIndex = 0; testCaseIndex < testCases32Bits.length; testCaseIndex += 1) {
+      const [decimal, binary] = testCases32Bits[testCaseIndex];
+      const bits = binary.split('').map((bitString) => parseInt(bitString, 10));
+      expect(bitsToFloat32(bits)).toBeCloseTo(decimal, 7);
+    }
+  })",15,21,snuts
+/src/algorithms/math/binary-floating-point/__tests__/bitsToFloat.test.js,IdenticalTestDescription,"{'startLine':25,'endLine':31}","it('should convert floating point binary bits to floating point decimal number', () => {
+    for (let testCaseIndex = 0; testCaseIndex < testCases64Bits.length; testCaseIndex += 1) {
+      const [decimal, binary] = testCases64Bits[testCaseIndex];
+      const bits = binary.split('').map((bitString) => parseInt(bitString, 10));
+      expect(bitsToFloat64(bits)).toBeCloseTo(decimal, 14);
+    }
+  })",25,31,snuts
 /src/algorithms/graph/travelling-salesman/__test__/bfTravellingSalesman.test.js,SubOptimalAssert,"{'startLine':44,'endLine':44}","it('should solve problem for simple graph', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -6124,26 +6340,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
     expect(minimumSpanningTree.toString()).toBe('A,B,C,D');
   })",61,90,snuts
-/src/algorithms/math/binary-floating-point/__tests__/floatAsBinaryString.test.js,IdenticalTestDescription,"{'startLine':14,'endLine':19}","it('should create a binary representation of the floating numbers', () => {
-    for (let testCaseIndex = 0; testCaseIndex < testCases64Bits.length; testCaseIndex += 1) {
-      const [decimal, binary] = testCases64Bits[testCaseIndex];
-      expect(floatAs64BinaryString(decimal)).toBe(binary);
-    }
-  })",14,19,snuts
-/src/algorithms/math/binary-floating-point/__tests__/bitsToFloat.test.js,IdenticalTestDescription,"{'startLine':15,'endLine':21}","it('should convert floating point binary bits to floating point decimal number', () => {
-    for (let testCaseIndex = 0; testCaseIndex < testCases32Bits.length; testCaseIndex += 1) {
-      const [decimal, binary] = testCases32Bits[testCaseIndex];
-      const bits = binary.split('').map((bitString) => parseInt(bitString, 10));
-      expect(bitsToFloat32(bits)).toBeCloseTo(decimal, 7);
-    }
-  })",15,21,snuts
-/src/algorithms/math/binary-floating-point/__tests__/bitsToFloat.test.js,IdenticalTestDescription,"{'startLine':25,'endLine':31}","it('should convert floating point binary bits to floating point decimal number', () => {
-    for (let testCaseIndex = 0; testCaseIndex < testCases64Bits.length; testCaseIndex += 1) {
-      const [decimal, binary] = testCases64Bits[testCaseIndex];
-      const bits = binary.split('').map((bitString) => parseInt(bitString, 10));
-      expect(bitsToFloat64(bits)).toBeCloseTo(decimal, 14);
-    }
-  })",25,31,snuts
 /src/algorithms/graph/kruskal/__test__/kruskal.test.js,SubOptimalAssert,"{'startLine':56,'endLine':56}","it('should find minimum spanning tree', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -8192,227 +8388,6 @@ file,type,line,method,methodStart,methodEnd,source
       expect(params.previousVertex).toEqual(leaveVertexParamsMap[callIndex].previousVertex);
     }
   })",92,173,snuts
-/src/algorithms/cryptography/polynomial-hash/__test__/PolynomialHash.test.js,OvercommentedTest,"{'startLine':4,'endLine':42}","it('should calculate new hash based on previous one', () => {
-    const bases = [3, 79, 101, 3251, 13229, 122743, 3583213];
-    const mods = [79, 101];
-    const frameSizes = [5, 20];
-
-    // @TODO: Provide Unicode support.
-    const text = 'Lorem Ipsum is simply dummy text of the printing and '
-      + 'typesetting industry. Lorem Ipsum has been the industry\'s standard '
-      + 'galley of type and \u{ffff} scrambled it to make a type specimen book. It '
-      + 'electronic 耀 typesetting, remaining essentially unchanged. It was '
-      // + 'popularised in the \u{20005} \u{20000}1960s with the release of Letraset sheets '
-      + 'publishing software like Aldus PageMaker 耀 including versions of Lorem.';
-
-    // Check hashing for different prime base.
-    bases.forEach((base) => {
-      mods.forEach((modulus) => {
-        const polynomialHash = new PolynomialHash({ base, modulus });
-
-        // Check hashing for different word lengths.
-        frameSizes.forEach((frameSize) => {
-          let previousWord = text.substr(0, frameSize);
-          let previousHash = polynomialHash.hash(previousWord);
-
-          // Shift frame through the whole text.
-          for (let frameShift = 1; frameShift < (text.length - frameSize); frameShift += 1) {
-            const currentWord = text.substr(frameShift, frameSize);
-            const currentHash = polynomialHash.hash(currentWord);
-            const currentRollingHash = polynomialHash.roll(previousHash, previousWord, currentWord);
-
-            // Check that rolling hash is the same as directly calculated hash.
-            expect(currentRollingHash).toBe(currentHash);
-
-            previousWord = currentWord;
-            previousHash = currentHash;
-          }
-        });
-      });
-    });
-  })",4,42,snuts
-/src/algorithms/sets/knapsack-problem/__test__/KnapsackItem.test.js,VerboseStatement,"{'startLine':4,'endLine':34}","it('should create knapsack item and count its total weight and value', () => {
-    const knapsackItem = new KnapsackItem({ value: 3, weight: 2 });
-
-    expect(knapsackItem.value).toBe(3);
-    expect(knapsackItem.weight).toBe(2);
-    expect(knapsackItem.quantity).toBe(1);
-    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
-    expect(knapsackItem.toString()).toBe('v3 w2 x 1');
-    expect(knapsackItem.totalValue).toBe(3);
-    expect(knapsackItem.totalWeight).toBe(2);
-
-    knapsackItem.quantity = 0;
-
-    expect(knapsackItem.value).toBe(3);
-    expect(knapsackItem.weight).toBe(2);
-    expect(knapsackItem.quantity).toBe(0);
-    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
-    expect(knapsackItem.toString()).toBe('v3 w2 x 0');
-    expect(knapsackItem.totalValue).toBe(0);
-    expect(knapsackItem.totalWeight).toBe(0);
-
-    knapsackItem.quantity = 2;
-
-    expect(knapsackItem.value).toBe(3);
-    expect(knapsackItem.weight).toBe(2);
-    expect(knapsackItem.quantity).toBe(2);
-    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
-    expect(knapsackItem.toString()).toBe('v3 w2 x 2');
-    expect(knapsackItem.totalValue).toBe(6);
-    expect(knapsackItem.totalWeight).toBe(4);
-  })",4,34,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':21,'endLine':21}","it('should solve 0/1 knapsack problem', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 1, weight: 1 }),
-      new KnapsackItem({ value: 4, weight: 3 }),
-      new KnapsackItem({ value: 5, weight: 4 }),
-      new KnapsackItem({ value: 7, weight: 5 }),
-    ];
-
-    const maxKnapsackWeight = 7;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveZeroOneKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(9);
-    expect(knapsack.totalWeight).toBe(7);
-    expect(knapsack.selectedItems.length).toBe(2);
-    expect(knapsack.selectedItems[0].toString()).toBe('v5 w4 x 1');
-    expect(knapsack.selectedItems[1].toString()).toBe('v4 w3 x 1');
-  })",5,24,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':42,'endLine':42}","it('should solve 0/1 knapsack problem regardless of items order', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 5, weight: 4 }),
-      new KnapsackItem({ value: 1, weight: 1 }),
-      new KnapsackItem({ value: 7, weight: 5 }),
-      new KnapsackItem({ value: 4, weight: 3 }),
-    ];
-
-    const maxKnapsackWeight = 7;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveZeroOneKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(9);
-    expect(knapsack.totalWeight).toBe(7);
-    expect(knapsack.selectedItems.length).toBe(2);
-    expect(knapsack.selectedItems[0].toString()).toBe('v5 w4 x 1');
-    expect(knapsack.selectedItems[1].toString()).toBe('v4 w3 x 1');
-  })",26,45,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':63,'endLine':63}","it('should solve 0/1 knapsack problem with impossible items set', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 5, weight: 40 }),
-      new KnapsackItem({ value: 1, weight: 10 }),
-      new KnapsackItem({ value: 7, weight: 50 }),
-      new KnapsackItem({ value: 4, weight: 30 }),
-    ];
-
-    const maxKnapsackWeight = 7;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveZeroOneKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(0);
-    expect(knapsack.totalWeight).toBe(0);
-    expect(knapsack.selectedItems.length).toBe(0);
-  })",47,64,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':84,'endLine':84}","it('should solve 0/1 knapsack problem with all equal weights', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 5, weight: 1 }),
-      new KnapsackItem({ value: 1, weight: 1 }),
-      new KnapsackItem({ value: 7, weight: 1 }),
-      new KnapsackItem({ value: 4, weight: 1 }),
-      new KnapsackItem({ value: 4, weight: 1 }),
-      new KnapsackItem({ value: 4, weight: 1 }),
-    ];
-
-    const maxKnapsackWeight = 3;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveZeroOneKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(16);
-    expect(knapsack.totalWeight).toBe(3);
-    expect(knapsack.selectedItems.length).toBe(3);
-    expect(knapsack.selectedItems[0].toString()).toBe('v4 w1 x 1');
-    expect(knapsack.selectedItems[1].toString()).toBe('v5 w1 x 1');
-    expect(knapsack.selectedItems[2].toString()).toBe('v7 w1 x 1');
-  })",66,88,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':107,'endLine':107}","it('should solve unbound knapsack problem', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 84, weight: 7 }), // v/w ratio is 12
-      new KnapsackItem({ value: 5, weight: 2 }), // v/w ratio is 2.5
-      new KnapsackItem({ value: 12, weight: 3 }), // v/w ratio is 4
-      new KnapsackItem({ value: 10, weight: 1 }), // v/w ratio is 10
-      new KnapsackItem({ value: 20, weight: 2 }), // v/w ratio is 10
-    ];
-
-    const maxKnapsackWeight = 15;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveUnboundedKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(84 + 20 + 12 + 10 + 5);
-    expect(knapsack.totalWeight).toBe(15);
-    expect(knapsack.selectedItems.length).toBe(5);
-    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 1');
-    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 1');
-    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 1');
-    expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
-    expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 1');
-  })",90,113,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':132,'endLine':132}","it('should solve unbound knapsack problem with items in stock', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 84, weight: 7, itemsInStock: 3 }), // v/w ratio is 12
-      new KnapsackItem({ value: 5, weight: 2, itemsInStock: 2 }), // v/w ratio is 2.5
-      new KnapsackItem({ value: 12, weight: 3, itemsInStock: 1 }), // v/w ratio is 4
-      new KnapsackItem({ value: 10, weight: 1, itemsInStock: 6 }), // v/w ratio is 10
-      new KnapsackItem({ value: 20, weight: 2, itemsInStock: 8 }), // v/w ratio is 10
-    ];
-
-    const maxKnapsackWeight = 17;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveUnboundedKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(84 + 84 + 20 + 10);
-    expect(knapsack.totalWeight).toBe(17);
-    expect(knapsack.selectedItems.length).toBe(3);
-    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 2');
-    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 1');
-    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 1');
-  })",115,136,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':155,'endLine':155}","it('should solve unbound knapsack problem with items in stock and max weight more than sum of all items', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 84, weight: 7, itemsInStock: 3 }), // v/w ratio is 12
-      new KnapsackItem({ value: 5, weight: 2, itemsInStock: 2 }), // v/w ratio is 2.5
-      new KnapsackItem({ value: 12, weight: 3, itemsInStock: 1 }), // v/w ratio is 4
-      new KnapsackItem({ value: 10, weight: 1, itemsInStock: 6 }), // v/w ratio is 10
-      new KnapsackItem({ value: 20, weight: 2, itemsInStock: 8 }), // v/w ratio is 10
-    ];
-
-    const maxKnapsackWeight = 60;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveUnboundedKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe((3 * 84) + (2 * 5) + (1 * 12) + (6 * 10) + (8 * 20));
-    expect(knapsack.totalWeight).toBe((3 * 7) + (2 * 2) + (1 * 3) + (6 * 1) + (8 * 2));
-    expect(knapsack.selectedItems.length).toBe(5);
-    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 3');
-    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 8');
-    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 6');
-    expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
-    expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 2');
-  })",138,161,snuts
 /src/algorithms/graph/bellman-ford/__test__/bellmanFord.test.js,VerboseStatement,"{'startLine':7,'endLine':66}","it('should find minimum paths to all vertices for undirected graph', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -8913,6 +8888,45 @@ file,type,line,method,methodStart,methodEnd,source
     expect(articulationPointsSet.length).toBe(1);
     expect(articulationPointsSet[0].getKey()).toBe(vertexC.getKey());
   })",197,231,snuts
+/src/algorithms/cryptography/polynomial-hash/__test__/PolynomialHash.test.js,OvercommentedTest,"{'startLine':4,'endLine':42}","it('should calculate new hash based on previous one', () => {
+    const bases = [3, 79, 101, 3251, 13229, 122743, 3583213];
+    const mods = [79, 101];
+    const frameSizes = [5, 20];
+
+    // @TODO: Provide Unicode support.
+    const text = 'Lorem Ipsum is simply dummy text of the printing and '
+      + 'typesetting industry. Lorem Ipsum has been the industry\'s standard '
+      + 'galley of type and \u{ffff} scrambled it to make a type specimen book. It '
+      + 'electronic 耀 typesetting, remaining essentially unchanged. It was '
+      // + 'popularised in the \u{20005} \u{20000}1960s with the release of Letraset sheets '
+      + 'publishing software like Aldus PageMaker 耀 including versions of Lorem.';
+
+    // Check hashing for different prime base.
+    bases.forEach((base) => {
+      mods.forEach((modulus) => {
+        const polynomialHash = new PolynomialHash({ base, modulus });
+
+        // Check hashing for different word lengths.
+        frameSizes.forEach((frameSize) => {
+          let previousWord = text.substr(0, frameSize);
+          let previousHash = polynomialHash.hash(previousWord);
+
+          // Shift frame through the whole text.
+          for (let frameShift = 1; frameShift < (text.length - frameSize); frameShift += 1) {
+            const currentWord = text.substr(frameShift, frameSize);
+            const currentHash = polynomialHash.hash(currentWord);
+            const currentRollingHash = polynomialHash.roll(previousHash, previousWord, currentWord);
+
+            // Check that rolling hash is the same as directly calculated hash.
+            expect(currentRollingHash).toBe(currentHash);
+
+            previousWord = currentWord;
+            previousHash = currentHash;
+          }
+        });
+      });
+    });
+  })",4,42,snuts
 /src/utils/comparator/__test__/Comparator.test.js,Conditional Test Logic,"{'line': 27, 'column': 6, 'index': 1178}","it('should compare with custom comparator function', () => {
     const comparator = new Comparator((a, b) => {
       if (a.length === b.length) {
@@ -49140,7 +49154,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(maxHeap.remove(11).toString()).toEqual('10,3');
     expect(maxHeap.remove(10).peek()).toEqual(3);
   })",109,124,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 44, 'column': 4, 'index': 1429}","it('should set, read and delete data with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 44, 'column': 4, 'index': 1427}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49178,7 +49192,7 @@ file,type,line,method,methodStart,methodEnd,source
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
   })",20,57,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 45, 'column': 4, 'index': 1473}","it('should set, read and delete data with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 45, 'column': 4, 'index': 1471}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49216,7 +49230,7 @@ file,type,line,method,methodStart,methodEnd,source
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
   })",20,57,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 45, 'column': 4, 'index': 1473}","it('should set, read and delete data with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 45, 'column': 4, 'index': 1471}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49254,7 +49268,7 @@ file,type,line,method,methodStart,methodEnd,source
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
   })",20,57,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 52, 'column': 4, 'index': 1656}","it('should set, read and delete data with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 52, 'column': 4, 'index': 1654}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49292,7 +49306,7 @@ file,type,line,method,methodStart,methodEnd,source
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
   })",20,57,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 53, 'column': 4, 'index': 1706}","it('should set, read and delete data with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 53, 'column': 4, 'index': 1704}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49330,7 +49344,7 @@ file,type,line,method,methodStart,methodEnd,source
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
   })",20,57,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 53, 'column': 4, 'index': 1706}","it('should set, read and delete data with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 53, 'column': 4, 'index': 1704}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49368,7 +49382,7 @@ file,type,line,method,methodStart,methodEnd,source
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
   })",20,57,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 56, 'column': 4, 'index': 1790}","it('should set, read and delete data with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 56, 'column': 4, 'index': 1788}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49406,7 +49420,7 @@ file,type,line,method,methodStart,methodEnd,source
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
   })",20,57,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 80, 'column': 4, 'index': 2481}","it('should track actual keys', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 80, 'column': 4, 'index': 2479}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49425,7 +49439,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
   })",70,88,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 81, 'column': 4, 'index': 2524}","it('should track actual keys', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 81, 'column': 4, 'index': 2522}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49444,7 +49458,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
   })",70,88,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 81, 'column': 4, 'index': 2524}","it('should track actual keys', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 81, 'column': 4, 'index': 2522}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49463,7 +49477,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
   })",70,88,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 85, 'column': 4, 'index': 2597}","it('should track actual keys', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 85, 'column': 4, 'index': 2595}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49482,7 +49496,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
   })",70,88,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 87, 'column': 4, 'index': 2684}","it('should track actual keys', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 87, 'column': 4, 'index': 2682}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49501,7 +49515,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
   })",70,88,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 87, 'column': 4, 'index': 2684}","it('should track actual keys', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 87, 'column': 4, 'index': 2682}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49520,42 +49534,42 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
   })",70,88,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 6, 'column': 50, 'index': 222}","it('should create hash table of certain size', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 6, 'column': 49, 'index': 221}","it('should create hash table of certain size', () => {
     const defaultHashTable = new HashTable();
-    expect(defaultHashTable.buckets).toHaveLength(32);
+    expect(defaultHashTable.buckets.length).toBe(32);
 
     const biggerHashTable = new HashTable(64);
-    expect(biggerHashTable.buckets).toHaveLength(64);
+    expect(biggerHashTable.buckets.length).toBe(64);
   })",4,10,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 9, 'column': 49, 'index': 324}","it('should create hash table of certain size', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 9, 'column': 48, 'index': 322}","it('should create hash table of certain size', () => {
     const defaultHashTable = new HashTable();
-    expect(defaultHashTable.buckets).toHaveLength(32);
+    expect(defaultHashTable.buckets.length).toBe(32);
 
     const biggerHashTable = new HashTable(64);
-    expect(biggerHashTable.buckets).toHaveLength(64);
+    expect(biggerHashTable.buckets.length).toBe(64);
   })",4,10,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 15, 'column': 37, 'index': 476}","it('should generate proper hash for specified keys', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 15, 'column': 37, 'index': 474}","it('should generate proper hash for specified keys', () => {
     const hashTable = new HashTable();
 
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('abc')).toBe(6);
   })",12,18,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 16, 'column': 37, 'index': 517}","it('should generate proper hash for specified keys', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 16, 'column': 37, 'index': 515}","it('should generate proper hash for specified keys', () => {
     const hashTable = new HashTable();
 
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('abc')).toBe(6);
   })",12,18,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 17, 'column': 39, 'index': 560}","it('should generate proper hash for specified keys', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 17, 'column': 39, 'index': 558}","it('should generate proper hash for specified keys', () => {
     const hashTable = new HashTable();
 
     expect(hashTable.hash('a')).toBe(1);
     expect(hashTable.hash('b')).toBe(2);
     expect(hashTable.hash('abc')).toBe(6);
   })",12,18,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 23, 'column': 37, 'index': 714}","it('should set, read and delete data with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 23, 'column': 37, 'index': 712}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49593,7 +49607,7 @@ file,type,line,method,methodStart,methodEnd,source
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
   })",20,57,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 24, 'column': 37, 'index': 755}","it('should set, read and delete data with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 24, 'column': 37, 'index': 753}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49631,7 +49645,7 @@ file,type,line,method,methodStart,methodEnd,source
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
   })",20,57,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 25, 'column': 37, 'index': 796}","it('should set, read and delete data with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 25, 'column': 37, 'index': 794}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49669,7 +49683,7 @@ file,type,line,method,methodStart,methodEnd,source
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
   })",20,57,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 26, 'column': 37, 'index': 837}","it('should set, read and delete data with collisions', () => {
+/src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 26, 'column': 37, 'index': 835}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);

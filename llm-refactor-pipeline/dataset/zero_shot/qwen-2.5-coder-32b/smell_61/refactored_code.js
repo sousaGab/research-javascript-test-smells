@@ -1,7 +1,7 @@
 test("FixedOffsetZone.parseSpecifier returns null for invalid data", () => {
-  const invalidInputs = [undefined, null, "", "foo", "UTC+blorp"];
-  
-  invalidInputs.forEach(input => {
-    expect(FixedOffsetZone.parseSpecifier(input)).toBeNull();
-  });
-});
+  expect(FixedOffsetZone.parseSpecifier()).toBeNull();
+  expect(FixedOffsetZone.parseSpecifier(null)).toBeNull();
+  expect(FixedOffsetZone.parseSpecifier("")).toBeNull();
+  expect(FixedOffsetZone.parseSpecifier("foo")).toBeNull();
+  expect(FixedOffsetZone.parseSpecifier("UTC+blorp")).toBeNull();
+})

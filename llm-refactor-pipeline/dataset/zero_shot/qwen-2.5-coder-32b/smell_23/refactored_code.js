@@ -3,7 +3,7 @@ it("Returns the bottom coordinate of the layout", () => {
         { i: "1", x: 0, y: 1, w: 1, h: 1 },
         { i: "2", x: 1, y: 2, w: 1, h: 1 }
     ];
-    const expectedBottom = 3;
+    const expectedBottomCoordinate = 3;
     
-    expect(bottom(layout)).toEqual(expectedBottom);
-  })
+    expect(bottom(layout)).toEqual(expectedBottomCoordinate);
+})

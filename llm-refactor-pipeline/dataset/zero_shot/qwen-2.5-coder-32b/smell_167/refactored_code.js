@@ -23,4 +23,4 @@ it("Does not allow elements to move when resizing with no free space", () => {
   const item0 = layout.find(item => item.i === "0");
   expect(item0).toBeDefined();
   expect(item0.w).toBeLessThanOrEqual(1);
-});
+})

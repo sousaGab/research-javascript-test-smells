@@ -11,9 +11,8 @@ it("compares with static items (200 items, 20 static)", () => {
         5
       );
 
-      expect(stdTime).toBeGreaterThan(0);
-      expect(fastTime).toBeGreaterThan(0);
-      expect(stdTime / fastTime).toBeGreaterThan(1);
+      // Assert that fast compactor is actually faster than standard compactor
+      expect(fastTime).toBeLessThan(stdTime);
 
       console.log(
         [

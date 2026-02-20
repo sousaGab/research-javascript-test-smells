@@ -10,6 +10,7 @@ it('response readable pull stream works as expected', done => {
       port: 80,
     },
     res => {
+      let ended = false
       let responseBody = ''
       expect(res.statusCode).to.equal(200)
       res.on('readable', function () {
@@ -17,10 +18,11 @@ it('response readable pull stream works as expected', done => {
         while ((chunk = res.read()) !== null) {
           responseBody += chunk.toString()
         }
-      })
-      res.on('end', function () {
-        expect(responseBody).to.equal('this is the response body yeah')
-        done()
+        if (chunk === null && !ended) {
+          ended = true
+          expect(responseBody).to.equal('this is the response body yeah')
+          done()
+        }
       })
     },
   )

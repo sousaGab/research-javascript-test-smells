@@ -7,5 +7,5 @@ test('when specify unknown option with program and action handler then error', (
 
     expect(() => {
       program.parse(['node', 'test', '--NONSENSE']);
-    }).toThrow(/commander\.unknownOption/);
+    }).toThrow('commander.unknownOption');
   })

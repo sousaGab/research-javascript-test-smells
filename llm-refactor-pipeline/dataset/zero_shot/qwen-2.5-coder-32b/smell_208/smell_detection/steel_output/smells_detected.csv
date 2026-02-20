@@ -979,34 +979,27 @@ file,type,line,frame
   54 |     try {
   55 |       await fsPromise.access(filepath);
   56 |       return; // File exists"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Conditional Test Logic,"{'line': 268, 'column': 10, 'index': 9264}","  266 |         const timeout = setTimeout(() => reject(new Error('Timeout waiting for file rotation')), 5000);
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Conditional Test Logic,"{'line': 268, 'column': 10, 'index': 9282}","  266 |       await new Promise(resolve => {
   267 |         const checkFiles = () => {
-> 268 |           if (fs.existsSync('testarchive3.log')) {
+> 268 |           if (['testarchive.log', 'testarchive1.log', 'testarchive2.log'].every(file => 
       |          ^ Conditional Test Logic
-  269 |             clearTimeout(timeout);
-  270 |             resolve();
-  271 |           } else {"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Mystery Guest,"{'column': 14, 'line': 268}","  266 |         const timeout = setTimeout(() => reject(new Error('Timeout waiting for file rotation')), 5000);
-  267 |         const checkFiles = () => {
-> 268 |           if (fs.existsSync('testarchive3.log')) {
-      |              ^ Mystery Guest
-  269 |             clearTimeout(timeout);
-  270 |             resolve();
-  271 |           } else {"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Sleepy Test,"{'line': 266, 'column': 24, 'index': 9139}","  264 |       // Wait for file rotation to complete using file system polling
-  265 |       await new Promise((resolve, reject) => {
-> 266 |         const timeout = setTimeout(() => reject(new Error('Timeout waiting for file rotation')), 5000);
-      |                        ^ Sleepy Test
-  267 |         const checkFiles = () => {
-  268 |           if (fs.existsSync('testarchive3.log')) {
-  269 |             clearTimeout(timeout);"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Sleepy Test,"{'line': 272, 'column': 12, 'index': 9394}","  270 |             resolve();
-  271 |           } else {
-> 272 |             setTimeout(checkFiles, 100);
+  269 |             fs.existsSync(path.join(defaultTransportOptions.dirname, file))
+  270 |           )) {
+  271 |             resolve();"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Mystery Guest,"{'column': 12, 'line': 269}","  267 |         const checkFiles = () => {
+  268 |           if (['testarchive.log', 'testarchive1.log', 'testarchive2.log'].every(file => 
+> 269 |             fs.existsSync(path.join(defaultTransportOptions.dirname, file))
+      |            ^ Mystery Guest
+  270 |           )) {
+  271 |             resolve();
+  272 |           } else {"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Sleepy Test,"{'line': 273, 'column': 12, 'index': 9506}","  271 |             resolve();
+  272 |           } else {
+> 273 |             setTimeout(checkFiles, 100);
       |            ^ Sleepy Test
-  273 |           }
-  274 |         };
-  275 |         checkFiles();"
+  274 |           }
+  275 |         };
+  276 |         checkFiles();"
 /home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 130}","  128 |
   129 |   describe('Filename Option', function () {
 > 130 |     it('should log to the file with the given filename', async function () {
@@ -1055,42 +1048,42 @@ file,type,line,frame
       |    ^ Unknown Test
   249 |       const transport = new winston.transports.File({
   250 |         ...defaultTransportOptions,
-  251 |         maxsize: 2024,"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 283}","  281 |     }, 10000);
-  282 |
-> 283 |     it('should delete the oldest file when maxfiles is met', async function () {
+  251 |         maxsize: 2024, // Small size to trigger frequent rotations"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 285}","  283 |     }, 10000);
+  284 |
+> 285 |     it('should delete the oldest file when maxfiles is met', async function () {
       |    ^ Unknown Test
-  284 |       const transport = new winston.transports.File({
-  285 |         ...defaultTransportOptions,
-  286 |         maxsize: 1024, // Small size to trigger frequent rotations"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 312}","  310 |   describe('Tailable option', function () {
-  311 |     // eslint-disable-next-line max-statements
-> 312 |     it('should write to original file and older files will be in ascending order', async function () {
+  286 |       const transport = new winston.transports.File({
+  287 |         ...defaultTransportOptions,
+  288 |         maxsize: 1024, // Small size to trigger frequent rotations"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 314}","  312 |   describe('Tailable option', function () {
+  313 |     // eslint-disable-next-line max-statements
+> 314 |     it('should write to original file and older files will be in ascending order', async function () {
       |    ^ Unknown Test
-  313 |       const transport = new winston.transports.File({
-  314 |         ...defaultTransportOptions,
-  315 |         maxFiles: 4,"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 344}","  342 |     });
-  343 |
-> 344 |     it('should write to the newest file and older files will be in descending order', async function () {
+  315 |       const transport = new winston.transports.File({
+  316 |         ...defaultTransportOptions,
+  317 |         maxFiles: 4,"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 346}","  344 |     });
+  345 |
+> 346 |     it('should write to the newest file and older files will be in descending order', async function () {
       |    ^ Unknown Test
-  345 |       const transport = new winston.transports.File({
-  346 |         ...defaultTransportOptions,
-  347 |         tailable: false"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 377}","  375 |
-  376 |   describe('Lazy option', () => {
-> 377 |     it('should not create log file until needed when lazy is enabled', async function () {
+  347 |       const transport = new winston.transports.File({
+  348 |         ...defaultTransportOptions,
+  349 |         tailable: false"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 379}","  377 |
+  378 |   describe('Lazy option', () => {
+> 379 |     it('should not create log file until needed when lazy is enabled', async function () {
       |    ^ Unknown Test
-  378 |       const transport = new winston.transports.File({
-  379 |         ...defaultTransportOptions,
-  380 |         lazy: true"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 390}","  388 |     });
-  389 |
-> 390 |     it('should create log files on initializaiton when lazy is enabled', async function () {
+  380 |       const transport = new winston.transports.File({
+  381 |         ...defaultTransportOptions,
+  382 |         lazy: true"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 392}","  390 |     });
+  391 |
+> 392 |     it('should create log files on initializaiton when lazy is enabled', async function () {
       |    ^ Unknown Test
-  391 |       const transport = new winston.transports.File({
-  392 |         ...defaultTransportOptions,
-  393 |         lazy: false"
+  393 |       const transport = new winston.transports.File({
+  394 |         ...defaultTransportOptions,
+  395 |         lazy: false"
 /home/gabriel/Disk/Research/research-javascript-test-smells/repositories/winston/test/unit/winston/transports/file-create-dir.test.js,Conditional Test Logic,"{'line': 16, 'column': 6, 'index': 437}","  14 |   beforeEach(function () {
   15 |     return rimraf(logDir).catch(err => {
 > 16 |       if (err){

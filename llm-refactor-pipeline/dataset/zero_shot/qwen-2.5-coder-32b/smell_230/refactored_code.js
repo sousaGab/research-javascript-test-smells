@@ -1,4 +1,4 @@
-test('track component updates when props change', () => {
+test('track component', () => {
   const ComponentWithHooks = ({a}) => {
     const [currentState] = React.useState({b: 'b'});
 

@@ -26,7 +26,8 @@ it('should set, read and delete data with collisions', () => {
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('a')).not.toBeNull();
+
     expect(hashTable.delete('not-existing')).toBeNull();
 
     expect(hashTable.get('a')).not.toBeDefined();

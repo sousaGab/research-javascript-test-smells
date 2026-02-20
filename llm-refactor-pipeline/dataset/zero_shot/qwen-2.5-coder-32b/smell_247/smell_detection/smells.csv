@@ -201,14 +201,14 @@ file,type,line,method,methodStart,methodEnd,source
     expect(options).to.deep.equal({})
     expect(callback).to.equal(cb)
   })",489,498,snuts
-/tests/test_back.js,IdenticalTestDescription,"{'startLine':498,'endLine':504}","it('should throw the expected exception when fs is not available', () => {
+/tests/test_back.js,IdenticalTestDescription,"{'startLine':502,'endLine':508}","it('should throw the expected exception when fs is not available', () => {
       const nockBackWithoutFs = proxyquire('../lib/back', { fs: null })
       nockBackWithoutFs.setMode('record')
 
       nockBackWithoutFs.fixtures = path.resolve(__dirname, 'fixtures')
       expect(() => nockBackWithoutFs('good_request.json')).to.throw('no fs')
-    })",498,504,snuts
-/tests/test_back.js,IdenticalTestDescription,"{'startLine':529,'endLine':553}","it('should record when configured correctly', done => {
+    })",502,508,snuts
+/tests/test_back.js,IdenticalTestDescription,"{'startLine':533,'endLine':557}","it('should record when configured correctly', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       nockBack(fixture, nockDone => {
@@ -232,8 +232,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",529,553,snuts
-/tests/test_back.js,IdenticalTestDescription,"{'startLine':555,'endLine':592}","it('should record the expected data', done => {
+    })",533,557,snuts
+/tests/test_back.js,IdenticalTestDescription,"{'startLine':559,'endLine':596}","it('should record the expected data', done => {
       nockBack(fixture, nockDone => {
         startHttpServer(requestListener).then(server => {
           const request = http.request(
@@ -270,8 +270,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",555,592,snuts
-/tests/test_back.js,IdenticalTestDescription,"{'startLine':596,'endLine':620}","it('can record twice', done => {
+    })",559,596,snuts
+/tests/test_back.js,IdenticalTestDescription,"{'startLine':600,'endLine':624}","it('can record twice', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       nockBack(fixture, function (nockDone) {
@@ -295,8 +295,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",596,620,snuts
-/tests/test_back.js,IdenticalTestDescription,"{'startLine':665,'endLine':693}","it('should filter after recording', done => {
+    })",600,624,snuts
+/tests/test_back.js,IdenticalTestDescription,"{'startLine':669,'endLine':697}","it('should filter after recording', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       // You would do some filtering here, but for this test we'll just return
@@ -324,8 +324,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",665,693,snuts
-/tests/test_back.js,IdenticalTestDescription,"{'startLine':695,'endLine':723}","it('should format after recording', done => {
+    })",669,697,snuts
+/tests/test_back.js,IdenticalTestDescription,"{'startLine':699,'endLine':727}","it('should format after recording', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       const afterRecord = () => 'string-response'
@@ -353,8 +353,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",695,723,snuts
-/tests/test_back.js,IdenticalTestDescription,"{'startLine':725,'endLine':760}","it('should pass custom options to recorder', done => {
+    })",699,727,snuts
+/tests/test_back.js,IdenticalTestDescription,"{'startLine':729,'endLine':764}","it('should pass custom options to recorder', done => {
       nockBack(
         fixture,
         { recorder: { enable_reqheaders_recording: true } },
@@ -389,25 +389,29 @@ file,type,line,method,methodStart,methodEnd,source
           })
         },
       )
-    })",725,760,snuts
-/tests/test_back.js,IdenticalTestDescription,"{'startLine':762,'endLine':768}","it('should throw the expected exception when fs is not available', () => {
+    })",729,764,snuts
+/tests/test_back.js,IdenticalTestDescription,"{'startLine':766,'endLine':772}","it('should throw the expected exception when fs is not available', () => {
       const nockBackWithoutFs = proxyquire('../lib/back', { fs: null })
       nockBackWithoutFs.setMode('update')
 
       nockBackWithoutFs.fixtures = path.resolve(__dirname, 'fixtures')
       expect(() => nockBackWithoutFs('good_request.json')).to.throw('no fs')
-    })",762,768,snuts
-/tests/test_back.js,ConditionalTestLogic,"{'startLine':179,'endLine':179}","it('should enable net connect', done => {
-      nock.disableNetConnect()
-      nockBack.setMode('wild')
-      nockBackWithFixtureLocalhost((err) => {
-        if (err) return done(err)
-        // Verify that net connect was actually enabled by checking that
-        // the fixture was properly loaded and executed
-        expect(nock.isActive()).toBe(true)
-        done()
-      })
-    })",175,185,snuts
+    })",766,772,snuts
+/tests/test_back.js,ConditionalTestLogic,"{'startLine':182,'endLine':184}","it('should enable net connect', done => {
+  nock.disableNetConnect()
+  nockBack.setMode('wild')
+  
+  // Verify that net connect is allowed by checking that the callback is called
+  // with a successful response or by ensuring no exceptions occur
+  nockBackWithFixtureLocalhost((err, result) => {
+    if (err) {
+      return done(err)
+    }
+    // If we get here without error, net connect was properly enabled
+    expect(result).to.exist
+    done()
+  })
+})",175,189,snuts
 /tests/test_abort_signal.js,NonFunctionalStatement,"{'startLine':15,'endLine':15}",Unknown,,,snuts
 /tests/test_abort_signal.js,NonFunctionalStatement,"{'startLine':95,'endLine':95}","it('aborts a request if the signal is aborted after the response headers have been read', async () => {
     const abortController = new AbortController()
@@ -2515,18 +2519,22 @@ file,type,line,method,methodStart,methodEnd,source
     http.get('http://user:pw@example.test')
     scope.isDone()
   })",479,487,steel
-/tests/test_back.js,Conditional Test Logic,"{'line': 179, 'column': 8, 'index': 5409}","it('should enable net connect', done => {
-      nock.disableNetConnect()
-      nockBack.setMode('wild')
-      nockBackWithFixtureLocalhost((err) => {
-        if (err) return done(err)
-        // Verify that net connect was actually enabled by checking that
-        // the fixture was properly loaded and executed
-        expect(nock.isActive()).toBe(true)
-        done()
-      })
-    })",175,185,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 229, 'column': 6, 'index': 6781}","it(""goes to internet, doesn't record new fixtures"", done => {
+/tests/test_back.js,Conditional Test Logic,"{'line': 182, 'column': 4, 'index': 5551}","it('should enable net connect', done => {
+  nock.disableNetConnect()
+  nockBack.setMode('wild')
+  
+  // Verify that net connect is allowed by checking that the callback is called
+  // with a successful response or by ensuring no exceptions occur
+  nockBackWithFixtureLocalhost((err, result) => {
+    if (err) {
+      return done(err)
+    }
+    // If we get here without error, net connect was properly enabled
+    expect(result).to.exist
+    done()
+  })
+})",175,189,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 233, 'column': 6, 'index': 6851}","it(""goes to internet, doesn't record new fixtures"", done => {
       const onData = sinon.spy()
 
       const fixture = 'someDryrunFixture.json'
@@ -2559,8 +2567,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",223,256,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 246, 'column': 16, 'index': 7326}","it(""goes to internet, doesn't record new fixtures"", done => {
+    })",227,260,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 250, 'column': 16, 'index': 7396}","it(""goes to internet, doesn't record new fixtures"", done => {
       const onData = sinon.spy()
 
       const fixture = 'someDryrunFixture.json'
@@ -2593,8 +2601,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",223,256,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 284, 'column': 6, 'index': 8425}","it('should record when configured correctly', done => {
+    })",227,260,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 288, 'column': 6, 'index': 8495}","it('should record when configured correctly', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       nockBack(fixture, nockDone => {
@@ -2618,8 +2626,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",283,307,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 298, 'column': 14, 'index': 8862}","it('should record when configured correctly', done => {
+    })",287,311,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 302, 'column': 14, 'index': 8932}","it('should record when configured correctly', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       nockBack(fixture, nockDone => {
@@ -2643,8 +2651,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",283,307,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 351, 'column': 6, 'index': 10299}","it('can record twice', done => {
+    })",287,311,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 355, 'column': 6, 'index': 10369}","it('can record twice', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       nockBack(fixture, function (nockDone) {
@@ -2668,8 +2676,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",350,374,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 365, 'column': 14, 'index': 10744}","it('can record twice', done => {
+    })",354,378,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 369, 'column': 14, 'index': 10814}","it('can record twice', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       nockBack(fixture, function (nockDone) {
@@ -2693,8 +2701,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",350,374,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 402, 'column': 6, 'index': 11740}","it('should filter after recording', done => {
+    })",354,378,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 406, 'column': 6, 'index': 11810}","it('should filter after recording', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       // You would do some filtering here, but for this test we'll just return
@@ -2722,8 +2730,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",401,429,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 420, 'column': 14, 'index': 12342}","it('should filter after recording', done => {
+    })",405,433,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 424, 'column': 14, 'index': 12412}","it('should filter after recording', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       // You would do some filtering here, but for this test we'll just return
@@ -2751,8 +2759,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",401,429,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 432, 'column': 6, 'index': 12644}","it('should format after recording', done => {
+    })",405,433,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 436, 'column': 6, 'index': 12714}","it('should format after recording', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       const afterRecord = () => 'string-response'
@@ -2780,8 +2788,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",431,459,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 448, 'column': 14, 'index': 13157}","it('should format after recording', done => {
+    })",435,463,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 452, 'column': 14, 'index': 13227}","it('should format after recording', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       const afterRecord = () => 'string-response'
@@ -2809,8 +2817,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",431,459,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 530, 'column': 6, 'index': 15624}","it('should record when configured correctly', done => {
+    })",435,463,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 534, 'column': 6, 'index': 15694}","it('should record when configured correctly', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       nockBack(fixture, nockDone => {
@@ -2834,8 +2842,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",529,553,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 544, 'column': 14, 'index': 16061}","it('should record when configured correctly', done => {
+    })",533,557,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 548, 'column': 14, 'index': 16131}","it('should record when configured correctly', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       nockBack(fixture, nockDone => {
@@ -2859,8 +2867,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",529,553,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 597, 'column': 6, 'index': 17498}","it('can record twice', done => {
+    })",533,557,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 601, 'column': 6, 'index': 17568}","it('can record twice', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       nockBack(fixture, function (nockDone) {
@@ -2884,8 +2892,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",596,620,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 611, 'column': 14, 'index': 17943}","it('can record twice', done => {
+    })",600,624,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 615, 'column': 14, 'index': 18013}","it('can record twice', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       nockBack(fixture, function (nockDone) {
@@ -2909,8 +2917,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",596,620,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 666, 'column': 6, 'index': 19434}","it('should filter after recording', done => {
+    })",600,624,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 670, 'column': 6, 'index': 19504}","it('should filter after recording', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       // You would do some filtering here, but for this test we'll just return
@@ -2938,8 +2946,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",665,693,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 684, 'column': 14, 'index': 20036}","it('should filter after recording', done => {
+    })",669,697,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 688, 'column': 14, 'index': 20106}","it('should filter after recording', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       // You would do some filtering here, but for this test we'll just return
@@ -2967,8 +2975,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",665,693,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 696, 'column': 6, 'index': 20338}","it('should format after recording', done => {
+    })",669,697,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 700, 'column': 6, 'index': 20408}","it('should format after recording', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       const afterRecord = () => 'string-response'
@@ -2996,8 +3004,8 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",695,723,steel
-/tests/test_back.js,Duplicate Assert,"{'line': 712, 'column': 14, 'index': 20851}","it('should format after recording', done => {
+    })",699,727,steel
+/tests/test_back.js,Duplicate Assert,"{'line': 716, 'column': 14, 'index': 20921}","it('should format after recording', done => {
       expect(fs.existsSync(fixtureLoc)).to.be.false()
 
       const afterRecord = () => 'string-response'
@@ -3025,7 +3033,7 @@ file,type,line,method,methodStart,methodEnd,source
           request.end()
         })
       })
-    })",695,723,steel
+    })",699,727,steel
 /tests/test_abort_signal.js,Duplicate Assert,"{'line': 52, 'column': 4, 'index': 1439}","it('aborts a request if the signal is aborted before the request is made', async () => {
     const abortController = new AbortController()
     abortController.abort()

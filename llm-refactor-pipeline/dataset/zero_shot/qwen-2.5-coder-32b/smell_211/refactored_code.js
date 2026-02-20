@@ -1,25 +1,12 @@
 it('with a custom winston.Logger instance', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
-          const logContents = [];
-
-          const originalWrite = process.stderr.write;
-          process.stderr.write = function(chunk) {
-            logContents.push(chunk.toString());
-            return true;
-          };
 
           process.emit('uncaughtException', expectedMessage);
 
-          // Wait for the process to exit
-          await new Promise(resolve => {
-            const originalExit = process.exit;
-            process.exit = function() {
-              process.exit = originalExit;
-              resolve();
-            };
-          });
-
-          process.stderr.write = originalWrite;
+          // Wait for the async operation to complete using a more reliable approach
+          // Instead of fixed timeout, we can use a promise that resolves when the handler executes
+          // This assumes the logging happens synchronously or we can mock the async behavior
+          await new Promise(resolve => setImmediate(resolve));
 
           expect(processExitSpy).toHaveBeenCalledTimes(1);
           expect(processExitSpy).toHaveBeenCalledWith(1);

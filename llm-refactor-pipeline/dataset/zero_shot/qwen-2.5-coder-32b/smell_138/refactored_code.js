@@ -4,7 +4,9 @@ it('when strings are thrown as errors', async () => {
           process.emit('uncaughtException', expectedMessage);
 
           // Wait for the async operation to complete using a more reliable approach
-          await new Promise(resolve => setImmediate(resolve));
+          // Since we can't easily mock the internal async behavior, we'll use a reasonable timeout
+          // that's much smaller than the original 500ms but still allows for processing
+          await new Promise(resolve => setTimeout(resolve, 10));
 
           expect(processExitSpy).toHaveBeenCalledTimes(1);
           expect(processExitSpy).toHaveBeenCalledWith(1);

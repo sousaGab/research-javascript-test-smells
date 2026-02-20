@@ -24,6 +24,7 @@ it("does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"
 
         const grid = container.querySelector(".react-grid-layout");
 
+        // Step 1: Drag into the grid (creates dropping placeholder)
         act(() => {
           TestUtils.Simulate.dragEnter(grid, {
             clientX: 200,
@@ -44,6 +45,7 @@ it("does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"
           });
         });
 
+        // Step 2: Move around inside multiple times
         for (let i = 0; i < 5; i++) {
           act(() => {
             TestUtils.Simulate.dragOver(grid, {
@@ -59,6 +61,7 @@ it("does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"
           });
         }
 
+        // Step 3: Drag out
         act(() => {
           TestUtils.Simulate.dragLeave(grid, {
             clientX: -100,
@@ -66,7 +69,11 @@ it("does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"
           });
         });
 
-        expect(consoleError).not.toHaveBeenCalledWith(expect.stringContaining("Maximum update depth exceeded"));
+        // Verify no "Maximum update depth exceeded" errors
+        const maxDepthErrors = consoleError.mock.calls.filter(call =>
+          call[0]?.includes?.("Maximum update depth exceeded")
+        );
+        expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
       })

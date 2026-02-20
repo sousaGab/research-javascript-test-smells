@@ -1,22 +1,23 @@
-it('should trigger both handlers', function (done) {
-  var done1 = false,
-    done2 = false,
-    isDone = function () {
-      if (done1 && done2) {
-        done()
-      }
-    }
+it('should be trigger both handlers', function (done) {
+      var done1 = false,
+        done2 = false,
+        isDone = function () {
+          if (done1 && done2) {
+            done()
+          }
+        }
 
-  list.on('updated', function (list) {
-    done1 = true
-    isDone()
-  })
-  list.on('updated', function (list) {
-    done2 = true
-    isDone()
-  })
-  list.search('jonny')
-  
-  expect(done1).toBe(true)
-  expect(done2).toBe(true)
-})
+      list.on('updated', function (list) {
+        done1 = true
+        isDone()
+      })
+      list.on('updated', function (list) {
+        done2 = true
+        isDone()
+      })
+      list.search('jonny')
+      
+      // Add assertions to prevent unknown test smell
+      expect(done1).toBe(true)
+      expect(done2).toBe(true)
+    })

@@ -59,6 +59,7 @@ it('focus and blur handling works', async () => {
     expect(wrapper.classes()).not.toContain('focus')
     expect(document.activeElement).not.toBe($output.element)
 
+    // Test that focus() does not throw when disabled
     expect(() => $output.element.focus()).not.toThrow()
     await waitNT(wrapper.vm)
     expect(wrapper.classes()).not.toContain('focus')

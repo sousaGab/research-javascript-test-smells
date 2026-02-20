@@ -1,4 +1,4 @@
-test("weekdays returns correct format for narrow, short, long, and numeric", () => {
+test("weekdays returns correct weekday formats", () => {
   expect(weekdays("narrow")).toStrictEqual(["M", "T", "W", "T", "F", "S", "S"]);
   expect(weekdays("short")).toStrictEqual(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
   expect(weekdays("long")).toStrictEqual([

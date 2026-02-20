@@ -19135,7 +19135,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(spy2.calls.count()).toBe(3);
       expect(spy1.calls.count()).toBe(2);
     })",432,466,snuts
-/packages/inferno-create-element/__tests__/events.spec.js,VerboseStatement,"{'startLine':599,'endLine':632}","it('Synthetic Events - Should not reduce listener count when nothing was removed', () => {
+/packages/inferno-create-element/__tests__/events.spec.js,VerboseStatement,"{'startLine':603,'endLine':636}","it('Synthetic Events - Should not reduce listener count when nothing was removed', () => {
     const spy = jasmine.createSpy('spy');
     const root1 = document.createElement('div');
     const root2 = document.createElement('div');
@@ -19168,7 +19168,93 @@ file,type,line,method,methodStart,methodEnd,source
     document.body.removeChild(root2);
     document.body.removeChild(root3);
     document.body.removeChild(root4);
-  })",599,632,snuts
+  })",603,636,snuts
+/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}","it('Should be possible to listen changes and remove listeners by calling callback', () => {
+    const emitter = new EventEmitter();
+    const listener1 = function () {};
+    expect(emitter.listeners.length).toEqual(0);
+
+    const listener = emitter.on(listener1);
+
+    expect(emitter.listeners.length).toEqual(1);
+    expect(emitter.listeners[0]).toEqual(listener1);
+
+    listener();
+
+    expect(emitter.listeners.length).toEqual(0);
+  })",4,17,snuts
+/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':21,'endLine':21}","it('Should do nothing if removing same callback twice/or more', () => {
+    const emitter = new EventEmitter();
+    const listener1 = function () {};
+    expect(emitter.listeners.length).toEqual(0);
+
+    const listener = emitter.on(listener1);
+
+    expect(emitter.listeners.length).toEqual(1);
+    expect(emitter.listeners[0]).toEqual(listener1);
+
+    listener();
+    listener();
+    listener();
+
+    expect(emitter.listeners.length).toEqual(0);
+  })",19,34,snuts
+/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':38,'endLine':38}","it('Should emit the change data to all active listeners', () => {
+    const emitter = new EventEmitter();
+    const listener1 = function () {};
+    const listener2 = function (data) {
+      console.error(data);
+    };
+
+    spyOn(console, 'error');
+
+    expect(emitter.listeners.length).toEqual(0);
+
+    const listener = emitter.on(listener1);
+    emitter.on(listener2);
+
+    expect(emitter.listeners.length).toEqual(2);
+    expect(emitter.listeners[0]).toEqual(listener1);
+
+    listener();
+    listener();
+    listener();
+
+    expect(emitter.listeners.length).toEqual(1);
+
+    emitter.emit('foobar');
+
+    expect(console.error.calls.count()).toBe(1);
+    expect(console.error.calls.argsFor(0)[0]).toContain('foobar');
+  })",36,63,snuts
+/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,VerboseStatement,"{'startLine':36,'endLine':63}","it('Should emit the change data to all active listeners', () => {
+    const emitter = new EventEmitter();
+    const listener1 = function () {};
+    const listener2 = function (data) {
+      console.error(data);
+    };
+
+    spyOn(console, 'error');
+
+    expect(emitter.listeners.length).toEqual(0);
+
+    const listener = emitter.on(listener1);
+    emitter.on(listener2);
+
+    expect(emitter.listeners.length).toEqual(2);
+    expect(emitter.listeners[0]).toEqual(listener1);
+
+    listener();
+    listener();
+    listener();
+
+    expect(emitter.listeners.length).toEqual(1);
+
+    emitter.emit('foobar');
+
+    expect(console.error.calls.count()).toBe(1);
+    expect(console.error.calls.argsFor(0)[0]).toContain('foobar');
+  })",36,63,snuts
 /packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':1089,'endLine':1091}","it('should not attempt to notify unmounted child of state change', () => {
       class ProviderMockTest extends Component {
         getChildContext() {
@@ -23213,92 +23299,6 @@ file,type,line,method,methodStart,methodEnd,source
       renderIntoContainer(vNode);
       expect(childMapStateInvokes).toEqual(4);
     })",151,225,snuts
-/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}","it('Should be possible to listen changes and remove listeners by calling callback', () => {
-    const emitter = new EventEmitter();
-    const listener1 = function () {};
-    expect(emitter.listeners.length).toEqual(0);
-
-    const listener = emitter.on(listener1);
-
-    expect(emitter.listeners.length).toEqual(1);
-    expect(emitter.listeners[0]).toEqual(listener1);
-
-    listener();
-
-    expect(emitter.listeners.length).toEqual(0);
-  })",4,17,snuts
-/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':21,'endLine':21}","it('Should do nothing if removing same callback twice/or more', () => {
-    const emitter = new EventEmitter();
-    const listener1 = function () {};
-    expect(emitter.listeners.length).toEqual(0);
-
-    const listener = emitter.on(listener1);
-
-    expect(emitter.listeners.length).toEqual(1);
-    expect(emitter.listeners[0]).toEqual(listener1);
-
-    listener();
-    listener();
-    listener();
-
-    expect(emitter.listeners.length).toEqual(0);
-  })",19,34,snuts
-/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':38,'endLine':38}","it('Should emit the change data to all active listeners', () => {
-    const emitter = new EventEmitter();
-    const listener1 = function () {};
-    const listener2 = function (data) {
-      console.error(data);
-    };
-
-    spyOn(console, 'error');
-
-    expect(emitter.listeners.length).toEqual(0);
-
-    const listener = emitter.on(listener1);
-    emitter.on(listener2);
-
-    expect(emitter.listeners.length).toEqual(2);
-    expect(emitter.listeners[0]).toEqual(listener1);
-
-    listener();
-    listener();
-    listener();
-
-    expect(emitter.listeners.length).toEqual(1);
-
-    emitter.emit('foobar');
-
-    expect(console.error.calls.count()).toBe(1);
-    expect(console.error.calls.argsFor(0)[0]).toContain('foobar');
-  })",36,63,snuts
-/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,VerboseStatement,"{'startLine':36,'endLine':63}","it('Should emit the change data to all active listeners', () => {
-    const emitter = new EventEmitter();
-    const listener1 = function () {};
-    const listener2 = function (data) {
-      console.error(data);
-    };
-
-    spyOn(console, 'error');
-
-    expect(emitter.listeners.length).toEqual(0);
-
-    const listener = emitter.on(listener1);
-    emitter.on(listener2);
-
-    expect(emitter.listeners.length).toEqual(2);
-    expect(emitter.listeners[0]).toEqual(listener1);
-
-    listener();
-    listener();
-    listener();
-
-    expect(emitter.listeners.length).toEqual(1);
-
-    emitter.emit('foobar');
-
-    expect(console.error.calls.count()).toBe(1);
-    expect(console.error.calls.argsFor(0)[0]).toContain('foobar');
-  })",36,63,snuts
 /packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 17, 'column': 4, 'index': 630}","describe('Inferno', () => {
   // IE does not support function names so error messages are different
   const testFunction = function testFunction() {};
@@ -157057,7 +157057,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(spy2.calls.count()).toBe(3);
       expect(spy1.calls.count()).toBe(2);
     })",432,466,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 742, 'column': 6, 'index': 18700}","it('Should remove events when parent changes', () => {
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 746, 'column': 6, 'index': 18822}","it('Should remove events when parent changes', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157081,8 +157081,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",731,755,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 744, 'column': 6, 'index': 18789}","it('Should remove events when parent changes', () => {
+    })",735,759,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 748, 'column': 6, 'index': 18911}","it('Should remove events when parent changes', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157106,8 +157106,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",731,755,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 744, 'column': 6, 'index': 18789}","it('Should remove events when parent changes', () => {
+    })",735,759,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 748, 'column': 6, 'index': 18911}","it('Should remove events when parent changes', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157131,8 +157131,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",731,755,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 754, 'column': 6, 'index': 18985}","it('Should remove events when parent changes', () => {
+    })",735,759,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 758, 'column': 6, 'index': 19107}","it('Should remove events when parent changes', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157156,8 +157156,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",731,755,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 754, 'column': 6, 'index': 18985}","it('Should remove events when parent changes', () => {
+    })",735,759,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 758, 'column': 6, 'index': 19107}","it('Should remove events when parent changes', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157181,8 +157181,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",731,755,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 768, 'column': 6, 'index': 19294}","it('Should NOT remove events when listener remains there', () => {
+    })",735,759,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 772, 'column': 6, 'index': 19416}","it('Should NOT remove events when listener remains there', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157208,8 +157208,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(2);
-    })",757,783,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 770, 'column': 6, 'index': 19383}","it('Should NOT remove events when listener remains there', () => {
+    })",761,787,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 774, 'column': 6, 'index': 19505}","it('Should NOT remove events when listener remains there', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157235,8 +157235,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(2);
-    })",757,783,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 782, 'column': 6, 'index': 19617}","it('Should NOT remove events when listener remains there', () => {
+    })",761,787,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 786, 'column': 6, 'index': 19739}","it('Should NOT remove events when listener remains there', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157262,8 +157262,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(2);
-    })",757,783,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 796, 'column': 6, 'index': 19918}","it('Should remove events when listener is nulled', () => {
+    })",761,787,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 800, 'column': 6, 'index': 20040}","it('Should remove events when listener is nulled', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157289,8 +157289,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",785,811,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 798, 'column': 6, 'index': 20007}","it('Should remove events when listener is nulled', () => {
+    })",789,815,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 802, 'column': 6, 'index': 20129}","it('Should remove events when listener is nulled', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157316,8 +157316,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",785,811,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 798, 'column': 6, 'index': 20007}","it('Should remove events when listener is nulled', () => {
+    })",789,815,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 802, 'column': 6, 'index': 20129}","it('Should remove events when listener is nulled', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157343,8 +157343,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",785,811,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 810, 'column': 6, 'index': 20242}","it('Should remove events when listener is nulled', () => {
+    })",789,815,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 814, 'column': 6, 'index': 20364}","it('Should remove events when listener is nulled', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157370,8 +157370,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",785,811,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 810, 'column': 6, 'index': 20242}","it('Should remove events when listener is nulled', () => {
+    })",789,815,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Duplicate Assert,"{'line': 814, 'column': 6, 'index': 20364}","it('Should remove events when listener is nulled', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -157397,7 +157397,7 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",785,811,steel
+    })",789,815,steel
 /packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 105, 'column': 28, 'index': 2152}","it('should update events', () => {
     let data = {
       count: 0,
@@ -158514,7 +158514,7 @@ file,type,line,method,methodStart,methodEnd,source
         done();
       }, 20);
     })",497,535,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 571, 'column': 49, 'index': 14409}","it('Should stop propagating normal event to normal event', () => {
+/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 573, 'column': 51, 'index': 14503}","it('Should stop propagating normal event to normal event', (done) => {
       const eventHandlerSpy = jasmine.createSpy('spy');
       const eventHandler = function (event) {
         eventHandlerSpy();
@@ -158548,10 +158548,14 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#tester').click();
       
-      expect(eventHandlerSpy.calls.count()).toBe(1);
-      expect(eventHandlerSpy2.calls.count()).toBe(0);
-    })",537,573,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 572, 'column': 50, 'index': 14463}","it('Should stop propagating normal event to normal event', () => {
+      // Use Promise-based approach to avoid sleep
+      Promise.resolve().then(() => {
+        expect(eventHandlerSpy.calls.count()).toBe(1);
+        expect(eventHandlerSpy2.calls.count()).toBe(0);
+        done();
+      });
+    })",537,577,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 574, 'column': 52, 'index': 14559}","it('Should stop propagating normal event to normal event', (done) => {
       const eventHandlerSpy = jasmine.createSpy('spy');
       const eventHandler = function (event) {
         eventHandlerSpy();
@@ -158585,10 +158589,14 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#tester').click();
       
-      expect(eventHandlerSpy.calls.count()).toBe(1);
-      expect(eventHandlerSpy2.calls.count()).toBe(0);
-    })",537,573,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 621, 'column': 35, 'index': 15734}","it('Synthetic Events - Should not reduce listener count when nothing was removed', () => {
+      // Use Promise-based approach to avoid sleep
+      Promise.resolve().then(() => {
+        expect(eventHandlerSpy.calls.count()).toBe(1);
+        expect(eventHandlerSpy2.calls.count()).toBe(0);
+        done();
+      });
+    })",537,577,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 625, 'column': 35, 'index': 15856}","it('Synthetic Events - Should not reduce listener count when nothing was removed', () => {
     const spy = jasmine.createSpy('spy');
     const root1 = document.createElement('div');
     const root2 = document.createElement('div');
@@ -158621,8 +158629,8 @@ file,type,line,method,methodStart,methodEnd,source
     document.body.removeChild(root2);
     document.body.removeChild(root3);
     document.body.removeChild(root4);
-  })",599,632,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 742, 'column': 37, 'index': 18731}","it('Should remove events when parent changes', () => {
+  })",603,636,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 746, 'column': 37, 'index': 18853}","it('Should remove events when parent changes', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -158646,8 +158654,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",731,755,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 744, 'column': 37, 'index': 18820}","it('Should remove events when parent changes', () => {
+    })",735,759,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 748, 'column': 37, 'index': 18942}","it('Should remove events when parent changes', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -158671,8 +158679,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",731,755,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 754, 'column': 37, 'index': 19016}","it('Should remove events when parent changes', () => {
+    })",735,759,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 758, 'column': 37, 'index': 19138}","it('Should remove events when parent changes', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -158696,8 +158704,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",731,755,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 768, 'column': 37, 'index': 19325}","it('Should NOT remove events when listener remains there', () => {
+    })",735,759,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 772, 'column': 37, 'index': 19447}","it('Should NOT remove events when listener remains there', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -158723,8 +158731,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(2);
-    })",757,783,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 770, 'column': 37, 'index': 19414}","it('Should NOT remove events when listener remains there', () => {
+    })",761,787,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 774, 'column': 37, 'index': 19536}","it('Should NOT remove events when listener remains there', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -158750,8 +158758,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(2);
-    })",757,783,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 782, 'column': 37, 'index': 19648}","it('Should NOT remove events when listener remains there', () => {
+    })",761,787,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 786, 'column': 37, 'index': 19770}","it('Should NOT remove events when listener remains there', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -158777,8 +158785,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(2);
-    })",757,783,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 796, 'column': 37, 'index': 19949}","it('Should remove events when listener is nulled', () => {
+    })",761,787,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 800, 'column': 37, 'index': 20071}","it('Should remove events when listener is nulled', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -158804,8 +158812,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",785,811,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 798, 'column': 37, 'index': 20038}","it('Should remove events when listener is nulled', () => {
+    })",789,815,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 802, 'column': 37, 'index': 20160}","it('Should remove events when listener is nulled', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -158831,8 +158839,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",785,811,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 810, 'column': 37, 'index': 20273}","it('Should remove events when listener is nulled', () => {
+    })",789,815,steel
+/packages/inferno-create-element/__tests__/events.spec.js,Magic Number,"{'line': 814, 'column': 37, 'index': 20395}","it('Should remove events when listener is nulled', () => {
       const spy = jasmine.createSpy('spy');
       render(
         <div>
@@ -158858,7 +158866,7 @@ file,type,line,method,methodStart,methodEnd,source
 
       container.querySelector('#test').click();
       expect(spy.calls.count()).toBe(1);
-    })",785,811,steel
+    })",789,815,steel
 /packages/inferno-create-element/__tests__/events.spec.js,Sleepy Test,"{'line': 276, 'column': 6, 'index': 6058}","it('Should stop propagating Synthetic event to document', (done) => {
       const eventHandlerSpy = jasmine.createSpy('spy');
       const eventHandler = function (event) {
@@ -159007,7 +159015,7 @@ file,type,line,method,methodStart,methodEnd,source
         done();
       }, 20);
     })",497,535,steel
-/packages/inferno-create-element/__tests__/events.spec.js,Unknown Test,"{'column': 2, 'line': 576}","it('Should work with spread attributes', (done) => {
+/packages/inferno-create-element/__tests__/events.spec.js,Unknown Test,"{'column': 2, 'line': 580}","it('Should work with spread attributes', (done) => {
     function SmallComponent(props) {
       return (
         <div id=""testClick"" {...props}>
@@ -159028,4 +159036,4 @@ file,type,line,method,methodStart,methodEnd,source
     );
 
     container.querySelector('#testClick').click();
-  })",576,597,steel
+  })",580,601,steel

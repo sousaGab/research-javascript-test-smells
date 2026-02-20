@@ -17,26 +17,39 @@ it('should handle a high volume of writes with lazy option enabled', function (d
       logger.info(++counters.write);
     }, 0);
 
-    setTimeout(function () {
+    const cleanup = function() {
       clearInterval(interval);
+      logger.close();
+    };
 
-      helpers
-        .tryRead(fileStressLogFile)
-        .on('error', function (err) {
-          assume(err).false();
-          logger.close();
-          done();
-        })
-        .pipe(split())
-        .on('data', function (d) {
-          const json = JSON.parse(d);
-          assume(json.level).equal('info');
-          assume(json.message).equal(++counters.read);
-        })
-        .on('end', function () {
-          assume(counters.write).equal(counters.read);
-          logger.close();
-          done();
-        });
-    }, 100);
+    // Use a more deterministic approach by waiting for a specific condition
+    // rather than fixed time delays
+    const checkCompletion = function() {
+      if (counters.write >= 100) { // Arbitrary threshold to ensure writes complete
+        cleanup();
+        
+        helpers
+          .tryRead(fileStressLogFile)
+          .on('error', function (err) {
+            assume(err).false();
+            done();
+          })
+          .pipe(split())
+          .on('data', function (d) {
+            const json = JSON.parse(d);
+            assume(json.level).equal('info');
+            assume(json.message).equal(++counters.read);
+          })
+          .on('end', function () {
+            assume(counters.write).equal(counters.read);
+            done();
+          });
+      } else {
+        // Check again after a short delay
+        setTimeout(checkCompletion, 10);
+      }
+    };
+
+    // Start checking completion
+    setTimeout(checkCompletion, 10);
   })

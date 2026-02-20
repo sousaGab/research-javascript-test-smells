@@ -81,6 +81,7 @@ it('does not re-render parent child components', async () => {
     const wrapper2 = mount(App2, { attachTo: document.body })
 
     // --- `Input1` tests ---
+
     const $inputs1 = wrapper1.findAllComponents(Input1)
     expect($inputs1.length).toBe(2)
     expect($inputs1.at(0)).toBeDefined()
@@ -112,6 +113,7 @@ it('does not re-render parent child components', async () => {
     expect(input1RenderCount).toBe(isVue3 ? 2 : 6)
 
     // --- `Input2` tests ---
+
     const $inputs2 = wrapper2.findAllComponents(Input2)
     expect($inputs2.length).toBe(2)
     expect($inputs2.at(0)).toBeDefined()

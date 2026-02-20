@@ -17,9 +17,12 @@ it("onBreakpointChange provides breakpoint name and cols count", () => {
       global.triggerResize(1000, 600);
     });
 
-    const calls = onBreakpointChange.mock.calls;
-    const mdCall = calls.find(call => call[0] === "md");
+    const mdCalls = onBreakpointChange.mock.calls.filter(
+      call => call[0] === "md"
+    );
     
-    expect(mdCall[0]).toBe("md");
-    expect(mdCall[1]).toBe(10);
+    expect(mdCalls.length).toBeGreaterThan(0);
+    const [breakpoint, cols] = mdCalls[0];
+    expect(breakpoint).toBe("md");
+    expect(cols).toBe(10);
   })

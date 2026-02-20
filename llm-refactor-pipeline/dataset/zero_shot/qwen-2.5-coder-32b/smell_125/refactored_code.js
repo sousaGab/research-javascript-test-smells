@@ -1,8 +1,8 @@
 test("DateTime.fromObject() accepts a Zone as the zone option", () => {
   const baseConfig = { ...baseObject, month: 5 };
-  const daylight = DateTime.fromObject(baseConfig, { zone: "America/Los_Angeles" });
-  
   const standardConfig = { ...baseObject, month: 12 };
+  
+  const daylight = DateTime.fromObject(baseConfig, { zone: "America/Los_Angeles" });
   const standard = DateTime.fromObject(standardConfig, { zone: "America/Los_Angeles" });
 
   expect(daylight.isOffsetFixed).toBe(false);
@@ -24,4 +24,4 @@ test("DateTime.fromObject() accepts a Zone as the zone option", () => {
   expect(standard.minute).toBe(23);
   expect(standard.second).toBe(54);
   expect(standard.millisecond).toBe(123);
-})
+});

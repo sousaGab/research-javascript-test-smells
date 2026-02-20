@@ -3,7 +3,7 @@ it('socket has write() method', done => {
 
     const req = http.get('http://example.test')
     req.once('socket', socket => {
-      expect(socket).to.have.property('write')
+      expect(socket.write).to.be.a('function')
       socket.write('test')
       done()
     })

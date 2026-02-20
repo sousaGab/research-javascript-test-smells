@@ -712,6 +712,61 @@ file,type,line,method,methodStart,methodEnd,source
 /test/Model.spec.js,SubOptimalAssert,"{'startLine':68,'endLine':68}","it(""should construct a new Model when calling the falcor module function"", () => {
         expect(falcor() instanceof falcor.Model).toBe(true);
     })",67,69,snuts
+/test/set/edge-cases.spec.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","it(""set blows away the cache."", function() {
+        var model = new Model({});
+        var get = [[""genreList"", 1, 0, ""summary""]];
+
+        // this mimicks the server setting cycle from the router.
+        var set = [
+            {
+                jsonGraph: {""genreList"": {
+                    ""0"": { ""$type"": $path, ""value"": [""lists"", ""abcd""] },
+                    ""1"": { ""$type"": $path, ""value"": [""lists"", ""my-list""] }
+                }},
+                paths: [['genreList', {to:1}, 0, 'summary']]
+            },
+            {
+                jsonGraph: {""lists"": {
+                    ""abcd"": { ""0"": { ""$type"": $path, ""value"": [""videos"", 1234] } },
+                    ""my-list"": { ""$type"": $path, ""value"": [""lists"", ""1x5x""] }
+                }},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            },
+            {
+                jsonGraph: {""lists"": {""1x5x"": {
+                    ""0"": { ""$type"": $path, ""value"": [""videos"", 553] }
+                }}},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            },
+            {
+                jsonGraph: {""videos"": {""553"": {""summary"": {
+                    ""$size"": 10,
+                    ""$type"": $atom,
+                    ""value"": {
+                        ""title"": ""Running Man"",
+                        ""url"": ""/movies/553""
+                    }
+                }}}},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            }
+        ];
+
+        set.forEach(function(s, i) {
+            model._setJSONGs(model, [s]);
+            if (i === 2) {
+                expect(model._root.cache.lists).toBeDefined();
+            }
+        });
+
+        model._getPathValuesAsPathMap(model, get, function(x) {
+            expect(x).toEqual({ json: { genreList: { 1: { 0: { summary: {
+                    ""title"": ""Running Man"",
+                    ""url"": ""/movies/553""
+                } } } } }
+            });
+        });
+    })",57,110,snuts
+/test/set/edge-cases.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':68,'endLine':68}","it(
         ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
         function() {
@@ -984,61 +1039,378 @@ file,type,line,method,methodStart,methodEnd,source
             expect(onCompletedValues[0]).toBe(undefined);
         }
     )",165,182,snuts
-/test/set/edge-cases.spec.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","it(""set blows away the cache."", function() {
-        var model = new Model({});
-        var get = [[""genreList"", 1, 0, ""summary""]];
-
-        // this mimicks the server setting cycle from the router.
-        var set = [
-            {
-                jsonGraph: {""genreList"": {
-                    ""0"": { ""$type"": $path, ""value"": [""lists"", ""abcd""] },
-                    ""1"": { ""$type"": $path, ""value"": [""lists"", ""my-list""] }
-                }},
-                paths: [['genreList', {to:1}, 0, 'summary']]
-            },
-            {
-                jsonGraph: {""lists"": {
-                    ""abcd"": { ""0"": { ""$type"": $path, ""value"": [""videos"", 1234] } },
-                    ""my-list"": { ""$type"": $path, ""value"": [""lists"", ""1x5x""] }
-                }},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            },
-            {
-                jsonGraph: {""lists"": {""1x5x"": {
-                    ""0"": { ""$type"": $path, ""value"": [""videos"", 553] }
-                }}},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            },
-            {
-                jsonGraph: {""videos"": {""553"": {""summary"": {
-                    ""$size"": 10,
-                    ""$type"": $atom,
-                    ""value"": {
-                        ""title"": ""Running Man"",
-                        ""url"": ""/movies/553""
-                    }
-                }}}},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            }
-        ];
-
-        set.forEach(function(s, i) {
-            model._setJSONGs(model, [s]);
-            if (i === 2) {
-                expect(model._root.cache.lists).toBeDefined();
-            }
+/test/lru/lru.splice.overwrite.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
+/test/lru/lru.splice.expired.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/lru/lru.promote.set.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
+/test/lru/lru.promote.set.spec.js,VerboseStatement,"{'startLine':182,'endLine':229}","it('should promote references on a set.', function() {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
         });
 
-        model._getPathValuesAsPathMap(model, get, function(x) {
-            expect(x).toEqual({ json: { genreList: { 1: { 0: { summary: {
-                    ""title"": ""Running Man"",
-                    ""url"": ""/movies/553""
-                } } } } }
-            });
+        var root = model._root;
+        var curr = root[__head];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+        expect(curr[__next]).toBeUndefined();
+
+        model.
+            set({
+                path: ['lolomo', '0'],
+                value: 'foo'
+            }).
+            subscribe();
+
+        // new order to the list
+        curr = root[__head];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual('foo');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+        expect(curr[__next]).toBeUndefined();
+    })",182,229,snuts
+/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':81,'endLine':104}","it('should promote the get item to the head toJSON.', function() {
+        var model = new Model();
+        model.set({json: {1: 'I am 1'}}).subscribe();
+        model.set({json: {2: 'I am 2'}}).subscribe();
+        model.set({json: {3: 'I am 3'}}).subscribe();
+
+        expect(model._root[__head].value).toBe('I am 3');
+        expect(model._root[__head][__next].value).toBe('I am 2');
+        expect(model._root[__head][__next][__next].value).toBe('I am 1');
+        getWithPathsAsPathMap(model, [['2']], [{}]);
+        getWithPathsAsPathMap(model, [['1']], [{}]);
+        var current = model._root[__head];
+        expect(current.value).toBe('I am 1');
+        current = current[__next];
+        expect(current.value).toBe('I am 2');
+        current = current[__next];
+        expect(current.value).toBe('I am 3');
+        expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
+    })",81,104,snuts
+/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':105,'endLine':128}","it('should promote the get item to the head _toJSONG.', function() {
+        var model = new Model();
+        model.set({json: {1: 'I am 1'}}).subscribe();
+        model.set({json: {2: 'I am 2'}}).subscribe();
+        model.set({json: {3: 'I am 3'}}).subscribe();
+
+        expect(model._root[__head].value).toBe('I am 3');
+        expect(model._root[__head][__next].value).toBe('I am 2');
+        expect(model._root[__head][__next][__next].value).toBe('I am 1');
+        getWithPathsAsJSONGraph(model, [['2']], [{}]);
+        getWithPathsAsJSONGraph(model, [['1']], [{}]);
+        var current = model._root[__head];
+        expect(current.value).toBe('I am 1');
+        current = current[__next];
+        expect(current.value).toBe('I am 2');
+        current = current[__next];
+        expect(current.value).toBe('I am 3');
+        expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
+    })",105,128,snuts
+/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':130,'endLine':172}","it('should promote references on a get.', function() {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
         });
-    })",57,110,snuts
-/test/set/edge-cases.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
+
+        var root = model._root;
+        var curr = root[__head];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+        expect(curr[__next]).toBeUndefined();
+
+        model.get(['lolomo', 0]).subscribe();
+
+        // new order to the list
+        curr = root[__head];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+        expect(curr[__next]).toBeUndefined();
+    })",130,172,snuts
+/test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':98,'endLine':98}","it('should promote the get item to the head toJSON.', function() {
+        var model = new Model();
+        model.set({json: {1: 'I am 1'}}).subscribe();
+        model.set({json: {2: 'I am 2'}}).subscribe();
+        model.set({json: {3: 'I am 3'}}).subscribe();
+
+        expect(model._root[__head].value).toBe('I am 3');
+        expect(model._root[__head][__next].value).toBe('I am 2');
+        expect(model._root[__head][__next][__next].value).toBe('I am 1');
+        getWithPathsAsPathMap(model, [['2']], [{}]);
+        getWithPathsAsPathMap(model, [['1']], [{}]);
+        var current = model._root[__head];
+        expect(current.value).toBe('I am 1');
+        current = current[__next];
+        expect(current.value).toBe('I am 2');
+        current = current[__next];
+        expect(current.value).toBe('I am 3');
+        expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
+    })",81,104,snuts
+/test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':103,'endLine':103}","it('should promote the get item to the head toJSON.', function() {
+        var model = new Model();
+        model.set({json: {1: 'I am 1'}}).subscribe();
+        model.set({json: {2: 'I am 2'}}).subscribe();
+        model.set({json: {3: 'I am 3'}}).subscribe();
+
+        expect(model._root[__head].value).toBe('I am 3');
+        expect(model._root[__head][__next].value).toBe('I am 2');
+        expect(model._root[__head][__next][__next].value).toBe('I am 1');
+        getWithPathsAsPathMap(model, [['2']], [{}]);
+        getWithPathsAsPathMap(model, [['1']], [{}]);
+        var current = model._root[__head];
+        expect(current.value).toBe('I am 1');
+        current = current[__next];
+        expect(current.value).toBe('I am 2');
+        current = current[__next];
+        expect(current.value).toBe('I am 3');
+        expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
+    })",81,104,snuts
+/test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':122,'endLine':122}","it('should promote the get item to the head _toJSONG.', function() {
+        var model = new Model();
+        model.set({json: {1: 'I am 1'}}).subscribe();
+        model.set({json: {2: 'I am 2'}}).subscribe();
+        model.set({json: {3: 'I am 3'}}).subscribe();
+
+        expect(model._root[__head].value).toBe('I am 3');
+        expect(model._root[__head][__next].value).toBe('I am 2');
+        expect(model._root[__head][__next][__next].value).toBe('I am 1');
+        getWithPathsAsJSONGraph(model, [['2']], [{}]);
+        getWithPathsAsJSONGraph(model, [['1']], [{}]);
+        var current = model._root[__head];
+        expect(current.value).toBe('I am 1');
+        current = current[__next];
+        expect(current.value).toBe('I am 2');
+        current = current[__next];
+        expect(current.value).toBe('I am 3');
+        expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
+    })",105,128,snuts
+/test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':127,'endLine':127}","it('should promote the get item to the head _toJSONG.', function() {
+        var model = new Model();
+        model.set({json: {1: 'I am 1'}}).subscribe();
+        model.set({json: {2: 'I am 2'}}).subscribe();
+        model.set({json: {3: 'I am 3'}}).subscribe();
+
+        expect(model._root[__head].value).toBe('I am 3');
+        expect(model._root[__head][__next].value).toBe('I am 2');
+        expect(model._root[__head][__next][__next].value).toBe('I am 1');
+        getWithPathsAsJSONGraph(model, [['2']], [{}]);
+        getWithPathsAsJSONGraph(model, [['1']], [{}]);
+        var current = model._root[__head];
+        expect(current.value).toBe('I am 1');
+        current = current[__next];
+        expect(current.value).toBe('I am 2');
+        current = current[__next];
+        expect(current.value).toBe('I am 3');
+        expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
+    })",105,128,snuts
+/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':36,'endLine':78}","it('should promote references on a get.', function() {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
+        });
+
+        var root = model._root;
+        var curr = root[__head];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+        expect(curr[__next]).toBeUndefined();
+
+        model.get(['lolomo', 0]).subscribe();
+
+        // new order to the list
+        curr = root[__head];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+        expect(curr[__next]).toBeUndefined();
+    })",36,78,snuts
+/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':81,'endLine':104}","it('should promote the get item to the head toJSON.', function() {
+        var model = new Model();
+        model.set({json: {1: 'I am 1'}}).subscribe();
+        model.set({json: {2: 'I am 2'}}).subscribe();
+        model.set({json: {3: 'I am 3'}}).subscribe();
+
+        expect(model._root[__head].value).toBe('I am 3');
+        expect(model._root[__head][__next].value).toBe('I am 2');
+        expect(model._root[__head][__next][__next].value).toBe('I am 1');
+        getWithPathsAsPathMap(model, [['2']], [{}]);
+        getWithPathsAsPathMap(model, [['1']], [{}]);
+        var current = model._root[__head];
+        expect(current.value).toBe('I am 1');
+        current = current[__next];
+        expect(current.value).toBe('I am 2');
+        current = current[__next];
+        expect(current.value).toBe('I am 3');
+        expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
+    })",81,104,snuts
+/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':105,'endLine':128}","it('should promote the get item to the head _toJSONG.', function() {
+        var model = new Model();
+        model.set({json: {1: 'I am 1'}}).subscribe();
+        model.set({json: {2: 'I am 2'}}).subscribe();
+        model.set({json: {3: 'I am 3'}}).subscribe();
+
+        expect(model._root[__head].value).toBe('I am 3');
+        expect(model._root[__head][__next].value).toBe('I am 2');
+        expect(model._root[__head][__next][__next].value).toBe('I am 1');
+        getWithPathsAsJSONGraph(model, [['2']], [{}]);
+        getWithPathsAsJSONGraph(model, [['1']], [{}]);
+        var current = model._root[__head];
+        expect(current.value).toBe('I am 1');
+        current = current[__next];
+        expect(current.value).toBe('I am 2');
+        current = current[__next];
+        expect(current.value).toBe('I am 3');
+        expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
+    })",105,128,snuts
+/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':130,'endLine':172}","it('should promote references on a get.', function() {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
+        });
+
+        var root = model._root;
+        var curr = root[__head];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+        expect(curr[__next]).toBeUndefined();
+
+        model.get(['lolomo', 0]).subscribe();
+
+        // new order to the list
+        curr = root[__head];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+        expect(curr[__next]).toBeUndefined();
+    })",130,172,snuts
 /test/invalidate/pathSets.spec.js,AnonymousTest,"{'startLine':13,'endLine':30}","it(""directly"", function() {
 
         var lru = new Object();
@@ -1603,378 +1975,557 @@ file,type,line,method,methodStart,methodEnd,source
 /test/falcor/operations.spec.js,SubOptimalAssert,"{'startLine':32,'endLine':32}","it('should return undefined when undefined is passed into falcor.keys', function() {
         expect(falcor.keys()).toBe(undefined);
     })",31,33,snuts
-/test/lru/lru.splice.overwrite.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
-/test/lru/lru.splice.expired.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
-/test/lru/lru.promote.set.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
-/test/lru/lru.promote.set.spec.js,VerboseStatement,"{'startLine':182,'endLine':229}","it('should promote references on a set.', function() {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
-        });
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':24,'endLine':40}","it(""directly"", function() {
 
-        var root = model._root;
-        var curr = root[__head];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
+        var cache = {};
+        var version = 0;
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+            $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+        ]);
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
+        expect(strip(cache)).toEqual(strip({
+            movies: {
+                ""pulp-fiction"": {
+                    ""title"": $atom(""Pulp Fiction"")
+                }
+            }
+        }));
+    })",24,40,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':167,'endLine':184}","it(""directly"", function() {
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
+                    ]
+                );
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
-        expect(curr[__next]).toBeUndefined();
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",167,184,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':218,'endLine':248}","it(""to:2"", function() {
 
-        model.
-            set({
-                path: ['lolomo', '0'],
-                value: 'foo'
-            }).
-            subscribe();
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue(""grid[0][0..2].director"", ""Quentin Tarantino"")
+                    ]
+                );
 
-        // new order to the list
-        curr = root[__head];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual('foo');
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",218,248,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':249,'endLine':276}","it(""from:1, to:2"", function() {
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue(""grid[0][1..2].director"", ""Quentin Tarantino"")
+                    ]
+                );
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",249,276,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':277,'endLine':307}","it(""length:3"", function() {
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
-        expect(curr[__next]).toBeUndefined();
-    })",182,229,snuts
-/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':81,'endLine':104}","it('should promote the get item to the head toJSON.', function() {
-        var model = new Model();
-        model.set({json: {1: 'I am 1'}}).subscribe();
-        model.set({json: {2: 'I am 2'}}).subscribe();
-        model.set({json: {3: 'I am 3'}}).subscribe();
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue([""grid"", 0, {length: 3}, ""director""], ""Quentin Tarantino"")
+                    ]
+                );
 
-        expect(model._root[__head].value).toBe('I am 3');
-        expect(model._root[__head][__next].value).toBe('I am 2');
-        expect(model._root[__head][__next][__next].value).toBe('I am 1');
-        getWithPathsAsPathMap(model, [['2']], [{}]);
-        getWithPathsAsPathMap(model, [['1']], [{}]);
-        var current = model._root[__head];
-        expect(current.value).toBe('I am 1');
-        current = current[__next];
-        expect(current.value).toBe('I am 2');
-        current = current[__next];
-        expect(current.value).toBe('I am 3');
-        expect(current[__next]).toBe(undefined);
-        current = current[__prev];
-        expect(current.value).toBe('I am 2');
-        current = current[__prev];
-        expect(current.value).toBe('I am 1');
-        expect(current[__prev]).toBe(undefined);
-    })",81,104,snuts
-/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':105,'endLine':128}","it('should promote the get item to the head _toJSONG.', function() {
-        var model = new Model();
-        model.set({json: {1: 'I am 1'}}).subscribe();
-        model.set({json: {2: 'I am 2'}}).subscribe();
-        model.set({json: {3: 'I am 3'}}).subscribe();
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",277,307,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':308,'endLine':335}","it(""from:1, length:2"", function() {
 
-        expect(model._root[__head].value).toBe('I am 3');
-        expect(model._root[__head][__next].value).toBe('I am 2');
-        expect(model._root[__head][__next][__next].value).toBe('I am 1');
-        getWithPathsAsJSONGraph(model, [['2']], [{}]);
-        getWithPathsAsJSONGraph(model, [['1']], [{}]);
-        var current = model._root[__head];
-        expect(current.value).toBe('I am 1');
-        current = current[__next];
-        expect(current.value).toBe('I am 2');
-        current = current[__next];
-        expect(current.value).toBe('I am 3');
-        expect(current[__next]).toBe(undefined);
-        current = current[__prev];
-        expect(current.value).toBe('I am 2');
-        current = current[__prev];
-        expect(current.value).toBe('I am 1');
-        expect(current[__prev]).toBe(undefined);
-    })",105,128,snuts
-/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':130,'endLine':172}","it('should promote references on a get.', function() {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
-        });
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue([""grid"", 0, {from: 1, length: 2}, ""director""], ""Quentin Tarantino"")
+                    ]
+                );
 
-        var root = model._root;
-        var curr = root[__head];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",308,335,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':336,'endLine':366}","it(""[length:3]"", function() {
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue([""grid"", 0, [{length: 3}], ""director""], ""Quentin Tarantino"")
+                    ]
+                );
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",336,366,snuts
+/test/set/pathValues/primitive.spec.js,IdenticalTestDescription,"{'startLine':167,'endLine':184}","it(""directly"", function() {
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
-        expect(curr[__next]).toBeUndefined();
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
+                    ]
+                );
 
-        model.get(['lolomo', 0]).subscribe();
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",167,184,snuts
+/test/set/pathValues/expired.spec.js,SubOptimalAssert,"{'startLine':27,'endLine':27}","it(""converts a negative $expires value to an absolute time"", function() {
 
-        // new order to the list
-        curr = root[__head];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
+        var cache = {};
+        var version = 0;
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue(""grid"", $ref(""grids['id']"")),
+                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: -1000
+                }))
+            ]
+        );
+        var value = cache.grids.id[0];
+        var expires = value.$expires;
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
+        expect(expires > Date.now()).toBe(true);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } }
+        }));
+    })",11,32,snuts
+/test/set/pathValues/expired.spec.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it(""sets through an immediately expired reference"", function() {
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
-        expect(curr[__next]).toBeUndefined();
-    })",130,172,snuts
-/test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':98,'endLine':98}","it('should promote the get item to the head toJSON.', function() {
-        var model = new Model();
-        model.set({json: {1: 'I am 1'}}).subscribe();
-        model.set({json: {2: 'I am 2'}}).subscribe();
-        model.set({json: {3: 'I am 3'}}).subscribe();
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
 
-        expect(model._root[__head].value).toBe('I am 3');
-        expect(model._root[__head][__next].value).toBe('I am 2');
-        expect(model._root[__head][__next][__next].value).toBe('I am 1');
-        getWithPathsAsPathMap(model, [['2']], [{}]);
-        getWithPathsAsPathMap(model, [['1']], [{}]);
-        var current = model._root[__head];
-        expect(current.value).toBe('I am 1');
-        current = current[__next];
-        expect(current.value).toBe('I am 2');
-        current = current[__next];
-        expect(current.value).toBe('I am 3');
-        expect(current[__next]).toBe(undefined);
-        current = current[__prev];
-        expect(current.value).toBe('I am 2');
-        current = current[__prev];
-        expect(current.value).toBe('I am 1');
-        expect(current[__prev]).toBe(undefined);
-    })",81,104,snuts
-/test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':103,'endLine':103}","it('should promote the get item to the head toJSON.', function() {
-        var model = new Model();
-        model.set({json: {1: 'I am 1'}}).subscribe();
-        model.set({json: {2: 'I am 2'}}).subscribe();
-        model.set({json: {3: 'I am 3'}}).subscribe();
+        setPathValues(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathValue(""grid"", $ref(""grids['id']"")),
+                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: 0
+                })),
+                $pathValue(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
 
-        expect(model._root[__head].value).toBe('I am 3');
-        expect(model._root[__head][__next].value).toBe('I am 2');
-        expect(model._root[__head][__next][__next].value).toBe('I am 1');
-        getWithPathsAsPathMap(model, [['2']], [{}]);
-        getWithPathsAsPathMap(model, [['1']], [{}]);
-        var current = model._root[__head];
-        expect(current.value).toBe('I am 1');
-        current = current[__next];
-        expect(current.value).toBe('I am 2');
-        current = current[__next];
-        expect(current.value).toBe('I am 3');
-        expect(current[__next]).toBe(undefined);
-        current = current[__prev];
-        expect(current.value).toBe('I am 2');
-        current = current[__prev];
-        expect(current.value).toBe('I am 1');
-        expect(current[__prev]).toBe(undefined);
-    })",81,104,snuts
-/test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':122,'endLine':122}","it('should promote the get item to the head _toJSONG.', function() {
-        var model = new Model();
-        model.set({json: {1: 'I am 1'}}).subscribe();
-        model.set({json: {2: 'I am 2'}}).subscribe();
-        model.set({json: {3: 'I am 3'}}).subscribe();
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",34,56,snuts
+/test/set/pathValues/expired.spec.js,SubOptimalAssert,"{'startLine':75,'endLine':75}","it(""sets through an already expired reference"", function() {
 
-        expect(model._root[__head].value).toBe('I am 3');
-        expect(model._root[__head][__next].value).toBe('I am 2');
-        expect(model._root[__head][__next][__next].value).toBe('I am 1');
-        getWithPathsAsJSONGraph(model, [['2']], [{}]);
-        getWithPathsAsJSONGraph(model, [['1']], [{}]);
-        var current = model._root[__head];
-        expect(current.value).toBe('I am 1');
-        current = current[__next];
-        expect(current.value).toBe('I am 2');
-        current = current[__next];
-        expect(current.value).toBe('I am 3');
-        expect(current[__next]).toBe(undefined);
-        current = current[__prev];
-        expect(current.value).toBe('I am 2');
-        current = current[__prev];
-        expect(current.value).toBe('I am 1');
-        expect(current[__prev]).toBe(undefined);
-    })",105,128,snuts
-/test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':127,'endLine':127}","it('should promote the get item to the head _toJSONG.', function() {
-        var model = new Model();
-        model.set({json: {1: 'I am 1'}}).subscribe();
-        model.set({json: {2: 'I am 2'}}).subscribe();
-        model.set({json: {3: 'I am 3'}}).subscribe();
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
 
-        expect(model._root[__head].value).toBe('I am 3');
-        expect(model._root[__head][__next].value).toBe('I am 2');
-        expect(model._root[__head][__next][__next].value).toBe('I am 1');
-        getWithPathsAsJSONGraph(model, [['2']], [{}]);
-        getWithPathsAsJSONGraph(model, [['1']], [{}]);
-        var current = model._root[__head];
-        expect(current.value).toBe('I am 1');
-        current = current[__next];
-        expect(current.value).toBe('I am 2');
-        current = current[__next];
-        expect(current.value).toBe('I am 3');
-        expect(current[__next]).toBe(undefined);
-        current = current[__prev];
-        expect(current.value).toBe('I am 2');
-        current = current[__prev];
-        expect(current.value).toBe('I am 1');
-        expect(current[__prev]).toBe(undefined);
-    })",105,128,snuts
-/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':36,'endLine':78}","it('should promote references on a get.', function() {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
-        });
+        setPathValues(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathValue(""grid"", $ref(""grids['id']"")),
+                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: startTime - 10
+                })),
+                $pathValue(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
 
-        var root = model._root;
-        var curr = root[__head];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",58,80,snuts
+/test/set/pathValues/branch.spec.js,AnonymousTest,"{'startLine':49,'endLine':63}","it(""directly"", function() {
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
+        var cache = {};
+        var version = 0;
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathValue(""movies['pulp-fiction']"", ""Pulp Fiction"")
+            ]
+        );
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $atom(""Pulp Fiction"") }
+        }));
+    })",49,63,snuts
+/test/set/pathValues/branch.spec.js,AnonymousTest,"{'startLine':95,'endLine':109}","it(""directly"", function() {
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
-        expect(curr[__next]).toBeUndefined();
+        var cache = {};
+        var version = 0;
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathValue(""movies['pulp-fiction']"", $error(""oops""))
+            ]
+        );
 
-        model.get(['lolomo', 0]).subscribe();
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",95,109,snuts
+/test/set/pathValues/branch.spec.js,IdenticalTestDescription,"{'startLine':95,'endLine':109}","it(""directly"", function() {
 
-        // new order to the list
-        curr = root[__head];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
+        var cache = {};
+        var version = 0;
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathValue(""movies['pulp-fiction']"", $error(""oops""))
+            ]
+        );
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",95,109,snuts
+/test/set/pathValues/branch.spec.js,IdenticalTestDescription,"{'startLine':111,'endLine':136}","it(""through a reference with a null last key"", function() {
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
+        var cache = {};
+        var version = 0;
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue(""grid"", $ref(""grids['id']"")),
+                $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+            ]
+        );
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
-        expect(curr[__next]).toBeUndefined();
-    })",36,78,snuts
-/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':81,'endLine':104}","it('should promote the get item to the head toJSON.', function() {
-        var model = new Model();
-        model.set({json: {1: 'I am 1'}}).subscribe();
-        model.set({json: {2: 'I am 2'}}).subscribe();
-        model.set({json: {3: 'I am 3'}}).subscribe();
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue([""grid"", 0, 0, null], $error(""oops""))
+            ]
+        );
 
-        expect(model._root[__head].value).toBe('I am 3');
-        expect(model._root[__head][__next].value).toBe('I am 2');
-        expect(model._root[__head][__next][__next].value).toBe('I am 1');
-        getWithPathsAsPathMap(model, [['2']], [{}]);
-        getWithPathsAsPathMap(model, [['1']], [{}]);
-        var current = model._root[__head];
-        expect(current.value).toBe('I am 1');
-        current = current[__next];
-        expect(current.value).toBe('I am 2');
-        current = current[__next];
-        expect(current.value).toBe('I am 3');
-        expect(current[__next]).toBe(undefined);
-        current = current[__prev];
-        expect(current.value).toBe('I am 2');
-        current = current[__prev];
-        expect(current.value).toBe('I am 1');
-        expect(current[__prev]).toBe(undefined);
-    })",81,104,snuts
-/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':105,'endLine':128}","it('should promote the get item to the head _toJSONG.', function() {
-        var model = new Model();
-        model.set({json: {1: 'I am 1'}}).subscribe();
-        model.set({json: {2: 'I am 2'}}).subscribe();
-        model.set({json: {3: 'I am 3'}}).subscribe();
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } },
+            lists: { id: { 0: $ref(""movies['pulp-fiction']"") } },
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",111,136,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':11,'endLine':35}","it(""directly"", function() {
 
-        expect(model._root[__head].value).toBe('I am 3');
-        expect(model._root[__head][__next].value).toBe('I am 2');
-        expect(model._root[__head][__next][__next].value).toBe('I am 1');
-        getWithPathsAsJSONGraph(model, [['2']], [{}]);
-        getWithPathsAsJSONGraph(model, [['1']], [{}]);
-        var current = model._root[__head];
-        expect(current.value).toBe('I am 1');
-        current = current[__next];
-        expect(current.value).toBe('I am 2');
-        current = current[__next];
-        expect(current.value).toBe('I am 3');
-        expect(current[__next]).toBe(undefined);
-        current = current[__prev];
-        expect(current.value).toBe('I am 2');
-        current = current[__prev];
-        expect(current.value).toBe('I am 1');
-        expect(current[__prev]).toBe(undefined);
-    })",105,128,snuts
-/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':130,'endLine':172}","it('should promote references on a get.', function() {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
-        });
+        var cache = {};
+        var version = 0;
 
-        var root = model._root;
-        var curr = root[__head];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue(""movies['pulp-fiction'].summary"", $atom({
+                    title: ""Pulp Fiction"",
+                    url: ""/movies/id/pulp-fiction""
+                }))
+            ]
+        );
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
+        expect(strip(cache)).toEqual(strip({
+            movies: {
+                ""pulp-fiction"": {
+                    ""summary"": $atom({
+                        title: ""Pulp Fiction"",
+                        url: ""/movies/id/pulp-fiction""
+                    })
+                }
+            }
+        }));
+    })",11,35,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':227,'endLine':244}","it(""directly"", function() {
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", [""Crime"", ""Drama"", ""Thriller""])
+                    ]
+                );
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
-        expect(curr[__next]).toBeUndefined();
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",227,244,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':278,'endLine':308}","it(""to:2"", function() {
 
-        model.get(['lolomo', 0]).subscribe();
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue(""grid[0][0..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
 
-        // new order to the list
-        curr = root[__head];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",278,308,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':309,'endLine':336}","it(""from:1, to:2"", function() {
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue(""grid[0][1..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",309,336,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':337,'endLine':367}","it(""length:3"", function() {
 
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
-        expect(curr[__next]).toBeUndefined();
-    })",130,172,snuts
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue([""grid"", 0, {length: 3}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",337,367,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':368,'endLine':395}","it(""from:1, length:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue([""grid"", 0, {from: 1, length: 2}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",368,395,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':396,'endLine':426}","it(""[length:3]"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue([""grid"", 0, [{length: 3}], ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",396,426,snuts
+/test/set/pathValues/atom.spec.js,IdenticalTestDescription,"{'startLine':227,'endLine':244}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", [""Crime"", ""Drama"", ""Thriller""])
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",227,244,snuts
 /test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':25,'endLine':41}","it(""directly"", function() {
 
         var cache = {};
@@ -5101,557 +5652,6 @@ file,type,line,method,methodStart,methodEnd,source
                         done();
                     });
         })",183,222,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':24,'endLine':40}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-            $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-        ]);
-
-        expect(strip(cache)).toEqual(strip({
-            movies: {
-                ""pulp-fiction"": {
-                    ""title"": $atom(""Pulp Fiction"")
-                }
-            }
-        }));
-    })",24,40,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':167,'endLine':184}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",167,184,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':218,'endLine':248}","it(""to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue(""grid[0][0..2].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",218,248,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':249,'endLine':276}","it(""from:1, to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue(""grid[0][1..2].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",249,276,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':277,'endLine':307}","it(""length:3"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue([""grid"", 0, {length: 3}, ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",277,307,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':308,'endLine':335}","it(""from:1, length:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue([""grid"", 0, {from: 1, length: 2}, ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",308,335,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':336,'endLine':366}","it(""[length:3]"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue([""grid"", 0, [{length: 3}], ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",336,366,snuts
-/test/set/pathValues/primitive.spec.js,IdenticalTestDescription,"{'startLine':167,'endLine':184}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",167,184,snuts
-/test/set/pathValues/expired.spec.js,SubOptimalAssert,"{'startLine':27,'endLine':27}","it(""converts a negative $expires value to an absolute time"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue(""grid"", $ref(""grids['id']"")),
-                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: -1000
-                }))
-            ]
-        );
-        var value = cache.grids.id[0];
-        var expires = value.$expires;
-
-        expect(expires > Date.now()).toBe(true);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } }
-        }));
-    })",11,32,snuts
-/test/set/pathValues/expired.spec.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it(""sets through an immediately expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathValues(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathValue(""grid"", $ref(""grids['id']"")),
-                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: 0
-                })),
-                $pathValue(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",34,56,snuts
-/test/set/pathValues/expired.spec.js,SubOptimalAssert,"{'startLine':75,'endLine':75}","it(""sets through an already expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathValues(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathValue(""grid"", $ref(""grids['id']"")),
-                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: startTime - 10
-                })),
-                $pathValue(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",58,80,snuts
-/test/set/pathValues/branch.spec.js,AnonymousTest,"{'startLine':49,'endLine':63}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathValue(""movies['pulp-fiction']"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $atom(""Pulp Fiction"") }
-        }));
-    })",49,63,snuts
-/test/set/pathValues/branch.spec.js,AnonymousTest,"{'startLine':95,'endLine':109}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathValue(""movies['pulp-fiction']"", $error(""oops""))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",95,109,snuts
-/test/set/pathValues/branch.spec.js,IdenticalTestDescription,"{'startLine':95,'endLine':109}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathValue(""movies['pulp-fiction']"", $error(""oops""))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",95,109,snuts
-/test/set/pathValues/branch.spec.js,IdenticalTestDescription,"{'startLine':111,'endLine':136}","it(""through a reference with a null last key"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue(""grid"", $ref(""grids['id']"")),
-                $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue([""grid"", 0, 0, null], $error(""oops""))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } },
-            lists: { id: { 0: $ref(""movies['pulp-fiction']"") } },
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",111,136,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':11,'endLine':35}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue(""movies['pulp-fiction'].summary"", $atom({
-                    title: ""Pulp Fiction"",
-                    url: ""/movies/id/pulp-fiction""
-                }))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: {
-                ""pulp-fiction"": {
-                    ""summary"": $atom({
-                        title: ""Pulp Fiction"",
-                        url: ""/movies/id/pulp-fiction""
-                    })
-                }
-            }
-        }));
-    })",11,35,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':227,'endLine':244}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", [""Crime"", ""Drama"", ""Thriller""])
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",227,244,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':278,'endLine':308}","it(""to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue(""grid[0][0..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",278,308,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':309,'endLine':336}","it(""from:1, to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue(""grid[0][1..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",309,336,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':337,'endLine':367}","it(""length:3"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue([""grid"", 0, {length: 3}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",337,367,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':368,'endLine':395}","it(""from:1, length:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue([""grid"", 0, {from: 1, length: 2}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",368,395,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':396,'endLine':426}","it(""[length:3]"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue([""grid"", 0, [{length: 3}], ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",396,426,snuts
-/test/set/pathValues/atom.spec.js,IdenticalTestDescription,"{'startLine':227,'endLine':244}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", [""Crime"", ""Drama"", ""Thriller""])
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",227,244,snuts
 /test/falcor/invalidate/invalidate.cache-only.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/get/get.pathSyntax.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/falcor/get/get.model.adapter.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts

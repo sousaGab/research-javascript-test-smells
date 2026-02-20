@@ -1,16 +1,12 @@
 describe('event options parsing', () => {
-  describe('with passive event support', () => {
-    beforeEach(() => {
-      global.HAS_PASSIVE_EVENT_SUPPORT = true
-    })
-
-    it('converts boolean to object', () => {
+  if (HAS_PASSIVE_EVENT_SUPPORT) {
+    it('works with passive event support', () => {
+      // Converts boolean to object
       expect(parseEventOptions(true)).toEqual({ capture: true })
       expect(parseEventOptions(false)).toEqual({ capture: false })
       expect(parseEventOptions()).toEqual({ capture: false })
-    })
 
-    it('parses object correctly', () => {
+      // Parses object correctly (returns as-is)
       expect(parseEventOptions({ capture: false })).toEqual({ capture: false })
       expect(parseEventOptions({ capture: true })).toEqual({ capture: true })
       expect(parseEventOptions({})).toEqual({})
@@ -23,21 +19,14 @@ describe('event options parsing', () => {
         foobar: false
       })
     })
-  })
-
-  describe('without passive event support', () => {
-    beforeEach(() => {
-      global.HAS_PASSIVE_EVENT_SUPPORT = false
-    })
-
-    it('converts non object to boolean', () => {
-      expect(parseEventOptions(true)).toEqual(false)
+  } else {
+    it('works without passive event support', () => {
+      // Converts non object to boolean
+      expect(parseEventOptions(true)).toEqual(true)
       expect(parseEventOptions(false)).toEqual(false)
       expect(parseEventOptions()).toEqual(false)
       expect(parseEventOptions(null)).toEqual(false)
-    })
-
-    it('converts object to boolean', () => {
+      // Converts object to boolean
       expect(parseEventOptions({ capture: false })).toEqual(false)
       expect(parseEventOptions({ capture: true })).toEqual(true)
       expect(parseEventOptions({})).toEqual(false)
@@ -46,5 +35,5 @@ describe('event options parsing', () => {
       expect(parseEventOptions({ foobar: true })).toEqual(false)
       expect(parseEventOptions({ foobar: false })).toEqual(false)
     })
-  })
+  }
 })

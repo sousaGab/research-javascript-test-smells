@@ -1,37 +1,34 @@
 it('should move a key with a size up', () => {
-    const setup = () => {
-        render(template(generateNodes(['a', '#1', '#2', '#3'])), container);
-        render(
-        template(generateNodes(['#0', '#1', '#2', '#3', 'a', '#5'])),
-        container,
-        );
-    };
-
-    setup();
+    const nodes = ['a', '#1', '#2', '#3'];
+    const updatedNodes = ['#0', '#1', '#2', '#3', 'a', '#5'];
+    
+    render(template(generateNodes(nodes)), container);
+    render(template(generateNodes(updatedNodes)), container);
     expect(container.textContent).toBe('#0#1#2#3a#5');
     expect(container.firstChild.childNodes.length).toBe(6);
-
-    setup();
+    
+    render(template(generateNodes(nodes)), container);
+    render(template(generateNodes(updatedNodes)), container);
     expect(container.textContent).toBe('#0#1#2#3a#5');
     expect(container.firstChild.childNodes.length).toBe(6);
-
-    setup();
+    
+    render(template(generateNodes(nodes)), container);
+    render(template(generateNodes(updatedNodes)), container);
     expect(container.textContent).toBe('#0#1#2#3a#5');
     expect(container.firstChild.childNodes.length).toBe(6);
-
-    setup();
+    
+    render(template(generateNodes(nodes)), container);
+    render(template(generateNodes(updatedNodes)), container);
     expect(container.textContent).toBe('#0#1#2#3a#5');
     expect(container.firstChild.childNodes.length).toBe(6);
-
+    
     render(template(generateNodes(['a', '#1', '#2', '#4'])), container);
-    render(
-    template(generateNodes(['#0', '#1', '#2', '#4', 'a', '#5'])),
-    container,
-    );
+    render(template(generateNodes(['#0', '#1', '#2', '#4', 'a', '#5'])), container);
     expect(container.textContent).toBe('#0#1#2#4a#5');
     expect(container.firstChild.childNodes.length).toBe(6);
-
-    setup();
+    
+    render(template(generateNodes(nodes)), container);
+    render(template(generateNodes(updatedNodes)), container);
     expect(container.textContent).toBe('#0#1#2#3a#5');
     expect(container.firstChild.childNodes.length).toBe(6);
-});
+  })

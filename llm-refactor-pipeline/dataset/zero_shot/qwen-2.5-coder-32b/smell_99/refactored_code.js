@@ -1,4 +1,5 @@
-it('renders a dropdown divider with correct structure and attributes', async () => {
+describe('BDropdownDivider', () => {
+  it('works', async () => {
     const wrapper = mount(BDropdownDivider)
 
     expect(wrapper.element.tagName).toBe('LI')
@@ -13,3 +14,4 @@ it('renders a dropdown divider with correct structure and attributes', async () 
 
     wrapper.destroy()
   })
+})

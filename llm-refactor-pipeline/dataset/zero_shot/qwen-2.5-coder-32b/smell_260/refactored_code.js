@@ -1,5 +1,7 @@
-test('add base64 string', async () => {
+test('add base64 string', done => {
     const data = 'data:text/plain;base64,SGVsbG8sIFdvcmxkIQ==';
-    const item = await pond.addFile(data);
-    expect(item).toBeDefined();
+    pond.addFile(data).then(item => {
+        expect(item).toBeDefined();
+        done();
+    });
 });

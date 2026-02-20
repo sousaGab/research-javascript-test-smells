@@ -1,12 +1,12 @@
 it('should not remove unnamed handlers', function (done) {
-      const SEARCH_COMPLETE_HANDLER_COUNT = 3
-      const EXPECTED_REMAINING_HANDLERS = 2
+      const HANDLER_COUNT_BEFORE = 3
+      const HANDLER_COUNT_AFTER = 2
       
       var searchComplete = function (list) {
-        expect(list.handlers.searchComplete.length).toEqual(SEARCH_COMPLETE_HANDLER_COUNT)
+        expect(list.handlers.searchComplete.length).toEqual(HANDLER_COUNT_BEFORE)
         list.off('searchComplete', function () {})
         list.off('searchComplete', searchComplete)
-        expect(list.handlers.searchComplete.length).toEqual(EXPECTED_REMAINING_HANDLERS)
+        expect(list.handlers.searchComplete.length).toEqual(HANDLER_COUNT_AFTER)
         done()
       }
       list.on('searchComplete', function () {})

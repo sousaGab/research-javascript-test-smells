@@ -121,12 +121,14 @@ TEST_SMELL_CATALOG = {
             """,
             "refactored": """
                 it('enables user when status is active', () => {
-                    const user = createUserWithStatus('active');
+                    const user = { status: 'active', isEnabled: true };
+                    const status = getUserStatus(user);
                     expect(user.isEnabled).toBe(true);
                 });
 
                 it('disables user when status is inactive', () => {
-                    const user = createUserWithStatus('inactive');
+                    const user = { status: 'inactive', isEnabled: false };
+                    const status = getUserStatus(user);
                     expect(user.isEnabled).toBe(false);
                 });
             """
@@ -163,17 +165,17 @@ TEST_SMELL_CATALOG = {
             """,
             "refactored": """
                 it('grants delete permissions to admin users', () => {
-                    const admin = getUserWithRole(123, 'admin');
+                    const admin = { id: 123, role: 'admin', permissions: ['delete_users'] };
                     expect(admin.permissions).toContain('delete_users');
                 });
 
                 it('grants edit permissions to editor users', () => {
-                    const editor = getUserWithRole(456, 'editor');
+                    const editor = { id: 456, role: 'editor', permissions: ['edit_posts'] };
                     expect(editor.permissions).toContain('edit_posts');
                 });
 
                 it('grants no permissions to regular users', () => {
-                    const user = getUserWithRole(789, 'user');
+                    const user = { id: 789, role: 'user', permissions: [] };
                     expect(user.permissions).toHaveLength(0);
                 });
             """
@@ -477,7 +479,7 @@ TEST_SMELL_CATALOG = {
                         cart.addItem({ id: 1, price: 25.99, quantity: 1 });
                         cart.addItem({ id: 2, price: 15.50, quantity: 2 });
                         
-                        expected_value = (25.99 + (15.50 * 2)) * 1.10;
+                        const expected_value = (25.99 + (15.50 * 2)) * 1.10;
                         const total = cart.calculateTotal();
                         expect(total).toBe(expected_value);
                     });
@@ -605,11 +607,13 @@ TEST_SMELL_CATALOG = {
             {
             "smelly": """
                 it('validates order', () => {
+                    const order = { items: ['item1'], paymentStatus: 'PAID' };
                     expect(order.isValid()).toBe(true);
                 });
             """,
             "refactored": """
                 it('validates order with items and payment', () => {
+                    const order = { items: ['item1'], paymentStatus: 'PAID' };
                     expect(order.items.length).toBeGreaterThan(0);
                     expect(order.paymentStatus).toBe('PAID');
                 });
@@ -640,9 +644,8 @@ TEST_SMELL_CATALOG = {
             "refactored": """
                 it('accepts passwords with uppercase, lowercase, number, and special char', () => {
                     const result = validatePassword('Pass123!');
-                    expect(result.isValid).toBeTruthy();
+                    expect(result.isValid).toBe(true);
                     expect(result.errors).toHaveLength(0);
-                    expect(result.strength).toBe('strong');
                 });
             """
             },
@@ -686,14 +689,13 @@ TEST_SMELL_CATALOG = {
                 });
             """,
             "refactored": """
-                it('charges credit card and returns transaction ID', () => {
+                it('charges credit card successfully', () => {
                     const payment = new Payment(100, 'credit_card');
                     
-                    const result = payment.charge();
+                    payment.charge();
                     
-                    expect(result.success).toBe(true);
-                    expect(result.transactionId).toMatch(/^txn_[a-f0-9]+$/);
-                    expect(payment.status).toBe('completed');
+                    expect(payment.amount).toBe(100);
+                    expect(payment.method).toBe('credit_card');
                 });
             """
             },
@@ -959,46 +961,61 @@ TEST_SMELL_CATALOG = {
                         laptop = new InventoryItem('LAP-001', 'Gaming Laptop', 1299.99, 10);
                         mouse = new InventoryItem('MOU-001', 'Wireless Mouse', 29.99, 50);
                         keyboard = new InventoryItem('KEY-001', 'Mechanical Keyboard', 89.99, 25);
+                        await inventory.save([laptop, mouse, keyboard]);
+                        
                         customer = new Customer('CUST-456', 'Jane Smith', 'jane@example.com');
+                        await customer.save();
                     });
                     
-                    it('calculates order total with promotions', () => {
+                    it('calculates order total with 10% promotion discount', async () => {
                         const order = new Order('ORD-789', customer.id);
                         order.addItem(laptop.id, 1);
                         order.addItem(mouse.id, 2);
                         order.addItem(keyboard.id, 1);
                         
-                        const promoCode = new PromotionCode('SAVE10', 0.1);
+                        const promoCode = await PromotionCode.find('SAVE10');
                         order.applyPromo(promoCode);
                         
                         const expectedTotal = (1299.99 + (29.99 * 2) + 89.99) * 0.9;
-                        expect(order.calculateTotal()).toBeCloseTo(expectedTotal, 2);
+                        expect(order.total).toBeCloseTo(expectedTotal, 2);
                     });
                     
-                    it('updates inventory quantities after order completion', async () => {
+                    it('decrements inventory quantities after processing order', async () => {
                         const order = new Order('ORD-789', customer.id);
                         order.addItem(laptop.id, 1);
                         order.addItem(mouse.id, 2);
                         order.addItem(keyboard.id, 1);
                         
-                        await order.complete();
+                        await inventory.decrement(laptop.id, 1);
+                        await inventory.decrement(mouse.id, 2);
+                        await inventory.decrement(keyboard.id, 1);
                         
-                        expect(await inventory.getQuantity(laptop.id)).toBe(9);
-                        expect(await inventory.getQuantity(mouse.id)).toBe(48);
-                        expect(await inventory.getQuantity(keyboard.id)).toBe(24);
+                        expect(inventory.get(laptop.id).quantity).toBe(9);
+                        expect(inventory.get(mouse.id).quantity).toBe(48);
+                        expect(inventory.get(keyboard.id).quantity).toBe(24);
                     });
                     
-                    it('sends confirmation email after payment approval', async () => {
+                    it('sends confirmation email after payment is processed', async () => {
+                        const order = new Order('ORD-789', customer.id);
+                        order.addItem(laptop.id, 1);
+                        const payment = new Payment('PMT-111', order.id, 'credit_card');
+                        
+                        await payment.process();
+                        await emailService.sendOrderConfirmation(customer.email, order);
+                        
+                        expect(emailService.sent).toHaveBeenCalledWith(
+                            customer.email,
+                            'order_confirmation'
+                        );
+                    });
+                    
+                    it('marks payment as approved after successful processing', async () => {
                         const order = new Order('ORD-789', customer.id);
                         const payment = new Payment('PMT-111', order.id, 'credit_card');
                         
                         await payment.process();
-                        await order.finalize(payment);
                         
-                        expect(emailService.sendOrderConfirmation).toHaveBeenCalledWith(
-                        customer.email,
-                        order.id
-                        );
+                        expect(payment.status).toBe('approved');
                     });
                 });
             """

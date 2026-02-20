@@ -4,11 +4,12 @@ it("produces similar or better compaction height", () => {
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
-      const TOTAL_RUNS = 50;
+
+      const NUM_RUNS = 50;
       const MAX_WORSE_THRESHOLD = 40;
       const TOLERANCE_PERCENTAGE = 80;
 
-      for (let run = 0; run < TOTAL_RUNS; run++) {
+      for (let run = 0; run < NUM_RUNS; run++) {
         const layout = generateMessyLayout(30, 12);
 
         const stdCompacted = verticalCompactor.compact(layout, 12);

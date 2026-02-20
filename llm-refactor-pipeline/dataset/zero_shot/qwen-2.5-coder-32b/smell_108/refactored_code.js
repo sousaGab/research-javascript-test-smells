@@ -1,5 +1,8 @@
 it('getBreakpointsUp() works', async () => {
-    expect(getBreakpointsUp()).toEqual(['', 'sm', 'md', 'lg', 'xl'])
+    const result1 = getBreakpointsUp()
+    const result2 = getBreakpointsUp()
+    
+    expect(result1).toEqual(['', 'sm', 'md', 'lg', 'xl'])
     // Should return a deep clone
-    expect(getBreakpointsUp()).not.toBe(getBreakpointsUp())
+    expect(result1).not.toBe(result2)
   })

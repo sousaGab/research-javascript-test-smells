@@ -10,6 +10,7 @@ it("handles pathological layouts that exceed max row limit gracefully", () => {
 
       expect(compacted).toBeDefined();
       expect(compacted.length).toBe(2);
+
       expect(consoleWarn).toHaveBeenCalledWith(
         expect.stringContaining("exceeded max row limit")
       );

@@ -1,9 +1,7 @@
 it('respects http.request() consumers', done => {
     const requestListener = (req, res) => {
       res.write('foo')
-      setImmediate(() => {
-        res.end('bar')
-      })
+      res.end('bar')
     }
 
     servers.startHttpServer(requestListener).then(({ port }) => {

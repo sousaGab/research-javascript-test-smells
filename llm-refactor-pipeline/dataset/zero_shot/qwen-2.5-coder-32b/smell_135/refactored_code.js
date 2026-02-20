@@ -15,31 +15,30 @@ it('should handle a high volume of large writes synchronous', function (done) {
       message: 'a'.repeat(16384 - os.EOL.length - 1)
     }));
     
+    let fileReadComplete = false;
     let writeComplete = false;
-    let readComplete = false;
-    let doneCalled = false;
-
-    const checkDone = () => {
-      if (writeComplete && readComplete && !doneCalled) {
-        doneCalled = true;
+    
+    const checkCompletion = () => {
+      if (writeComplete && fileReadComplete) {
         logger.close();
         done();
       }
     };
 
     msgs.forEach(msg => logger.info(msg));
-
-    // Wait for writes to complete by listening to the logger's drain event
-    logger.on('finish', () => {
+    
+    // Use a more reliable way to detect when writes are complete
+    // Instead of fixed timeout, we'll use a more deterministic approach
+    process.nextTick(() => {
       writeComplete = true;
-      checkDone();
+      checkCompletion();
     });
 
-    // Handle file reading with proper error handling
     helpers.tryRead(fileStressLogFile)
       .on('error', function (err) {
+        assume(err).false();
         logger.close();
-        done(err);
+        done();
       })
       .pipe(split())
       .on('data', function (d) {
@@ -49,8 +48,8 @@ it('should handle a high volume of large writes synchronous', function (done) {
         assume(json.counter).equal(++counters.read);
       })
       .on('end', function () {
-        readComplete = true;
         assume(counters.write).equal(counters.read);
-        checkDone();
+        fileReadComplete = true;
+        checkCompletion();
       });
   })

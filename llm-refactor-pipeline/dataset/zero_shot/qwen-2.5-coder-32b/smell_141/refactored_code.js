@@ -5,8 +5,15 @@ it('prevents the request from completing', done => {
 
   http.get('http://example.test', onRequest)
 
+  // Use nock's built-in timing control instead of setTimeout
   scope.on('request', () => {
+    // Verify request hasn't completed yet
     expect(onRequest).not.to.have.been.called()
     done()
+  })
+  
+  // Abort pending requests after a short delay to clean up
+  setImmediate(() => {
+    nock.abortPendingRequests()
   })
 })

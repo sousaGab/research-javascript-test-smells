@@ -13837,28 +13837,251 @@ file,type,line,method,methodStart,methodEnd,source
       }),
     ).toStrictEqual({ level: ""S"", percentile: 0.4578556547153667 });
   })",96,109,steel
-/tests/api.test.js,Conditional Test Logic,"{'line': 283, 'column': 2, 'index': 7295}","it(""should set proper cache with clamped values"", async () => {
-  const testCases = [
-    { cache_seconds: 200_000, expectedMaxAge: CACHE_TTL.STATS_CARD.MAX },
-    { cache_seconds: 0, expectedMaxAge: CACHE_TTL.STATS_CARD.MIN },
-    { cache_seconds: -10_000, expectedMaxAge: CACHE_TTL.STATS_CARD.MIN },
-  ];
-
-  for (const { cache_seconds, expectedMaxAge } of testCases) {
-    let { req, res } = faker({ cache_seconds }, data_stats);
+/tests/api.test.js,Duplicate Assert,"{'line': 282, 'column': 4, 'index': 7212}","it(""should set proper cache with clamped values"", async () => {
+  // Test case 1: cache_seconds = 200_000 (clamped to MAX)
+  {
+    let { req, res } = faker({ cache_seconds: 200_000 }, data_stats);
     await api(req, res);
 
     expect(res.setHeader.mock.calls).toEqual([
       [""Content-Type"", ""image/svg+xml""],
       [
         ""Cache-Control"",
-        `max-age=${expectedMaxAge}, ` +
-          `s-maxage=${expectedMaxAge}, ` +
+        `max-age=${CACHE_TTL.STATS_CARD.MAX}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MAX}, ` +
           `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
       ],
     ]);
   }
-})",276,297,steel
+
+  // Test case 2: cache_seconds = 0 (already MIN)
+  {
+    let { req, res } = faker({ cache_seconds: 0 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+
+  // Test case 3: cache_seconds = -10_000 (clamped to MIN)
+  {
+    let { req, res } = faker({ cache_seconds: -10_000 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+})",276,324,steel
+/tests/api.test.js,Duplicate Assert,"{'line': 298, 'column': 4, 'index': 7659}","it(""should set proper cache with clamped values"", async () => {
+  // Test case 1: cache_seconds = 200_000 (clamped to MAX)
+  {
+    let { req, res } = faker({ cache_seconds: 200_000 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MAX}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MAX}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+
+  // Test case 2: cache_seconds = 0 (already MIN)
+  {
+    let { req, res } = faker({ cache_seconds: 0 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+
+  // Test case 3: cache_seconds = -10_000 (clamped to MIN)
+  {
+    let { req, res } = faker({ cache_seconds: -10_000 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+})",276,324,steel
+/tests/api.test.js,Duplicate Assert,"{'line': 298, 'column': 4, 'index': 7659}","it(""should set proper cache with clamped values"", async () => {
+  // Test case 1: cache_seconds = 200_000 (clamped to MAX)
+  {
+    let { req, res } = faker({ cache_seconds: 200_000 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MAX}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MAX}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+
+  // Test case 2: cache_seconds = 0 (already MIN)
+  {
+    let { req, res } = faker({ cache_seconds: 0 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+
+  // Test case 3: cache_seconds = -10_000 (clamped to MIN)
+  {
+    let { req, res } = faker({ cache_seconds: -10_000 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+})",276,324,steel
+/tests/api.test.js,Duplicate Assert,"{'line': 314, 'column': 4, 'index': 8121}","it(""should set proper cache with clamped values"", async () => {
+  // Test case 1: cache_seconds = 200_000 (clamped to MAX)
+  {
+    let { req, res } = faker({ cache_seconds: 200_000 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MAX}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MAX}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+
+  // Test case 2: cache_seconds = 0 (already MIN)
+  {
+    let { req, res } = faker({ cache_seconds: 0 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+
+  // Test case 3: cache_seconds = -10_000 (clamped to MIN)
+  {
+    let { req, res } = faker({ cache_seconds: -10_000 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+})",276,324,steel
+/tests/api.test.js,Duplicate Assert,"{'line': 314, 'column': 4, 'index': 8121}","it(""should set proper cache with clamped values"", async () => {
+  // Test case 1: cache_seconds = 200_000 (clamped to MAX)
+  {
+    let { req, res } = faker({ cache_seconds: 200_000 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MAX}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MAX}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+
+  // Test case 2: cache_seconds = 0 (already MIN)
+  {
+    let { req, res } = faker({ cache_seconds: 0 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+
+  // Test case 3: cache_seconds = -10_000 (clamped to MIN)
+  {
+    let { req, res } = faker({ cache_seconds: -10_000 }, data_stats);
+    await api(req, res);
+
+    expect(res.setHeader.mock.calls).toEqual([
+      [""Content-Type"", ""image/svg+xml""],
+      [
+        ""Cache-Control"",
+        `max-age=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `s-maxage=${CACHE_TTL.STATS_CARD.MIN}, ` +
+          `stale-while-revalidate=${DURATIONS.ONE_DAY}`,
+      ],
+    ]);
+  }
+})",276,324,steel
 /tests/api.test.js,Lazy Test,"{'line': 126, 'column': 6, 'index': 2878}","it(""should test the request"", async () => {
     const { req, res } = faker({}, data_stats);
 
@@ -13930,7 +14153,7 @@ file,type,line,method,methodStart,methodEnd,source
       }),
     );
   })",161,192,steel
-/tests/api.test.js,Lazy Test,"{'line': 320, 'column': 6, 'index': 8303}","it(""should allow changing ring_color"", async () => {
+/tests/api.test.js,Lazy Test,"{'line': 347, 'column': 6, 'index': 8996}","it(""should allow changing ring_color"", async () => {
     const { req, res } = faker(
       {
         username: ""anuraghazra"",
@@ -13963,8 +14186,8 @@ file,type,line,method,methodStart,methodEnd,source
         bg_color: ""fff"",
       }),
     );
-  })",299,332,steel
-/tests/api.test.js,Lazy Test,"{'line': 341, 'column': 6, 'index': 8916}","it(""should render error card if username in blacklist"", async () => {
+  })",326,359,steel
+/tests/api.test.js,Lazy Test,"{'line': 368, 'column': 6, 'index': 9609}","it(""should render error card if username in blacklist"", async () => {
     const { req, res } = faker({ username: ""renovate-bot"" }, data_stats);
 
     await api(req, res);
@@ -13977,8 +14200,8 @@ file,type,line,method,methodStart,methodEnd,source
         renderOptions: { show_repo_link: false },
       }),
     );
-  })",334,347,steel
-/tests/api.test.js,Lazy Test,"{'line': 356, 'column': 6, 'index': 9412}","it(""should render error card when wrong locale is provided"", async () => {
+  })",361,374,steel
+/tests/api.test.js,Lazy Test,"{'line': 383, 'column': 6, 'index': 10105}","it(""should render error card when wrong locale is provided"", async () => {
     const { req, res } = faker({ locale: ""asdf"" }, data_stats);
 
     await api(req, res);
@@ -13990,8 +14213,8 @@ file,type,line,method,methodStart,methodEnd,source
         secondaryMessage: ""Language not found"",
       }),
     );
-  })",349,361,steel
-/tests/api.test.js,Lazy Test,"{'line': 377, 'column': 6, 'index': 10057}","it(""should render error card when include_all_commits true and upstream API fails"", async () => {
+  })",376,388,steel
+/tests/api.test.js,Lazy Test,"{'line': 404, 'column': 6, 'index': 10750}","it(""should render error card when include_all_commits true and upstream API fails"", async () => {
     mock
       .onGet(""https://api.github.com/search/commits?q=author:anuraghazra"")
       .reply(200, { error: ""Some test error message"" });
@@ -14014,7 +14237,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(res.send.mock.calls[0][0]).not.toContain(
       ""https://tiny.one/readme-stats"",
     );
-  })",363,386,steel
+  })",390,413,steel
 /tests/e2e/e2e.test.js,Redundant Print,"{'line': 141, 'column': 4, 'index': 3480}","test(""retrieve language card"", async () => {
     expect(VERCEL_PREVIEW_URL).toBeDefined();
 

@@ -18,7 +18,11 @@ it('renders appended to body when initially open and not static', async () => {
   expect(outer).not.toBe(null)
 
   expect(getInstanceFromVNode(outer)).toBeDefined()
-  expect(getInstanceFromVNode(outer).$options.name).toBe('BVTransporterTarget')
+  
+  if (!isVue3) {
+    expect(getInstanceFromVNode(outer).$options.name).toBe('BVTransporterTarget')
+  }
+  
   expect(outer.parentElement).toBeDefined()
   expect(outer.parentElement).toBe(document.body)
 

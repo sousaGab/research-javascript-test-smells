@@ -55,5 +55,5 @@ it('$bvModal.msgBoxOk() works', async () => {
     await waitRAF()
 
     // Modal should be gone from DOM
-    expect(document.querySelector('#test2')).toBeNull()
+    expect(document.querySelector('#test2')).toBe(null)
   })

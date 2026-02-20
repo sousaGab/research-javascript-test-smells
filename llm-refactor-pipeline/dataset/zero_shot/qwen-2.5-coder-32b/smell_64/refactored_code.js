@@ -10,6 +10,6 @@ it(
             modelResponseObserver.onError();
             modelResponseObserver.onNext(5);
 
-            expect(onNextValue).not.toBeDefined();
+            expect(onNextValue).toBeUndefined();
         }
     )

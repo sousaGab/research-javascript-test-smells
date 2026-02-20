@@ -23,5 +23,6 @@ it('records objects and correctly stores JSON object in body', async () => {
     nock.activate()
 
     expect(recorded).to.have.lengthOf(1)
+
     expect(recorded[0]).to.deep.include({ body: exampleBody })
   })

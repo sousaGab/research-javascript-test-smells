@@ -11,28 +11,40 @@ it('renders with correct basic inner structure', async () => {
     expect(lis).toBeDefined()
     expect(lis.length).toBe(5)
 
-    const first = lis.at(0)
-    const prev = lis.at(1)
-    const page = lis.at(2)
-    const next = lis.at(3)
-    const last = lis.at(4)
-
-    // Check all list items have correct classes and structure
+    // Verify all list items have correct classes
     lis.wrappers.forEach((li, index) => {
       expect(li.classes()).toContain('page-item')
       const pageLink = li.find('.page-link')
       expect(pageLink).toBeDefined()
-      
-      if (index === 2) {
-        expect(li.classes()).toContain('active')
-        expect(li.classes()).not.toContain('disabled')
-        expect(pageLink.element.tagName).toBe('BUTTON')
-      } else {
-        expect(li.classes()).not.toContain('active')
-        expect(li.classes()).toContain('disabled')
-        expect(pageLink.element.tagName).toBe('SPAN')
-      }
     })
+
+    // Verify active state for middle item
+    const page = lis.at(2)
+    expect(page.classes()).toContain('active')
+    expect(page.classes()).not.toContain('disabled')
+    expect(page.find('.page-link').element.tagName).toBe('BUTTON')
+
+    // Verify disabled states for other items
+    const first = lis.at(0)
+    const prev = lis.at(1)
+    const next = lis.at(3)
+    const last = lis.at(4)
+
+    expect(first.classes()).not.toContain('active')
+    expect(first.classes()).toContain('disabled')
+    expect(first.find('.page-link').element.tagName).toBe('SPAN')
+
+    expect(prev.classes()).not.toContain('active')
+    expect(prev.classes()).toContain('disabled')
+    expect(prev.find('.page-link').element.tagName).toBe('SPAN')
+
+    expect(next.classes()).not.toContain('active')
+    expect(next.classes()).toContain('disabled')
+    expect(next.find('.page-link').element.tagName).toBe('SPAN')
+
+    expect(last.classes()).not.toContain('active')
+    expect(last.classes()).toContain('disabled')
+    expect(last.find('.page-link').element.tagName).toBe('SPAN')
 
     // Button content
     expect(first.find('.page-link').text()).toEqual('«')

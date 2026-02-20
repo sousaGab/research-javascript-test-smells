@@ -1,60 +1,4 @@
 file,type,line,method,methodStart,methodEnd,source
-/test-node/standalone/createDirsFromUploads.test.js,AnonymousTest,"{'startLine':10,'endLine':65}","test('folder created', (t,done) => {
-  const server = createServer((req, res) => {
-    const form = formidable({
-      createDirsFromUploads: true,
-      uploadDir: uploads,
-      filename: (x) => {
-        return 'x/y/z.txt'
-      }
-    });
-
-    form.parse(req, () => {
-      res.writeHead(200);
-      res.end(""ok"")
-    });
-  });
-
-  server.listen(PORT, () => {
-    const chosenPort = server.address().port;
-    const  body = `----13068458571765726332503797717\r
-Content-Disposition: form-data; name=""title""\r
-\r
-a\r
-----13068458571765726332503797717\r
-Content-Disposition: form-data; name=""multipleFiles""; filename=""x.txt""\r
-Content-Type: application/x-javascript\r
-\r
-\r
-\r
-a\r
-b\r
-c\r
-d\r
-\r
-----13068458571765726332503797717--\r
-`;
-    fetch(String(new URL(`http:localhost:${chosenPort}/`)), {
-      method: 'POST',
-      
-      headers: {
-        'Content-Length': body.length,
-        Host: `localhost:${chosenPort}`,
-        'Content-Type': 'multipart/form-data; boundary=--13068458571765726332503797717',
-      },
-      body
-    }).then(res => {
-      //may also contain tests from other tests
-      deepEqual(fs.readdirSync(uploads).includes('x'), true);
-      deepEqual(fs.readdirSync(`${uploads}/x`), ['y']);
-      deepEqual(fs.readdirSync(`${uploads}/x/y`), ['z.txt']);
-      strictEqual(res.status, 200);
-      server.close();
-      done();
-    });
-   
-  });
-})",10,65,snuts
 /test/unit/volatile-file.test.js,AnonymousTest,"{'startLine':29,'endLine':43}","test('open()', (done) => {
     const error = new Error('test');
     file.on('error', (err) => {
@@ -405,6 +349,62 @@ d\r
       .end((err) => (err ? reject(err) : resolve()));
   });
 })",148,186,snuts
+/test-node/standalone/createDirsFromUploads.test.js,AnonymousTest,"{'startLine':10,'endLine':65}","test('folder created', (t,done) => {
+  const server = createServer((req, res) => {
+    const form = formidable({
+      createDirsFromUploads: true,
+      uploadDir: uploads,
+      filename: (x) => {
+        return 'x/y/z.txt'
+      }
+    });
+
+    form.parse(req, () => {
+      res.writeHead(200);
+      res.end(""ok"")
+    });
+  });
+
+  server.listen(PORT, () => {
+    const chosenPort = server.address().port;
+    const  body = `----13068458571765726332503797717\r
+Content-Disposition: form-data; name=""title""\r
+\r
+a\r
+----13068458571765726332503797717\r
+Content-Disposition: form-data; name=""multipleFiles""; filename=""x.txt""\r
+Content-Type: application/x-javascript\r
+\r
+\r
+\r
+a\r
+b\r
+c\r
+d\r
+\r
+----13068458571765726332503797717--\r
+`;
+    fetch(String(new URL(`http:localhost:${chosenPort}/`)), {
+      method: 'POST',
+      
+      headers: {
+        'Content-Length': body.length,
+        Host: `localhost:${chosenPort}`,
+        'Content-Type': 'multipart/form-data; boundary=--13068458571765726332503797717',
+      },
+      body
+    }).then(res => {
+      //may also contain tests from other tests
+      deepEqual(fs.readdirSync(uploads).includes('x'), true);
+      deepEqual(fs.readdirSync(`${uploads}/x`), ['y']);
+      deepEqual(fs.readdirSync(`${uploads}/x/y`), ['z.txt']);
+      strictEqual(res.status, 200);
+      server.close();
+      done();
+    });
+   
+  });
+})",10,65,snuts
 /test/standalone/issue-46.test.js,AnonymousTest,"{'startLine':12,'endLine':41}","test(""issue 46"", (done) => {
   const server = createServer(async (req, res) => {
     // Parse form and write results to response.

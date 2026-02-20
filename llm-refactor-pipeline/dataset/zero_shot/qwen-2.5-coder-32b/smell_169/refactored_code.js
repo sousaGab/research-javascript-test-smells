@@ -9,7 +9,7 @@ test("DateTime.fromRFC2822 parses a range of dates", () => {
     { input: "Mon, 02 Jan 2017 06:00:00 +0330", expected: [2017, 1, 2, 2, 30, 0] },
     { input: "Mon, 02 Jan 2017 06:00:00 -0330", expected: [2017, 1, 2, 9, 30, 0] },
     { input: "Mon, 02 Jan 2017 06:00:00 PST", expected: [2017, 1, 2, 6 + 8, 0, 0] },
-    { input: "Mon, 02 Jan 2017 06:00:00 PDT", expected: [2017, 1, 2, 6 + 7, 0, 0] }
+    { input: "Mon, 02 Jan 2017 06:00:00 PDT", expected: [2017, 1, 2, 6 + 7, 0, 0] },
   ];
 
   testCases.forEach(({ input, expected }) => {

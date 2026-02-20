@@ -18,8 +18,21 @@ it('should handle a high volume of large writes', function (done) {
       logger.info(msg);
     }, 0);
 
-    const timeoutId = setTimeout(function () {
+    let readComplete = false;
+    let writeComplete = false;
+    let readCount = 0;
+
+    const checkCompletion = () => {
+      if (writeComplete && readComplete && counters.write === counters.read) {
+        logger.close();
+        done();
+      }
+    };
+
+    setTimeout(function () {
       clearInterval(interval);
+      writeComplete = true;
+      checkCompletion();
 
       helpers.tryRead(fileStressLogFile)
         .on('error', function (err) {
@@ -35,16 +48,8 @@ it('should handle a high volume of large writes', function (done) {
           assume(json.counter).equal(++counters.read);
         })
         .on('end', function () {
-          assume(counters.write).equal(counters.read);
-          logger.close();
-          done();
+          readComplete = true;
+          checkCompletion();
         });
     }, 10000);
-
-    // Clean up timeout if test completes early
-    const originalDone = done;
-    done = function (err) {
-      clearTimeout(timeoutId);
-      originalDone(err);
-    };
   })

@@ -1,7 +1,7 @@
 ================================================================================
 Test Execution Report: react-grid-layout
 ================================================================================
-Timestamp: 2026-02-20 04:27:34
+Timestamp: 2026-02-20 18:16:04
 Command: NODE_ENV=test npx jest --coverage --coverageReporters=text-summary
 Status: FAILED
 ================================================================================
@@ -10,25 +10,21 @@ OUTPUT:
 --------------------------------------------------------------------------------
 
 =============================== Coverage summary ===============================
-Statements   : 89.64% ( 1463/1632 )
-Branches     : 81.4% ( 740/909 )
+Statements   : 89.52% ( 1461/1632 )
+Branches     : 81.29% ( 739/909 )
 Functions    : 90.33% ( 243/269 )
-Lines        : 91.51% ( 1381/1509 )
+Lines        : 91.45% ( 1380/1509 )
 ================================================================================
 
-PASS test/spec/utils-test.js
-PASS test/spec/hooks-test.tsx
-PASS test/spec/backcompat-test.js
-PASS test/spec/typescript-components-test.tsx
-PASS test/spec/fast-compactor-test.js
+PASS test/spec/fast-compactor-test.js (5.457 s)
   ● Console
 
     console.log
       
         With static items (200 items, 20 static):
-          Standard: 13.83ms
+          Standard: 14.22ms
           Fast:     0.52ms
-          Speedup:  26.76x
+          Speedup:  27.30x
 
       at Object.log (test/spec/fast-compactor-test.js:245:15)
 
@@ -39,10 +35,10 @@ PASS test/spec/fast-compactor-test.js
       ├──────────────────────────────────────────────────────────────────────────────┤
       │ Items    │ Standard Vertical     │ Fast Vertical         │ Speedup          │
       ├──────────┼───────────────────────┼───────────────────────┼──────────────────┤
-      │ 50       │               1.32 ms │             207.25 µs │   6.39x faster │
-      │ 100      │               2.54 ms │             356.26 µs │   7.12x faster │
-      │ 200      │               5.59 ms │             731.76 µs │   7.64x faster │
-      │ 500      │              49.61 ms │               1.30 ms │  38.26x faster │
+      │ 50       │             776.09 µs │             196.62 µs │   3.95x faster │
+      │ 100      │               2.02 ms │             376.61 µs │   5.36x faster │
+      │ 200      │               5.19 ms │             696.18 µs │   7.45x faster │
+      │ 500      │              41.74 ms │               1.32 ms │  31.64x faster │
       └──────────────────────────────────────────────────────────────────────────────┘
 
       at Object.log (test/spec/fast-compactor-test.js:201:15)
@@ -50,9 +46,9 @@ PASS test/spec/fast-compactor-test.js
     console.log
       
         Compaction height comparison (50 random layouts):
-          Fast better: 2
-          Standard better: 19
-          Equal: 29
+          Fast better: 1
+          Standard better: 15
+          Equal: 34
 
       at Object.log (test/spec/fast-compactor-test.js:399:15)
 
@@ -65,16 +61,37 @@ PASS test/spec/fast-compactor-test.js
 
       at Object.log (test/spec/fast-compactor-test.js:483:15)
 
+PASS test/spec/hooks-test.tsx (5.459 s)
+PASS test/spec/backcompat-test.js (5.812 s)
 PASS test/spec/core-functions-test.ts
+PASS test/spec/typescript-components-test.tsx
+FAIL test/spec/lifecycle-test.js (6.703 s)
+  ● Lifecycle tests › <ReactGridLayout> › Resizing › preventCollision=true and no compaction › Does not allow elements to move when resizing with no free space
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 0
+
+      1948 |   // Layout should be called but item 0 should not be able to expand
+      1949 |   // because item 1 is blocking it
+    > 1950 |   expect(onLayoutChange).toHaveBeenCalledTimes(1);
+           |                          ^
+      1951 |   const layout = onLayoutChange.mock.calls[0][0];
+      1952 |   const item0 = layout.find(item => item.i === "0");
+      1953 |   expect(item0).toBeDefined();
+
+      at Object.toHaveBeenCalledTimes (test/spec/lifecycle-test.js:1950:26)
+
 PASS test/spec/fast-horizontal-compactor-test.js
   ● Console
 
     console.log
       
         With static items (200 items, 20 static):
-          Standard: 12.45ms
+          Standard: 10.26ms
           Fast:     0.55ms
-          Speedup:  22.83x
+          Speedup:  18.61x
 
       at Object.log (test/spec/fast-horizontal-compactor-test.js:328:15)
 
@@ -85,10 +102,10 @@ PASS test/spec/fast-horizontal-compactor-test.js
       ├──────────────────────────────────────────────────────────────────────────────────┤
       │ Items    │ Standard Horizontal   │ Fast Horizontal       │ Speedup              │
       ├──────────┼───────────────────────┼───────────────────────┼──────────────────────┤
-      │ 50       │               1.38 ms │             287.62 µs │   4.78x faster     │
-      │ 100      │               5.39 ms │             437.38 µs │  12.33x faster     │
-      │ 200      │              15.85 ms │             362.02 µs │  43.79x faster     │
-      │ 500      │              89.78 ms │               1.34 ms │  66.89x faster     │
+      │ 50       │               2.08 ms │             383.44 µs │   5.42x faster     │
+      │ 100      │               4.96 ms │             427.46 µs │  11.60x faster     │
+      │ 200      │              14.87 ms │             323.59 µs │  45.95x faster     │
+      │ 500      │              96.10 ms │               1.27 ms │  75.73x faster     │
       └──────────────────────────────────────────────────────────────────────────────────┘
 
       at Object.log (test/spec/fast-horizontal-compactor-test.js:284:15)
@@ -112,8 +129,8 @@ PASS test/spec/fast-horizontal-compactor-test.js
       
         Compaction width comparison (50 random layouts):
           Fast better: 0
-          Standard better: 1
-          Equal: 49
+          Standard better: 0
+          Equal: 50
 
       at Object.log (test/spec/fast-horizontal-compactor-test.js:517:15)
 
@@ -126,31 +143,14 @@ PASS test/spec/fast-horizontal-compactor-test.js
 
       at Object.log (test/spec/fast-horizontal-compactor-test.js:600:15)
 
-PASS test/spec/compactors-test.ts
-PASS test/spec/wrapCompactor-test.ts
 PASS test/spec/constraints-test.ts
-FAIL test/spec/lifecycle-test.js
-  ● Lifecycle tests › <ReactGridLayout> › Resizing › preventCollision=true and no compaction › Does not allow elements to move when resizing with no free space
-
-    expect(jest.fn()).toHaveBeenCalledTimes(expected)
-
-    Expected number of calls: 1
-    Received number of calls: 0
-
-      1948 |   // Layout should be called but item 0 should not be able to expand
-      1949 |   // because item 1 is blocking it
-    > 1950 |   expect(onLayoutChange).toHaveBeenCalledTimes(1);
-           |                          ^
-      1951 |   const layout = onLayoutChange.mock.calls[0][0];
-      1952 |   const item0 = layout.find(item => item.i === "0");
-      1953 |   expect(item0).toBeDefined();
-
-      at Object.toHaveBeenCalledTimes (test/spec/lifecycle-test.js:1950:26)
-
-PASS test/spec/static-compaction.test.ts
+PASS test/spec/utils-test.js
+PASS test/spec/wrapCompactor-test.ts
+PASS test/spec/compactors-test.ts
 PASS test/spec/margin-consistency.test.ts
+PASS test/spec/static-compaction.test.ts
 PASS test/spec/drop-alignment.test.ts
-PASS test/spec/benchmark-test.js (10.188 s)
+PASS test/spec/benchmark-test.js (13.786 s)
   ● Console
 
     console.log
@@ -162,39 +162,39 @@ PASS test/spec/benchmark-test.js (10.188 s)
       ├───────────────────────────────────────────────────┼────────────────┤
       │ COMPACTION                                        │                │
       ├───────────────────────────────────────────────────┼────────────────┤
-      │   compact vertical 100 items                      │        3.82 ms │
-      │   compact horizontal 100 items                    │        6.26 ms │
-      │   compact vertical 500 items                      │       39.61 ms │
-      │   compact horizontal 500 items                    │       75.15 ms │
-      │   compact vertical 1000 items                     │      171.99 ms │
-      │   compact horizontal 1000 items                   │      392.38 ms │
+      │   compact vertical 100 items                      │        3.81 ms │
+      │   compact horizontal 100 items                    │        4.43 ms │
+      │   compact vertical 500 items                      │       43.58 ms │
+      │   compact horizontal 500 items                    │      111.63 ms │
+      │   compact vertical 1000 items                     │      197.67 ms │
+      │   compact horizontal 1000 items                   │      342.33 ms │
       ├───────────────────────────────────────────────────┼────────────────┤
       │ MOVE                                              │                │
       ├───────────────────────────────────────────────────┼────────────────┤
-      │   element 100 items                               │       60.01 µs │
-      │   element 500 items                               │      305.64 µs │
+      │   element 100 items                               │       70.51 µs │
+      │   element 500 items                               │      309.31 µs │
       ├───────────────────────────────────────────────────┼────────────────┤
       │ SORT                                              │                │
       ├───────────────────────────────────────────────────┼────────────────┤
-      │   100 items                                       │       29.20 µs │
-      │   500 items                                       │      240.53 µs │
-      │   1000 items                                      │      533.69 µs │
+      │   100 items                                       │       31.35 µs │
+      │   500 items                                       │      250.69 µs │
+      │   1000 items                                      │      519.45 µs │
       ├───────────────────────────────────────────────────┼────────────────┤
       │ BOUNDS                                            │                │
       ├───────────────────────────────────────────────────┼────────────────┤
-      │   correct  100 items                              │       59.54 µs │
-      │   correct  500 items                              │      197.86 µs │
-      │   correct  1000 items                             │      134.08 µs │
+      │   correct  100 items                              │       61.19 µs │
+      │   correct  500 items                              │      202.93 µs │
+      │   correct  1000 items                             │      138.17 µs │
       ├───────────────────────────────────────────────────┼────────────────┤
       │ RENDER                                            │                │
       ├───────────────────────────────────────────────────┼────────────────┤
-      │   50 items                                        │       34.72 ms │
-      │   100 items                                       │       58.50 ms │
-      │   200 items                                       │       88.05 ms │
+      │   50 items                                        │       36.46 ms │
+      │   100 items                                       │       56.03 ms │
+      │   200 items                                       │       92.40 ms │
       ├───────────────────────────────────────────────────┼────────────────┤
       │ SIMULATION                                        │                │
       ├───────────────────────────────────────────────────┼────────────────┤
-      │   drag  100 items 20 steps                        │       12.72 ms │
+      │   drag  100 items 20 steps                        │       13.00 ms │
       ├───────────────────────────────────────────────────┼────────────────┤
       └────────────────────────────────────────────────────────────────────┘
 
@@ -204,7 +204,7 @@ PASS test/spec/benchmark-test.js (10.188 s)
 Test Suites: 1 failed, 14 passed, 15 total
 Tests:       1 failed, 8 skipped, 516 passed, 525 total
 Snapshots:   2 passed, 2 total
-Time:        13.281 s
+Time:        22.313 s
 Ran all test suites.
 
 --------------------------------------------------------------------------------

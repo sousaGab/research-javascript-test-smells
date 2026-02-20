@@ -603,6 +603,58 @@ file,type,line,method,methodStart,methodEnd,source
     expect(linkedList.head).toBeNull();
     expect(linkedList.tail).toBeNull();
   })",128,152,snuts
+/src/data-structures/hash-table/__test__/HashTable.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should create hash table of certain size', () => {
+    const defaultHashTable = new HashTable();
+    expect(defaultHashTable.buckets.length).toBe(32);
+
+    const biggerHashTable = new HashTable(64);
+    expect(biggerHashTable.buckets.length).toBe(64);
+  })",4,10,snuts
+/src/data-structures/hash-table/__test__/HashTable.test.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should create hash table of certain size', () => {
+    const defaultHashTable = new HashTable();
+    expect(defaultHashTable.buckets.length).toBe(32);
+
+    const biggerHashTable = new HashTable(64);
+    expect(biggerHashTable.buckets.length).toBe(64);
+  })",4,10,snuts
+/src/data-structures/hash-table/__test__/HashTable.test.js,VerboseStatement,"{'startLine':20,'endLine':57}","it('should set, read and delete data with collisions', () => {
+    const hashTable = new HashTable(3);
+
+    expect(hashTable.hash('a')).toBe(1);
+    expect(hashTable.hash('b')).toBe(2);
+    expect(hashTable.hash('c')).toBe(0);
+    expect(hashTable.hash('d')).toBe(1);
+
+    hashTable.set('a', 'sky-old');
+    hashTable.set('a', 'sky');
+    hashTable.set('b', 'sea');
+    hashTable.set('c', 'earth');
+    hashTable.set('d', 'ocean');
+
+    expect(hashTable.has('x')).toBe(false);
+    expect(hashTable.has('b')).toBe(true);
+    expect(hashTable.has('c')).toBe(true);
+
+    const stringifier = (value) => `${value.key}:${value.value}`;
+
+    expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
+    expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
+    expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
+
+    expect(hashTable.get('a')).toBe('sky');
+    expect(hashTable.get('d')).toBe('ocean');
+    expect(hashTable.get('x')).not.toBeDefined();
+
+    expect(hashTable.delete('a')).not.toBeNull();
+
+    expect(hashTable.delete('not-existing')).toBeNull();
+
+    expect(hashTable.get('a')).not.toBeDefined();
+    expect(hashTable.get('d')).toBe('ocean');
+
+    hashTable.set('d', 'ocean-new');
+    expect(hashTable.get('d')).toBe('ocean-new');
+  })",20,57,snuts
 /src/data-structures/heap/__test__/MinHeapAdhoc.test.js,SubOptimalAssert,"{'startLine':8,'endLine':8}","it('should create an empty min heap', () => {
     const minHeap = new MinHeapAdhoc();
 
@@ -1034,57 +1086,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(maxHeap.remove(7).toString()).toEqual('8');
     expect(maxHeap.remove(8).toString()).toEqual('');
   })",126,150,snuts
-/src/data-structures/hash-table/__test__/HashTable.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should create hash table of certain size', () => {
-    const defaultHashTable = new HashTable();
-    expect(defaultHashTable.buckets.length).toBe(32);
-
-    const biggerHashTable = new HashTable(64);
-    expect(biggerHashTable.buckets.length).toBe(64);
-  })",4,10,snuts
-/src/data-structures/hash-table/__test__/HashTable.test.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should create hash table of certain size', () => {
-    const defaultHashTable = new HashTable();
-    expect(defaultHashTable.buckets.length).toBe(32);
-
-    const biggerHashTable = new HashTable(64);
-    expect(biggerHashTable.buckets.length).toBe(64);
-  })",4,10,snuts
-/src/data-structures/hash-table/__test__/HashTable.test.js,VerboseStatement,"{'startLine':20,'endLine':56}","it('should set, read and delete data with collisions', () => {
-    const hashTable = new HashTable(3);
-
-    expect(hashTable.hash('a')).toBe(1);
-    expect(hashTable.hash('b')).toBe(2);
-    expect(hashTable.hash('c')).toBe(0);
-    expect(hashTable.hash('d')).toBe(1);
-
-    hashTable.set('a', 'sky-old');
-    hashTable.set('a', 'sky');
-    hashTable.set('b', 'sea');
-    hashTable.set('c', 'earth');
-    hashTable.set('d', 'ocean');
-
-    expect(hashTable.has('x')).toBe(false);
-    expect(hashTable.has('b')).toBe(true);
-    expect(hashTable.has('c')).toBe(true);
-
-    const stringifier = (value) => `${value.key}:${value.value}`;
-
-    expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
-    expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
-    expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
-
-    expect(hashTable.get('a')).toBe('sky');
-    expect(hashTable.get('d')).toBe('ocean');
-    expect(hashTable.get('x')).not.toBeDefined();
-
-    expect(hashTable.delete('a')).toBeDefined();
-    expect(hashTable.delete('not-existing')).toBeNull();
-
-    expect(hashTable.get('a')).not.toBeDefined();
-    expect(hashTable.get('d')).toBe('ocean');
-
-    hashTable.set('d', 'ocean-new');
-    expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,56,snuts
 /src/data-structures/graph/__test__/GraphVertex.test.js,SubOptimalAssert,"{'startLine':36,'endLine':36}","it('should add edges to vertex and check if it exists', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -4892,6 +4893,38 @@ file,type,line,method,methodStart,methodEnd,source
     const permutations4 = permutateWithRepetitions(['A', 'B', 'C', 'D']);
     expect(permutations4.length).toBe(4 * 4 * 4 * 4);
   })",4,51,snuts
+/src/algorithms/sets/longest-increasing-subsequence/__test__/dpLongestIncreasingSubsequence.test.js,OvercommentedTest,"{'startLine':4,'endLine':35}","it('should find longest increasing subsequence length', () => {
+    // Should be:
+    // 9 or
+    // 8 or
+    // 7 or
+    // 6 or
+    // ...
+    expect(dpLongestIncreasingSubsequence([
+      9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+    ])).toBe(1);
+
+    // Should be:
+    // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    expect(dpLongestIncreasingSubsequence([
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+    ])).toBe(10);
+
+    // Should be:
+    // -1, 0, 2, 3
+    expect(dpLongestIncreasingSubsequence([
+      3, 4, -1, 0, 6, 2, 3,
+    ])).toBe(4);
+
+    // Should be:
+    // 0, 2, 6, 9, 11, 15 or
+    // 0, 4, 6, 9, 11, 15 or
+    // 0, 2, 6, 9, 13, 15 or
+    // 0, 4, 6, 9, 13, 15
+    expect(dpLongestIncreasingSubsequence([
+      0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15,
+    ])).toBe(6);
+  })",4,35,snuts
 /src/algorithms/sets/knapsack-problem/__test__/KnapsackItem.test.js,VerboseStatement,"{'startLine':4,'endLine':34}","it('should create knapsack item and count its total weight and value', () => {
     const knapsackItem = new KnapsackItem({ value: 3, weight: 2 });
 
@@ -5476,38 +5509,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(squareRoot(473, tolerance)).toBe(21.7485631709);
     expect(squareRoot(14723, tolerance)).toBe(121.3383698588);
   })",24,63,snuts
-/src/algorithms/sets/longest-increasing-subsequence/__test__/dpLongestIncreasingSubsequence.test.js,OvercommentedTest,"{'startLine':4,'endLine':35}","it('should find longest increasing subsequence length', () => {
-    // Should be:
-    // 9 or
-    // 8 or
-    // 7 or
-    // 6 or
-    // ...
-    expect(dpLongestIncreasingSubsequence([
-      9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
-    ])).toBe(1);
-
-    // Should be:
-    // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-    expect(dpLongestIncreasingSubsequence([
-      0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-    ])).toBe(10);
-
-    // Should be:
-    // -1, 0, 2, 3
-    expect(dpLongestIncreasingSubsequence([
-      3, 4, -1, 0, 6, 2, 3,
-    ])).toBe(4);
-
-    // Should be:
-    // 0, 2, 6, 9, 11, 15 or
-    // 0, 4, 6, 9, 11, 15 or
-    // 0, 2, 6, 9, 13, 15 or
-    // 0, 4, 6, 9, 13, 15
-    expect(dpLongestIncreasingSubsequence([
-      0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15,
-    ])).toBe(6);
-  })",4,35,snuts
 /src/algorithms/math/prime-factors/__test__/primeFactors.test.js,VerboseStatement,"{'startLine':17,'endLine':37}","it('should find prime factors', () => {
     expect(primeFactors(1)).toEqual([]);
     expect(primeFactors(2)).toEqual([2]);
@@ -6120,225 +6121,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(components[3][1].getKey()).toBe(vertexF.getKey());
     expect(components[3][2].getKey()).toBe(vertexE.getKey());
   })",38,101,snuts
-/src/algorithms/graph/prim/__test__/prim.test.js,SubOptimalAssert,"{'startLine':56,'endLine':56}","it('should find minimum spanning tree', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB, 2);
-    const edgeAD = new GraphEdge(vertexA, vertexD, 3);
-    const edgeAC = new GraphEdge(vertexA, vertexC, 3);
-    const edgeBC = new GraphEdge(vertexB, vertexC, 4);
-    const edgeBE = new GraphEdge(vertexB, vertexE, 3);
-    const edgeDF = new GraphEdge(vertexD, vertexF, 7);
-    const edgeEC = new GraphEdge(vertexE, vertexC, 1);
-    const edgeEF = new GraphEdge(vertexE, vertexF, 8);
-    const edgeFG = new GraphEdge(vertexF, vertexG, 9);
-    const edgeFC = new GraphEdge(vertexF, vertexC, 6);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeAD)
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeBE)
-      .addEdge(edgeDF)
-      .addEdge(edgeEC)
-      .addEdge(edgeEF)
-      .addEdge(edgeFC)
-      .addEdge(edgeFG);
-
-    expect(graph.getWeight()).toEqual(46);
-
-    const minimumSpanningTree = prim(graph);
-
-    expect(minimumSpanningTree.getWeight()).toBe(24);
-    expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
-    expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
-    expect(minimumSpanningTree.toString()).toBe('A,B,C,E,D,F,G');
-  })",17,59,snuts
-/src/algorithms/graph/prim/__test__/prim.test.js,SubOptimalAssert,"{'startLine':57,'endLine':57}","it('should find minimum spanning tree', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB, 2);
-    const edgeAD = new GraphEdge(vertexA, vertexD, 3);
-    const edgeAC = new GraphEdge(vertexA, vertexC, 3);
-    const edgeBC = new GraphEdge(vertexB, vertexC, 4);
-    const edgeBE = new GraphEdge(vertexB, vertexE, 3);
-    const edgeDF = new GraphEdge(vertexD, vertexF, 7);
-    const edgeEC = new GraphEdge(vertexE, vertexC, 1);
-    const edgeEF = new GraphEdge(vertexE, vertexF, 8);
-    const edgeFG = new GraphEdge(vertexF, vertexG, 9);
-    const edgeFC = new GraphEdge(vertexF, vertexC, 6);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeAD)
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeBE)
-      .addEdge(edgeDF)
-      .addEdge(edgeEC)
-      .addEdge(edgeEF)
-      .addEdge(edgeFC)
-      .addEdge(edgeFG);
-
-    expect(graph.getWeight()).toEqual(46);
-
-    const minimumSpanningTree = prim(graph);
-
-    expect(minimumSpanningTree.getWeight()).toBe(24);
-    expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
-    expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
-    expect(minimumSpanningTree.toString()).toBe('A,B,C,E,D,F,G');
-  })",17,59,snuts
-/src/algorithms/graph/prim/__test__/prim.test.js,SubOptimalAssert,"{'startLine':87,'endLine':87}","it('should find minimum spanning tree for simple graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB, 1);
-    const edgeAD = new GraphEdge(vertexA, vertexD, 3);
-    const edgeBC = new GraphEdge(vertexB, vertexC, 1);
-    const edgeBD = new GraphEdge(vertexB, vertexD, 3);
-    const edgeCD = new GraphEdge(vertexC, vertexD, 1);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeAD)
-      .addEdge(edgeBC)
-      .addEdge(edgeBD)
-      .addEdge(edgeCD);
-
-    expect(graph.getWeight()).toEqual(9);
-
-    const minimumSpanningTree = prim(graph);
-
-    expect(minimumSpanningTree.getWeight()).toBe(3);
-    expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
-    expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
-    expect(minimumSpanningTree.toString()).toBe('A,B,C,D');
-  })",61,90,snuts
-/src/algorithms/graph/prim/__test__/prim.test.js,SubOptimalAssert,"{'startLine':88,'endLine':88}","it('should find minimum spanning tree for simple graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB, 1);
-    const edgeAD = new GraphEdge(vertexA, vertexD, 3);
-    const edgeBC = new GraphEdge(vertexB, vertexC, 1);
-    const edgeBD = new GraphEdge(vertexB, vertexD, 3);
-    const edgeCD = new GraphEdge(vertexC, vertexD, 1);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeAD)
-      .addEdge(edgeBC)
-      .addEdge(edgeBD)
-      .addEdge(edgeCD);
-
-    expect(graph.getWeight()).toEqual(9);
-
-    const minimumSpanningTree = prim(graph);
-
-    expect(minimumSpanningTree.getWeight()).toBe(3);
-    expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
-    expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
-    expect(minimumSpanningTree.toString()).toBe('A,B,C,D');
-  })",61,90,snuts
-/src/algorithms/graph/prim/__test__/prim.test.js,VerboseStatement,"{'startLine':17,'endLine':59}","it('should find minimum spanning tree', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB, 2);
-    const edgeAD = new GraphEdge(vertexA, vertexD, 3);
-    const edgeAC = new GraphEdge(vertexA, vertexC, 3);
-    const edgeBC = new GraphEdge(vertexB, vertexC, 4);
-    const edgeBE = new GraphEdge(vertexB, vertexE, 3);
-    const edgeDF = new GraphEdge(vertexD, vertexF, 7);
-    const edgeEC = new GraphEdge(vertexE, vertexC, 1);
-    const edgeEF = new GraphEdge(vertexE, vertexF, 8);
-    const edgeFG = new GraphEdge(vertexF, vertexG, 9);
-    const edgeFC = new GraphEdge(vertexF, vertexC, 6);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeAD)
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeBE)
-      .addEdge(edgeDF)
-      .addEdge(edgeEC)
-      .addEdge(edgeEF)
-      .addEdge(edgeFC)
-      .addEdge(edgeFG);
-
-    expect(graph.getWeight()).toEqual(46);
-
-    const minimumSpanningTree = prim(graph);
-
-    expect(minimumSpanningTree.getWeight()).toBe(24);
-    expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
-    expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
-    expect(minimumSpanningTree.toString()).toBe('A,B,C,E,D,F,G');
-  })",17,59,snuts
-/src/algorithms/graph/prim/__test__/prim.test.js,VerboseStatement,"{'startLine':61,'endLine':90}","it('should find minimum spanning tree for simple graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB, 1);
-    const edgeAD = new GraphEdge(vertexA, vertexD, 3);
-    const edgeBC = new GraphEdge(vertexB, vertexC, 1);
-    const edgeBD = new GraphEdge(vertexB, vertexD, 3);
-    const edgeCD = new GraphEdge(vertexC, vertexD, 1);
-
-    const graph = new Graph();
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeAD)
-      .addEdge(edgeBC)
-      .addEdge(edgeBD)
-      .addEdge(edgeCD);
-
-    expect(graph.getWeight()).toEqual(9);
-
-    const minimumSpanningTree = prim(graph);
-
-    expect(minimumSpanningTree.getWeight()).toBe(3);
-    expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
-    expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
-    expect(minimumSpanningTree.toString()).toBe('A,B,C,D');
-  })",61,90,snuts
 /src/algorithms/graph/kruskal/__test__/kruskal.test.js,SubOptimalAssert,"{'startLine':56,'endLine':56}","it('should find minimum spanning tree', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -6552,6 +6334,225 @@ file,type,line,method,methodStart,methodEnd,source
     expect(graph.getWeight()).toEqual(9);
 
     const minimumSpanningTree = kruskal(graph);
+
+    expect(minimumSpanningTree.getWeight()).toBe(3);
+    expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
+    expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
+    expect(minimumSpanningTree.toString()).toBe('A,B,C,D');
+  })",61,90,snuts
+/src/algorithms/graph/prim/__test__/prim.test.js,SubOptimalAssert,"{'startLine':56,'endLine':56}","it('should find minimum spanning tree', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB, 2);
+    const edgeAD = new GraphEdge(vertexA, vertexD, 3);
+    const edgeAC = new GraphEdge(vertexA, vertexC, 3);
+    const edgeBC = new GraphEdge(vertexB, vertexC, 4);
+    const edgeBE = new GraphEdge(vertexB, vertexE, 3);
+    const edgeDF = new GraphEdge(vertexD, vertexF, 7);
+    const edgeEC = new GraphEdge(vertexE, vertexC, 1);
+    const edgeEF = new GraphEdge(vertexE, vertexF, 8);
+    const edgeFG = new GraphEdge(vertexF, vertexG, 9);
+    const edgeFC = new GraphEdge(vertexF, vertexC, 6);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeAD)
+      .addEdge(edgeAC)
+      .addEdge(edgeBC)
+      .addEdge(edgeBE)
+      .addEdge(edgeDF)
+      .addEdge(edgeEC)
+      .addEdge(edgeEF)
+      .addEdge(edgeFC)
+      .addEdge(edgeFG);
+
+    expect(graph.getWeight()).toEqual(46);
+
+    const minimumSpanningTree = prim(graph);
+
+    expect(minimumSpanningTree.getWeight()).toBe(24);
+    expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
+    expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
+    expect(minimumSpanningTree.toString()).toBe('A,B,C,E,D,F,G');
+  })",17,59,snuts
+/src/algorithms/graph/prim/__test__/prim.test.js,SubOptimalAssert,"{'startLine':57,'endLine':57}","it('should find minimum spanning tree', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB, 2);
+    const edgeAD = new GraphEdge(vertexA, vertexD, 3);
+    const edgeAC = new GraphEdge(vertexA, vertexC, 3);
+    const edgeBC = new GraphEdge(vertexB, vertexC, 4);
+    const edgeBE = new GraphEdge(vertexB, vertexE, 3);
+    const edgeDF = new GraphEdge(vertexD, vertexF, 7);
+    const edgeEC = new GraphEdge(vertexE, vertexC, 1);
+    const edgeEF = new GraphEdge(vertexE, vertexF, 8);
+    const edgeFG = new GraphEdge(vertexF, vertexG, 9);
+    const edgeFC = new GraphEdge(vertexF, vertexC, 6);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeAD)
+      .addEdge(edgeAC)
+      .addEdge(edgeBC)
+      .addEdge(edgeBE)
+      .addEdge(edgeDF)
+      .addEdge(edgeEC)
+      .addEdge(edgeEF)
+      .addEdge(edgeFC)
+      .addEdge(edgeFG);
+
+    expect(graph.getWeight()).toEqual(46);
+
+    const minimumSpanningTree = prim(graph);
+
+    expect(minimumSpanningTree.getWeight()).toBe(24);
+    expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
+    expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
+    expect(minimumSpanningTree.toString()).toBe('A,B,C,E,D,F,G');
+  })",17,59,snuts
+/src/algorithms/graph/prim/__test__/prim.test.js,SubOptimalAssert,"{'startLine':87,'endLine':87}","it('should find minimum spanning tree for simple graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB, 1);
+    const edgeAD = new GraphEdge(vertexA, vertexD, 3);
+    const edgeBC = new GraphEdge(vertexB, vertexC, 1);
+    const edgeBD = new GraphEdge(vertexB, vertexD, 3);
+    const edgeCD = new GraphEdge(vertexC, vertexD, 1);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeAD)
+      .addEdge(edgeBC)
+      .addEdge(edgeBD)
+      .addEdge(edgeCD);
+
+    expect(graph.getWeight()).toEqual(9);
+
+    const minimumSpanningTree = prim(graph);
+
+    expect(minimumSpanningTree.getWeight()).toBe(3);
+    expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
+    expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
+    expect(minimumSpanningTree.toString()).toBe('A,B,C,D');
+  })",61,90,snuts
+/src/algorithms/graph/prim/__test__/prim.test.js,SubOptimalAssert,"{'startLine':88,'endLine':88}","it('should find minimum spanning tree for simple graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB, 1);
+    const edgeAD = new GraphEdge(vertexA, vertexD, 3);
+    const edgeBC = new GraphEdge(vertexB, vertexC, 1);
+    const edgeBD = new GraphEdge(vertexB, vertexD, 3);
+    const edgeCD = new GraphEdge(vertexC, vertexD, 1);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeAD)
+      .addEdge(edgeBC)
+      .addEdge(edgeBD)
+      .addEdge(edgeCD);
+
+    expect(graph.getWeight()).toEqual(9);
+
+    const minimumSpanningTree = prim(graph);
+
+    expect(minimumSpanningTree.getWeight()).toBe(3);
+    expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
+    expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
+    expect(minimumSpanningTree.toString()).toBe('A,B,C,D');
+  })",61,90,snuts
+/src/algorithms/graph/prim/__test__/prim.test.js,VerboseStatement,"{'startLine':17,'endLine':59}","it('should find minimum spanning tree', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB, 2);
+    const edgeAD = new GraphEdge(vertexA, vertexD, 3);
+    const edgeAC = new GraphEdge(vertexA, vertexC, 3);
+    const edgeBC = new GraphEdge(vertexB, vertexC, 4);
+    const edgeBE = new GraphEdge(vertexB, vertexE, 3);
+    const edgeDF = new GraphEdge(vertexD, vertexF, 7);
+    const edgeEC = new GraphEdge(vertexE, vertexC, 1);
+    const edgeEF = new GraphEdge(vertexE, vertexF, 8);
+    const edgeFG = new GraphEdge(vertexF, vertexG, 9);
+    const edgeFC = new GraphEdge(vertexF, vertexC, 6);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeAD)
+      .addEdge(edgeAC)
+      .addEdge(edgeBC)
+      .addEdge(edgeBE)
+      .addEdge(edgeDF)
+      .addEdge(edgeEC)
+      .addEdge(edgeEF)
+      .addEdge(edgeFC)
+      .addEdge(edgeFG);
+
+    expect(graph.getWeight()).toEqual(46);
+
+    const minimumSpanningTree = prim(graph);
+
+    expect(minimumSpanningTree.getWeight()).toBe(24);
+    expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
+    expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
+    expect(minimumSpanningTree.toString()).toBe('A,B,C,E,D,F,G');
+  })",17,59,snuts
+/src/algorithms/graph/prim/__test__/prim.test.js,VerboseStatement,"{'startLine':61,'endLine':90}","it('should find minimum spanning tree for simple graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB, 1);
+    const edgeAD = new GraphEdge(vertexA, vertexD, 3);
+    const edgeBC = new GraphEdge(vertexB, vertexC, 1);
+    const edgeBD = new GraphEdge(vertexB, vertexD, 3);
+    const edgeCD = new GraphEdge(vertexC, vertexD, 1);
+
+    const graph = new Graph();
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeAD)
+      .addEdge(edgeBC)
+      .addEdge(edgeBD)
+      .addEdge(edgeCD);
+
+    expect(graph.getWeight()).toEqual(9);
+
+    const minimumSpanningTree = prim(graph);
 
     expect(minimumSpanningTree.getWeight()).toBe(3);
     expect(minimumSpanningTree.getAllVertices().length).toBe(graph.getAllVertices().length);
@@ -49181,7 +49182,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('a')).not.toBeNull();
+
     expect(hashTable.delete('not-existing')).toBeNull();
 
     expect(hashTable.get('a')).not.toBeDefined();
@@ -49189,7 +49191,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,56,steel
+  })",20,57,steel
 /src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 45, 'column': 4, 'index': 1471}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
@@ -49218,7 +49220,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('a')).not.toBeNull();
+
     expect(hashTable.delete('not-existing')).toBeNull();
 
     expect(hashTable.get('a')).not.toBeDefined();
@@ -49226,7 +49229,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,56,steel
+  })",20,57,steel
 /src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 45, 'column': 4, 'index': 1471}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
@@ -49255,7 +49258,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('a')).not.toBeNull();
+
     expect(hashTable.delete('not-existing')).toBeNull();
 
     expect(hashTable.get('a')).not.toBeDefined();
@@ -49263,8 +49267,8 @@ file,type,line,method,methodStart,methodEnd,source
 
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,56,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 51, 'column': 4, 'index': 1675}","it('should set, read and delete data with collisions', () => {
+  })",20,57,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 52, 'column': 4, 'index': 1677}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49292,7 +49296,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('a')).not.toBeNull();
+
     expect(hashTable.delete('not-existing')).toBeNull();
 
     expect(hashTable.get('a')).not.toBeDefined();
@@ -49300,8 +49305,8 @@ file,type,line,method,methodStart,methodEnd,source
 
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,56,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 52, 'column': 4, 'index': 1725}","it('should set, read and delete data with collisions', () => {
+  })",20,57,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 53, 'column': 4, 'index': 1727}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49329,7 +49334,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('a')).not.toBeNull();
+
     expect(hashTable.delete('not-existing')).toBeNull();
 
     expect(hashTable.get('a')).not.toBeDefined();
@@ -49337,8 +49343,8 @@ file,type,line,method,methodStart,methodEnd,source
 
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,56,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 52, 'column': 4, 'index': 1725}","it('should set, read and delete data with collisions', () => {
+  })",20,57,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 53, 'column': 4, 'index': 1727}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49366,7 +49372,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('a')).not.toBeNull();
+
     expect(hashTable.delete('not-existing')).toBeNull();
 
     expect(hashTable.get('a')).not.toBeDefined();
@@ -49374,8 +49381,8 @@ file,type,line,method,methodStart,methodEnd,source
 
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,56,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 55, 'column': 4, 'index': 1809}","it('should set, read and delete data with collisions', () => {
+  })",20,57,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 56, 'column': 4, 'index': 1811}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
     expect(hashTable.hash('a')).toBe(1);
@@ -49403,7 +49410,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('a')).not.toBeNull();
+
     expect(hashTable.delete('not-existing')).toBeNull();
 
     expect(hashTable.get('a')).not.toBeDefined();
@@ -49411,8 +49419,8 @@ file,type,line,method,methodStart,methodEnd,source
 
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,56,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 79, 'column': 4, 'index': 2500}","it('should track actual keys', () => {
+  })",20,57,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 80, 'column': 4, 'index': 2502}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49430,8 +49438,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('a')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
-  })",69,87,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 80, 'column': 4, 'index': 2543}","it('should track actual keys', () => {
+  })",70,88,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 81, 'column': 4, 'index': 2545}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49449,8 +49457,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('a')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
-  })",69,87,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 80, 'column': 4, 'index': 2543}","it('should track actual keys', () => {
+  })",70,88,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 81, 'column': 4, 'index': 2545}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49468,8 +49476,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('a')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
-  })",69,87,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 84, 'column': 4, 'index': 2616}","it('should track actual keys', () => {
+  })",70,88,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 85, 'column': 4, 'index': 2618}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49487,8 +49495,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('a')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
-  })",69,87,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 86, 'column': 4, 'index': 2703}","it('should track actual keys', () => {
+  })",70,88,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 87, 'column': 4, 'index': 2705}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49506,8 +49514,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('a')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
-  })",69,87,steel
-/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 86, 'column': 4, 'index': 2703}","it('should track actual keys', () => {
+  })",70,88,steel
+/src/data-structures/hash-table/__test__/HashTable.test.js,Duplicate Assert,"{'line': 87, 'column': 4, 'index': 2705}","it('should track actual keys', () => {
     const hashTable = new HashTable(3);
 
     hashTable.set('a', 'sky-old');
@@ -49525,7 +49533,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.has('a')).toBe(false);
     expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
-  })",69,87,steel
+  })",70,88,steel
 /src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 6, 'column': 49, 'index': 221}","it('should create hash table of certain size', () => {
     const defaultHashTable = new HashTable();
     expect(defaultHashTable.buckets.length).toBe(32);
@@ -49589,7 +49597,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('a')).not.toBeNull();
+
     expect(hashTable.delete('not-existing')).toBeNull();
 
     expect(hashTable.get('a')).not.toBeDefined();
@@ -49597,7 +49606,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,56,steel
+  })",20,57,steel
 /src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 24, 'column': 37, 'index': 753}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
@@ -49626,7 +49635,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('a')).not.toBeNull();
+
     expect(hashTable.delete('not-existing')).toBeNull();
 
     expect(hashTable.get('a')).not.toBeDefined();
@@ -49634,7 +49644,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,56,steel
+  })",20,57,steel
 /src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 25, 'column': 37, 'index': 794}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
@@ -49663,7 +49673,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('a')).not.toBeNull();
+
     expect(hashTable.delete('not-existing')).toBeNull();
 
     expect(hashTable.get('a')).not.toBeDefined();
@@ -49671,7 +49682,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,56,steel
+  })",20,57,steel
 /src/data-structures/hash-table/__test__/HashTable.test.js,Magic Number,"{'line': 26, 'column': 37, 'index': 835}","it('should set, read and delete data with collisions', () => {
     const hashTable = new HashTable(3);
 
@@ -49700,7 +49711,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(hashTable.get('d')).toBe('ocean');
     expect(hashTable.get('x')).not.toBeDefined();
 
-    expect(hashTable.delete('a')).toBeDefined();
+    expect(hashTable.delete('a')).not.toBeNull();
+
     expect(hashTable.delete('not-existing')).toBeNull();
 
     expect(hashTable.get('a')).not.toBeDefined();
@@ -49708,7 +49720,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
-  })",20,56,steel
+  })",20,57,steel
 /src/data-structures/graph/__test__/GraphVertex.test.js,Duplicate Assert,"{'line': 51, 'column': 4, 'index': 1489}","it('should delete edges from vertex', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');

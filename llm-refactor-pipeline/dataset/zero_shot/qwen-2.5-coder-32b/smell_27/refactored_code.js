@@ -1,11 +1,12 @@
 it('should remove one item', function () {
-      const initialCount = 1
-      const expectedFinalCount = 1
-      const itemsToRemove = 1
+      const initialItemCount = 1
+      const expectedItemCountAfterAdd = 2
+      const itemsRemoved = 1
+      const expectedItemCountAfterRemove = 1
       
       list.add({ name: 'Jonas' })
-      expect(list.items.length).toEqual(initialCount + 1)
+      expect(list.items.length).toEqual(expectedItemCountAfterAdd)
       var count = list.remove('name', 'Jonas')
-      expect(count).toEqual(itemsToRemove)
-      expect(list.items.length).toEqual(expectedFinalCount)
+      expect(count).toEqual(itemsRemoved)
+      expect(list.items.length).toEqual(expectedItemCountAfterRemove)
     })

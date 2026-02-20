@@ -1,4 +1,4 @@
-it('Should stop propagating normal event to normal event', () => {
+it('Should stop propagating normal event to normal event', (done) => {
       const eventHandlerSpy = jasmine.createSpy('spy');
       const eventHandler = function (event) {
         eventHandlerSpy();
@@ -32,6 +32,10 @@ it('Should stop propagating normal event to normal event', () => {
 
       container.querySelector('#tester').click();
       
-      expect(eventHandlerSpy.calls.count()).toBe(1);
-      expect(eventHandlerSpy2.calls.count()).toBe(0);
+      // Use Promise-based approach to avoid sleep
+      Promise.resolve().then(() => {
+        expect(eventHandlerSpy.calls.count()).toBe(1);
+        expect(eventHandlerSpy2.calls.count()).toBe(0);
+        done();
+      });
     })

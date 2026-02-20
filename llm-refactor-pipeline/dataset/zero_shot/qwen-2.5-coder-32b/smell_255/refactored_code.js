@@ -3,13 +3,12 @@ it('should be triggered before and after sort', function (done) {
       var done2 = false
       list.on('sortStart', function (list) {
         done1 = true
-        if (done1 && done2) {
-          done()
-        }
+        expect(done1).toBe(true)
       })
       list.on('sortComplete', function (list) {
         done2 = true
-        if (done1 && done2) {
+        expect(done2).toBe(true)
+        if (done1) {
           done()
         }
       })

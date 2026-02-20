@@ -399,6 +399,51 @@ file,type,line,method,methodStart,methodEnd,source
   expect(formatString(Formats.DATETIME_HUGE_WITH_SECONDS)).toBe(""EEEE, LLLL d, yyyy, h:mm:ss a"");
   expect(formatString(""Default"")).toBe(""EEEE, LLLL d, yyyy, h:mm a"");
 })",83,107,snuts
+/test/duration/units.test.js,AnonymousTest,"{'startLine':166,'endLine':171}","test(""Duration#normalize de-overflows"", () => {
+  const dur = Duration.fromObject({ years: 2, days: 5000 }).normalize();
+  expect(dur.years).toBe(15);
+  expect(dur.days).toBe(255);
+  expect(dur.toObject()).toEqual({ years: 15, days: 255 });
+})",166,171,snuts
+/test/duration/parse.test.js,VerboseStatement,"{'startLine':23,'endLine':38}","test(""Duration.fromISO can parse mixed or negative durations"", () => {
+  check(""P-5Y-3M"", { years: -5, months: -3 });
+  check(""PT-54M32S"", { minutes: -54, seconds: 32 });
+  check(""P-3DT54M-32S"", { days: -3, minutes: 54, seconds: -32 });
+  check(""P1YT-34000S"", { years: 1, seconds: -34000 });
+  check(""P-1W1DT13H23M34S"", { weeks: -1, days: 1, hours: 13, minutes: 23, seconds: 34 });
+  check(""P-2W"", { weeks: -2 });
+  check(""-P1D"", { days: -1 });
+  check(""-P5Y3M"", { years: -5, months: -3 });
+  check(""-P-5Y-3M"", { years: 5, months: 3 });
+  check(""-P-1W1DT13H-23M34S"", { weeks: 1, days: -1, hours: -13, minutes: 23, seconds: -34 });
+  check(""PT-1.5S"", { seconds: -1, milliseconds: -500 });
+  check(""PT-0.5S"", { seconds: 0, milliseconds: -500 });
+  check(""PT1.5S"", { seconds: 1, milliseconds: 500 });
+  check(""PT0.5S"", { seconds: 0, milliseconds: 500 });
+})",23,38,snuts
+/test/duration/invalid.test.js,AnonymousTest,"{'startLine':12,'endLine':19}","test(""throwOnInvalid throws"", () => {
+  try {
+    Settings.throwOnInvalid = true;
+    expect(() => Duration.invalid(""because"")).toThrow();
+  } finally {
+    Settings.throwOnInvalid = false;
+  }
+})",12,19,snuts
+/test/duration/format.test.js,SubOptimalAssert,"{'startLine':60,'endLine':60}","test(""Duration#toISO returns null for invalid durations"", () => {
+  expect(Duration.invalid(""because"").toISO()).toBe(null);
+})",59,61,snuts
+/test/duration/format.test.js,SubOptimalAssert,"{'startLine':116,'endLine':116}","test(""Duration#toISOTime returns null if the value is outside the range of one day"", () => {
+  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
+  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
+})",115,118,snuts
+/test/duration/format.test.js,SubOptimalAssert,"{'startLine':117,'endLine':117}","test(""Duration#toISOTime returns null if the value is outside the range of one day"", () => {
+  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
+  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
+})",115,118,snuts
+/test/duration/equality.test.js,AnonymousTest,"{'startLine':4,'endLine':7}","test(""equals self"", () => {
+  const l = Duration.fromObject({ years: 5, days: 6 });
+  expect(l.equals(l)).toBe(true);
+})",4,7,snuts
 /test/datetime/zone.test.js,SubOptimalAssert,"{'startLine':218,'endLine':218}","test(""DateTime#setZone handles negative years"", () => {
   const dt = DateTime.fromMillis(-84753824400000).setZone(""Europe/Rome"");
   expect(dt.year).toBe(-716);
@@ -1518,51 +1563,6 @@ file,type,line,method,methodStart,methodEnd,source
   expect(dt.month).toBe(1);
   expect(dt.day).toBe(1);
 })",690,712,snuts
-/test/duration/units.test.js,AnonymousTest,"{'startLine':166,'endLine':171}","test(""Duration#normalize de-overflows"", () => {
-  const dur = Duration.fromObject({ years: 2, days: 5000 }).normalize();
-  expect(dur.years).toBe(15);
-  expect(dur.days).toBe(255);
-  expect(dur.toObject()).toEqual({ years: 15, days: 255 });
-})",166,171,snuts
-/test/duration/parse.test.js,VerboseStatement,"{'startLine':23,'endLine':38}","test(""Duration.fromISO can parse mixed or negative durations"", () => {
-  check(""P-5Y-3M"", { years: -5, months: -3 });
-  check(""PT-54M32S"", { minutes: -54, seconds: 32 });
-  check(""P-3DT54M-32S"", { days: -3, minutes: 54, seconds: -32 });
-  check(""P1YT-34000S"", { years: 1, seconds: -34000 });
-  check(""P-1W1DT13H23M34S"", { weeks: -1, days: 1, hours: 13, minutes: 23, seconds: 34 });
-  check(""P-2W"", { weeks: -2 });
-  check(""-P1D"", { days: -1 });
-  check(""-P5Y3M"", { years: -5, months: -3 });
-  check(""-P-5Y-3M"", { years: 5, months: 3 });
-  check(""-P-1W1DT13H-23M34S"", { weeks: 1, days: -1, hours: -13, minutes: 23, seconds: -34 });
-  check(""PT-1.5S"", { seconds: -1, milliseconds: -500 });
-  check(""PT-0.5S"", { seconds: 0, milliseconds: -500 });
-  check(""PT1.5S"", { seconds: 1, milliseconds: 500 });
-  check(""PT0.5S"", { seconds: 0, milliseconds: 500 });
-})",23,38,snuts
-/test/duration/invalid.test.js,AnonymousTest,"{'startLine':12,'endLine':19}","test(""throwOnInvalid throws"", () => {
-  try {
-    Settings.throwOnInvalid = true;
-    expect(() => Duration.invalid(""because"")).toThrow();
-  } finally {
-    Settings.throwOnInvalid = false;
-  }
-})",12,19,snuts
-/test/duration/format.test.js,SubOptimalAssert,"{'startLine':60,'endLine':60}","test(""Duration#toISO returns null for invalid durations"", () => {
-  expect(Duration.invalid(""because"").toISO()).toBe(null);
-})",59,61,snuts
-/test/duration/format.test.js,SubOptimalAssert,"{'startLine':116,'endLine':116}","test(""Duration#toISOTime returns null if the value is outside the range of one day"", () => {
-  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
-  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
-})",115,118,snuts
-/test/duration/format.test.js,SubOptimalAssert,"{'startLine':117,'endLine':117}","test(""Duration#toISOTime returns null if the value is outside the range of one day"", () => {
-  expect(Duration.fromObject({ hours: 24 }).toISOTime()).toBe(null);
-  expect(Duration.fromObject({ milliseconds: -1 }).toISOTime()).toBe(null);
-})",115,118,snuts
-/test/duration/equality.test.js,AnonymousTest,"{'startLine':4,'endLine':7}","test(""equals self"", () => {
-  const l = Duration.fromObject({ years: 5, days: 6 });
-  expect(l.equals(l)).toBe(true);
-})",4,7,snuts
 /test/duration/create.test.js,Duplicate Assert,"{'line': 116, 'column': 2, 'index': 3420}","it(""Duration.fromDurationLike returns a Duration from millis"", () => {
   const dur = Duration.fromDurationLike(1000);
   expect(dur).toBeInstanceOf(Duration);

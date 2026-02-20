@@ -1028,7 +1028,7 @@ file,type,line,method,methodStart,methodEnd,source
       assume(transports).length(1);
       assume(transports).contains(transport);
     })",107,112,snuts
-/test/unit/winston/transports/00-file-stress.test.js,ConditionalTestLogic,"{'startLine':136,'endLine':140}","it('should handle a high volume of large writes synchronous', function (done) {
+/test/unit/winston/transports/00-file-stress.test.js,ConditionalTestLogic,"{'startLine':135,'endLine':138}","it('should handle a high volume of large writes synchronous', function (done) {
     const logger = winston.createLogger({
       transports: [new winston.transports.File({
         filename: fileStressLogFile
@@ -1045,31 +1045,30 @@ file,type,line,method,methodStart,methodEnd,source
       message: 'a'.repeat(16384 - os.EOL.length - 1)
     }));
     
+    let fileReadComplete = false;
     let writeComplete = false;
-    let readComplete = false;
-    let doneCalled = false;
-
-    const checkDone = () => {
-      if (writeComplete && readComplete && !doneCalled) {
-        doneCalled = true;
+    
+    const checkCompletion = () => {
+      if (writeComplete && fileReadComplete) {
         logger.close();
         done();
       }
     };
 
     msgs.forEach(msg => logger.info(msg));
-
-    // Wait for writes to complete by listening to the logger's drain event
-    logger.on('finish', () => {
+    
+    // Use a more reliable way to detect when writes are complete
+    // Instead of fixed timeout, we'll use a more deterministic approach
+    process.nextTick(() => {
       writeComplete = true;
-      checkDone();
+      checkCompletion();
     });
 
-    // Handle file reading with proper error handling
     helpers.tryRead(fileStressLogFile)
       .on('error', function (err) {
+        assume(err).false();
         logger.close();
-        done(err);
+        done();
       })
       .pipe(split())
       .on('data', function (d) {
@@ -1079,11 +1078,11 @@ file,type,line,method,methodStart,methodEnd,source
         assume(json.counter).equal(++counters.read);
       })
       .on('end', function () {
-        readComplete = true;
         assume(counters.write).equal(counters.read);
-        checkDone();
+        fileReadComplete = true;
+        checkCompletion();
       });
-  })",114,169,snuts
+  })",114,168,snuts
 /test/helpers/index.js,NonFunctionalStatement,"{'startLine':121,'endLine':121}",Unknown,,,snuts
 /test/helpers/handler-tests.js,AnonymousTest,"{'startLine':36,'endLine':38}","it('.getProcessInfo()', function () {
       helpers.assertProcessInfo(handler.getProcessInfo());
@@ -3947,7 +3946,7 @@ file,type,line,method,methodStart,methodEnd,source
       if (ex && ex.code !== 'ENOENT') { return done(ex); }
     }
   })",23,29,steel
-/test/unit/winston/transports/00-file-stress.test.js,Conditional Test Logic,"{'line': 136, 'column': 6, 'index': 3436}","it('should handle a high volume of large writes synchronous', function (done) {
+/test/unit/winston/transports/00-file-stress.test.js,Conditional Test Logic,"{'line': 135, 'column': 6, 'index': 3422}","it('should handle a high volume of large writes synchronous', function (done) {
     const logger = winston.createLogger({
       transports: [new winston.transports.File({
         filename: fileStressLogFile
@@ -3964,31 +3963,30 @@ file,type,line,method,methodStart,methodEnd,source
       message: 'a'.repeat(16384 - os.EOL.length - 1)
     }));
     
+    let fileReadComplete = false;
     let writeComplete = false;
-    let readComplete = false;
-    let doneCalled = false;
-
-    const checkDone = () => {
-      if (writeComplete && readComplete && !doneCalled) {
-        doneCalled = true;
+    
+    const checkCompletion = () => {
+      if (writeComplete && fileReadComplete) {
         logger.close();
         done();
       }
     };
 
     msgs.forEach(msg => logger.info(msg));
-
-    // Wait for writes to complete by listening to the logger's drain event
-    logger.on('finish', () => {
+    
+    // Use a more reliable way to detect when writes are complete
+    // Instead of fixed timeout, we'll use a more deterministic approach
+    process.nextTick(() => {
       writeComplete = true;
-      checkDone();
+      checkCompletion();
     });
 
-    // Handle file reading with proper error handling
     helpers.tryRead(fileStressLogFile)
       .on('error', function (err) {
+        assume(err).false();
         logger.close();
-        done(err);
+        done();
       })
       .pipe(split())
       .on('data', function (d) {
@@ -3998,11 +3996,11 @@ file,type,line,method,methodStart,methodEnd,source
         assume(json.counter).equal(++counters.read);
       })
       .on('end', function () {
-        readComplete = true;
         assume(counters.write).equal(counters.read);
-        checkDone();
+        fileReadComplete = true;
+        checkCompletion();
       });
-  })",114,169,steel
+  })",114,168,steel
 /test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 47, 'column': 4, 'index': 1122}","it('should handle a high volume of writes', function (done) {
     const logger = winston.createLogger({
       transports: [new winston.transports.File({
@@ -4084,7 +4082,7 @@ file,type,line,method,methodStart,methodEnd,source
         });
     }, 10000);
   })",70,112,steel
-/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 190, 'column': 4, 'index': 4818}","it('should handle a high volume of writes with lazy option enabled', function (done) {
+/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 189, 'column': 4, 'index': 4818}","it('should handle a high volume of writes with lazy option enabled', function (done) {
     const logger = winston.createLogger({
       transports: [
         new winston.transports.File({
@@ -4125,7 +4123,7 @@ file,type,line,method,methodStart,methodEnd,source
           done();
         });
     }, 10000);
-  })",171,212,steel
+  })",170,211,steel
 /test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 31}","it('should handle a high volume of writes', function (done) {
     const logger = winston.createLogger({
       transports: [new winston.transports.File({
@@ -4224,31 +4222,30 @@ file,type,line,method,methodStart,methodEnd,source
       message: 'a'.repeat(16384 - os.EOL.length - 1)
     }));
     
+    let fileReadComplete = false;
     let writeComplete = false;
-    let readComplete = false;
-    let doneCalled = false;
-
-    const checkDone = () => {
-      if (writeComplete && readComplete && !doneCalled) {
-        doneCalled = true;
+    
+    const checkCompletion = () => {
+      if (writeComplete && fileReadComplete) {
         logger.close();
         done();
       }
     };
 
     msgs.forEach(msg => logger.info(msg));
-
-    // Wait for writes to complete by listening to the logger's drain event
-    logger.on('finish', () => {
+    
+    // Use a more reliable way to detect when writes are complete
+    // Instead of fixed timeout, we'll use a more deterministic approach
+    process.nextTick(() => {
       writeComplete = true;
-      checkDone();
+      checkCompletion();
     });
 
-    // Handle file reading with proper error handling
     helpers.tryRead(fileStressLogFile)
       .on('error', function (err) {
+        assume(err).false();
         logger.close();
-        done(err);
+        done();
       })
       .pipe(split())
       .on('data', function (d) {
@@ -4258,12 +4255,12 @@ file,type,line,method,methodStart,methodEnd,source
         assume(json.counter).equal(++counters.read);
       })
       .on('end', function () {
-        readComplete = true;
         assume(counters.write).equal(counters.read);
-        checkDone();
+        fileReadComplete = true;
+        checkCompletion();
       });
-  })",114,169,steel
-/test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 171}","it('should handle a high volume of writes with lazy option enabled', function (done) {
+  })",114,168,steel
+/test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 170}","it('should handle a high volume of writes with lazy option enabled', function (done) {
     const logger = winston.createLogger({
       transports: [
         new winston.transports.File({
@@ -4304,7 +4301,7 @@ file,type,line,method,methodStart,methodEnd,source
           done();
         });
     }, 10000);
-  })",171,212,steel
+  })",170,211,steel
 /test/unit/winston/config/config.test.js,Unknown Test,"{'column': 2, 'line': 13}","it('should have expected methods', function () {
     assume(winston.config).is.an('object');
     assume(winston.config.addColors).is.a('function');

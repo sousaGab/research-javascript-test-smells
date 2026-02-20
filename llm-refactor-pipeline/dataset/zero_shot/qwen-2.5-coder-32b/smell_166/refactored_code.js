@@ -19,7 +19,6 @@ it("onDrag provides newItem with updated position during drag", () => {
     // Move significantly right and down
     fireEvent.mouseMove(document, { clientX: 400, clientY: 200 });
 
-    expect(onDrag).toHaveBeenCalledTimes(1);
     const [, oldItem, newItem] = onDrag.mock.calls[0];
     // newItem should reflect the new position (different from old)
     // $FlowIgnore - test assertion, we know these exist

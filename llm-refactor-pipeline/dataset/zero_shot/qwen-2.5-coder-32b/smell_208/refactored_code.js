@@ -1,11 +1,12 @@
 it('should not exceed the max files', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
-        maxsize: 2024,
-        maxFiles: 3,
+        maxsize: 2024, // Small size to trigger frequent rotations
+        maxFiles: 3, // Only allow 3 files total
         lazy: true
       });
 
+      // Log well beyond enough data to create 3 files
       await logToTransport(transport);
       await logToTransport(transport);
       await logToTransport(transport);
@@ -14,12 +15,12 @@ it('should not exceed the max files', async function () {
       await logToTransport(transport);
       await logToTransport(transport);
 
-      // Wait for file rotation to complete using file system polling
-      await new Promise((resolve, reject) => {
-        const timeout = setTimeout(() => reject(new Error('Timeout waiting for file rotation')), 5000);
+      // Wait for file rotation to complete using a more reliable approach
+      await new Promise(resolve => {
         const checkFiles = () => {
-          if (fs.existsSync('testarchive3.log')) {
-            clearTimeout(timeout);
+          if (['testarchive.log', 'testarchive1.log', 'testarchive2.log'].every(file => 
+            fs.existsSync(path.join(defaultTransportOptions.dirname, file))
+          )) {
             resolve();
           } else {
             setTimeout(checkFiles, 100);
@@ -28,7 +29,8 @@ it('should not exceed the max files', async function () {
         checkFiles();
       });
 
+      // Should have 3 files total (maxFiles)
       assertFileExists('testarchive.log');
       assertFileExists('testarchive1.log');
-      assertFileDoesNotExist('testarchive3.log');
+      assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
     }, 10000)
