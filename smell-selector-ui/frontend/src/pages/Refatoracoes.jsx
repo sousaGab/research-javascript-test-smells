@@ -104,18 +104,19 @@ function RefFilter({ filters, filterOptions, onFilterChange, onClear, total }) {
         </select>
 
         <select
-          value={filters.ai_model}
+          value={filters.ai_model_version}
           onChange={e => {
-            const selected = filterOptions.ai_models.find(m => m.ai_tool === e.target.value);
+            const selectedVersion = e.target.value;
+            const selected = filterOptions.ai_models.find(m => m.ai_model_version === selectedVersion);
             onFilterChange({
-              ai_model: e.target.value,
-              ai_model_version: selected?.ai_model_version || '',
+              ai_model: selected?.ai_tool || '',
+              ai_model_version: selectedVersion,
             });
           }}
         >
           <option value="">All LLM models</option>
           {filterOptions.ai_models.map((m, i) => (
-            <option key={i} value={m.ai_tool}>{m.label} ({m.count})</option>
+            <option key={i} value={m.ai_model_version}>{m.label} ({m.count})</option>
           ))}
         </select>
 

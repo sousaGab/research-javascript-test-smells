@@ -934,7 +934,7 @@ NOTES:
         Create output directory structure for experiment.
         
         Returns:
-            Path to output directory (e.g., dataset/chain-of-thought/qwen-2.5-coder/smell_42/)
+            Path to output directory (e.g., dataset/cot/qwen-2.5-coder/smell_42/)
         """
         strategy_name = self._get_strategy_name(strategy_id)
         model_name = self._get_model_name(model_id)
@@ -945,13 +945,9 @@ NOTES:
         return output_dir
     
     def _get_strategy_name(self, strategy_id: int) -> str:
-        """Map strategy ID to directory name."""
-        mapping = {
-            1: "zero-shot",
-            2: "few-shot",
-            3: "chain-of-thought"
-        }
-        return mapping.get(strategy_id, f"strategy_{strategy_id}")
+        """Map strategy ID to directory name using PromptStrategy standard."""
+        strategy_key = PromptStrategy.get_strategy(strategy_id)
+        return strategy_key if strategy_key else f"strategy_{strategy_id}"
     
     def _get_model_name(self, model_id: int) -> str:
         """Map model ID to directory name (sanitized)."""

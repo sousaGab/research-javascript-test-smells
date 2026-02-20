@@ -128,7 +128,7 @@ execute_experiment --experiment-id 456 --phase execute
 execute_experiment 42 3 1 --phase refactor
 
 # 2. Revisar manualmente
-cat dataset/chain-of-thought/qwen-2.5-coder-32b/smell_42/refactored_code.js
+cat dataset/cot/qwen-2.5-coder-32b/smell_42/refactored_code.js
 
 # 3. Se OK, executar testes
 execute_experiment --experiment-id 123 --phase execute
@@ -189,7 +189,7 @@ Salvo em: `batch_summaries/refactor_manifest_s{strategy}_m{model}_{timestamp}.js
 
 Salvo em: `dataset/{strategy}/{model}/smell_{id}/refactored_code.js`
 
-Exemplo: `dataset/chain-of-thought/qwen-2.5-coder-32b/smell_42/refactored_code.js`
+Exemplo: `dataset/cot/qwen-2.5-coder-32b/smell_42/refactored_code.js`
 
 ---
 
@@ -272,7 +272,7 @@ batch_experiments 3 1 --phase refactor --limit 5 --dry-run
 batch_experiments 3 1 --phase refactor --limit 5 --verbose
 
 # Verificar arquivos criados
-ls -la dataset/chain-of-thought/qwen-2.5-coder-32b/smell_*/refactored_code.js
+ls -la dataset/cot/qwen-2.5-coder-32b/smell_*/refactored_code.js
 
 # Verificar manifest
 cat batch_summaries/refactor_manifest_s3_m1_*.json

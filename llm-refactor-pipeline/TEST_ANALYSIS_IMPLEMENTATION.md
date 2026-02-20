@@ -162,7 +162,7 @@ Durante execução do experimento:
 
 ```
 🧪 [7.5/8] Analyzing test results changes...
-   ✓ Test analysis saved: dataset/zero-shot/claude-sonnet-4/smell_123/analysis/test_analysis.json
+   ✓ Test analysis saved: dataset/zero_shot/claude-sonnet-4/smell_123/analysis/test_analysis.json
    ✓ Coverage changed: True
    ✓ Test counts changed: False
    → Coverage improvements: statements, lines
