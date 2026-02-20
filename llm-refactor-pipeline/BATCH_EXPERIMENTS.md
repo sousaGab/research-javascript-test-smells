@@ -26,6 +26,110 @@ python run_batch_experiments.py --list-pending --strategy 1 --model 1
 python run_batch_experiments.py --strategy 1 --model 1
 ```
 
+### **🆕 Modo Full-Prompt (NOVO): Executar todas as estratégias automaticamente**
+
+O modo `--full-prompt` é uma forma automatizada de executar **todas as 3 estratégias sequencialmente** (zero-shot → few-shot → CoT) com ambas as fases (refactor + execute) para um modelo específico.
+
+```bash
+# Executar todas as estratégias com modelo 1
+batch_experiments --full-prompt 1
+
+# Com limite de smells por estratégia
+batch_experiments --full-prompt 1 --limit 10
+
+# Começar a partir de um smell específico
+batch_experiments --full-prompt 1 --start-from 50
+```
+
+**Vantagens:**
+- ✅ **Um único comando** para cobertura experimental completa
+- ✅ **Automático**: executa refactor + execute para cada estratégia
+- ✅ **Sequencial**: Strategy 1 → Strategy 2 → Strategy 3
+- ✅ **Rastreável**: cria manifestos individuais para cada estratégia
+- ✅ **Resumível**: pode ser interrompido e retomado (pula já executados)
+- ✅ **Relatórios consolidados**: sumário completo de todas as estratégias
+
+**Comportamento:**
+1. Executa Strategy 1 (Zero-Shot):
+   - Refactor phase: gera código refatorado para todos os smells
+   - Execute phase: testa e detecta smells
+2. Executa Strategy 2 (Few-Shot):
+   - Refactor phase + Execute phase
+3. Executa Strategy 3 (Chain-of-Thought):
+   - Refactor phase + Execute phase
+
+**Exemplo de uso:**
+```bash
+# Rodar todas as estratégias com os primeiros 5 smells
+batch_experiments --full-prompt 1 --limit 5
+
+# Ver o que seria executado (dry-run)
+batch_experiments --full-prompt 1 --limit 5 --dry-run
+
+# Modo force: re-executar tudo
+batch_experiments --full-prompt 1 --force
+```
+
+**Output:**
+```
+================================================================================
+🚀 FULL-PROMPT BATCH EXECUTION
+================================================================================
+Model:         Qwen 2.5 Coder 32B (ID: 1)
+Strategies:    All (1: Zero-Shot, 2: Few-Shot, 3: Chain-of-Thought)
+Mode:          Sequential execution with both phases
+Start Time:    2026-02-20 14:30:00
+================================================================================
+
+################################################################################
+📊 STRATEGY 1/3: Zero-Shot
+################################################################################
+
+🤖 [Phase 1/2] Refactoring with Zero-Shot...
+... (progress) ...
+
+🧪 [Phase 2/2] Testing and detecting with Zero-Shot...
+... (progress) ...
+
+✅ Strategy 1 completed in 45.2 minutes
+   Refactored: 246, Executed: 246, Failed: 5
+
+... (repete para strategies 2 e 3) ...
+
+================================================================================
+📊 FULL-PROMPT EXECUTION SUMMARY
+================================================================================
+Model:              Qwen 2.5 Coder 32B
+Strategies:         3/3 completed
+Total Refactored:   738
+Total Executed:     738
+Total Failed:       15
+⏱️  Total Time:       135.6 minutes
+
+STRATEGY BREAKDOWN:
+  [1] Zero-Shot:
+      Refactored: 246, Executed: 246, Failed: 5
+      Time: 45.2 minutes
+  [2] Few-Shot:
+      Refactored: 246, Executed: 246, Failed: 4
+      Time: 48.1 minutes
+  [3] Chain-of-Thought:
+      Refactored: 246, Executed: 246, Failed: 6
+      Time: 42.3 minutes
+================================================================================
+```
+
+**Manifests criados:**
+- `batch_summaries/refactor_manifest_s1_m1_TIMESTAMP.json`
+- `batch_summaries/refactor_manifest_s2_m1_TIMESTAMP.json`
+- `batch_summaries/refactor_manifest_s3_m1_TIMESTAMP.json`
+- `batch_summaries/batch_summary_full_prompt_m1_TIMESTAMP.txt` (sumário consolidado)
+
+**⚠️ Nota sobre --phase:**
+O flag `--phase` é **ignorado** no modo `--full-prompt`, pois sempre executa ambas as fases automaticamente.
+
+---
+
 ## 📊 Estratégias e Modelos
 
 ### Estratégias (--strategy)
@@ -184,16 +288,33 @@ python run_batch_experiments.py --list-pending --strategy 1 --model 1
 ```
 
 ### Executar diferentes combinações
+
+**🆕 Forma mais fácil: modo --full-prompt**
+```bash
+# Executa todas as 3 estratégias automaticamente com modelo 1
+batch_experiments --full-prompt 1
+
+# Com modelo 2
+batch_experiments --full-prompt 2
+```
+
+**Forma tradicional (manual):**
 ```bash
 # Estratégia 1 com todos os modelos
 python run_batch_experiments.py --strategy 1 --model 1
 python run_batch_experiments.py --strategy 1 --model 2
 python run_batch_experiments.py --strategy 1 --model 3
 
-# Todos as estratégias com modelo 1
-python run_batch_experiments.py --strategy 1 --model 1
-python run_batch_experiments.py --strategy 2 --model 1
-python run_batch_experiments.py --strategy 3 --model 1
+# Todas as estratégias com modelo 1 (6 comandos no total)
+python run_batch_experiments.py --strategy 1 --model 1 --phase refactor
+python run_batch_experiments.py --strategy 1 --model 1 --phase execute
+python run_batch_experiments.py --strategy 2 --model 1 --phase refactor
+python run_batch_experiments.py --strategy 2 --model 1 --phase execute
+python run_batch_experiments.py --strategy 3 --model 1 --phase refactor
+python run_batch_experiments.py --strategy 3 --model 1 --phase execute
+
+# Simplificado com modo --full-prompt (1 comando)
+batch_experiments --full-prompt 1
 ```
 
 ## ⚠️ Avisos

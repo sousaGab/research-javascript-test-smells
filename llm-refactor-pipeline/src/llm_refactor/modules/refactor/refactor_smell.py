@@ -297,7 +297,7 @@ NOTE:
         """Get refactored code from LLM."""
         client = HuggingFaceRefactorClient()
         
-        return client.refactor(
+        result = client.refactor(
             smell_name=smell_data['smell_type'],
             smell_description=smell_data['smell_description'],
             smell_detection=smell_data.get('smell_detection', ''),
@@ -307,6 +307,9 @@ NOTE:
             examples=smell_data['examples'],
             refactoring_strategies=smell_data['refactoring_strategies'],
         )
+        
+        # Extract just the code from the result dict
+        return result['code']
     
     def _format_result(self, smell_data: Dict[str, Any], refactored_code: str,
                       config: Dict[str, Any], apply_changes: bool) -> str:

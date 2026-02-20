@@ -42,21 +42,43 @@ class BatchExperimentsModule(SimpleModule):
         if args == "list":
             return self._list_smells()
         
-        # Parse arguments: strategy_id model_id [options]
+        # Parse arguments: strategy_id model_id [options] OR --full-prompt model_id [options]
         parts = args.split()
         
-        if len(parts) < 2:
-            return (
-                "❌ Error: Missing required arguments.\n\n"
-                "Usage: batch_experiments <strategy_id> <model_id> [options]\n\n"
-                "Try 'batch_experiments help' for details."
-            )
+        # Check for --full-prompt mode
+        full_prompt_mode = False
+        strategy_id = None
+        model_id = None
         
-        try:
-            strategy_id = int(parts[0])
-            model_id = int(parts[1])
-        except ValueError:
-            return "❌ Error: strategy_id and model_id must be numbers"
+        if len(parts) > 0 and parts[0] == "--full-prompt":
+            full_prompt_mode = True
+            if len(parts) < 2:
+                return (
+                    "❌ Error: --full-prompt requires model_id.\n\n"
+                    "Usage: batch_experiments --full-prompt <model_id> [options]\n\n"
+                    "Try 'batch_experiments help' for details."
+                )
+            try:
+                model_id = int(parts[1])
+            except ValueError:
+                return "❌ Error: model_id must be a number"
+            i = 2  # Start parsing flags from position 2
+        else:
+            # Traditional mode: strategy_id model_id
+            if len(parts) < 2:
+                return (
+                    "❌ Error: Missing required arguments.\n\n"
+                    "Usage: batch_experiments <strategy_id> <model_id> [options]\n"
+                    "       batch_experiments --full-prompt <model_id> [options]\n\n"
+                    "Try 'batch_experiments help' for details."
+                )
+            
+            try:
+                strategy_id = int(parts[0])
+                model_id = int(parts[1])
+            except ValueError:
+                return "❌ Error: strategy_id and model_id must be numbers"
+            i = 2  # Start parsing flags from position 2
         
         # Parse optional flags
         limit = None
@@ -66,8 +88,6 @@ class BatchExperimentsModule(SimpleModule):
         skip_executed = True
         phase = "all"  # default: full experiment (refactor + execute)
         manifest_path = None
-        
-        i = 2
         while i < len(parts):
             if parts[i] == "--limit" and i + 1 < len(parts):
                 limit = int(parts[i + 1])
@@ -103,14 +123,31 @@ class BatchExperimentsModule(SimpleModule):
         if phase not in ["refactor", "execute", "all"]:
             return f"❌ Invalid phase '{phase}'. Must be 'refactor', 'execute', or 'all'"
         
-        # Validate strategy and model
-        if strategy_id not in PromptStrategy.STRATEGIES:
-            return f"❌ Invalid strategy ID. Available: {list(PromptStrategy.STRATEGIES.keys())}"
+        # In full-prompt mode, ignore --phase flag (always runs both phases for all strategies)
+        if full_prompt_mode and phase != "all":
+            print("⚠️  Warning: --phase flag is ignored in --full-prompt mode (always runs both phases)")
+            phase = "all"
         
+        # Validate model
         if model_id < 1 or model_id > len(HuggingFaceModels.MODELS):
             return f"❌ Invalid model ID. Available: 1-{len(HuggingFaceModels.MODELS)}"
         
-        # Execute based on phase
+        # Execute full-prompt mode (all strategies sequentially)
+        if full_prompt_mode:
+            return self._run_full_prompt_batch(
+                model_id=model_id,
+                start_from=start_from,
+                limit=limit,
+                skip_executed=skip_executed,
+                verbose=verbose,
+                dry_run=dry_run
+            )
+        
+        # Validate strategy for traditional mode
+        if strategy_id not in PromptStrategy.STRATEGIES:
+            return f"❌ Invalid strategy ID. Available: {list(PromptStrategy.STRATEGIES.keys())}"
+        
+        # Execute based on phase (traditional mode)
         if phase == "refactor":
             return self._run_batch_refactor_phase(
                 strategy_id, model_id,
@@ -148,7 +185,7 @@ class BatchExperimentsModule(SimpleModule):
 
 DESCRIPTION:
     Execute refactoring experiments for multiple study smells in batch mode.
-    Supports two-phase execution for time-based LLM pricing optimization:
+    Supports multiple execution modes:
     
     ┌─────────────────────────────────────────────────────────────────┐
     │ SINGLE-PHASE MODE (default):                                    │
@@ -157,14 +194,21 @@ DESCRIPTION:
     │ TWO-PHASE MODE:                                                  │
     │   Phase 1: Refactor all smells (batch LLM calls)                │
     │   Phase 2: Test & detect all experiments (sequential)           │
+    │                                                                  │
+    │ FULL-PROMPT MODE (new):                                          │
+    │   Runs ALL strategies sequentially with both phases:            │
+    │   Strategy 1 (refactor+execute) → Strategy 2 → Strategy 3       │
+    │   Complete experimental coverage with single command!           │
     └─────────────────────────────────────────────────────────────────┘
 
 USAGE:
     batch_experiments <strategy_id> <model_id> [options]
+    batch_experiments --full-prompt <model_id> [options]
 
 ARGUMENTS:
-    strategy_id    Prompt strategy ID (1, 2, or 3)
-    model_id       LLM model ID (use 'refactor models' to see available)
+    strategy_id      Prompt strategy ID (1, 2, or 3) - not used with --full-prompt
+    model_id         LLM model ID (use 'refactor models' to see available)
+    --full-prompt    Run all 3 strategies sequentially (replaces strategy_id)
 
 OPTIONS:
     --phase PHASE     Execution phase: refactor, execute, or all (default: all)
@@ -182,6 +226,11 @@ EXAMPLES:
     batch_experiments 3 1                    # Execute all pending smells
     batch_experiments 3 1 --limit 10         # Execute 10 smells
     
+    # Full-prompt mode (NEW - runs all 3 strategies automatically)
+    batch_experiments --full-prompt 1                  # All strategies, all smells
+    batch_experiments --full-prompt 1 --limit 5        # All strategies, 5 smells each
+    batch_experiments --full-prompt 1 --start-from 10  # Start from smell ID 10
+    
     # Two-phase mode (for time-based LLM pricing)
     batch_experiments 3 1 --phase refactor   # Phase 1: Refactor all
     batch_experiments 3 1 --phase execute    # Phase 2: Test all
@@ -198,7 +247,16 @@ EXAMPLES:
     # Dry run
     batch_experiments 3 1 --phase refactor --dry-run --limit 5
 
-PHASES:
+MODES:
+    --full-prompt  Full-Prompt mode: Execute all 3 strategies sequentially
+                   - Runs strategy 1 (refactor+execute for all smells)
+                   - Then strategy 2 (refactor+execute for all smells)
+                   - Then strategy 3 (refactor+execute for all smells)
+                   - Complete experimental coverage with single command
+                   - Saves comprehensive summary and individual manifests
+                   - Can be interrupted and resumed (skips completed)
+
+PHASES (traditional mode):
     refactor   Phase 1: Call LLM to generate refactored code for all smells
                - Creates experiment records with refactored_code
                - Does NOT modify repository files
@@ -526,6 +584,262 @@ NOTES:
         )
         
         return "\n".join(summary)
+    
+    def _run_full_prompt_batch(
+        self,
+        model_id: int,
+        start_from=None,
+        limit=None,
+        skip_executed=True,
+        verbose=False,
+        dry_run=False
+    ) -> str:
+        """
+        Execute Full-Prompt mode: Run all 3 strategies sequentially.
+        
+        For each strategy (1, 2, 3):
+        1. Run refactor phase for all smells
+        2. Run execute phase for all experiments
+        
+        This orchestrates complete coverage with automatic refactor+execute for all strategies.
+        """
+        if not self.db:
+            self.db = ResearchDB()
+            self.db.init_database()
+        
+        if not self.exp_module:
+            self.exp_module = ExecuteExperimentModule()
+        
+        # Get model info
+        model_info = HuggingFaceModels.MODELS[model_id - 1]
+        model_name = model_info['name']
+        
+        # Overall tracking
+        overall_start_time = time.time()
+        overall_stats = {
+            'strategies_completed': 0,
+            'total_refactored': 0,
+            'total_executed': 0,
+            'total_failed': 0
+        }
+        
+        all_manifests = []
+        strategy_results = []
+        
+        # Print header
+        print("\n" + "=" * 80)
+        print("🚀 FULL-PROMPT BATCH EXECUTION")
+        print("=" * 80)
+        print(f"Model:         {model_name} (ID: {model_id})")
+        print(f"Strategies:    All (1: Zero-Shot, 2: Few-Shot, 3: Chain-of-Thought)")
+        print(f"Mode:          Sequential execution with both phases")
+        print(f"Start Time:    {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print("=" * 80)
+        
+        if start_from:
+            print(f"🔍 Filter: Starting from smell ID {start_from}")
+        if limit:
+            print(f"🔍 Filter: Limited to {limit} smells per strategy")
+        if skip_executed:
+            print(f"📋 Mode: Skip already executed (pending only)")
+        else:
+            print(f"📋 Mode: Process all smells (may create duplicates)")
+        
+        if dry_run:
+            print("\n🔍 DRY RUN MODE - No experiments will be executed")
+            print("\n✅ Dry run complete")
+            return "Dry run completed"
+        
+        print()
+        
+        # Execute each strategy sequentially
+        for strategy_id in [1, 2, 3]:
+            strategy_name = PromptStrategy.STRATEGIES[strategy_id][1]
+            strategy_start_time = time.time()
+            
+            print("\n" + "#" * 80)
+            print(f"📊 STRATEGY {strategy_id}/3: {strategy_name}")
+            print("#" * 80)
+            
+            try:
+                # Phase 1: Refactor
+                print(f"\n🤖 [Phase 1/2] Refactoring with {strategy_name}...")
+                print("─" * 80)
+                
+                refactor_result = self._run_batch_refactor_phase(
+                    strategy_id=strategy_id,
+                    model_id=model_id,
+                    start_from=start_from,
+                    limit=limit,
+                    skip_executed=skip_executed,
+                    verbose=verbose,
+                    dry_run=False
+                )
+                
+                # Extract manifest path from result
+                manifest_path = None
+                for line in refactor_result.split('\n'):
+                    if 'Manifest:' in line and 'batch_summaries' in line:
+                        # Extract path from line like "📝 Manifest:    batch_summaries/..."
+                        manifest_path = line.split(':', 1)[1].strip()
+                        all_manifests.append(manifest_path)
+                        break
+                
+                # Extract stats from refactor result
+                refactored_count = 0
+                for line in refactor_result.split('\n'):
+                    if '✅ Refactored:' in line:
+                        try:
+                            refactored_count = int(line.split(':')[1].strip())
+                            overall_stats['total_refactored'] += refactored_count
+                        except (ValueError, IndexError):
+                            pass
+                
+                # Phase 2: Execute
+                print(f"\n🧪 [Phase 2/2] Testing and detecting with {strategy_name}...")
+                print("─" * 80)
+                
+                execute_result = self._run_batch_execution_phase(
+                    strategy_id=strategy_id,
+                    model_id=model_id,
+                    manifest_path=manifest_path,
+                    start_from=start_from,
+                    limit=limit,
+                    verbose=verbose,
+                    dry_run=False
+                )
+                
+                # Extract stats from execute result
+                executed_count = 0
+                failed_count = 0
+                for line in execute_result.split('\n'):
+                    if '✅ Executed:' in line:
+                        try:
+                            executed_count = int(line.split(':')[1].strip())
+                            overall_stats['total_executed'] += executed_count
+                        except (ValueError, IndexError):
+                            pass
+                    elif '❌ Failed:' in line:
+                        try:
+                            failed_count = int(line.split(':')[1].strip())
+                            overall_stats['total_failed'] += failed_count
+                        except (ValueError, IndexError):
+                            pass
+                
+                strategy_elapsed = time.time() - strategy_start_time
+                overall_stats['strategies_completed'] += 1
+                
+                strategy_results.append({
+                    'strategy_id': strategy_id,
+                    'strategy_name': strategy_name,
+                    'refactored': refactored_count,
+                    'executed': executed_count,
+                    'failed': failed_count,
+                    'time': strategy_elapsed
+                })
+                
+                print(f"\n✅ Strategy {strategy_id} completed in {strategy_elapsed/60:.1f} minutes")
+                print(f"   Refactored: {refactored_count}, Executed: {executed_count}, Failed: {failed_count}")
+                
+            except KeyboardInterrupt:
+                print("\n\n⚠️  Interrupted by user")
+                print(f"Completed {overall_stats['strategies_completed']}/3 strategies")
+                break
+            except Exception as e:
+                print(f"\n❌ Error in strategy {strategy_id}: {e}")
+                overall_stats['total_failed'] += 1
+                continue
+        
+        # Final summary
+        overall_elapsed = time.time() - overall_start_time
+        
+        summary = []
+        summary.append("\n\n" + "=" * 80)
+        summary.append("📊 FULL-PROMPT EXECUTION SUMMARY")
+        summary.append("=" * 80)
+        summary.append(f"Model:              {model_name}")
+        summary.append(f"Strategies:         {overall_stats['strategies_completed']}/3 completed")
+        summary.append(f"Total Refactored:   {overall_stats['total_refactored']}")
+        summary.append(f"Total Executed:     {overall_stats['total_executed']}")
+        summary.append(f"Total Failed:       {overall_stats['total_failed']}")
+        summary.append(f"⏱️  Total Time:       {overall_elapsed/60:.1f} minutes")
+        summary.append("")
+        summary.append("STRATEGY BREAKDOWN:")
+        
+        for result in strategy_results:
+            summary.append(f"  [{result['strategy_id']}] {result['strategy_name']}:")
+            summary.append(f"      Refactored: {result['refactored']}, Executed: {result['executed']}, Failed: {result['failed']}")
+            summary.append(f"      Time: {result['time']/60:.1f} minutes")
+        
+        if all_manifests:
+            summary.append("")
+            summary.append("MANIFESTS CREATED:")
+            for manifest in all_manifests:
+                summary.append(f"  📝 {manifest}")
+        
+        summary.append("")
+        summary.append("=" * 80)
+        
+        # Write comprehensive summary file
+        self._write_full_prompt_summary_file(
+            model_id, model_name, overall_stats, strategy_results, 
+            overall_elapsed, all_manifests
+        )
+        
+        return "\n".join(summary)
+    
+    def _write_full_prompt_summary_file(
+        self, model_id: int, model_name: str, overall_stats: dict,
+        strategy_results: list, elapsed_total: float, manifests: list
+    ) -> None:
+        """Write full-prompt batch execution summary to file."""
+        from pathlib import Path
+        
+        # Create summary directory
+        summary_dir = Path("batch_summaries")
+        summary_dir.mkdir(exist_ok=True)
+        
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"batch_summary_full_prompt_m{model_id}_{timestamp}.txt"
+        filepath = summary_dir / filename
+        
+        # Write summary file
+        with open(filepath, 'w') as f:
+            f.write("=" * 80 + "\n")
+            f.write("📊 FULL-PROMPT BATCH EXECUTION SUMMARY\n")
+            f.write("=" * 80 + "\n")
+            f.write(f"Timestamp:          {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Model:              {model_name} (ID: {model_id})\n")
+            f.write(f"Execution Mode:     Full-Prompt (All Strategies Sequential)\n")
+            f.write(f"\n")
+            f.write(f"Strategies:         {overall_stats['strategies_completed']}/3 completed\n")
+            f.write(f"Total Refactored:   {overall_stats['total_refactored']}\n")
+            f.write(f"Total Executed:     {overall_stats['total_executed']}\n")
+            f.write(f"Total Failed:       {overall_stats['total_failed']}\n")
+            f.write(f"⏱️  Total Duration:   {elapsed_total/60:.1f} minutes\n")
+            f.write(f"⚡ Avg per strategy: {elapsed_total/max(1,overall_stats['strategies_completed'])/60:.1f} minutes\n")
+            f.write("=" * 80 + "\n")
+            
+            if strategy_results:
+                f.write("\nSTRATEGY BREAKDOWN:\n")
+                f.write("─" * 80 + "\n")
+                for result in strategy_results:
+                    f.write(f"\n[{result['strategy_id']}] {result['strategy_name']}:\n")
+                    f.write(f"  Refactored:  {result['refactored']}\n")
+                    f.write(f"  Executed:    {result['executed']}\n")
+                    f.write(f"  Failed:      {result['failed']}\n")
+                    f.write(f"  Time:        {result['time']/60:.1f} minutes\n")
+                f.write("─" * 80 + "\n")
+            
+            if manifests:
+                f.write("\nMANIFESTS CREATED:\n")
+                for manifest in manifests:
+                    f.write(f"  📝 {manifest}\n")
+            
+            f.write("\n" + "=" * 80 + "\n")
+        
+        print(f"\n📝 Full-prompt summary written to: {filepath}")
     
     def _write_summary_file(self, strategy_id: int, model_id: int,
                            strategy_name: str, model_name: str,
