@@ -180,9 +180,10 @@ class Experiment(Base):
     refactor_phase_completed = Column(Boolean, default=False)  # Phase 1: LLM refactoring complete
     execution_phase_completed = Column(Boolean, default=False)  # Phase 2: Testing/detection complete
 
-    # Performance
-    execution_time_seconds = Column(Float)
-    tokens_used = Column(Integer)
+    # Performance Metrics
+    execution_time_seconds = Column(Float)  # Total experiment execution time
+    llm_latency_seconds = Column(Float)  # LLM API response time only
+    tokens_used = Column(Integer)  # Total tokens (prompt + completion)
 
     # Notes
     notes = Column(Text)

@@ -303,6 +303,8 @@ NOTES:
             
             refactored_code = refactor_result['refactored_code']
             prompt_text = refactor_result.get('prompt_text', '')
+            tokens_used = refactor_result.get('tokens_used', 0)
+            llm_latency = refactor_result.get('llm_latency', 0.0)
             
             # Clean markdown code fences from LLM output
             refactored_code = clean_code_fences(refactored_code)
@@ -338,7 +340,7 @@ NOTES:
             print("💾 Creating experiment record in database...")
             experiment_id = self._create_experiment_record(
                 session, smell_data, strategy_id, model_id,
-                refactored_code, prompt_text
+                refactored_code, prompt_text, tokens_used, llm_latency
             )
             
             # Step 5: Run smell detection
@@ -510,6 +512,8 @@ NOTES:
             
             refactored_code = refactor_result['refactored_code']
             prompt_text = refactor_result.get('prompt_text', '')
+            tokens_used = refactor_result.get('tokens_used', 0)
+            llm_latency = refactor_result.get('llm_latency', 0.0)
             
             # Clean markdown code fences from LLM output
             refactored_code = clean_code_fences(refactored_code)
@@ -523,7 +527,7 @@ NOTES:
             print("💾 Creating experiment record in database...")
             experiment_id = self._create_experiment_record(
                 session, smell_data, strategy_id, model_id,
-                refactored_code, prompt_text
+                refactored_code, prompt_text, tokens_used, llm_latency
             )
             
             # Mark refactor phase as completed
@@ -973,7 +977,8 @@ NOTES:
         Refactor smell using LLM.
         
         Returns:
-            Dict with 'refactored_code' and 'prompt_text' keys, or error string
+            Dict with 'refactored_code', 'prompt_text', 'tokens_used', 'llm_latency' keys,
+            or error string
         """
         try:
             # Get configuration
@@ -986,8 +991,8 @@ NOTES:
             # Create client
             client = HuggingFaceRefactorClient()
             
-            # Call LLM
-            refactored_code = client.refactor(
+            # Call LLM (returns dict with 'code', 'tokens', 'latency')
+            result = client.refactor(
                 smell_name=smell_data['smell_type'],
                 smell_description=smell_data['smell_description'],
                 smell_detection=smell_data.get('smell_detection', ''),
@@ -998,12 +1003,14 @@ NOTES:
                 refactoring_strategies=smell_data.get('refactoring_strategies', [])
             )
             
-            if not refactored_code:
+            if not result or not result.get('code'):
                 return "❌ Error: LLM did not return refactored code"
             
             return {
-                'refactored_code': refactored_code,
-                'prompt_text': ''  # Could capture the prompt if needed
+                'refactored_code': result['code'],
+                'prompt_text': '',  # Could capture the prompt if needed
+                'tokens_used': result.get('tokens', 0),
+                'llm_latency': result.get('latency', 0.0)
             }
             
         except (RuntimeError, ValueError) as e:
@@ -1204,8 +1211,10 @@ NOTES:
     
     def _create_experiment_record(self, session, smell_data: Dict[str, Any],
                                   strategy_id: int, model_id: int,
-                                  refactored_code: str, prompt_text: str) -> int:
-        """Create experiment record in database."""
+                                  refactored_code: str, prompt_text: str,
+                                  tokens_used: int = 0, 
+                                  llm_latency_seconds: float = 0.0) -> int:
+        """Create experiment record in database with LLM performance metrics."""
         model_info = next(
             (m for m in HuggingFaceModels.MODELS if m['id'] == model_id),
             {'name': 'Unknown'}
@@ -1233,7 +1242,9 @@ NOTES:
             prompting_approach=strategy_info[1],
             prompt_text=prompt_text,
             refactored_code=refactored_code,
-            refactoring_completed=True
+            refactoring_completed=True,
+            tokens_used=tokens_used,
+            llm_latency_seconds=llm_latency_seconds
         )
         
         session.commit()

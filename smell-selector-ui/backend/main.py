@@ -1079,6 +1079,7 @@ async def get_refatoracoes(
                 e.experiment_date,
                 e.execution_time_seconds,
                 e.tokens_used,
+                e.llm_latency_seconds,
                 e.study_smell_id,
                 e.baseline_smell_id
             FROM experiments e
@@ -1112,8 +1113,9 @@ async def get_refatoracoes(
                 "experiment_date": str(row[13]) if row[13] else None,
                 "execution_time_seconds": row[14],
                 "tokens_used": row[15],
-                "study_smell_id": row[16],
-                "baseline_smell_id": row[17],
+                "llm_latency_seconds": row[16],
+                "study_smell_id": row[17],
+                "baseline_smell_id": row[18],
             })
 
         return {
@@ -1152,6 +1154,7 @@ async def get_refatoracao_detail(experiment_id: int):
                 e.experiment_date,
                 e.execution_time_seconds,
                 e.tokens_used,
+                e.llm_latency_seconds,
                 e.study_smell_id,
                 e.baseline_smell_id,
                 e.original_code,
@@ -1236,14 +1239,15 @@ async def get_refatoracao_detail(experiment_id: int):
             "experiment_date": str(row[13]) if row[13] else None,
             "execution_time_seconds": row[14],
             "tokens_used": row[15],
-            "study_smell_id": row[16],
-            "baseline_smell_id": row[17],
-            "original_code": row[18],
-            "refactored_code": row[19],
-            "original_method": row[20],
-            "refactored_method": row[21],
-            "prompt_text": row[22],
-            "notes": row[23],
+            "llm_latency_seconds": row[16],
+            "study_smell_id": row[17],
+            "baseline_smell_id": row[18],
+            "original_code": row[19],
+            "refactored_code": row[20],
+            "original_method": row[21],
+            "refactored_method": row[22],
+            "prompt_text": row[23],
+            "notes": row[24],
             "test_results_before": test_results_before,
             "test_results_after": test_results_after,
         }

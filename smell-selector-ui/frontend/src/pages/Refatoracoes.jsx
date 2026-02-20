@@ -258,8 +258,12 @@ function ExperimentDetail({ experiment, layout, onLayoutChange, onDelete }) {
             <span className="ref-info-value">{experiment.experiment_date ? experiment.experiment_date.slice(0, 16).replace('T', ' ') : '—'}</span>
           </div>
           <div className="ref-info-item">
-            <span className="ref-info-label">Time (s)</span>
+            <span className="ref-info-label">Total Time (s)</span>
             <span className="ref-info-value">{experiment.execution_time_seconds != null ? experiment.execution_time_seconds.toFixed(2) : '—'}</span>
+          </div>
+          <div className="ref-info-item">
+            <span className="ref-info-label">LLM Latency (s)</span>
+            <span className="ref-info-value">{experiment.llm_latency_seconds != null ? experiment.llm_latency_seconds.toFixed(2) : '—'}</span>
           </div>
           <div className="ref-info-item">
             <span className="ref-info-label">Tokens</span>

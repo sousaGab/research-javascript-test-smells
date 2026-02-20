@@ -7,6 +7,7 @@ for LLM-based test smell refactoring.
 
 import os
 import re
+import time
 from typing import Optional, Dict, List
 from openai import OpenAI
 
@@ -61,8 +62,8 @@ class HuggingFaceModels:
         },
         {
             "id": 2,
-            "name": "CodeLlama 13B Instruct",
-            "model_id": "codellama-13b-instruct-hf-qhz",
+            "name": "CodeLlama 34B Instruct",
+            "model_id": "CodeLlama-34b-Instruct-hf",
             "description": "CodeLlama model via custom Inference Endpoint",
             "endpoint_url": "https://b12zypnldhhshqdi.us-east-1.aws.endpoints.huggingface.cloud/v1"
         },
@@ -306,9 +307,9 @@ class HuggingFaceRefactorClient:
         refactoring_strategies: Optional[List[str]] = None,
         smell_detection: str = "",
         temperature: float = 0.3,
-        top_p: float = 0.95,
-        max_tokens: int = 1400,
-    ) -> str:
+        top_p: float = 0.7,
+        max_tokens: int = 2048,
+    ) -> Dict[str, any]:
         """
         Refactor test smell using HuggingFace LLM.
         
@@ -326,7 +327,10 @@ class HuggingFaceRefactorClient:
             max_tokens: Maximum tokens to generate
         
         Returns:
-            Refactored test code
+            Dict with:
+                - code: Refactored test code (str)
+                - tokens: Total tokens used (int) - prompt + completion
+                - latency: API response time in seconds (float)
         """
         # Create prompt based on strategy
         if prompt_strategy == PromptStrategy.ZERO_SHOT:
@@ -367,6 +371,9 @@ class HuggingFaceRefactorClient:
             # Call HuggingFace API
             messages = [{"role": "user", "content": prompt}]
             
+            # Measure API latency
+            start_time = time.time()
+            
             response = client.chat.completions.create(
                 model=model_param,
                 messages=messages,
@@ -375,12 +382,23 @@ class HuggingFaceRefactorClient:
                 max_tokens=max_tokens
             )
             
+            latency = time.time() - start_time
+            
             raw_output = response.choices[0].message.content.strip()
             
             # Extract code from response (remove markdown formatting and explanations)
             code = extract_code_from_response(raw_output)
             
-            return code
+            # Extract token usage (if available)
+            tokens = 0
+            if hasattr(response, 'usage') and response.usage:
+                tokens = getattr(response.usage, 'total_tokens', 0)
+            
+            return {
+                'code': code,
+                'tokens': tokens,
+                'latency': latency
+            }
             
         except Exception as e:
             raise RuntimeError(f"HuggingFace API call failed: {e}")
