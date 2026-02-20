@@ -150,7 +150,8 @@ def compare_coverage(baseline: Dict[str, float], refactored: Dict[str, float]) -
     Returns:
         Dict with comparison results
         {
-            'changed': bool,  # True if ANY metric changed
+            'changed': bool,       # True if ANY metric changed
+            'decreased': bool,     # True if ANY metric regressed
             'improvements': [...],  # List of metrics that improved
             'regressions': [...],   # List of metrics that regressed
             'details': {
@@ -180,9 +181,11 @@ def compare_coverage(baseline: Dict[str, float], refactored: Dict[str, float]) -
             regressions.append(metric)
     
     changed = len(improvements) > 0 or len(regressions) > 0
+    decreased = len(regressions) > 0  # True if ANY metric regressed
     
     return {
         'changed': changed,
+        'decreased': decreased,
         'improvements': improvements,
         'regressions': regressions,
         'details': details
@@ -263,8 +266,9 @@ def analyze_test_results(baseline_path: Path, refactored_path: Path) -> Optional
     Returns:
         Dict with complete analysis or None if files not found
         {
-            'coverage_changed': bool,  # Binary: Did coverage change?
-            'tests_changed': bool,     # Binary: Did test counts change?
+            'coverage_changed': bool,    # Binary: Did coverage change?
+            'coverage_decreased': bool,  # Binary: Did coverage decrease (regression)?
+            'tests_changed': bool,       # Binary: Did test counts change?
             'coverage_comparison': {...},
             'tests_comparison': {...},
             'baseline_available': bool,
@@ -300,9 +304,11 @@ def analyze_test_results(baseline_path: Path, refactored_path: Path) -> Optional
     coverage_comparison = None
     coverage_changed = None
     
+    coverage_decreased = None
     if baseline_coverage and refactored_coverage:
         coverage_comparison = compare_coverage(baseline_coverage, refactored_coverage)
         coverage_changed = coverage_comparison['changed']
+        coverage_decreased = coverage_comparison['decreased']
     
     # Parse test counts
     baseline_tests = parse_test_counts_from_summary(baseline_text)
@@ -319,6 +325,7 @@ def analyze_test_results(baseline_path: Path, refactored_path: Path) -> Optional
         'baseline_available': True,
         'refactored_available': True,
         'coverage_changed': coverage_changed,
+        'coverage_decreased': coverage_decreased,
         'tests_changed': tests_changed,
         'coverage_comparison': coverage_comparison,
         'tests_comparison': tests_comparison

@@ -82,6 +82,9 @@ CREATE TABLE IF NOT EXISTS experiments (
     smell_removed BOOLEAN DEFAULT FALSE,
     introduced_new_smells BOOLEAN DEFAULT FALSE,
     tests_still_passing BOOLEAN,
+    coverage_changed BOOLEAN,  -- Test coverage changed (baseline vs refactored)
+    coverage_decreased BOOLEAN,  -- Test coverage decreased (regression)
+    tests_changed BOOLEAN,  -- Test execution results changed
 
     -- Performance Tracking
     execution_time_seconds REAL,
@@ -175,6 +178,38 @@ CREATE TABLE IF NOT EXISTS test_results (
 );
 
 -- -----------------------------------------------------------------------------
+-- LEVEL 5D: Repository Baseline Test Results
+-- Purpose: Store baseline test results once per repository (before any refactoring)
+-- Note: This avoids duplicating baseline data across multiple experiments
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS repository_baseline_test_results (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    repository_id INTEGER NOT NULL REFERENCES repositories(id) ON DELETE CASCADE,
+
+    -- Test Execution Summary
+    test_suites_passed INTEGER,
+    test_suites_failed INTEGER,
+    test_suites_total INTEGER,
+    tests_passed INTEGER,
+    tests_failed INTEGER,
+    tests_total INTEGER,
+    snapshots_total INTEGER,
+    execution_time_seconds REAL,
+
+    -- Code Coverage
+    coverage_statements REAL,
+    coverage_branches REAL,
+    coverage_functions REAL,
+    coverage_lines REAL,
+
+    -- Overall Status
+    all_tests_passed BOOLEAN,
+
+    executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(repository_id)
+);
+
+-- -----------------------------------------------------------------------------
 -- LEVEL 6: AI Responses (Qualitative Analysis)
 -- Purpose: Capture AI reasoning for qualitative research
 -- -----------------------------------------------------------------------------
@@ -202,6 +237,7 @@ CREATE INDEX IF NOT EXISTS idx_experiments_smell_removed ON experiments(smell_re
 CREATE INDEX IF NOT EXISTS idx_smell_results_exp ON smell_detection_results(experiment_id);
 CREATE INDEX IF NOT EXISTS idx_metrics_exp ON code_metrics(experiment_id);
 CREATE INDEX IF NOT EXISTS idx_tests_exp ON test_results(experiment_id);
+CREATE INDEX IF NOT EXISTS idx_repo_baseline_tests_repo ON repository_baseline_test_results(repository_id);
 CREATE INDEX IF NOT EXISTS idx_ai_responses_exp ON ai_responses(experiment_id);
 
 -- =============================================================================

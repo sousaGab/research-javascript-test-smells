@@ -17,7 +17,9 @@ from llm_refactor.modules.database.crud import (
     create_experiment,
     update_experiment,
     create_test_results,
-    get_or_create_baseline_smell_from_study
+    get_or_create_baseline_smell_from_study,
+    create_repository_baseline_tests,
+    repository_has_baseline_tests
 )
 from llm_refactor.modules.refactor.hf_client import (
     HuggingFaceRefactorClient,
@@ -47,6 +49,11 @@ from llm_refactor.modules.smell_analysis import (
     save_analysis_json,
     update_experiment_analysis_flags,
     analyze_test_results
+)
+from llm_refactor.modules.smell_analysis.test_analyzer import (
+    parse_coverage_from_summary,
+    parse_test_counts_from_summary,
+    load_test_summary
 )
 
 
@@ -289,6 +296,12 @@ NOTES:
             
             repo_name = smell_data['repo_name']
             file_path = smell_data['file_path']
+            file_id = smell_data['file_id']
+            
+            # Get repository_id for baseline test results
+            from llm_refactor.modules.database.models import File
+            file_obj = session.query(File).filter_by(id=file_id).first()
+            repository_id = file_obj.repository_id if file_obj else None
             
             # Step 2: Setup output directories
             print("📁 [2/7] Setting up output directories...")
@@ -387,7 +400,7 @@ NOTES:
             # Step 7.5: Analyze test results changes
             print("🧪 [7.5/8] Analyzing test results changes...")
             test_analysis_results = self._analyze_test_results(
-                session, experiment_id, repo_name, output_dir
+                session, experiment_id, repo_name, output_dir, repository_id
             )
             
             if test_analysis_results:
@@ -410,7 +423,7 @@ NOTES:
             
             # Update experiment with test results
             self._update_experiment_results(
-                session, experiment_id, test_results, smell_detection_success
+                session, experiment_id, test_results, smell_detection_success, output_dir, repository_id
             )
             
             # Step 8: Restore original file
@@ -675,6 +688,12 @@ NOTES:
             
             repo_name = smell_data['repo_name']
             file_path = smell_data['file_path']
+            file_id = smell_data['file_id']
+            
+            # Get repository_id for baseline test results
+            from llm_refactor.modules.database.models import File
+            file_obj = session.query(File).filter_by(id=file_id).first()
+            repository_id = file_obj.repository_id if file_obj else None
             
             # Reconstruct output directory
             # Extract strategy and model from experiment
@@ -751,7 +770,7 @@ NOTES:
             
             print("🧪 Analyzing test results changes...")
             test_analysis_results = self._analyze_test_results(
-                session, experiment_id, repo_name, output_dir
+                session, experiment_id, repo_name, output_dir, repository_id
             )
             
             if test_analysis_results:
@@ -765,7 +784,7 @@ NOTES:
             
             # Update experiment with results
             self._update_experiment_results(
-                session, experiment_id, test_results, smell_detection_success
+                session, experiment_id, test_results, smell_detection_success, output_dir, repository_id
             )
             
             # Mark execution phase as completed
@@ -1354,18 +1373,20 @@ NOTES:
             return None
     
     def _analyze_test_results(self, session, experiment_id: int, 
-                              repo_name: str, output_dir: Path) -> Dict:
+                              repo_name: str, output_dir: Path, repository_id: int = None) -> Dict:
         """
         Analyze test results changes between baseline and refactored versions.
         
         Compares baseline test_summary.txt (from tests_output/) with refactored 
         test_summary.txt (from experiment output), updates database flags.
+        Also saves repository baseline test results if not already saved.
         
         Args:
             session: Database session
             experiment_id: Experiment ID
             repo_name: Repository name
             output_dir: Experiment output directory
+            repository_id: Repository ID (optional, for saving baseline tests)
             
         Returns:
             Dict with analysis summary or None if analysis failed/skipped
@@ -1383,6 +1404,45 @@ NOTES:
                 print(f"   ⚠ Baseline test summary not found: {baseline_summary}")
                 return None
             
+            # Save baseline test results to database if not already saved
+            if repository_id and not repository_has_baseline_tests(session, repository_id):
+                print("   Saving baseline test results for repository...")
+                baseline_text = load_test_summary(baseline_summary)
+                
+                if baseline_text:
+                    # Parse baseline test metrics
+                    baseline_test_counts = parse_test_counts_from_summary(baseline_text)
+                    baseline_coverage = parse_coverage_from_summary(baseline_text)
+                    
+                    # Determine if all tests passed (if data available)
+                    all_passed = None
+                    if baseline_test_counts:
+                        failed = baseline_test_counts.get('tests_failed', 0) or 0
+                        all_passed = failed == 0
+                    
+                    # Save to database
+                    create_repository_baseline_tests(
+                        session=session,
+                        repository_id=repository_id,
+                        test_suites_passed=baseline_test_counts.get('test_suites_passed') if baseline_test_counts else None,
+                        test_suites_failed=baseline_test_counts.get('test_suites_failed') if baseline_test_counts else None,
+                        test_suites_total=baseline_test_counts.get('test_suites_total') if baseline_test_counts else None,
+                        tests_passed=baseline_test_counts.get('tests_passed') if baseline_test_counts else None,
+                        tests_failed=baseline_test_counts.get('tests_failed') if baseline_test_counts else None,
+                        tests_total=baseline_test_counts.get('tests_total') if baseline_test_counts else None,
+                        coverage_statements=baseline_coverage.get('statements') if baseline_coverage else None,
+                        coverage_branches=baseline_coverage.get('branches') if baseline_coverage else None,
+                        coverage_functions=baseline_coverage.get('functions') if baseline_coverage else None,
+                        coverage_lines=baseline_coverage.get('lines') if baseline_coverage else None,
+                        all_tests_passed=all_passed
+                    )
+                    session.commit()
+                    print("   [OK] Baseline test results saved to database")
+                else:
+                    print("   [WARN] Could not parse baseline test summary")
+            elif repository_id:
+                print("   [OK] Baseline test results already saved for this repository")
+            
             if not refactored_summary.exists():
                 print(f"   ⚠ Refactored test summary not found: {refactored_summary}")
                 return None
@@ -1399,6 +1459,7 @@ NOTES:
             
             # Extract binary flags
             coverage_changed = analysis.get('coverage_changed')
+            coverage_decreased = analysis.get('coverage_decreased')
             tests_changed = analysis.get('tests_changed')
             
             # Save analysis JSON
@@ -1413,10 +1474,12 @@ NOTES:
             print(f"   ✓ Test analysis saved: {analysis_dir.relative_to(Config.PROJECT_ROOT)}/test_analysis.json")
             
             # Update experiment flags in database
-            if coverage_changed is not None or tests_changed is not None:
+            if coverage_changed is not None or coverage_decreased is not None or tests_changed is not None:
                 update_data = {}
                 if coverage_changed is not None:
                     update_data['coverage_changed'] = coverage_changed
+                if coverage_decreased is not None:
+                    update_data['coverage_decreased'] = coverage_decreased
                 if tests_changed is not None:
                     update_data['tests_changed'] = tests_changed
                 
@@ -1434,15 +1497,19 @@ NOTES:
     
     def _update_experiment_results(self, session, experiment_id: int,
                                    test_results: Dict[str, Any],
-                                   smell_detection_success: bool):  # noqa: ARG002
+                                   smell_detection_success: bool,
+                                   output_dir: Path,
+                                   repository_id: int):  # noqa: ARG002
         """
         Update experiment with test results.
         
         Args:
             session: Database session
             experiment_id: Experiment ID
-            test_results: Test execution results
+            test_results: Test execution results (contains success and exit_code)
             smell_detection_success: Whether smell detection succeeded (unused)
+            output_dir: Path to experiment output directory (contains test_summary.txt)
+            repository_id: Repository ID (for baseline test results)
         """
         # Check if tests passed (exit code 0)
         tests_passed = test_results.get('success', False) and test_results.get('exit_code') == 0
@@ -1456,8 +1523,44 @@ NOTES:
             tests_still_passing=tests_passed
         )
         
-        # Create test results record (after phase)
-        if test_results.get('success'):
+        # Parse and save detailed test results (after phase only)
+        test_summary_path = output_dir / "test_summary.txt"
+        
+        if test_summary_path.exists():
+            summary_text = load_test_summary(test_summary_path)
+            
+            if summary_text:
+                # Parse test counts and coverage from summary
+                test_counts = parse_test_counts_from_summary(summary_text)
+                coverage_data = parse_coverage_from_summary(summary_text)
+                
+                # Create test results record with all metrics (after phase)
+                create_test_results(
+                    session=session,
+                    experiment_id=experiment_id,
+                    phase='after',
+                    test_suites_passed=test_counts.get('test_suites_passed') if test_counts else None,
+                    test_suites_failed=test_counts.get('test_suites_failed') if test_counts else None,
+                    test_suites_total=test_counts.get('test_suites_total') if test_counts else None,
+                    tests_passed=test_counts.get('tests_passed') if test_counts else None,
+                    tests_failed=test_counts.get('tests_failed') if test_counts else None,
+                    tests_total=test_counts.get('tests_total') if test_counts else None,
+                    coverage_statements=coverage_data.get('statements') if coverage_data else None,
+                    coverage_branches=coverage_data.get('branches') if coverage_data else None,
+                    coverage_functions=coverage_data.get('functions') if coverage_data else None,
+                    coverage_lines=coverage_data.get('lines') if coverage_data else None,
+                    all_tests_passed=tests_passed
+                )
+            else:
+                # Fallback: create test results with only boolean flag
+                create_test_results(
+                    session=session,
+                    experiment_id=experiment_id,
+                    phase='after',
+                    all_tests_passed=tests_passed
+                )
+        elif test_results.get('success'):
+            # Fallback: test_summary.txt not found, create minimal record
             create_test_results(
                 session=session,
                 experiment_id=experiment_id,

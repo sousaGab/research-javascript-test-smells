@@ -72,7 +72,21 @@ TEST_SMELL_CATALOG = {
                         expect(result).toBe(5);
                     });
                     """
-            }
+            },
+            {
+                "smelly": """
+                    it('should format the date', () => {
+                        const result = formatDate('2026-02-20');
+                        expect(result).toBe('2/20/2026');
+                    });
+                """,
+                "refactored": """
+                    it('converts ISO date string (YYYY-MM-DD) to month/day/year format', () => {
+                        const result = formatDate('2026-02-20');
+                        expect(result).toBe('2/20/2026');
+                    });
+                """
+            },
         ],
         "refactoring_strategies": [
             "Rename tests to explicitly describe scenario, action, and expected outcome",
@@ -133,6 +147,37 @@ TEST_SMELL_CATALOG = {
                 });
             """
             },
+            {
+            "smelly": """
+                it('handles authentication correctly', () => {
+                    const user = getUser(123);
+                    
+                    if (user.role === 'admin') {
+                        expect(user.permissions).toContain('delete_users');
+                    } else if (user.role === 'editor') {
+                        expect(user.permissions).toContain('edit_posts');
+                    } else {
+                        expect(user.permissions).toHaveLength(0);
+                    }
+                });
+            """,
+            "refactored": """
+                it('grants delete permissions to admin users', () => {
+                    const admin = getUserWithRole(123, 'admin');
+                    expect(admin.permissions).toContain('delete_users');
+                });
+
+                it('grants edit permissions to editor users', () => {
+                    const editor = getUserWithRole(456, 'editor');
+                    expect(editor.permissions).toContain('edit_posts');
+                });
+
+                it('grants no permissions to regular users', () => {
+                    const user = getUserWithRole(789, 'user');
+                    expect(user.permissions).toHaveLength(0);
+                });
+            """
+            },
         ],
         "refactoring_strategies": [
             "Remove branching logic from tests",
@@ -175,6 +220,26 @@ TEST_SMELL_CATALOG = {
             "refactored": """
                 test('returns HTTP 200 status', () => {
                     expect(response.status).toBe(200);
+                });
+            """
+            },
+            {
+            "smelly": """
+                it('updates user email', async () => {
+                    let user = await findUser(123);
+                    expect(validateEmail(user.email)).toBe(true);
+                    
+                    user = await updateUserEmail(123, 'novo@email.com');
+                    expect(validateEmail(user.email)).toBe(true);
+                    expect(user.email).toBe('novo@email.com');
+                });
+            """,
+            "refactored": """
+                it('updates user email to a valid address', async () => {
+                    const user = await updateUserEmail(123, 'novo@email.com');
+                    
+                    expect(user.email).toBe('novo@email.com');
+                    expect(validateEmail(user.email)).toBe(true);
                 });
             """
             },
@@ -238,7 +303,26 @@ TEST_SMELL_CATALOG = {
                         expect(() => calculator.divide(10, 0)).toThrow('Cannot divide by zero');
                     });
                 """
-            }
+            },
+            {
+                "smelly": """
+                it('handles database connection failure', async () => {
+                    try {
+                        await connectToDatabase('invalid://url');
+                        throw new Error('Should have thrown connection error');
+                    } catch (error) {
+                        expect(error.message).toContain('Connection failed');
+                    }
+                });
+                """,
+                "refactored": """
+                it('throws connection error for invalid database URL', async () => {
+                    await expect(connectToDatabase('invalid://url'))
+                        .rejects
+                        .toThrow(/Connection failed/);
+                });
+                """
+            },
         ],
         "refactoring_strategies": [
             "Replace manual try/catch and throw constructs with framework‑specific declarative assertions.",
@@ -284,6 +368,24 @@ TEST_SMELL_CATALOG = {
 
                 test('applies 10 percent discount', () => {
                     expect(applyDiscount(100)).toBe(DISCOUNTED_PRICE);
+                });
+            """
+            },
+            {
+            "smelly": """
+                it('calculates shipping cost for express delivery', () => {
+                    const cost = calculateShipping('NY', 5, 'express');
+                    expect(cost).toBe(29.95);
+                });
+            """,
+            "refactored": """
+                it('calculates express shipping at $5.99 per pound', () => {
+                    const weight = 5;
+                    const ratePerPound = 5.99;
+                    const expectedCost = weight * ratePerPound;
+                    
+                    const cost = calculateShipping('NY', weight, 'express');
+                    expect(cost).toBe(expectedCost);
                 });
             """
             },
@@ -344,6 +446,44 @@ TEST_SMELL_CATALOG = {
                 });
             """
             },
+            {
+            "smelly": """
+                describe('ShoppingCart', () => {
+                    it('should calculate the total price correctly', () => {
+                        // Create a new shopping cart instance
+                        const cart = new ShoppingCart();
+                        
+                        // Add a product priced at $25.99 to the cart
+                        cart.addItem({ id: 1, price: 25.99, quantity: 1 });
+                        
+                        // Add another product priced at $15.50 to the cart
+                        cart.addItem({ id: 2, price: 15.50, quantity: 2 });
+                        
+                        // Calculate the subtotal (should be 25.99 + (15.50 * 2) = 56.99)
+                        const subtotal = cart.calculateSubtotal();
+                        
+                        // Apply a standard 10% shipping fee
+                        const total = cart.calculateTotal();
+                        
+                        // Verify that the total equals the expected value
+                        expect(total).toBe(62.69);
+                    });
+                });
+            """,
+            "refactored": """
+                describe('ShoppingCart', () => {
+                    it('calculates total including 10% shipping fee', () => {
+                        const cart = new ShoppingCart();
+                        cart.addItem({ id: 1, price: 25.99, quantity: 1 });
+                        cart.addItem({ id: 2, price: 15.50, quantity: 2 });
+                        
+                        expected_value = (25.99 + (15.50 * 2)) * 1.10;
+                        const total = cart.calculateTotal();
+                        expect(total).toBe(expected_value);
+                    });
+                });
+            """
+            },
         ],
         "refactoring_strategies": [
             "Remove redundant comments",
@@ -372,11 +512,13 @@ TEST_SMELL_CATALOG = {
                 });
             """,
             "refactored": """
-                it('sends notification', async () => {
-                  const promise = waitForNotification();
-                  user.updateProfile({ name: 'John' });
-                  await promise;
-                  expect(notification.sent).toHaveBeenCalled();
+                it('sends notification after profile update', (done) => {
+                    notification.once('sent', () => {
+                        expect(notification.sent).toHaveBeenCalled();
+                        done();
+                    });
+                    
+                    user.updateProfile({ name: 'John' });
                 });
             """
             },
@@ -398,6 +540,46 @@ TEST_SMELL_CATALOG = {
                 
                     const user = getUserById(1);
                     expect(user.status).toBe('updated');
+                });
+            """
+            },
+            {
+            "smelly": """
+                it('logs out user after 30 minutes of inactivity', async () => {
+                    const session = createUserSession('user123');
+                    expect(session.isActive()).toBe(true);
+                    
+                    // Wait 30 minutes!
+                    await new Promise(resolve => setTimeout(resolve, 1800000));
+                    
+                    checkInactivity();
+                    expect(session.isActive()).toBe(false);
+                });
+            """,
+            "refactored": """
+                function checkInactivity(session, currentTime) {
+                    const inactiveTime = currentTime - session.lastActivity;
+                    const thirtyMinutesInMs = 30 * 60 * 1000;
+                    
+                    if (inactiveTime > thirtyMinutesInMs) {
+                        session.active = false;
+                    }
+                }
+
+                it('logs out user after 30 minutes of inactivity', () => {
+                    const session = {
+                        lastActivity: 1000000,
+                        active: true
+                    };
+                    
+                    const twentyNineMinutesInMs = 29 * 60 * 1000;
+                    const thirtyOneMinutesInMs = 31 * 60 * 1000;
+                    
+                    checkInactivity(session, session.lastActivity + twentyNineMinutesInMs);
+                    expect(session.active).toBe(true);
+                    
+                    checkInactivity(session, session.lastActivity + thirtyOneMinutesInMs);
+                    expect(session.active).toBe(false);
                 });
             """
             },
@@ -447,6 +629,23 @@ TEST_SMELL_CATALOG = {
                 });
             """
             },
+            {
+            "smelly": """
+                it('validates password strength', () => {
+                    const result = validatePassword('Pass123!');
+                    expect(result.isValid).toBe(true);
+                    expect(result.errors.length).toBe(0);
+                });
+            """,
+            "refactored": """
+                it('accepts passwords with uppercase, lowercase, number, and special char', () => {
+                    const result = validatePassword('Pass123!');
+                    expect(result.isValid).toBeTruthy();
+                    expect(result.errors).toHaveLength(0);
+                    expect(result.strength).toBe('strong');
+                });
+            """
+            },
         ],
         "refactoring_strategies": [
             "Replace generic assertions with behavior-specific checks",
@@ -481,18 +680,46 @@ TEST_SMELL_CATALOG = {
             },
             {
             "smelly": """
-                test('test1', () => {
-                    const total = calculateTotal([10, 20]);
-                    expect(total).toBe(30);
+                it('processes payment', () => {
+                    const payment = new Payment(100, 'credit_card');
+                    payment.charge();
                 });
             """,
             "refactored": """
-                test('calculates total price for a list of item values', () => {
-                    const total = calculateTotal([10, 20]);
-                    expect(total).toBe(30);
+                it('charges credit card and returns transaction ID', () => {
+                    const payment = new Payment(100, 'credit_card');
+                    
+                    const result = payment.charge();
+                    
+                    expect(result.success).toBe(true);
+                    expect(result.transactionId).toMatch(/^txn_[a-f0-9]+$/);
+                    expect(payment.status).toBe('completed');
                 });
             """
             },
+            {
+            "smelly": """
+                it('saves user preferences to database', async () => {
+                    const user = new User('john@example.com');
+                    user.setPreference('theme', 'dark');
+                    user.setPreference('notifications', true);
+                    await user.savePreferences();
+                });
+            """,
+            "refactored": """
+                it('saves user preferences to database', async () => {
+                    const user = new User('john@example.com');
+                    user.setPreference('theme', 'dark');
+                    user.setPreference('notifications', true);
+                    
+                    await user.savePreferences();
+                    
+                    const savedUser = await User.findById(user.id);
+                    expect(savedUser.preferences.theme).toBe('dark');
+                    expect(savedUser.preferences.notifications).toBe(true);
+                });
+            """
+            }
         ],
         "refactoring_strategies": [
             "Introduce explicit assertions",
@@ -675,6 +902,103 @@ TEST_SMELL_CATALOG = {
                         const log = await logger.getLastEntry();
                         expect(log.type).toBe('USER_REGISTRATION');
                         expect(log.userId).toBe(user.id);
+                    });
+                });
+            """
+            },
+            {
+            "smelly": """
+                it('processes a complete order workflow', async () => {
+                    // Create inventory items
+                    const laptop = new InventoryItem('LAP-001', 'Gaming Laptop', 1299.99, 10);
+                    const mouse = new InventoryItem('MOU-001', 'Wireless Mouse', 29.99, 50);
+                    const keyboard = new InventoryItem('KEY-001', 'Mechanical Keyboard', 89.99, 25);
+                    await inventory.save([laptop, mouse, keyboard]);
+                    
+                    // Create customer
+                    const customer = new Customer('CUST-456', 'Jane Smith', 'jane@example.com');
+                    await customer.save();
+                    
+                    // Create order
+                    const order = new Order('ORD-789', customer.id);
+                    order.addItem(laptop.id, 1);
+                    order.addItem(mouse.id, 2);
+                    order.addItem(keyboard.id, 1);
+                    
+                    // Apply promotions
+                    const promoCode = await PromotionCode.find('SAVE10');
+                    order.applyPromo(promoCode);
+                    
+                    // Process payment
+                    const payment = new Payment('PMT-111', order.id, 'credit_card');
+                    await payment.process();
+                    
+                    // Update inventory
+                    await inventory.decrement(laptop.id, 1);
+                    await inventory.decrement(mouse.id, 2);
+                    await inventory.decrement(keyboard.id, 1);
+                    
+                    // Send confirmation
+                    await emailService.sendOrderConfirmation(customer.email, order);
+                    
+                    // Assert everything worked
+                    expect(order.status).toBe('completed');
+                    expect(order.total).toBe(1358.96);
+                    expect(payment.status).toBe('approved');
+                    expect(inventory.get(laptop.id).quantity).toBe(9);
+                    expect(inventory.get(mouse.id).quantity).toBe(48);
+                    expect(inventory.get(keyboard.id).quantity).toBe(24);
+                    expect(emailService.sent).toHaveBeenCalledWith(customer.email, 'order_confirmation');
+                });
+            """,
+            "refactored": """
+                describe('Order processing', () => {
+                    let laptop, mouse, keyboard, customer;
+                    
+                    beforeEach(async () => {
+                        laptop = new InventoryItem('LAP-001', 'Gaming Laptop', 1299.99, 10);
+                        mouse = new InventoryItem('MOU-001', 'Wireless Mouse', 29.99, 50);
+                        keyboard = new InventoryItem('KEY-001', 'Mechanical Keyboard', 89.99, 25);
+                        customer = new Customer('CUST-456', 'Jane Smith', 'jane@example.com');
+                    });
+                    
+                    it('calculates order total with promotions', () => {
+                        const order = new Order('ORD-789', customer.id);
+                        order.addItem(laptop.id, 1);
+                        order.addItem(mouse.id, 2);
+                        order.addItem(keyboard.id, 1);
+                        
+                        const promoCode = new PromotionCode('SAVE10', 0.1);
+                        order.applyPromo(promoCode);
+                        
+                        const expectedTotal = (1299.99 + (29.99 * 2) + 89.99) * 0.9;
+                        expect(order.calculateTotal()).toBeCloseTo(expectedTotal, 2);
+                    });
+                    
+                    it('updates inventory quantities after order completion', async () => {
+                        const order = new Order('ORD-789', customer.id);
+                        order.addItem(laptop.id, 1);
+                        order.addItem(mouse.id, 2);
+                        order.addItem(keyboard.id, 1);
+                        
+                        await order.complete();
+                        
+                        expect(await inventory.getQuantity(laptop.id)).toBe(9);
+                        expect(await inventory.getQuantity(mouse.id)).toBe(48);
+                        expect(await inventory.getQuantity(keyboard.id)).toBe(24);
+                    });
+                    
+                    it('sends confirmation email after payment approval', async () => {
+                        const order = new Order('ORD-789', customer.id);
+                        const payment = new Payment('PMT-111', order.id, 'credit_card');
+                        
+                        await payment.process();
+                        await order.finalize(payment);
+                        
+                        expect(emailService.sendOrderConfirmation).toHaveBeenCalledWith(
+                        customer.email,
+                        order.id
+                        );
                     });
                 });
             """

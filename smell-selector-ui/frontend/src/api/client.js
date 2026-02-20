@@ -135,6 +135,9 @@ export async function getRefatoracoes(params = {}) {
   if (params.coverage_changed !== undefined && params.coverage_changed !== '') {
     query.append('coverage_changed', params.coverage_changed);
   }
+  if (params.coverage_decreased !== undefined && params.coverage_decreased !== '') {
+    query.append('coverage_decreased', params.coverage_decreased);
+  }
   if (params.limit) query.append('limit', params.limit);
   if (params.offset !== undefined) query.append('offset', params.offset);
   const qs = query.toString();

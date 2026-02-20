@@ -1002,6 +1002,7 @@ async def get_refatoracoes(
     smell_removed: Optional[bool] = Query(None, description="Filter by smell_removed"),
     tests_changed: Optional[bool] = Query(None, description="Filter by tests_changed"),
     coverage_changed: Optional[bool] = Query(None, description="Filter by coverage_changed"),
+    coverage_decreased: Optional[bool] = Query(None, description="Filter by coverage_decreased"),
     limit: int = Query(50, ge=1, le=500, description="Page size"),
     offset: int = Query(0, ge=0, description="Pagination offset"),
 ):
@@ -1045,6 +1046,10 @@ async def get_refatoracoes(
             where_clauses.append("e.coverage_changed = :coverage_changed")
             params["coverage_changed"] = 1 if coverage_changed else 0
 
+        if coverage_decreased is not None:
+            where_clauses.append("e.coverage_decreased = :coverage_decreased")
+            params["coverage_decreased"] = 1 if coverage_decreased else 0
+
         where_sql = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
 
         count_query = text(f"""
@@ -1073,6 +1078,7 @@ async def get_refatoracoes(
                 e.smell_removed,
                 e.tests_changed,
                 e.coverage_changed,
+                e.coverage_decreased,
                 e.tests_still_passing,
                 e.refactoring_completed,
                 e.introduced_new_smells,
@@ -1107,15 +1113,16 @@ async def get_refatoracoes(
                 "smell_removed": bool(row[7]) if row[7] is not None else None,
                 "tests_changed": bool(row[8]) if row[8] is not None else None,
                 "coverage_changed": bool(row[9]) if row[9] is not None else None,
-                "tests_still_passing": bool(row[10]) if row[10] is not None else None,
-                "refactoring_completed": bool(row[11]) if row[11] is not None else None,
-                "introduced_new_smells": bool(row[12]) if row[12] is not None else None,
-                "experiment_date": str(row[13]) if row[13] else None,
-                "execution_time_seconds": row[14],
-                "tokens_used": row[15],
-                "llm_latency_seconds": row[16],
-                "study_smell_id": row[17],
-                "baseline_smell_id": row[18],
+                "coverage_decreased": bool(row[10]) if row[10] is not None else None,
+                "tests_still_passing": bool(row[11]) if row[11] is not None else None,
+                "refactoring_completed": bool(row[12]) if row[12] is not None else None,
+                "introduced_new_smells": bool(row[13]) if row[13] is not None else None,
+                "experiment_date": str(row[14]) if row[14] else None,
+                "execution_time_seconds": row[15],
+                "tokens_used": row[16],
+                "llm_latency_seconds": row[17],
+                "study_smell_id": row[18],
+                "baseline_smell_id": row[19],
             })
 
         return {
@@ -1148,6 +1155,7 @@ async def get_refatoracao_detail(experiment_id: int):
                 e.smell_removed,
                 e.tests_changed,
                 e.coverage_changed,
+                e.coverage_decreased,
                 e.tests_still_passing,
                 e.refactoring_completed,
                 e.introduced_new_smells,
@@ -1176,6 +1184,7 @@ async def get_refatoracao_detail(experiment_id: int):
             raise HTTPException(status_code=404, detail=f"Experiment {experiment_id} not found")
 
         # Get test results before/after
+        # Query test results from test_results table (after phase only)
         test_results_query = text("""
             SELECT
                 phase,
@@ -1197,6 +1206,28 @@ async def get_refatoracao_detail(experiment_id: int):
         """)
         test_rows = session.execute(test_results_query, {"experiment_id": experiment_id}).fetchall()
 
+        # Query repository baseline test results (before phase)
+        baseline_query = text("""
+            SELECT
+                rbtr.test_suites_passed,
+                rbtr.test_suites_failed,
+                rbtr.test_suites_total,
+                rbtr.tests_passed,
+                rbtr.tests_failed,
+                rbtr.tests_total,
+                rbtr.execution_time_seconds,
+                rbtr.coverage_statements,
+                rbtr.coverage_branches,
+                rbtr.coverage_functions,
+                rbtr.coverage_lines,
+                rbtr.all_tests_passed
+            FROM experiments e
+            JOIN files f ON e.file_id = f.id
+            JOIN repository_baseline_test_results rbtr ON rbtr.repository_id = f.repository_id
+            WHERE e.id = :experiment_id
+        """)
+        baseline_row = session.execute(baseline_query, {"experiment_id": experiment_id}).fetchone()
+
         def parse_test_result(r):
             return {
                 "phase": r[0],
@@ -1214,13 +1245,32 @@ async def get_refatoracao_detail(experiment_id: int):
                 "all_tests_passed": bool(r[12]) if r[12] is not None else None,
             }
 
-        test_results_before = None
+        def parse_baseline_result(r):
+            return {
+                "phase": "before",
+                "test_suites_passed": r[0],
+                "test_suites_failed": r[1],
+                "test_suites_total": r[2],
+                "tests_passed": r[3],
+                "tests_failed": r[4],
+                "tests_total": r[5],
+                "execution_time_seconds": r[6],
+                "coverage_statements": r[7],
+                "coverage_branches": r[8],
+                "coverage_functions": r[9],
+                "coverage_lines": r[10],
+                "all_tests_passed": bool(r[11]) if r[11] is not None else None,
+            }
+
+        # Parse baseline (from repository_baseline_test_results)
+        test_results_before = parse_baseline_result(baseline_row) if baseline_row else None
+        
+        # Parse after (from test_results table)
         test_results_after = None
         for tr in test_rows:
-            if tr[0] == "before":
-                test_results_before = parse_test_result(tr)
-            elif tr[0] == "after":
+            if tr[0] == "after":
                 test_results_after = parse_test_result(tr)
+                break
 
         return {
             "id": row[0],
@@ -1233,21 +1283,22 @@ async def get_refatoracao_detail(experiment_id: int):
             "smell_removed": bool(row[7]) if row[7] is not None else None,
             "tests_changed": bool(row[8]) if row[8] is not None else None,
             "coverage_changed": bool(row[9]) if row[9] is not None else None,
-            "tests_still_passing": bool(row[10]) if row[10] is not None else None,
-            "refactoring_completed": bool(row[11]) if row[11] is not None else None,
-            "introduced_new_smells": bool(row[12]) if row[12] is not None else None,
-            "experiment_date": str(row[13]) if row[13] else None,
-            "execution_time_seconds": row[14],
-            "tokens_used": row[15],
-            "llm_latency_seconds": row[16],
-            "study_smell_id": row[17],
-            "baseline_smell_id": row[18],
-            "original_code": row[19],
-            "refactored_code": row[20],
-            "original_method": row[21],
-            "refactored_method": row[22],
-            "prompt_text": row[23],
-            "notes": row[24],
+            "coverage_decreased": bool(row[10]) if row[10] is not None else None,
+            "tests_still_passing": bool(row[11]) if row[11] is not None else None,
+            "refactoring_completed": bool(row[12]) if row[12] is not None else None,
+            "introduced_new_smells": bool(row[13]) if row[13] is not None else None,
+            "experiment_date": str(row[14]) if row[14] else None,
+            "execution_time_seconds": row[15],
+            "tokens_used": row[16],
+            "llm_latency_seconds": row[17],
+            "study_smell_id": row[18],
+            "baseline_smell_id": row[19],
+            "original_code": row[20],
+            "refactored_code": row[21],
+            "original_method": row[22],
+            "refactored_method": row[23],
+            "prompt_text": row[24],
+            "notes": row[25],
             "test_results_before": test_results_before,
             "test_results_after": test_results_after,
         }

@@ -1,0 +1,49 @@
+it('has expected structure', async () => {
+  const wrapper = mount(BToaster, {
+    attachTo: document.body,
+    propsData: {
+      name: 'foo'
+    }
+  })
+
+  expect(wrapper.vm).toBeDefined()
+  await waitNT(wrapper.vm)
+  await waitRAF()
+
+  expect(wrapper.element.tagName).toBe('DIV')
+  expect(wrapper.attributes('id')).toBe('foo')
+  expect(wrapper.attributes('aria-live')).toBeUndefined()
+  expect(wrapper.attributes('aria-atomic')).toBeUndefined()
+  expect(wrapper.attributes('role')).toBeUndefined()
+  expect(wrapper.classes()).toContain('b-toaster')
+  expect(wrapper.classes()).toContain('foo')
+  expect(wrapper.classes().length).toBe(2)
+
+  expect(wrapper.find('.b-toaster-slot').exists()).toBe(true)
+  const $slot = wrapper.find('.b-toaster-slot')
+  expect($slot.element.tagName).toBe('DIV')
+  expect($slot.classes()).toContain('b-toaster-slot')
+  expect($slot.classes()).toContain('vue-portal-target')
+  expect($slot.classes().length).toBe(2)
+  expect($slot.text()).toEqual('')
+
+  wrapper.destroy()
+})
+
+it('has portal target in Vue 2', async () => {
+  if (isVue3) {
+    return
+  }
+  
+  const wrapper = mount(BToaster, {
+    attachTo: document.body,
+    propsData: {
+      name: 'foo'
+    }
+  })
+
+  const $slot = wrapper.find('.b-toaster-slot')
+  expect($slot.findComponent(PortalTarget).exists()).toBe(true)
+
+  wrapper.destroy()
+})

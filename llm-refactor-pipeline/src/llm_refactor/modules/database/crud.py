@@ -797,6 +797,130 @@ def get_test_results(session: Session, experiment_id: int,
 
 
 # =============================================================================
+# REPOSITORY BASELINE TEST RESULTS
+# =============================================================================
+
+def get_repository_baseline_tests(session: Session, repository_id: int) -> Optional['RepositoryBaselineTestResult']:
+    """
+    Get baseline test results for a repository.
+
+    Args:
+        session: Database session
+        repository_id: Repository ID
+
+    Returns:
+        RepositoryBaselineTestResult object or None if not found
+    """
+    from llm_refactor.modules.database.models import RepositoryBaselineTestResult
+    return session.query(RepositoryBaselineTestResult).filter_by(
+        repository_id=repository_id
+    ).first()
+
+
+def repository_has_baseline_tests(session: Session, repository_id: int) -> bool:
+    """
+    Check if a repository has baseline test results saved.
+
+    Args:
+        session: Database session
+        repository_id: Repository ID
+
+    Returns:
+        True if baseline exists, False otherwise
+    """
+    from llm_refactor.modules.database.models import RepositoryBaselineTestResult
+    return session.query(RepositoryBaselineTestResult).filter_by(
+        repository_id=repository_id
+    ).first() is not None
+
+
+def create_repository_baseline_tests(session: Session, repository_id: int,
+                                     test_suites_passed: Optional[int] = None,
+                                     test_suites_failed: Optional[int] = None,
+                                     test_suites_total: Optional[int] = None,
+                                     tests_passed: Optional[int] = None,
+                                     tests_failed: Optional[int] = None,
+                                     tests_total: Optional[int] = None,
+                                     snapshots_total: Optional[int] = None,
+                                     execution_time_seconds: Optional[float] = None,
+                                     coverage_statements: Optional[float] = None,
+                                     coverage_branches: Optional[float] = None,
+                                     coverage_functions: Optional[float] = None,
+                                     coverage_lines: Optional[float] = None,
+                                     all_tests_passed: Optional[bool] = None) -> 'RepositoryBaselineTestResult':
+    """
+    Create or update repository baseline test results.
+
+    If baseline already exists for this repository, it will be updated.
+    Otherwise, a new record is created.
+
+    Args:
+        session: Database session
+        repository_id: Repository ID
+        test_suites_passed: Number of test suites passed (optional)
+        test_suites_failed: Number of test suites failed (optional)
+        test_suites_total: Total test suites (optional)
+        tests_passed: Number of tests passed (optional)
+        tests_failed: Number of tests failed (optional)
+        tests_total: Total tests (optional)
+        snapshots_total: Total snapshots (optional)
+        execution_time_seconds: Execution time in seconds (optional)
+        coverage_statements: Statement coverage % (optional)
+        coverage_branches: Branch coverage % (optional)
+        coverage_functions: Function coverage % (optional)
+        coverage_lines: Line coverage % (optional)
+        all_tests_passed: Boolean flag (optional)
+
+    Returns:
+        RepositoryBaselineTestResult: Created or updated baseline test result object
+    """
+    from llm_refactor.modules.database.models import RepositoryBaselineTestResult
+    
+    # Check if baseline already exists
+    existing = get_repository_baseline_tests(session, repository_id)
+    
+    if existing:
+        # Update existing baseline
+        existing.test_suites_passed = test_suites_passed
+        existing.test_suites_failed = test_suites_failed
+        existing.test_suites_total = test_suites_total
+        existing.tests_passed = tests_passed
+        existing.tests_failed = tests_failed
+        existing.tests_total = tests_total
+        existing.snapshots_total = snapshots_total
+        existing.execution_time_seconds = execution_time_seconds
+        existing.coverage_statements = coverage_statements
+        existing.coverage_branches = coverage_branches
+        existing.coverage_functions = coverage_functions
+        existing.coverage_lines = coverage_lines
+        existing.all_tests_passed = all_tests_passed
+        existing.executed_at = datetime.utcnow()
+        session.flush()
+        return existing
+    else:
+        # Create new baseline
+        result = RepositoryBaselineTestResult(
+            repository_id=repository_id,
+            test_suites_passed=test_suites_passed,
+            test_suites_failed=test_suites_failed,
+            test_suites_total=test_suites_total,
+            tests_passed=tests_passed,
+            tests_failed=tests_failed,
+            tests_total=tests_total,
+            snapshots_total=snapshots_total,
+            execution_time_seconds=execution_time_seconds,
+            coverage_statements=coverage_statements,
+            coverage_branches=coverage_branches,
+            coverage_functions=coverage_functions,
+            coverage_lines=coverage_lines,
+            all_tests_passed=all_tests_passed
+        )
+        session.add(result)
+        session.flush()
+        return result
+
+
+# =============================================================================
 # AI RESPONSES
 # =============================================================================
 

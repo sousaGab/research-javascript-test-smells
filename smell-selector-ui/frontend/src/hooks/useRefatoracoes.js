@@ -27,6 +27,7 @@ export function useRefatoracoes() {
     smell_removed: '',
     tests_changed: '',
     coverage_changed: '',
+    coverage_decreased: '',
   });
 
   const totalPages = Math.ceil(total / PAGE_SIZE);
@@ -44,6 +45,7 @@ export function useRefatoracoes() {
       if (currentFilters.smell_removed !== '') params.smell_removed = currentFilters.smell_removed;
       if (currentFilters.tests_changed !== '') params.tests_changed = currentFilters.tests_changed;
       if (currentFilters.coverage_changed !== '') params.coverage_changed = currentFilters.coverage_changed;
+      if (currentFilters.coverage_decreased !== '') params.coverage_decreased = currentFilters.coverage_decreased;
 
       const data = await getRefatoracoes(params);
       setExperiments(data.experiments);
@@ -100,6 +102,7 @@ export function useRefatoracoes() {
       smell_removed: '',
       tests_changed: '',
       coverage_changed: '',
+      coverage_decreased: '',
     });
     setPage(1);
     setSelectedExperiment(null);

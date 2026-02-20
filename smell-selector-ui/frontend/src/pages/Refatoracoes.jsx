@@ -33,54 +33,59 @@ function CoverageRow({ label, before, after }) {
 }
 
 function TestResultsTable({ before, after }) {
-  if (!before && !after) return null;
+  // Always show table section (even with partial data)
+  // Individual cells handle null values with "—"
   return (
     <div className="ref-section">
       <h4 className="ref-section-title">Test Results</h4>
-      <table className="ref-table">
-        <thead>
-          <tr>
-            <th>Metric</th>
-            <th>Before</th>
-            <th>After</th>
-            <th>Delta</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Tests passing</td>
-            <td>{before ? `${before.tests_passed ?? '—'}/${before.tests_total ?? '—'}` : '—'}</td>
-            <td>{after ? `${after.tests_passed ?? '—'}/${after.tests_total ?? '—'}` : '—'}</td>
-            <td>—</td>
-          </tr>
-          <tr>
-            <td>Test suites passing</td>
-            <td>{before ? `${before.test_suites_passed ?? '—'}/${before.test_suites_total ?? '—'}` : '—'}</td>
-            <td>{after ? `${after.test_suites_passed ?? '—'}/${after.test_suites_total ?? '—'}` : '—'}</td>
-            <td>—</td>
-          </tr>
-          <CoverageRow
-            label="Coverage statements"
-            before={before?.coverage_statements}
-            after={after?.coverage_statements}
-          />
-          <CoverageRow
-            label="Coverage branches"
-            before={before?.coverage_branches}
-            after={after?.coverage_branches}
-          />
-          <CoverageRow
-            label="Coverage functions"
-            before={before?.coverage_functions}
-            after={after?.coverage_functions}
-          />
-          <CoverageRow
-            label="Coverage lines"
-            before={before?.coverage_lines}
-            after={after?.coverage_lines}
-          />
-        </tbody>
-      </table>
+      {!before && !after ? (
+        <p className="ref-no-data">No test results data available</p>
+      ) : (
+        <table className="ref-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>Before</th>
+              <th>After</th>
+              <th>Delta</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tests passing</td>
+              <td>{before ? `${before.tests_passed ?? '—'}/${before.tests_total ?? '—'}` : '—'}</td>
+              <td>{after ? `${after.tests_passed ?? '—'}/${after.tests_total ?? '—'}` : '—'}</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td>Test suites passing</td>
+              <td>{before ? `${before.test_suites_passed ?? '—'}/${before.test_suites_total ?? '—'}` : '—'}</td>
+              <td>{after ? `${after.test_suites_passed ?? '—'}/${after.test_suites_total ?? '—'}` : '—'}</td>
+              <td>—</td>
+            </tr>
+            <CoverageRow
+              label="Coverage statements"
+              before={before?.coverage_statements}
+              after={after?.coverage_statements}
+            />
+            <CoverageRow
+              label="Coverage branches"
+              before={before?.coverage_branches}
+              after={after?.coverage_branches}
+            />
+            <CoverageRow
+              label="Coverage functions"
+              before={before?.coverage_functions}
+              after={after?.coverage_functions}
+            />
+            <CoverageRow
+              label="Coverage lines"
+              before={before?.coverage_lines}
+              after={after?.coverage_lines}
+            />
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
@@ -165,6 +170,15 @@ function RefFilter({ filters, filterOptions, onFilterChange, onClear, total }) {
           <option value="">Coverage changed: All</option>
           <option value="true">Coverage changed: Yes</option>
           <option value="false">Coverage changed: No</option>
+        </select>
+
+        <select
+          value={filters.coverage_decreased}
+          onChange={e => onFilterChange({ coverage_decreased: e.target.value })}
+        >
+          <option value="">Coverage decreased: All</option>
+          <option value="true">Coverage decreased: Yes</option>
+          <option value="false">Coverage decreased: No</option>
         </select>
 
         <button className="ref-btn-clear" onClick={onClear}>Clear filters</button>
@@ -296,6 +310,10 @@ function ExperimentDetail({ experiment, layout, onLayoutChange, onDelete }) {
           <div className="ref-outcome-item">
             <span className="ref-outcome-label">Coverage changed</span>
             <Badge value={experiment.coverage_changed} />
+          </div>
+          <div className="ref-outcome-item">
+            <span className="ref-outcome-label">Coverage decreased</span>
+            <Badge value={experiment.coverage_decreased} trueLabel="Yes" falseLabel="No" />
           </div>
         </div>
 
