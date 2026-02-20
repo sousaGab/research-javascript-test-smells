@@ -1,0 +1,5930 @@
+file,type,line,method,methodStart,methodEnd,source
+/tests/utils.test.js,AnonymousTest,"{'startLine':7,'endLine':39}","test('class component', () => {
+    let isStrictMode;
+    class TestComponent extends React.Component {
+      static whyDidYouRender = true;
+      render() {
+        isStrictMode = checkIfInsideAStrictModeTree(this);
+        return <div>hi!</div>;
+      }
+    }
+
+    rtl.render(
+      <div>
+        <TestComponent/>
+      </div>
+    );
+
+    expect(isStrictMode).toBe(false);
+
+    rtl.render(
+      <React.StrictMode>
+        <>
+          <div>
+            <TestComponent/>
+          </div>
+          <div>
+            hiiiiiiiii
+          </div>
+        </>
+      </React.StrictMode>
+    );
+
+    expect(isStrictMode).toBe(true);
+  })",7,39,snuts
+/tests/strictMode.test.js,VerboseStatement,"{'startLine':335,'endLine':415}","test('Strict mode- strict parent and child', () => {
+  const App = React.memo(() => {
+    const [whatever, setWhatever] = React.useState({a: 'b'});
+    const [whatever2, setWhatever2] = React.useState({a2: 'b2'});
+
+    const clickme = () => {
+      setWhatever({a: 'b'});
+      setWhatever2({a2: 'b2'});
+    };
+
+    return (
+      <div>
+        <button onClick={clickme}>test</button>
+        <div>{whatever.a} {whatever2.a2}</div>
+        <Child />
+      </div>
+    );
+  });
+
+  function Child() {
+    return <div>child</div>;
+  }
+
+  Child.whyDidYouRender = true;
+
+  const StrictApp = () => (
+    <React.StrictMode>
+      <App/>
+    </React.StrictMode>
+  );
+
+  const {getByText} = rtl.render(<StrictApp/>);
+  const buttonReference = getByText('test');
+
+  rtl.act(() => {
+    buttonReference.click();
+  });
+
+  rtl.act(() => {
+    buttonReference.click();
+  });
+
+  rtl.act(() => {
+    buttonReference.click();
+  });
+
+  const ownerDifferences = {
+    hookDifferences: [
+      {
+        hookName: 'useState',
+        differences: [
+          {
+            diffType: 'deepEquals',
+            pathString: '',
+            prevValue: {a: 'b'},
+            nextValue: {a: 'b'},
+          },
+        ],
+      },
+      {
+        hookName: 'useState',
+        differences: [
+          {
+            diffType: 'deepEquals',
+            pathString: '',
+            prevValue: {a2: 'b2'},
+            nextValue: {a2: 'b2'},
+          },
+        ],
+      },
+    ],
+    propsDifferences: false,
+    stateDifferences: false,
+  };
+
+  expect(updateInfos).toHaveLength(3);
+
+  expect(updateInfos[0].reason.ownerDifferences).toEqual(ownerDifferences);
+  expect(updateInfos[1].reason.ownerDifferences).toEqual(ownerDifferences);
+  expect(updateInfos[2].reason.ownerDifferences).toEqual(ownerDifferences);
+})",335,415,snuts
+/tests/shouldTrack.test.js,AnonymousTest,"{'startLine':94,'endLine':100}","test('Pure component', () => {
+      whyDidYouRender(React, {
+        trackAllPureComponents: true,
+      });
+      const isShouldTrack = shouldTrack(PureComponent, {isHookChange: false});
+      expect(isShouldTrack).toBe(true);
+    })",94,100,snuts
+/tests/shouldTrack.test.js,AnonymousTest,"{'startLine':102,'endLine':108}","test('Memo component', () => {
+      whyDidYouRender(React, {
+        trackAllPureComponents: true,
+      });
+      const isShouldTrack = shouldTrack(MemoComponent, {isHookChange: false});
+      expect(isShouldTrack).toBe(true);
+    })",102,108,snuts
+/tests/shouldTrack.test.js,IdenticalTestDescription,"{'startLine':130,'endLine':134}","test('Do not track not tracked component (default)', () => {
+      whyDidYouRender(React);
+      const isShouldTrack = shouldTrack(NotTrackedTestComponent, {isHookChange: true});
+      expect(isShouldTrack).toBe(false);
+    })",130,134,snuts
+/tests/shouldTrack.test.js,IdenticalTestDescription,"{'startLine':136,'endLine':140}","test('Track tracked component', () => {
+      whyDidYouRender(React);
+      const isShouldTrack = shouldTrack(TrackedTestComponent, {isHookChange: true});
+      expect(isShouldTrack).toBe(true);
+    })",136,140,snuts
+/tests/normalizeOptions.test.js,NonFunctionalStatement,"{'startLine':10,'endLine':10}","test('User can rewrite options', () => {
+  const ownNotifier = () => {};
+  const userOptions = {
+    notifier: ownNotifier,
+  };
+  const options = normalizeOptions(userOptions);
+  expect(options.notifier).toBe(ownNotifier);
+  expect(options.consoleLog).toBe(console.log);
+})",9,17,snuts
+/tests/logOwnerReasons.test.js,IdenticalTestDescription,"{'startLine':250,'endLine':270}","test('owner props changed', () => {
+    const {rerender} = rtl.render(<FunctionalOwner a={1}/>);
+    rerender(<FunctionalOwner a={2} />);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: [{
+          pathString: 'a',
+          diffType: diffTypes.different,
+          prevValue: 1,
+          nextValue: 2,
+        }],
+        stateDifferences: false,
+        hookDifferences: false,
+      },
+    });
+  })",250,270,snuts
+/tests/logOwnerReasons.test.js,IdenticalTestDescription,"{'startLine':272,'endLine':291}","test('owner state changed', () => {
+    rtl.render(<ClassOwner/>);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: false,
+        stateDifferences: [{
+          pathString: 'a',
+          diffType: diffTypes.different,
+          prevValue: 1,
+          nextValue: 2,
+        }],
+        hookDifferences: false,
+      },
+    });
+  })",272,291,snuts
+/tests/logOwnerReasons.test.js,IdenticalTestDescription,"{'startLine':293,'endLine':326}","test('owner hooks changed', () => {
+    rtl.render(<HooksOwner/>);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {
+            hookName: 'useState',
+            differences: [{
+              pathString: '',
+              diffType: diffTypes.different,
+              prevValue: 1,
+              nextValue: 2,
+            }],
+          },
+          {
+            hookName: 'useState',
+            differences: [{
+              pathString: '',
+              diffType: diffTypes.different,
+              prevValue: 1,
+              nextValue: 2,
+            }],
+          },
+        ],
+      },
+    });
+  })",293,326,snuts
+/tests/logOwnerReasons.test.js,ConditionalTestLogic,"{'startLine':150,'endLine':152}","test('owner state updated during render', () => {
+    function DerivedStateOwner({ready}) {
+      const [wasReady, setWasReady] = React.useState(ready);
+      if (ready && !wasReady) {
+        setWasReady(true);
+      }
+
+      return <Child />;
+    }
+    const {rerender} = rtl.render(<DerivedStateOwner ready={false}/>);
+    rerender(<DerivedStateOwner ready/>);
+    rerender(<DerivedStateOwner ready={false}/>);
+
+    expect(updateInfos).toHaveLength(2);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: [{
+          pathString: 'ready',
+          diffType: diffTypes.different,
+          prevValue: false,
+          nextValue: true,
+        }],
+        stateDifferences: false,
+        hookDifferences: [
+          {
+            hookName: 'useState',
+            differences: [{
+              pathString: '',
+              diffType: diffTypes.different,
+              prevValue: false,
+              nextValue: true,
+            }],
+          },
+        ],
+      },
+    });
+    expect(updateInfos[1].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: [{
+          pathString: 'ready',
+          diffType: diffTypes.different,
+          prevValue: true,
+          nextValue: false,
+        }],
+        stateDifferences: false,
+        hookDifferences: [{hookName: 'useState', differences: false}],
+      },
+    });
+  })",147,201,snuts
+/tests/index.test.js,GeneralFixture,"{'startLine':9,'endLine':9}","beforeEach(() => {
+  updateInfos = [];
+  whyDidYouRender(React, {
+    notifier: updateInfo => updateInfos.push(updateInfo),
+  });
+})",8,13,snuts
+/tests/getUpdateInfo.test.js,AnonymousTest,"{'startLine':48,'endLine':71}","test('Same props', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {a: 1},
+      prevState: null,
+      nextProps: {a: 1},
+      nextState: null,
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      ownerDataMap: expect.any(WeakMap),
+      displayName: 'TestComponent',
+      reason: {
+        propsDifferences: [],
+        stateDifferences: false,
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",48,71,snuts
+/tests/getUpdateInfo.test.js,AnonymousTest,"{'startLine':73,'endLine':96}","test('Same state', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {},
+      prevState: {a: 1},
+      nextProps: {},
+      nextState: {a: 1},
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      ownerDataMap: expect.any(WeakMap),
+      displayName: 'TestComponent',
+      reason: {
+        propsDifferences: [],
+        stateDifferences: [],
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",73,96,snuts
+/tests/getUpdateInfo.test.js,AnonymousTest,"{'startLine':123,'endLine':153}","test('Props change', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {a: 1},
+      prevState: null,
+      nextProps: {a: 2},
+      nextState: null,
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      displayName: 'TestComponent',
+      ownerDataMap: expect.any(WeakMap),
+      reason: {
+        propsDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.different,
+            prevValue: input.prevProps.a,
+            nextValue: input.nextProps.a,
+          },
+        ],
+        stateDifferences: false,
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",123,153,snuts
+/tests/getUpdateInfo.test.js,AnonymousTest,"{'startLine':155,'endLine':185}","test('State change', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {},
+      prevState: {a: 1},
+      nextProps: {},
+      nextState: {a: 2},
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      displayName: 'TestComponent',
+      ownerDataMap: expect.any(WeakMap),
+      reason: {
+        propsDifferences: [],
+        stateDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.different,
+            prevValue: input.prevState.a,
+            nextValue: input.nextState.a,
+          },
+        ],
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",155,185,snuts
+/tests/getUpdateInfo.test.js,NonFunctionalStatement,"{'startLine':337,'endLine':337}","test('Props change by function', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {a: () => {}},
+      prevState: null,
+      nextProps: {a: () => {}},
+      nextState: null,
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      displayName: 'TestComponent',
+      ownerDataMap: expect.any(WeakMap),
+      reason: {
+        propsDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.function,
+            prevValue: input.prevProps.a,
+            nextValue: input.nextProps.a,
+          },
+        ],
+        stateDifferences: false,
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",333,363,snuts
+/tests/getUpdateInfo.test.js,NonFunctionalStatement,"{'startLine':339,'endLine':339}","test('Props change by function', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {a: () => {}},
+      prevState: null,
+      nextProps: {a: () => {}},
+      nextState: null,
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      displayName: 'TestComponent',
+      ownerDataMap: expect.any(WeakMap),
+      reason: {
+        propsDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.function,
+            prevValue: input.prevProps.a,
+            nextValue: input.nextProps.a,
+          },
+        ],
+        stateDifferences: false,
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",333,363,snuts
+/tests/getUpdateInfo.test.js,NonFunctionalStatement,"{'startLine':370,'endLine':370}","test('State changed by function ref', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {},
+      prevState: {a: () => {}},
+      nextProps: {},
+      nextState: {a: () => {}},
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      displayName: 'TestComponent',
+      ownerDataMap: expect.any(WeakMap),
+      reason: {
+        propsDifferences: [],
+        stateDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.function,
+            prevValue: input.prevState.a,
+            nextValue: input.nextState.a,
+          },
+        ],
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",365,395,snuts
+/tests/getUpdateInfo.test.js,NonFunctionalStatement,"{'startLine':372,'endLine':372}","test('State changed by function ref', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {},
+      prevState: {a: () => {}},
+      nextProps: {},
+      nextState: {a: () => {}},
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      displayName: 'TestComponent',
+      ownerDataMap: expect.any(WeakMap),
+      reason: {
+        propsDifferences: [],
+        stateDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.function,
+            prevValue: input.prevState.a,
+            nextValue: input.nextState.a,
+          },
+        ],
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",365,395,snuts
+/tests/getUpdateInfo.test.js,NonFunctionalStatement,"{'startLine':401,'endLine':401}","test('Props and state different by function', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {a: () => {}},
+      prevState: {b: () => {}},
+      nextProps: {a: () => {}},
+      nextState: {b: () => {}},
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      displayName: 'TestComponent',
+      ownerDataMap: expect.any(WeakMap),
+      reason: {
+        propsDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.function,
+            prevValue: input.prevProps.a,
+            nextValue: input.nextProps.a,
+          },
+        ],
+        stateDifferences: [
+          {
+            pathString: 'b',
+            diffType: diffTypes.function,
+            prevValue: input.prevState.b,
+            nextValue: input.nextState.b,
+          },
+        ],
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",397,434,snuts
+/tests/getUpdateInfo.test.js,NonFunctionalStatement,"{'startLine':402,'endLine':402}","test('Props and state different by function', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {a: () => {}},
+      prevState: {b: () => {}},
+      nextProps: {a: () => {}},
+      nextState: {b: () => {}},
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      displayName: 'TestComponent',
+      ownerDataMap: expect.any(WeakMap),
+      reason: {
+        propsDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.function,
+            prevValue: input.prevProps.a,
+            nextValue: input.nextProps.a,
+          },
+        ],
+        stateDifferences: [
+          {
+            pathString: 'b',
+            diffType: diffTypes.function,
+            prevValue: input.prevState.b,
+            nextValue: input.nextState.b,
+          },
+        ],
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",397,434,snuts
+/tests/getUpdateInfo.test.js,NonFunctionalStatement,"{'startLine':403,'endLine':403}","test('Props and state different by function', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {a: () => {}},
+      prevState: {b: () => {}},
+      nextProps: {a: () => {}},
+      nextState: {b: () => {}},
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      displayName: 'TestComponent',
+      ownerDataMap: expect.any(WeakMap),
+      reason: {
+        propsDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.function,
+            prevValue: input.prevProps.a,
+            nextValue: input.nextProps.a,
+          },
+        ],
+        stateDifferences: [
+          {
+            pathString: 'b',
+            diffType: diffTypes.function,
+            prevValue: input.prevState.b,
+            nextValue: input.nextState.b,
+          },
+        ],
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",397,434,snuts
+/tests/getUpdateInfo.test.js,NonFunctionalStatement,"{'startLine':404,'endLine':404}","test('Props and state different by function', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {a: () => {}},
+      prevState: {b: () => {}},
+      nextProps: {a: () => {}},
+      nextState: {b: () => {}},
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      displayName: 'TestComponent',
+      ownerDataMap: expect.any(WeakMap),
+      reason: {
+        propsDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.function,
+            prevValue: input.prevProps.a,
+            nextValue: input.nextProps.a,
+          },
+        ],
+        stateDifferences: [
+          {
+            pathString: 'b',
+            diffType: diffTypes.function,
+            prevValue: input.prevState.b,
+            nextValue: input.nextState.b,
+          },
+        ],
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",397,434,snuts
+/tests/getUpdateInfo.test.js,NonFunctionalStatement,"{'startLine':440,'endLine':440}","test('Mix of differences', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {a: () => {}, b: '123', c: {d: 'e'}, f: 3},
+      prevState: null,
+      nextProps: {a: () => {}, b: '12345', c: {d: 'e'}, f: 3},
+      nextState: {a: 4},
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      displayName: 'TestComponent',
+      ownerDataMap: expect.any(WeakMap),
+      reason: {
+        propsDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.function,
+            prevValue: input.prevProps.a,
+            nextValue: input.nextProps.a,
+          },
+          {
+            pathString: 'b',
+            diffType: diffTypes.different,
+            prevValue: input.prevProps.b,
+            nextValue: input.nextProps.b,
+          },
+          {
+            pathString: 'c',
+            diffType: diffTypes.deepEquals,
+            prevValue: input.prevProps.c,
+            nextValue: input.nextProps.c,
+          },
+        ],
+        stateDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.different,
+            prevValue: undefined,
+            nextValue: input.nextState.a,
+          },
+        ],
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",436,485,snuts
+/tests/getUpdateInfo.test.js,NonFunctionalStatement,"{'startLine':442,'endLine':442}","test('Mix of differences', () => {
+    const input = {
+      Component: TestComponent,
+      displayName: getDisplayName(TestComponent),
+      prevProps: {a: () => {}, b: '123', c: {d: 'e'}, f: 3},
+      prevState: null,
+      nextProps: {a: () => {}, b: '12345', c: {d: 'e'}, f: 3},
+      nextState: {a: 4},
+    };
+
+    const updateInfo = getUpdateInfo(input);
+
+    expect(updateInfo).toEqual({
+      ...input,
+      displayName: 'TestComponent',
+      ownerDataMap: expect.any(WeakMap),
+      reason: {
+        propsDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.function,
+            prevValue: input.prevProps.a,
+            nextValue: input.nextProps.a,
+          },
+          {
+            pathString: 'b',
+            diffType: diffTypes.different,
+            prevValue: input.prevProps.b,
+            nextValue: input.nextProps.b,
+          },
+          {
+            pathString: 'c',
+            diffType: diffTypes.deepEquals,
+            prevValue: input.prevProps.c,
+            nextValue: input.nextProps.c,
+          },
+        ],
+        stateDifferences: [
+          {
+            pathString: 'a',
+            diffType: diffTypes.different,
+            prevValue: undefined,
+            nextValue: input.nextState.a,
+          },
+        ],
+        hookDifferences: false,
+        ownerDifferences: false,
+      },
+    });
+  })",436,485,snuts
+/tests/findObjectsDifferences.test.js,IdenticalTestDescription,"{'startLine':111,'endLine':116}","test('for empty values', () => {
+    const prev = null;
+    const next = null;
+    const diffs = findObjectsDifferences(prev, next, {shallow: false});
+    expect(diffs).toEqual(false);
+  })",111,116,snuts
+/tests/findObjectsDifferences.test.js,IdenticalTestDescription,"{'startLine':118,'endLine':123}","test('For no differences', () => {
+    const prev = {prop: 'value'};
+    const next = prev;
+    const diffs = findObjectsDifferences(prev, next, {shallow: false});
+    expect(diffs).toEqual(false);
+  })",118,123,snuts
+/tests/findObjectsDifferences.test.js,IdenticalTestDescription,"{'startLine':125,'endLine':137}","test('For prev empty value', () => {
+    const prev = null;
+    const next = {prop: 'value'};
+    const diffs = findObjectsDifferences(prev, next, {shallow: false});
+    expect(diffs).toEqual([
+      {
+        pathString: '',
+        diffType: diffTypes.different,
+        prevValue: null,
+        nextValue: {prop: 'value'},
+      },
+    ]);
+  })",125,137,snuts
+/tests/findObjectsDifferences.test.js,IdenticalTestDescription,"{'startLine':139,'endLine':151}","test('For next empty value', () => {
+    const prev = {prop: 'value'};
+    const next = null;
+    const diffs = findObjectsDifferences(prev, next, {shallow: false});
+    expect(diffs).toEqual([
+      {
+        pathString: '',
+        diffType: diffTypes.different,
+        prevValue: {prop: 'value'},
+        nextValue: null,
+      },
+    ]);
+  })",139,151,snuts
+/tests/findObjectsDifferences.test.js,IdenticalTestDescription,"{'startLine':153,'endLine':166}","test('For objects different by reference but equal by value', () => {
+    const prop2 = {a: 'a'};
+    const prev = {prop: 'value', prop2};
+    const next = {prop: 'value', prop2};
+    const diffs = findObjectsDifferences(prev, next, {shallow: false});
+    expect(diffs).toEqual([
+      {
+        pathString: '',
+        diffType: diffTypes.deepEquals,
+        prevValue: {prop: 'value', prop2},
+        nextValue: {prop: 'value', prop2},
+      },
+    ]);
+  })",153,166,snuts
+/tests/findObjectsDifferences.test.js,NonFunctionalStatement,"{'startLine':70,'endLine':70}","test('For functions inside the object with the same name', () => {
+    const prev = {fn: function something() {}};
+    const next = {fn: function something() {}};
+    const diffs = findObjectsDifferences(prev, next);
+    expect(diffs).toEqual([
+      {
+        pathString: 'fn',
+        diffType: diffTypes.function,
+        prevValue: prev.fn,
+        nextValue: next.fn,
+      },
+    ]);
+  })",69,81,snuts
+/tests/findObjectsDifferences.test.js,NonFunctionalStatement,"{'startLine':71,'endLine':71}","test('For functions inside the object with the same name', () => {
+    const prev = {fn: function something() {}};
+    const next = {fn: function something() {}};
+    const diffs = findObjectsDifferences(prev, next);
+    expect(diffs).toEqual([
+      {
+        pathString: 'fn',
+        diffType: diffTypes.function,
+        prevValue: prev.fn,
+        nextValue: next.fn,
+      },
+    ]);
+  })",69,81,snuts
+/tests/findObjectsDifferences.test.js,NonFunctionalStatement,"{'startLine':84,'endLine':84}","test('Mix of differences inside the objects', () => {
+    const prev = {prop: 'value', prop2: {a: 'a'}, prop3: 'AA', fn: function something() {}};
+    const next = {prop: 'value', prop2: {a: 'a'}, prop3: 'ZZ', fn: function something() {}};
+    const diffs = findObjectsDifferences(prev, next);
+    expect(diffs).toEqual([
+      {
+        pathString: 'prop2',
+        diffType: diffTypes.deepEquals,
+        prevValue: prev.prop2,
+        nextValue: next.prop2,
+      },
+      {
+        pathString: 'prop3',
+        diffType: diffTypes.different,
+        prevValue: prev.prop3,
+        nextValue: next.prop3,
+      },
+      {
+        pathString: 'fn',
+        diffType: diffTypes.function,
+        prevValue: prev.fn,
+        nextValue: next.fn,
+      },
+    ]);
+  })",83,107,snuts
+/tests/findObjectsDifferences.test.js,NonFunctionalStatement,"{'startLine':85,'endLine':85}","test('Mix of differences inside the objects', () => {
+    const prev = {prop: 'value', prop2: {a: 'a'}, prop3: 'AA', fn: function something() {}};
+    const next = {prop: 'value', prop2: {a: 'a'}, prop3: 'ZZ', fn: function something() {}};
+    const diffs = findObjectsDifferences(prev, next);
+    expect(diffs).toEqual([
+      {
+        pathString: 'prop2',
+        diffType: diffTypes.deepEquals,
+        prevValue: prev.prop2,
+        nextValue: next.prop2,
+      },
+      {
+        pathString: 'prop3',
+        diffType: diffTypes.different,
+        prevValue: prev.prop3,
+        nextValue: next.prop3,
+      },
+      {
+        pathString: 'fn',
+        diffType: diffTypes.function,
+        prevValue: prev.fn,
+        nextValue: next.fn,
+      },
+    ]);
+  })",83,107,snuts
+/tests/defaultNotifier.test.js,NonFunctionalStatement,"{'startLine':316,'endLine':316}","test(description, () => {
+      whyDidYouRender(React, userOptions);
+
+      const updateInfo = getUpdateInfo({
+        Component: TestComponent,
+        prevProps: {fn: function something() {}},
+        prevState: null,
+        nextProps: {fn: function something() {}},
+        nextState: null,
+      });
+
+      defaultNotifier(updateInfo);
+
+      expectLogTypes(['title', 'changedObjectValues'], expects);
+    })",311,325,snuts
+/tests/defaultNotifier.test.js,NonFunctionalStatement,"{'startLine':318,'endLine':318}","test(description, () => {
+      whyDidYouRender(React, userOptions);
+
+      const updateInfo = getUpdateInfo({
+        Component: TestComponent,
+        prevProps: {fn: function something() {}},
+        prevState: null,
+        nextProps: {fn: function something() {}},
+        nextState: null,
+      });
+
+      defaultNotifier(updateInfo);
+
+      expectLogTypes(['title', 'changedObjectValues'], expects);
+    })",311,325,snuts
+/tests/defaultNotifier.test.js,NonFunctionalStatement,"{'startLine':340,'endLine':340}","test(description, () => {
+      whyDidYouRender(React, userOptions);
+
+      const updateInfo = getUpdateInfo({
+        Component: TestComponent,
+        prevProps: {fn: function something() {}},
+        prevState: {a: {b: 'b'}},
+        nextProps: {fn: function something() {}},
+        nextState: {a: {b: 'b'}},
+      });
+
+      defaultNotifier(updateInfo);
+
+      expectLogTypes(['title', 'changedObjectValues', 'changedObjectValuesDeepEquals'], expects);
+    })",335,349,snuts
+/tests/defaultNotifier.test.js,NonFunctionalStatement,"{'startLine':342,'endLine':342}","test(description, () => {
+      whyDidYouRender(React, userOptions);
+
+      const updateInfo = getUpdateInfo({
+        Component: TestComponent,
+        prevProps: {fn: function something() {}},
+        prevState: {a: {b: 'b'}},
+        nextProps: {fn: function something() {}},
+        nextState: {a: {b: 'b'}},
+      });
+
+      defaultNotifier(updateInfo);
+
+      expectLogTypes(['title', 'changedObjectValues', 'changedObjectValuesDeepEquals'], expects);
+    })",335,349,snuts
+/tests/calculateDeepEqualDiffs.test.js,AnonymousTest,"{'startLine':6,'endLine':13}","test('same', () => {
+  const prevValue = {a: 'b'};
+  const nextValue = prevValue;
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([]);
+})",6,13,snuts
+/tests/calculateDeepEqualDiffs.test.js,AnonymousTest,"{'startLine':37,'endLine':51}","test('simple deep', () => {
+  const prevValue = {a: 'b'};
+  const nextValue = {a: 'b'};
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue,
+      nextValue,
+      diffType: diffTypes.deepEquals,
+    },
+  ]);
+})",37,51,snuts
+/tests/calculateDeepEqualDiffs.test.js,AnonymousTest,"{'startLine':85,'endLine':99}","test('date', () => {
+  const now = new Date();
+  const now2 = new Date(now);
+
+  const diffs = calculateDeepEqualDiffs(now, now2);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue: now,
+      nextValue: now2,
+      diffType: diffTypes.date,
+    },
+  ]);
+})",85,99,snuts
+/tests/calculateDeepEqualDiffs.test.js,AnonymousTest,"{'startLine':101,'endLine':118}","test('nested date', () => {
+  const now = new Date();
+  const now2 = new Date(now);
+
+  const prevValue = {a: {b: [now]}};
+  const nextValue = {a: {b: [now2]}};
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue,
+      nextValue,
+      diffType: diffTypes.deepEquals,
+    },
+  ]);
+})",101,118,snuts
+/tests/calculateDeepEqualDiffs.test.js,AnonymousTest,"{'startLine':120,'endLine':134}","test('regular expression', () => {
+  const regEx = /c/i;
+  const regEx2 = /c/i;
+
+  const diffs = calculateDeepEqualDiffs(regEx, regEx2);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue: regEx,
+      nextValue: regEx2,
+      diffType: diffTypes.regex,
+    },
+  ]);
+})",120,134,snuts
+/tests/calculateDeepEqualDiffs.test.js,AnonymousTest,"{'startLine':155,'endLine':178}","test('dom elements', () => {
+  const element = document.createElement('div');
+  const element2 = document.createElement('div');
+
+  const prevValue = {a: element};
+  const nextValue = {a: element2};
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '.a',
+      prevValue: prevValue.a,
+      nextValue: nextValue.a,
+      diffType: diffTypes.different,
+    },
+    {
+      pathString: '',
+      prevValue,
+      nextValue,
+      diffType: diffTypes.different,
+    },
+  ]);
+})",155,178,snuts
+/tests/calculateDeepEqualDiffs.test.js,AnonymousTest,"{'startLine':386,'endLine':403}","test('functions', () => {
+  const fn = function something() {};
+  const fn2 = function something() {};
+
+  const prevValue = {fn};
+  const nextValue = {fn: fn2};
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue,
+      nextValue,
+      diffType: diffTypes.deepEquals,
+    },
+  ]);
+})",386,403,snuts
+/tests/calculateDeepEqualDiffs.test.js,AnonymousTest,"{'startLine':405,'endLine':419}","test('inline functions', () => {
+  const prevValue = {a: {fn: () => {}}};
+  const nextValue = {a: {fn: () => {}}};
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue,
+      nextValue,
+      diffType: diffTypes.deepEquals,
+    },
+  ]);
+})",405,419,snuts
+/tests/calculateDeepEqualDiffs.test.js,AnonymousTest,"{'startLine':421,'endLine':461}","test('sets', () => {
+  const prevValue = {
+    a: new Set(['a']),
+    b: new Set(['a', 1]),
+    c: new Set(['a', 1]),
+  };
+
+  const nextValue = {
+    a: new Set(['a']),
+    b: new Set(['a', 2]),
+    c: new Set(['a', 1, 'c']),
+  };
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+  expect(diffs).toEqual([
+    {
+      pathString: '.c',
+      prevValue: prevValue.c,
+      nextValue: nextValue.c,
+      diffType: diffTypes.different,
+    },
+    {
+      pathString: '.b',
+      prevValue: prevValue.b,
+      nextValue: nextValue.b,
+      diffType: diffTypes.different,
+    },
+    {
+      pathString: '.a',
+      prevValue: prevValue.a,
+      nextValue: nextValue.a,
+      diffType: diffTypes.deepEquals,
+    },
+    {
+      pathString: '',
+      prevValue: prevValue,
+      nextValue: nextValue,
+      diffType: diffTypes.different,
+    },
+  ]);
+})",421,461,snuts
+/tests/calculateDeepEqualDiffs.test.js,AnonymousTest,"{'startLine':463,'endLine':477}","test('mix', () => {
+  const prevValue = {a: {fn: () => {}}, b: [{tooltip: <div>hi</div>}]};
+  const nextValue = {a: {fn: () => {}}, b: [{tooltip: <div>hi</div>}]};
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue,
+      nextValue,
+      diffType: diffTypes.deepEquals,
+    },
+  ]);
+})",463,477,snuts
+/tests/calculateDeepEqualDiffs.test.js,NonFunctionalStatement,"{'startLine':387,'endLine':387}","test('functions', () => {
+  const fn = function something() {};
+  const fn2 = function something() {};
+
+  const prevValue = {fn};
+  const nextValue = {fn: fn2};
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue,
+      nextValue,
+      diffType: diffTypes.deepEquals,
+    },
+  ]);
+})",386,403,snuts
+/tests/calculateDeepEqualDiffs.test.js,NonFunctionalStatement,"{'startLine':388,'endLine':388}","test('functions', () => {
+  const fn = function something() {};
+  const fn2 = function something() {};
+
+  const prevValue = {fn};
+  const nextValue = {fn: fn2};
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue,
+      nextValue,
+      diffType: diffTypes.deepEquals,
+    },
+  ]);
+})",386,403,snuts
+/tests/calculateDeepEqualDiffs.test.js,NonFunctionalStatement,"{'startLine':406,'endLine':406}","test('inline functions', () => {
+  const prevValue = {a: {fn: () => {}}};
+  const nextValue = {a: {fn: () => {}}};
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue,
+      nextValue,
+      diffType: diffTypes.deepEquals,
+    },
+  ]);
+})",405,419,snuts
+/tests/calculateDeepEqualDiffs.test.js,NonFunctionalStatement,"{'startLine':407,'endLine':407}","test('inline functions', () => {
+  const prevValue = {a: {fn: () => {}}};
+  const nextValue = {a: {fn: () => {}}};
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue,
+      nextValue,
+      diffType: diffTypes.deepEquals,
+    },
+  ]);
+})",405,419,snuts
+/tests/calculateDeepEqualDiffs.test.js,NonFunctionalStatement,"{'startLine':464,'endLine':464}","test('mix', () => {
+  const prevValue = {a: {fn: () => {}}, b: [{tooltip: <div>hi</div>}]};
+  const nextValue = {a: {fn: () => {}}, b: [{tooltip: <div>hi</div>}]};
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue,
+      nextValue,
+      diffType: diffTypes.deepEquals,
+    },
+  ]);
+})",463,477,snuts
+/tests/calculateDeepEqualDiffs.test.js,NonFunctionalStatement,"{'startLine':465,'endLine':465}","test('mix', () => {
+  const prevValue = {a: {fn: () => {}}, b: [{tooltip: <div>hi</div>}]};
+  const nextValue = {a: {fn: () => {}}, b: [{tooltip: <div>hi</div>}]};
+
+  const diffs = calculateDeepEqualDiffs(prevValue, nextValue);
+
+  expect(diffs).toEqual([
+    {
+      pathString: '',
+      prevValue,
+      nextValue,
+      diffType: diffTypes.deepEquals,
+    },
+  ]);
+})",463,477,snuts
+/tests/patches/patchMemoComponent.test.js,ConditionalTestLogic,"{'startLine':136,'endLine':138}","test('memo a forward ref component', () => {
+  const content = 'My component!!!';
+
+  const MyComponent = React.memo(React.forwardRef((props, ref) => {
+    return <div ref={ref}>{content}</div>;
+  }));
+
+  MyComponent.whyDidYouRender = true;
+
+  let componentContentFromRef = null;
+  let timesRefWasCalled = 0;
+
+  const handleRef = ref => {
+    if (!ref) {
+      return;
+    }
+    timesRefWasCalled++;
+    componentContentFromRef = ref.innerHTML;
+  };
+
+  const {rerender} = rtl.render(
+    <MyComponent a={[]} ref={handleRef}/>
+  );
+
+  rerender(
+    <MyComponent a={[]} ref={handleRef}/>
+  );
+
+  expect(componentContentFromRef).toBe(content);
+  expect(timesRefWasCalled).toBe(1);
+
+  expect(updateInfos).toHaveLength(1);
+  expect(updateInfos[0].reason).toEqual({
+    propsDifferences: [
+      {
+        pathString: 'a',
+        diffType: diffTypes.deepEquals,
+        prevValue: [],
+        nextValue: [],
+      },
+    ],
+    stateDifferences: false,
+    hookDifferences: false,
+    ownerDifferences: false,
+  });
+})",123,168,snuts
+/tests/patches/patchForwardRefComponent.test.js,AnonymousTest,"{'startLine':19,'endLine':64}","test('forward ref', () => {
+  const content = 'My component!!!';
+
+  const MyComponent = React.forwardRef((props, ref) => {
+    return <div ref={ref}>{content}</div>;
+  });
+
+  MyComponent.whyDidYouRender = true;
+
+  let componentContentFromRef = null;
+  let timesRefWasCalled = 0;
+
+  const handleRef = ref => {
+    if (!ref) {
+      return;
+    }
+    timesRefWasCalled++;
+    componentContentFromRef = ref.innerHTML;
+  };
+
+  const {rerender} = rtl.render(
+    <MyComponent a={[]} ref={handleRef}/>
+  );
+
+  rerender(
+    <MyComponent a={[]} ref={handleRef}/>
+  );
+
+  expect(componentContentFromRef).toBe(content);
+  expect(timesRefWasCalled).toBe(1);
+
+  expect(updateInfos).toHaveLength(1);
+  expect(updateInfos[0].reason).toEqual({
+    propsDifferences: [
+      {
+        pathString: 'a',
+        diffType: diffTypes.deepEquals,
+        prevValue: [],
+        nextValue: [],
+      },
+    ],
+    stateDifferences: false,
+    hookDifferences: false,
+    ownerDifferences: false,
+  });
+})",19,64,snuts
+/tests/patches/patchForwardRefComponent.test.js,ConditionalTestLogic,"{'startLine':32,'endLine':34}","test('forward ref', () => {
+  const content = 'My component!!!';
+
+  const MyComponent = React.forwardRef((props, ref) => {
+    return <div ref={ref}>{content}</div>;
+  });
+
+  MyComponent.whyDidYouRender = true;
+
+  let componentContentFromRef = null;
+  let timesRefWasCalled = 0;
+
+  const handleRef = ref => {
+    if (!ref) {
+      return;
+    }
+    timesRefWasCalled++;
+    componentContentFromRef = ref.innerHTML;
+  };
+
+  const {rerender} = rtl.render(
+    <MyComponent a={[]} ref={handleRef}/>
+  );
+
+  rerender(
+    <MyComponent a={[]} ref={handleRef}/>
+  );
+
+  expect(componentContentFromRef).toBe(content);
+  expect(timesRefWasCalled).toBe(1);
+
+  expect(updateInfos).toHaveLength(1);
+  expect(updateInfos[0].reason).toEqual({
+    propsDifferences: [
+      {
+        pathString: 'a',
+        diffType: diffTypes.deepEquals,
+        prevValue: [],
+        nextValue: [],
+      },
+    ],
+    stateDifferences: false,
+    hookDifferences: false,
+    ownerDifferences: false,
+  });
+})",19,64,snuts
+/tests/patches/patchForwardRefComponent.test.js,ConditionalTestLogic,"{'startLine':80,'endLine':82}","test('forward ref a memo component', () => {
+  expect(() => {
+    const content = 'My component!!!';
+
+    const MyComponent = React.forwardRef(React.memo((props, ref) => {
+      return <div ref={ref}>{content}</div>;
+    }, () => true));
+
+    MyComponent.whyDidYouRender = true;
+
+    let componentContentFromRef = null;
+    let timesRefWasCalled = 0;
+
+    const handleRef = ref => {
+      if (!ref) {
+        return;
+      }
+      timesRefWasCalled++;
+      componentContentFromRef = ref.innerHTML;
+    };
+
+    const {rerender} = rtl.render(
+      <MyComponent a={[]} ref={handleRef}/>
+    );
+
+    rerender(
+      <MyComponent a={[]} ref={handleRef}/>
+    );
+
+    expect(componentContentFromRef).toBe(content);
+    expect(timesRefWasCalled).toBe(1);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        {
+          pathString: 'a',
+          diffType: diffTypes.deepEquals,
+          prevValue: [],
+          nextValue: [],
+        },
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: false,
+    });
+  }).toThrow();
+  global.flushConsoleOutput();
+})",66,114,snuts
+/tests/patches/patchClassComponent.test.js,AnonymousTest,"{'startLine':57,'endLine':72}","test('Same props', () => {
+  const {rerender} = rtl.render(
+    <TestComponent a={1}/>
+  );
+  rerender(
+    <TestComponent a={1}/>
+  );
+
+  expect(updateInfos[0].reason).toEqual({
+    propsDifferences: [],
+    stateDifferences: false,
+    hookDifferences: false,
+    ownerDifferences: false,
+  });
+  expect(updateInfos).toHaveLength(1);
+})",57,72,snuts
+/tests/patches/patchClassComponent.test.js,AnonymousTest,"{'startLine':74,'endLine':90}","test('Same state', () => {
+  const StateTestComponent = createStateTestComponent({a: 1}, {a: 1});
+  rtl.render(
+    <StateTestComponent/>
+  );
+
+  return Promise.resolve()
+    .then(() => {
+      expect(updateInfos[0].reason).toEqual({
+        propsDifferences: false,
+        stateDifferences: [],
+        hookDifferences: false,
+        ownerDifferences: false,
+      });
+      expect(updateInfos).toHaveLength(1);
+    });
+})",74,90,snuts
+/tests/patches/patchClassComponent.test.js,AnonymousTest,"{'startLine':92,'endLine':112}","test('Props change', () => {
+  const {rerender} = rtl.render(
+    <TestComponent a={1}/>
+  );
+  rerender(
+    <TestComponent a={2}/>
+  );
+
+  expect(updateInfos).toHaveLength(1);
+  expect(updateInfos[0].reason).toEqual({
+    propsDifferences: [{
+      pathString: 'a',
+      diffType: diffTypes.different,
+      prevValue: 1,
+      nextValue: 2,
+    }],
+    stateDifferences: false,
+    hookDifferences: false,
+    ownerDifferences: false,
+  });
+})",92,112,snuts
+/tests/librariesTests/styled-components.test.js,AnonymousTest,"{'startLine':21,'endLine':46}","test('simple styled-components', () => {
+  const InnerComponent = () => <div>foobar</div>;
+  const StyledInnerComponent = styled(InnerComponent)``;
+
+  StyledInnerComponent.whyDidYouRender = true;
+
+  const {rerender} = rtl.render(
+    <StyledInnerComponent a={[]}/>
+  );
+  rerender(
+    <StyledInnerComponent a={[]}/>
+  );
+
+  expect(updateInfos).toHaveLength(1);
+  expect(updateInfos[0].reason).toEqual({
+    propsDifferences: [{
+      pathString: 'a',
+      diffType: diffTypes.deepEquals,
+      prevValue: [],
+      nextValue: [],
+    }],
+    stateDifferences: false,
+    hookDifferences: false,
+    ownerDifferences: false,
+  });
+})",21,46,snuts
+/tests/librariesTests/react-router-dom.test.js,AnonymousTest,"{'startLine':29,'endLine':92}","test('simple', () => {
+    const InnerComp = ({a}) => {
+      const location = useLocation();
+
+      const [state, setState] = React.useState(0);
+      React.useLayoutEffect(() => {
+        setState(a => a + 1);
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return (
+        <div>hi! {JSON.stringify(a)} {state}</div>
+      );
+    };
+
+    InnerComp.whyDidYouRender = true;
+
+    const Comp = () => (
+      <BrowserRouter>
+        <Routes>
+          <Route exact path=""/"" element={<InnerComp a={{b: 'c'}}/>}/>
+        </Routes>
+      </BrowserRouter>
+    );
+
+    const {rerender} = rtl.render(<Comp/>);
+
+    rerender(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(2);
+    expect(updateInfos).toEqual([
+      expect.objectContaining({
+        displayName: 'InnerComp',
+        hookName: 'useState',
+      }),
+      expect.objectContaining({
+        displayName: 'InnerComp',
+        reason: {
+          hookDifferences: false,
+          stateDifferences: false,
+          propsDifferences: [{
+            diffType: 'deepEquals',
+            nextValue: {b: 'c'},
+            pathString: 'a',
+            prevValue: {b: 'c'},
+          }],
+          ownerDifferences: {
+            hookDifferences: false,
+            propsDifferences: false,
+            stateDifferences: false
+          }
+        }
+      })
+    ]);
+  })",29,92,snuts
+/tests/librariesTests/react-router-dom.test.js,AnonymousTest,"{'startLine':94,'endLine':161}","test('with redux', () => {
+    const initialState = {a: {b: 'c'}};
+
+    const rootReducer = (state, action) => {
+      if (action.type === 'differentState') {
+        return {a: {b: 'd'}};
+      }
+
+      if (action.type === 'deepEqlState') {
+        return cloneDeep(state);
+      }
+
+      return state;
+    };
+
+    const store = createStore(rootReducer, initialState);
+
+    const InnerFn = ({a, setDeepEqlState}) => {
+      const location = useLocation();
+
+      React.useLayoutEffect(() => {
+        setDeepEqlState();
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return <div>hi! {a.b}</div>;
+    };
+
+    const InnerComp = connect(
+      state => ({a: state.a}),
+      {setDeepEqlState: () => ({type: 'deepEqlState'})}
+    )(InnerFn);
+
+    InnerFn.whyDidYouRender = true;
+
+    const Comp = () => (
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route exact path=""/"" element={<InnerComp/>}/>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    );
+
+    rtl.render(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: 'a',
+        prevValue: {b: 'c'},
+        nextValue: {b: 'c'},
+      }],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",94,161,snuts
+/tests/librariesTests/react-router-dom.test.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","test('with redux', () => {
+    const initialState = {a: {b: 'c'}};
+
+    const rootReducer = (state, action) => {
+      if (action.type === 'differentState') {
+        return {a: {b: 'd'}};
+      }
+
+      if (action.type === 'deepEqlState') {
+        return cloneDeep(state);
+      }
+
+      return state;
+    };
+
+    const store = createStore(rootReducer, initialState);
+
+    const InnerFn = ({a, setDeepEqlState}) => {
+      const location = useLocation();
+
+      React.useLayoutEffect(() => {
+        setDeepEqlState();
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return <div>hi! {a.b}</div>;
+    };
+
+    const InnerComp = connect(
+      state => ({a: state.a}),
+      {setDeepEqlState: () => ({type: 'deepEqlState'})}
+    )(InnerFn);
+
+    InnerFn.whyDidYouRender = true;
+
+    const Comp = () => (
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route exact path=""/"" element={<InnerComp/>}/>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    );
+
+    rtl.render(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: 'a',
+        prevValue: {b: 'c'},
+        nextValue: {b: 'c'},
+      }],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",94,161,snuts
+/tests/librariesTests/react-router-dom.test.js,ConditionalTestLogic,"{'startLine':102,'endLine':104}","test('with redux', () => {
+    const initialState = {a: {b: 'c'}};
+
+    const rootReducer = (state, action) => {
+      if (action.type === 'differentState') {
+        return {a: {b: 'd'}};
+      }
+
+      if (action.type === 'deepEqlState') {
+        return cloneDeep(state);
+      }
+
+      return state;
+    };
+
+    const store = createStore(rootReducer, initialState);
+
+    const InnerFn = ({a, setDeepEqlState}) => {
+      const location = useLocation();
+
+      React.useLayoutEffect(() => {
+        setDeepEqlState();
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return <div>hi! {a.b}</div>;
+    };
+
+    const InnerComp = connect(
+      state => ({a: state.a}),
+      {setDeepEqlState: () => ({type: 'deepEqlState'})}
+    )(InnerFn);
+
+    InnerFn.whyDidYouRender = true;
+
+    const Comp = () => (
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route exact path=""/"" element={<InnerComp/>}/>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    );
+
+    rtl.render(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: 'a',
+        prevValue: {b: 'c'},
+        nextValue: {b: 'c'},
+      }],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",94,161,snuts
+/tests/librariesTests/react-redux.test.js,IdenticalTestDescription,"{'startLine':188,'endLine':214}","test('same state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  })",188,214,snuts
+/tests/librariesTests/react-redux.test.js,IdenticalTestDescription,"{'startLine':216,'endLine':255}","test('different state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'differentState'});
+    });
+
+    expect(store.getState().a.b).toBe('d');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.different, pathString: '.b', prevValue: 'c', nextValue: 'd'},
+          {diffType: diffTypes.different, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'd'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  })",216,255,snuts
+/tests/librariesTests/react-redux.test.js,IdenticalTestDescription,"{'startLine':257,'endLine':296}","test('deep equals state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">
+          {a.b}
+        </div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.deepEquals, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'c'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  })",257,296,snuts
+/tests/hooks/useSyncExternalStore.test.js,AnonymousTest,"{'startLine':39,'endLine':71}","test('same value', () => {
+    const store = createSimpleStore('c');
+
+    const ComponentWithSyncExternalStore = ({a, b}) => {
+      const valueFromStore = React.useSyncExternalStore(
+        store.subscribe,
+        store.getState
+      );
+
+      return (
+        <div>
+          hi! {a} {b} {valueFromStore}
+        </div>
+      );
+    };
+    ComponentWithSyncExternalStore.whyDidYouRender = true;
+
+    const OuterComponent = () => {
+      React.useLayoutEffect(() => {
+        store.setState('c');
+      }, []);
+
+      return (
+        <div>
+          <ComponentWithSyncExternalStore a={1} b={2} />
+        </div>
+      );
+    };
+
+    rtl.render(<OuterComponent />);
+
+    expect(updateInfos).toHaveLength(0);
+  })",39,71,snuts
+/tests/hooks/useSyncExternalStore.test.js,AnonymousTest,"{'startLine':73,'endLine':118}","test('deep equals', () => {
+    const store = createSimpleStore({c: 'c'});
+
+    const ComponentWithSyncExternalStore = ({a, b}) => {
+      const valueFromStore = React.useSyncExternalStore(
+        store.subscribe,
+        store.getState
+      );
+
+      return (
+        <div>
+          hi! {a} {b} {valueFromStore.c}
+        </div>
+      );
+    };
+    ComponentWithSyncExternalStore.whyDidYouRender = true;
+
+    const OuterComponent = () => {
+      React.useLayoutEffect(() => {
+        store.setState({c: 'c'});
+      }, []);
+
+      return (
+        <div>
+          <ComponentWithSyncExternalStore a={1} b={2} />
+        </div>
+      );
+    };
+
+    rtl.render(<OuterComponent />);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [
+        {
+          diffType: diffTypes.deepEquals,
+          pathString: '',
+          nextValue: {c: 'c'},
+          prevValue: {c: 'c'},
+        },
+      ],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",73,118,snuts
+/tests/hooks/useState.test.js,AnonymousTest,"{'startLine':135,'endLine':161}","test('same value', () => {
+    const value = {b: 'b'};
+
+    let effectCalled = false;
+
+    const ComponentWithHooks = ({a}) => {
+      const [currentState, setCurrentState] = React.useState(value);
+
+      React.useLayoutEffect(() => {
+        effectCalled = true;
+        setCurrentState(value);
+      }, []);
+
+      return (
+        <div>hi! {a} {currentState.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(0);
+    expect(effectCalled).toBeTruthy();
+  })",135,161,snuts
+/tests/hooks/useState.test.js,AnonymousTest,"{'startLine':188,'endLine':219}","test('deep equals', () => {
+    const ComponentWithHooks = ({a}) => {
+      const [currentState, setCurrentState] = React.useState({b: 'b'});
+
+      React.useLayoutEffect(() => {
+        setCurrentState({b: 'b'});
+      }, []);
+
+      return (
+        <div>hi! {a} {currentState.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {b: 'b'},
+        prevValue: {b: 'b'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",188,219,snuts
+/tests/hooks/useReducer.test.js,AnonymousTest,"{'startLine':21,'endLine':50}","test('same value', () => {
+    const initialState = {b: 'b'};
+
+    function reducer() {
+      return initialState;
+    }
+
+    let numOfRenders = 0;
+    const ComponentWithHooks = () => {
+      numOfRenders++;
+      const [state, dispatch] = React.useReducer(reducer, initialState);
+
+      React.useLayoutEffect(() => {
+        dispatch({type: 'something'});
+      }, []);
+
+      return (
+        <div>hi! {state.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks/>
+    );
+
+    expect(numOfRenders).toBe(2);
+    expect(updateInfos).toHaveLength(0);
+  })",21,50,snuts
+/tests/hooks/useReducer.test.js,AnonymousTest,"{'startLine':52,'endLine':89}","test('different value', () => {
+    const initialState = {b: 'b'};
+
+    function reducer() {
+      return {a: 'a'};
+    }
+
+    const ComponentWithHooks = ({a}) => {
+      const [state, dispatch] = React.useReducer(reducer, initialState);
+
+      React.useLayoutEffect(() => {
+        dispatch({type: 'something'});
+      }, []);
+
+      return (
+        <div data-testid=""test"">hi! {a} {state.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [{
+        pathString: '',
+        diffType: diffTypes.different,
+        prevValue: {b: 'b'},
+        nextValue: {a: 'a'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",52,89,snuts
+/tests/hooks/useReducer.test.js,AnonymousTest,"{'startLine':91,'endLine':128}","test('deep equals', () => {
+    const initialState = {b: 'b'};
+
+    function reducer() {
+      return {b: 'b'};
+    }
+
+    const ComponentWithHooks = ({a}) => {
+      const [state, dispatch] = React.useReducer(reducer, initialState);
+
+      React.useLayoutEffect(() => {
+        dispatch({type: 'something'});
+      }, []);
+
+      return (
+        <div>hi! {a} {state.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {b: 'b'},
+        prevValue: {b: 'b'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",91,128,snuts
+/tests/hooks/useContext.test.js,AnonymousTest,"{'startLine':21,'endLine':54}","test('same value', () => {
+    const MyContext = React.createContext('c');
+
+    const ComponentWithContextHook = ({a, b}) => {
+      const valueFromContext = React.useContext(MyContext);
+
+      return (
+        <div>hi! {a} {b} {valueFromContext}</div>
+      );
+    };
+    ComponentWithContextHook.whyDidYouRender = true;
+
+    const OuterComponent = () => {
+      const [currentState, setCurrentState] = React.useState('c');
+
+      React.useLayoutEffect(() => {
+        setCurrentState('c');
+      }, []);
+
+      return (
+        <MyContext.Provider value={currentState}>
+          <div>
+            <ComponentWithContextHook a={1} b={2}/>
+          </div>
+        </MyContext.Provider>
+      );
+    };
+
+    rtl.render(
+      <OuterComponent/>
+    );
+
+    expect(updateInfos).toHaveLength(0);
+  })",21,54,snuts
+/tests/hooks/hooks.test.js,AnonymousTest,"{'startLine':24,'endLine':41}","test('no whyDidYouRender=true', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState] = React.useState({b: 'b'});
+
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+
+      const {rerender} = rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+      rerender(
+        <ComponentWithHooks a={2}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",24,41,snuts
+/tests/hooks/hooks.test.js,AnonymousTest,"{'startLine':83,'endLine':113}","test('track component', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState] = React.useState({b: 'b'});
+
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+
+      ComponentWithHooks.whyDidYouRender = true;
+
+      const {rerender} = rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+      rerender(
+        <ComponentWithHooks a={2}/>
+      );
+
+      expect(updateInfos).toHaveLength(1);
+      expect(updateInfos[0].reason).toEqual({
+        propsDifferences: [{
+          pathString: 'a',
+          diffType: diffTypes.different,
+          prevValue: 1,
+          nextValue: 2,
+        }],
+        stateDifferences: false,
+        hookDifferences: false,
+        ownerDifferences: false,
+      });
+    })",83,113,snuts
+/tests/hooks/hooks.test.js,AnonymousTest,"{'startLine':165,'endLine':182}","test('no whyDidYouRender=true', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState] = React.useState({b: 'b'});
+
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+
+      const {rerender} = rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+      rerender(
+        <ComponentWithHooks a={2}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",165,182,snuts
+/tests/hooks/hooks.test.js,AnonymousTest,"{'startLine':184,'endLine':201}","test('with whyDidYouRender=true', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState, setCurrentState] = React.useState({b: 'b'});
+        React.useLayoutEffect(() => {
+          setCurrentState({b: 'b'});
+        }, []);
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+      ComponentWithHooks.whyDidYouRender = true;
+
+      rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",184,201,snuts
+/tests/hooks/hooks.test.js,IdenticalTestDescription,"{'startLine':165,'endLine':182}","test('no whyDidYouRender=true', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState] = React.useState({b: 'b'});
+
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+
+      const {rerender} = rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+      rerender(
+        <ComponentWithHooks a={2}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",165,182,snuts
+/tests/hooks/hooks.test.js,IdenticalTestDescription,"{'startLine':203,'endLine':222}","test('after removing WDYR', () => {
+      React.__REVERT_WHY_DID_YOU_RENDER__();
+
+      const ComponentWithHooks = ({a}) => {
+        const [currentState, setCurrentState] = React.useState({b: 'b'});
+        React.useLayoutEffect(() => {
+          setCurrentState({b: 'b'});
+        }, []);
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+      ComponentWithHooks.whyDidYouRender = true;
+
+      rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",203,222,snuts
+/tests/hooks/childrenUsingHookResults.test.js,AnonymousTest,"{'startLine':26,'endLine':86}","test('without dependencies', () => {
+    const AChild = () => <div>hi!</div>;
+    AChild.whyDidYouRender = true;
+
+    const ComponentWithMemoHook = () => {
+      const [currentState, setCurrentState] = React.useState({c: 'c'});
+      
+      React.useLayoutEffect(() => {
+        setCurrentState({c: 'c'});
+      }, []);
+
+      const fnUseCallback = React.useCallback(() => someFn(currentState.c));
+      const fnUseMemo = React.useMemo(() => () => someFn(currentState.c));
+      const fnRegular = () => someFn(currentState.c);
+
+      return (
+        <AChild type=""button"" fnRegular={fnRegular} fnUseMemo={fnUseMemo} fnUseCallback={fnUseCallback}/>
+      );
+    };
+
+    rtl.render(
+      <ComponentWithMemoHook/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: false,
+      stateDifferences: false,
+      propsDifferences: [
+        expect.objectContaining({
+          pathString: 'fnRegular',
+          diffType: 'function',
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseMemo',
+          diffType: 'function',
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseCallback',
+          diffType: 'function',
+        }),
+      ],
+      ownerDifferences: {
+        hookDifferences: [
+          {
+            differences: [
+              {
+                diffType: 'deepEquals',
+                nextValue: {c: 'c'},
+                pathString: '',
+                prevValue: {c: 'c'},
+              },
+            ],
+            hookName: 'useState',
+          },
+        ],
+        propsDifferences: false,
+        stateDifferences: false,
+      },
+    });
+  })",26,86,snuts
+/tests/utils.test.js,Duplicate Assert,"{'line': 23, 'column': 4, 'index': 522}","test('class component', () => {
+    let isStrictMode;
+    class TestComponent extends React.Component {
+      static whyDidYouRender = true;
+      render() {
+        isStrictMode = checkIfInsideAStrictModeTree(this);
+        return <div>hi!</div>;
+      }
+    }
+
+    rtl.render(
+      <div>
+        <TestComponent/>
+      </div>
+    );
+
+    expect(isStrictMode).toBe(false);
+
+    rtl.render(
+      <React.StrictMode>
+        <>
+          <div>
+            <TestComponent/>
+          </div>
+          <div>
+            hiiiiiiiii
+          </div>
+        </>
+      </React.StrictMode>
+    );
+
+    expect(isStrictMode).toBe(true);
+  })",7,39,steel
+/tests/utils.test.js,Duplicate Assert,"{'line': 38, 'column': 4, 'index': 777}","test('class component', () => {
+    let isStrictMode;
+    class TestComponent extends React.Component {
+      static whyDidYouRender = true;
+      render() {
+        isStrictMode = checkIfInsideAStrictModeTree(this);
+        return <div>hi!</div>;
+      }
+    }
+
+    rtl.render(
+      <div>
+        <TestComponent/>
+      </div>
+    );
+
+    expect(isStrictMode).toBe(false);
+
+    rtl.render(
+      <React.StrictMode>
+        <>
+          <div>
+            <TestComponent/>
+          </div>
+          <div>
+            hiiiiiiiii
+          </div>
+        </>
+      </React.StrictMode>
+    );
+
+    expect(isStrictMode).toBe(true);
+  })",7,39,steel
+/tests/utils.test.js,Duplicate Assert,"{'line': 57, 'column': 4, 'index': 1169}","test('pure class component', () => {
+    let isStrictMode;
+    class TestComponent extends React.PureComponent {
+      static whyDidYouRender = true;
+      render() {
+        isStrictMode = checkIfInsideAStrictModeTree(this);
+        return <div>hi!</div>;
+      }
+    }
+
+    rtl.render(
+      <div>
+        <TestComponent/>
+      </div>
+    );
+
+    expect(isStrictMode).toBe(false);
+
+    rtl.render(
+      <React.StrictMode>
+        <>
+          <div>
+            <TestComponent/>
+          </div>
+          <div>
+            hiiiiiiiii
+          </div>
+        </>
+      </React.StrictMode>
+    );
+
+    expect(isStrictMode).toBe(true);
+  })",41,73,steel
+/tests/utils.test.js,Duplicate Assert,"{'line': 72, 'column': 4, 'index': 1424}","test('pure class component', () => {
+    let isStrictMode;
+    class TestComponent extends React.PureComponent {
+      static whyDidYouRender = true;
+      render() {
+        isStrictMode = checkIfInsideAStrictModeTree(this);
+        return <div>hi!</div>;
+      }
+    }
+
+    rtl.render(
+      <div>
+        <TestComponent/>
+      </div>
+    );
+
+    expect(isStrictMode).toBe(false);
+
+    rtl.render(
+      <React.StrictMode>
+        <>
+          <div>
+            <TestComponent/>
+          </div>
+          <div>
+            hiiiiiiiii
+          </div>
+        </>
+      </React.StrictMode>
+    );
+
+    expect(isStrictMode).toBe(true);
+  })",41,73,steel
+/tests/logOwnerReasons.test.js,Conditional Test Logic,"{'line': 17, 'column': 2, 'index': 323}","afterEach(() => {
+  if (React.__REVERT_WHY_DID_YOU_RENDER__) {
+    React.__REVERT_WHY_DID_YOU_RENDER__();
+  }
+})",16,20,steel
+/tests/logOwnerReasons.test.js,Conditional Test Logic,"{'line': 150, 'column': 6, 'index': 3534}","test('owner state updated during render', () => {
+    function DerivedStateOwner({ready}) {
+      const [wasReady, setWasReady] = React.useState(ready);
+      if (ready && !wasReady) {
+        setWasReady(true);
+      }
+
+      return <Child />;
+    }
+    const {rerender} = rtl.render(<DerivedStateOwner ready={false}/>);
+    rerender(<DerivedStateOwner ready/>);
+    rerender(<DerivedStateOwner ready={false}/>);
+
+    expect(updateInfos).toHaveLength(2);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: [{
+          pathString: 'ready',
+          diffType: diffTypes.different,
+          prevValue: false,
+          nextValue: true,
+        }],
+        stateDifferences: false,
+        hookDifferences: [
+          {
+            hookName: 'useState',
+            differences: [{
+              pathString: '',
+              diffType: diffTypes.different,
+              prevValue: false,
+              nextValue: true,
+            }],
+          },
+        ],
+      },
+    });
+    expect(updateInfos[1].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: [{
+          pathString: 'ready',
+          diffType: diffTypes.different,
+          prevValue: true,
+          nextValue: false,
+        }],
+        stateDifferences: false,
+        hookDifferences: [{hookName: 'useState', differences: false}],
+      },
+    });
+  })",147,201,steel
+/tests/logOwnerReasons.test.js,Magic Number,"{'line': 73, 'column': 37, 'index': 1582}","test('owner props changed', () => {
+    const {rerender} = rtl.render(<FunctionalOwner a={1}/>);
+    rerender(<FunctionalOwner a={2} />);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: [{
+          pathString: 'a',
+          diffType: diffTypes.different,
+          prevValue: 1,
+          nextValue: 2,
+        }],
+        stateDifferences: false,
+        hookDifferences: false,
+      },
+    });
+  })",69,89,steel
+/tests/logOwnerReasons.test.js,Magic Number,"{'line': 94, 'column': 37, 'index': 2098}","test('owner state changed', () => {
+    rtl.render(<ClassOwner/>);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: false,
+        stateDifferences: [{
+          pathString: 'a',
+          diffType: diffTypes.different,
+          prevValue: 1,
+          nextValue: 2,
+        }],
+        hookDifferences: false,
+      },
+    });
+  })",91,110,steel
+/tests/logOwnerReasons.test.js,Magic Number,"{'line': 115, 'column': 37, 'index': 2614}","test('owner hooks changed', () => {
+    rtl.render(<HooksOwner/>);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {
+            hookName: 'useState',
+            differences: [{
+              pathString: '',
+              diffType: diffTypes.different,
+              prevValue: 1,
+              nextValue: 2,
+            }],
+          },
+          {
+            hookName: 'useState',
+            differences: [{
+              pathString: '',
+              diffType: diffTypes.different,
+              prevValue: 1,
+              nextValue: 2,
+            }],
+          },
+        ],
+      },
+    });
+  })",112,145,steel
+/tests/logOwnerReasons.test.js,Magic Number,"{'line': 160, 'column': 37, 'index': 3827}","test('owner state updated during render', () => {
+    function DerivedStateOwner({ready}) {
+      const [wasReady, setWasReady] = React.useState(ready);
+      if (ready && !wasReady) {
+        setWasReady(true);
+      }
+
+      return <Child />;
+    }
+    const {rerender} = rtl.render(<DerivedStateOwner ready={false}/>);
+    rerender(<DerivedStateOwner ready/>);
+    rerender(<DerivedStateOwner ready={false}/>);
+
+    expect(updateInfos).toHaveLength(2);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: [{
+          pathString: 'ready',
+          diffType: diffTypes.different,
+          prevValue: false,
+          nextValue: true,
+        }],
+        stateDifferences: false,
+        hookDifferences: [
+          {
+            hookName: 'useState',
+            differences: [{
+              pathString: '',
+              diffType: diffTypes.different,
+              prevValue: false,
+              nextValue: true,
+            }],
+          },
+        ],
+      },
+    });
+    expect(updateInfos[1].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: [{
+          pathString: 'ready',
+          diffType: diffTypes.different,
+          prevValue: true,
+          nextValue: false,
+        }],
+        stateDifferences: false,
+        hookDifferences: [{hookName: 'useState', differences: false}],
+      },
+    });
+  })",147,201,steel
+/tests/logOwnerReasons.test.js,Magic Number,"{'line': 206, 'column': 37, 'index': 5073}","test('owner uses cloneElement', () => {
+    rtl.render(<CloneOwner><Child/></CloneOwner>);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {
+            hookName: 'useState',
+            differences: [{
+              pathString: '',
+              diffType: diffTypes.different,
+              prevValue: 1,
+              nextValue: 2,
+            }],
+          },
+          {
+            hookName: 'useState',
+            differences: [{
+              pathString: '',
+              diffType: diffTypes.different,
+              prevValue: 1,
+              nextValue: 2,
+            }],
+          },
+        ],
+      },
+    });
+  })",203,236,steel
+/tests/logOwnerReasons.test.js,Magic Number,"{'line': 254, 'column': 37, 'index': 6259}","test('owner props changed', () => {
+    const {rerender} = rtl.render(<FunctionalOwner a={1}/>);
+    rerender(<FunctionalOwner a={2} />);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: [{
+          pathString: 'a',
+          diffType: diffTypes.different,
+          prevValue: 1,
+          nextValue: 2,
+        }],
+        stateDifferences: false,
+        hookDifferences: false,
+      },
+    });
+  })",250,270,steel
+/tests/logOwnerReasons.test.js,Magic Number,"{'line': 275, 'column': 37, 'index': 6775}","test('owner state changed', () => {
+    rtl.render(<ClassOwner/>);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: false,
+        stateDifferences: [{
+          pathString: 'a',
+          diffType: diffTypes.different,
+          prevValue: 1,
+          nextValue: 2,
+        }],
+        hookDifferences: false,
+      },
+    });
+  })",272,291,steel
+/tests/logOwnerReasons.test.js,Magic Number,"{'line': 296, 'column': 37, 'index': 7291}","test('owner hooks changed', () => {
+    rtl.render(<HooksOwner/>);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {
+            hookName: 'useState',
+            differences: [{
+              pathString: '',
+              diffType: diffTypes.different,
+              prevValue: 1,
+              nextValue: 2,
+            }],
+          },
+          {
+            hookName: 'useState',
+            differences: [{
+              pathString: '',
+              diffType: diffTypes.different,
+              prevValue: 1,
+              nextValue: 2,
+            }],
+          },
+        ],
+      },
+    });
+  })",293,326,steel
+/tests/defaultNotifier.test.js,Magic Number,"{'line': 372, 'column': 40, 'index': 9684}","test('For different props', () => {
+    whyDidYouRender(React, {onlyLogs: true});
+
+    const updateInfo = getUpdateInfo({
+      Component: TestComponent,
+      prevProps: {a: 'aaaa'},
+      prevState: null,
+      nextProps: {a: 'bbbb'},
+      nextState: null,
+    });
+
+    defaultNotifier(updateInfo);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toHaveLength(0);
+  })",358,373,steel
+/tests/defaultNotifier.test.js,Magic Number,"{'line': 389, 'column': 40, 'index': 10089}","test('For different state', () => {
+    whyDidYouRender(React, {onlyLogs: true});
+
+    const updateInfo = getUpdateInfo({
+      Component: TestComponent,
+      prevProps: null,
+      prevState: {a: 'aaaa'},
+      nextProps: null,
+      nextState: {a: 'bbbb'},
+    });
+
+    defaultNotifier(updateInfo);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toHaveLength(0);
+  })",375,390,steel
+/tests/librariesTests/react-router-dom.test.js,Conditional Test Logic,"{'line': 98, 'column': 6, 'index': 2421}","test('with redux', () => {
+    const initialState = {a: {b: 'c'}};
+
+    const rootReducer = (state, action) => {
+      if (action.type === 'differentState') {
+        return {a: {b: 'd'}};
+      }
+
+      if (action.type === 'deepEqlState') {
+        return cloneDeep(state);
+      }
+
+      return state;
+    };
+
+    const store = createStore(rootReducer, initialState);
+
+    const InnerFn = ({a, setDeepEqlState}) => {
+      const location = useLocation();
+
+      React.useLayoutEffect(() => {
+        setDeepEqlState();
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return <div>hi! {a.b}</div>;
+    };
+
+    const InnerComp = connect(
+      state => ({a: state.a}),
+      {setDeepEqlState: () => ({type: 'deepEqlState'})}
+    )(InnerFn);
+
+    InnerFn.whyDidYouRender = true;
+
+    const Comp = () => (
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route exact path=""/"" element={<InnerComp/>}/>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    );
+
+    rtl.render(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: 'a',
+        prevValue: {b: 'c'},
+        nextValue: {b: 'c'},
+      }],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",94,161,steel
+/tests/librariesTests/react-router-dom.test.js,Conditional Test Logic,"{'line': 102, 'column': 6, 'index': 2506}","test('with redux', () => {
+    const initialState = {a: {b: 'c'}};
+
+    const rootReducer = (state, action) => {
+      if (action.type === 'differentState') {
+        return {a: {b: 'd'}};
+      }
+
+      if (action.type === 'deepEqlState') {
+        return cloneDeep(state);
+      }
+
+      return state;
+    };
+
+    const store = createStore(rootReducer, initialState);
+
+    const InnerFn = ({a, setDeepEqlState}) => {
+      const location = useLocation();
+
+      React.useLayoutEffect(() => {
+        setDeepEqlState();
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return <div>hi! {a.b}</div>;
+    };
+
+    const InnerComp = connect(
+      state => ({a: state.a}),
+      {setDeepEqlState: () => ({type: 'deepEqlState'})}
+    )(InnerFn);
+
+    InnerFn.whyDidYouRender = true;
+
+    const Comp = () => (
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route exact path=""/"" element={<InnerComp/>}/>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    );
+
+    rtl.render(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: 'a',
+        prevValue: {b: 'c'},
+        nextValue: {b: 'c'},
+      }],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",94,161,steel
+/tests/librariesTests/react-router-dom.test.js,Duplicate Assert,"{'line': 67, 'column': 4, 'index': 1609}","test('simple', () => {
+    const InnerComp = ({a}) => {
+      const location = useLocation();
+
+      const [state, setState] = React.useState(0);
+      React.useLayoutEffect(() => {
+        setState(a => a + 1);
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return (
+        <div>hi! {JSON.stringify(a)} {state}</div>
+      );
+    };
+
+    InnerComp.whyDidYouRender = true;
+
+    const Comp = () => (
+      <BrowserRouter>
+        <Routes>
+          <Route exact path=""/"" element={<InnerComp a={{b: 'c'}}/>}/>
+        </Routes>
+      </BrowserRouter>
+    );
+
+    const {rerender} = rtl.render(<Comp/>);
+
+    rerender(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(2);
+    expect(updateInfos).toEqual([
+      expect.objectContaining({
+        displayName: 'InnerComp',
+        hookName: 'useState',
+      }),
+      expect.objectContaining({
+        displayName: 'InnerComp',
+        reason: {
+          hookDifferences: false,
+          stateDifferences: false,
+          propsDifferences: [{
+            diffType: 'deepEquals',
+            nextValue: {b: 'c'},
+            pathString: 'a',
+            prevValue: {b: 'c'},
+          }],
+          ownerDifferences: {
+            hookDifferences: false,
+            propsDifferences: false,
+            stateDifferences: false
+          }
+        }
+      })
+    ]);
+  })",29,92,steel
+/tests/librariesTests/react-router-dom.test.js,Duplicate Assert,"{'line': 68, 'column': 4, 'index': 1650}","test('simple', () => {
+    const InnerComp = ({a}) => {
+      const location = useLocation();
+
+      const [state, setState] = React.useState(0);
+      React.useLayoutEffect(() => {
+        setState(a => a + 1);
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return (
+        <div>hi! {JSON.stringify(a)} {state}</div>
+      );
+    };
+
+    InnerComp.whyDidYouRender = true;
+
+    const Comp = () => (
+      <BrowserRouter>
+        <Routes>
+          <Route exact path=""/"" element={<InnerComp a={{b: 'c'}}/>}/>
+        </Routes>
+      </BrowserRouter>
+    );
+
+    const {rerender} = rtl.render(<Comp/>);
+
+    rerender(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(2);
+    expect(updateInfos).toEqual([
+      expect.objectContaining({
+        displayName: 'InnerComp',
+        hookName: 'useState',
+      }),
+      expect.objectContaining({
+        displayName: 'InnerComp',
+        reason: {
+          hookDifferences: false,
+          stateDifferences: false,
+          propsDifferences: [{
+            diffType: 'deepEquals',
+            nextValue: {b: 'c'},
+            pathString: 'a',
+            prevValue: {b: 'c'},
+          }],
+          ownerDifferences: {
+            hookDifferences: false,
+            propsDifferences: false,
+            stateDifferences: false
+          }
+        }
+      })
+    ]);
+  })",29,92,steel
+/tests/librariesTests/react-router-dom.test.js,Magic Number,"{'line': 67, 'column': 37, 'index': 1642}","test('simple', () => {
+    const InnerComp = ({a}) => {
+      const location = useLocation();
+
+      const [state, setState] = React.useState(0);
+      React.useLayoutEffect(() => {
+        setState(a => a + 1);
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return (
+        <div>hi! {JSON.stringify(a)} {state}</div>
+      );
+    };
+
+    InnerComp.whyDidYouRender = true;
+
+    const Comp = () => (
+      <BrowserRouter>
+        <Routes>
+          <Route exact path=""/"" element={<InnerComp a={{b: 'c'}}/>}/>
+        </Routes>
+      </BrowserRouter>
+    );
+
+    const {rerender} = rtl.render(<Comp/>);
+
+    rerender(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(2);
+    expect(updateInfos).toEqual([
+      expect.objectContaining({
+        displayName: 'InnerComp',
+        hookName: 'useState',
+      }),
+      expect.objectContaining({
+        displayName: 'InnerComp',
+        reason: {
+          hookDifferences: false,
+          stateDifferences: false,
+          propsDifferences: [{
+            diffType: 'deepEquals',
+            nextValue: {b: 'c'},
+            pathString: 'a',
+            prevValue: {b: 'c'},
+          }],
+          ownerDifferences: {
+            hookDifferences: false,
+            propsDifferences: false,
+            stateDifferences: false
+          }
+        }
+      })
+    ]);
+  })",29,92,steel
+/tests/librariesTests/react-router-dom.test.js,Magic Number,"{'line': 149, 'column': 37, 'index': 3660}","test('with redux', () => {
+    const initialState = {a: {b: 'c'}};
+
+    const rootReducer = (state, action) => {
+      if (action.type === 'differentState') {
+        return {a: {b: 'd'}};
+      }
+
+      if (action.type === 'deepEqlState') {
+        return cloneDeep(state);
+      }
+
+      return state;
+    };
+
+    const store = createStore(rootReducer, initialState);
+
+    const InnerFn = ({a, setDeepEqlState}) => {
+      const location = useLocation();
+
+      React.useLayoutEffect(() => {
+        setDeepEqlState();
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return <div>hi! {a.b}</div>;
+    };
+
+    const InnerComp = connect(
+      state => ({a: state.a}),
+      {setDeepEqlState: () => ({type: 'deepEqlState'})}
+    )(InnerFn);
+
+    InnerFn.whyDidYouRender = true;
+
+    const Comp = () => (
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route exact path=""/"" element={<InnerComp/>}/>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    );
+
+    rtl.render(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: 'a',
+        prevValue: {b: 'c'},
+        nextValue: {b: 'c'},
+      }],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",94,161,steel
+/tests/librariesTests/react-router-dom.test.js,Redundant Print,"{'line': 39, 'column': 6, 'index': 908}","test('simple', () => {
+    const InnerComp = ({a}) => {
+      const location = useLocation();
+
+      const [state, setState] = React.useState(0);
+      React.useLayoutEffect(() => {
+        setState(a => a + 1);
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return (
+        <div>hi! {JSON.stringify(a)} {state}</div>
+      );
+    };
+
+    InnerComp.whyDidYouRender = true;
+
+    const Comp = () => (
+      <BrowserRouter>
+        <Routes>
+          <Route exact path=""/"" element={<InnerComp a={{b: 'c'}}/>}/>
+        </Routes>
+      </BrowserRouter>
+    );
+
+    const {rerender} = rtl.render(<Comp/>);
+
+    rerender(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(2);
+    expect(updateInfos).toEqual([
+      expect.objectContaining({
+        displayName: 'InnerComp',
+        hookName: 'useState',
+      }),
+      expect.objectContaining({
+        displayName: 'InnerComp',
+        reason: {
+          hookDifferences: false,
+          stateDifferences: false,
+          propsDifferences: [{
+            diffType: 'deepEquals',
+            nextValue: {b: 'c'},
+            pathString: 'a',
+            prevValue: {b: 'c'},
+          }],
+          ownerDifferences: {
+            hookDifferences: false,
+            propsDifferences: false,
+            stateDifferences: false
+          }
+        }
+      })
+    ]);
+  })",29,92,steel
+/tests/librariesTests/react-router-dom.test.js,Redundant Print,"{'line': 119, 'column': 6, 'index': 2889}","test('with redux', () => {
+    const initialState = {a: {b: 'c'}};
+
+    const rootReducer = (state, action) => {
+      if (action.type === 'differentState') {
+        return {a: {b: 'd'}};
+      }
+
+      if (action.type === 'deepEqlState') {
+        return cloneDeep(state);
+      }
+
+      return state;
+    };
+
+    const store = createStore(rootReducer, initialState);
+
+    const InnerFn = ({a, setDeepEqlState}) => {
+      const location = useLocation();
+
+      React.useLayoutEffect(() => {
+        setDeepEqlState();
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return <div>hi! {a.b}</div>;
+    };
+
+    const InnerComp = connect(
+      state => ({a: state.a}),
+      {setDeepEqlState: () => ({type: 'deepEqlState'})}
+    )(InnerFn);
+
+    InnerFn.whyDidYouRender = true;
+
+    const Comp = () => (
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route exact path=""/"" element={<InnerComp/>}/>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    );
+
+    rtl.render(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: 'a',
+        prevValue: {b: 'c'},
+        nextValue: {b: 'c'},
+      }],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",94,161,steel
+/tests/librariesTests/react-redux.test.js,Conditional Test Logic,"{'line': 17, 'column': 4, 'index': 453}","describe('react-redux - simple', () => {
+  const initialState = {a: {b: 'c'}};
+
+  const rootReducer = (state, action) => {
+    if (action.type === 'differentState') {
+      return {a: {b: 'd'}};
+    }
+
+    if (action.type === 'deepEqlState') {
+      return cloneDeep(state);
+    }
+
+    return state;
+  };
+
+  let store;
+  let updateInfos;
+
+  beforeEach(() => {
+    store = createStore(rootReducer, initialState);
+    updateInfos = [];
+    whyDidYouRender(React, {
+      notifier: updateInfo => updateInfos.push(updateInfo),
+    });
+  });
+
+  afterEach(() => {
+    if (React.__REVERT_WHY_DID_YOU_RENDER__) {
+      React.__REVERT_WHY_DID_YOU_RENDER__();
+    }
+  });
+
+  test('same state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">{a.b}</div>
+    );
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  });
+
+  test('different state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">{a.b}</div>
+    );
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'differentState'});
+    });
+
+    expect(store.getState().a.b).toBe('d');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        expect.objectContaining({diffType: diffTypes.different}),
+        expect.objectContaining({diffType: diffTypes.different}),
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  });
+
+  test('deep equals state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">
+        {a.b}
+      </div>
+    );
+    
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        expect.objectContaining({diffType: diffTypes.deepEquals}),
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  });
+})",13,151,steel
+/tests/librariesTests/react-redux.test.js,Conditional Test Logic,"{'line': 21, 'column': 4, 'index': 532}","describe('react-redux - simple', () => {
+  const initialState = {a: {b: 'c'}};
+
+  const rootReducer = (state, action) => {
+    if (action.type === 'differentState') {
+      return {a: {b: 'd'}};
+    }
+
+    if (action.type === 'deepEqlState') {
+      return cloneDeep(state);
+    }
+
+    return state;
+  };
+
+  let store;
+  let updateInfos;
+
+  beforeEach(() => {
+    store = createStore(rootReducer, initialState);
+    updateInfos = [];
+    whyDidYouRender(React, {
+      notifier: updateInfo => updateInfos.push(updateInfo),
+    });
+  });
+
+  afterEach(() => {
+    if (React.__REVERT_WHY_DID_YOU_RENDER__) {
+      React.__REVERT_WHY_DID_YOU_RENDER__();
+    }
+  });
+
+  test('same state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">{a.b}</div>
+    );
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  });
+
+  test('different state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">{a.b}</div>
+    );
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'differentState'});
+    });
+
+    expect(store.getState().a.b).toBe('d');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        expect.objectContaining({diffType: diffTypes.different}),
+        expect.objectContaining({diffType: diffTypes.different}),
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  });
+
+  test('deep equals state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">
+        {a.b}
+      </div>
+    );
+    
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        expect.objectContaining({diffType: diffTypes.deepEquals}),
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  });
+})",13,151,steel
+/tests/librariesTests/react-redux.test.js,Conditional Test Logic,"{'line': 40, 'column': 4, 'index': 888}","afterEach(() => {
+    if (React.__REVERT_WHY_DID_YOU_RENDER__) {
+      React.__REVERT_WHY_DID_YOU_RENDER__();
+    }
+  })",39,43,steel
+/tests/librariesTests/react-redux.test.js,Conditional Test Logic,"{'line': 157, 'column': 4, 'index': 3634}","describe('react-redux - hooks', () => {
+  const initialState = {a: {b: 'c'}};
+
+  const rootReducer = (state, action) => {
+    if (action.type === 'differentState') {
+      return {a: {b: 'd'}};
+    }
+
+    if (action.type === 'deepEqlState') {
+      return cloneDeep(state);
+    }
+
+    return state;
+  };
+
+  let store;
+  let updateInfos;
+
+  beforeEach(() => {
+    store = createStore(rootReducer, initialState);
+    updateInfos = [];
+    whyDidYouRender(React, {
+      notifier: updateInfo => updateInfos.push(updateInfo),
+      trackExtraHooks: [
+        [ReactRedux, 'useSelector'],
+      ],
+    });
+  });
+
+  afterEach(() => {
+    if (React.__REVERT_WHY_DID_YOU_RENDER__) {
+      React.__REVERT_WHY_DID_YOU_RENDER__();
+    }
+  });
+
+  test('same state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  });
+
+  test('different state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'differentState'});
+    });
+
+    expect(store.getState().a.b).toBe('d');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.different, pathString: '.b', prevValue: 'c', nextValue: 'd'},
+          {diffType: diffTypes.different, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'd'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  });
+
+  test('deep equals state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">
+          {a.b}
+        </div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.deepEquals, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'c'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  });
+})",153,297,steel
+/tests/librariesTests/react-redux.test.js,Conditional Test Logic,"{'line': 161, 'column': 4, 'index': 3713}","describe('react-redux - hooks', () => {
+  const initialState = {a: {b: 'c'}};
+
+  const rootReducer = (state, action) => {
+    if (action.type === 'differentState') {
+      return {a: {b: 'd'}};
+    }
+
+    if (action.type === 'deepEqlState') {
+      return cloneDeep(state);
+    }
+
+    return state;
+  };
+
+  let store;
+  let updateInfos;
+
+  beforeEach(() => {
+    store = createStore(rootReducer, initialState);
+    updateInfos = [];
+    whyDidYouRender(React, {
+      notifier: updateInfo => updateInfos.push(updateInfo),
+      trackExtraHooks: [
+        [ReactRedux, 'useSelector'],
+      ],
+    });
+  });
+
+  afterEach(() => {
+    if (React.__REVERT_WHY_DID_YOU_RENDER__) {
+      React.__REVERT_WHY_DID_YOU_RENDER__();
+    }
+  });
+
+  test('same state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  });
+
+  test('different state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'differentState'});
+    });
+
+    expect(store.getState().a.b).toBe('d');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.different, pathString: '.b', prevValue: 'c', nextValue: 'd'},
+          {diffType: diffTypes.different, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'd'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  });
+
+  test('deep equals state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">
+          {a.b}
+        </div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.deepEquals, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'c'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  });
+})",153,297,steel
+/tests/librariesTests/react-redux.test.js,Conditional Test Logic,"{'line': 183, 'column': 4, 'index': 4140}","afterEach(() => {
+    if (React.__REVERT_WHY_DID_YOU_RENDER__) {
+      React.__REVERT_WHY_DID_YOU_RENDER__();
+    }
+  })",182,186,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 63, 'column': 4, 'index': 1414}","test('same state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">{a.b}</div>
+    );
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  })",45,72,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 63, 'column': 4, 'index': 1414}","test('same state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">{a.b}</div>
+    );
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  })",45,72,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 69, 'column': 4, 'index': 1531}","test('same state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">{a.b}</div>
+    );
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  })",45,72,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 69, 'column': 4, 'index': 1531}","test('same state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">{a.b}</div>
+    );
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  })",45,72,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 92, 'column': 4, 'index': 2050}","test('different state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">{a.b}</div>
+    );
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'differentState'});
+    });
+
+    expect(store.getState().a.b).toBe('d');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        expect.objectContaining({diffType: diffTypes.different}),
+        expect.objectContaining({diffType: diffTypes.different}),
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",74,110,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 98, 'column': 4, 'index': 2172}","test('different state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">{a.b}</div>
+    );
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'differentState'});
+    });
+
+    expect(store.getState().a.b).toBe('d');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        expect.objectContaining({diffType: diffTypes.different}),
+        expect.objectContaining({diffType: diffTypes.different}),
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",74,110,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 133, 'column': 4, 'index': 3037}","test('deep equals state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">
+        {a.b}
+      </div>
+    );
+    
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        expect.objectContaining({diffType: diffTypes.deepEquals}),
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",112,150,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 133, 'column': 4, 'index': 3037}","test('deep equals state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">
+        {a.b}
+      </div>
+    );
+    
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        expect.objectContaining({diffType: diffTypes.deepEquals}),
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",112,150,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 139, 'column': 4, 'index': 3157}","test('deep equals state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">
+        {a.b}
+      </div>
+    );
+    
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        expect.objectContaining({diffType: diffTypes.deepEquals}),
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",112,150,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 139, 'column': 4, 'index': 3157}","test('deep equals state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">
+        {a.b}
+      </div>
+    );
+    
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        expect.objectContaining({diffType: diffTypes.deepEquals}),
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",112,150,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 205, 'column': 4, 'index': 4662}","test('same state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  })",188,214,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 205, 'column': 4, 'index': 4662}","test('same state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  })",188,214,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 211, 'column': 4, 'index': 4779}","test('same state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  })",188,214,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 211, 'column': 4, 'index': 4779}","test('same state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  })",188,214,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 234, 'column': 4, 'index': 5297}","test('different state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'differentState'});
+    });
+
+    expect(store.getState().a.b).toBe('d');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.different, pathString: '.b', prevValue: 'c', nextValue: 'd'},
+          {diffType: diffTypes.different, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'd'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  })",216,255,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 240, 'column': 4, 'index': 5419}","test('different state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'differentState'});
+    });
+
+    expect(store.getState().a.b).toBe('d');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.different, pathString: '.b', prevValue: 'c', nextValue: 'd'},
+          {diffType: diffTypes.different, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'd'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  })",216,255,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 276, 'column': 4, 'index': 6415}","test('deep equals state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">
+          {a.b}
+        </div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.deepEquals, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'c'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  })",257,296,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 276, 'column': 4, 'index': 6415}","test('deep equals state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">
+          {a.b}
+        </div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.deepEquals, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'c'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  })",257,296,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 282, 'column': 4, 'index': 6535}","test('deep equals state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">
+          {a.b}
+        </div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.deepEquals, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'c'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  })",257,296,steel
+/tests/librariesTests/react-redux.test.js,Duplicate Assert,"{'line': 282, 'column': 4, 'index': 6535}","test('deep equals state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">
+          {a.b}
+        </div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.deepEquals, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'c'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  })",257,296,steel
+/tests/librariesTests/react-redux.test.js,Magic Number,"{'line': 71, 'column': 37, 'index': 1609}","test('same state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">{a.b}</div>
+    );
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  })",45,72,steel
+/tests/librariesTests/react-redux.test.js,Magic Number,"{'line': 100, 'column': 37, 'index': 2250}","test('different state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">{a.b}</div>
+    );
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'differentState'});
+    });
+
+    expect(store.getState().a.b).toBe('d');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        expect.objectContaining({diffType: diffTypes.different}),
+        expect.objectContaining({diffType: diffTypes.different}),
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",74,110,steel
+/tests/librariesTests/react-redux.test.js,Magic Number,"{'line': 141, 'column': 37, 'index': 3235}","test('deep equals state after dispatch', () => {
+    const SimpleComponent = ({a}) => (
+      <div data-testid=""foo"">
+        {a.b}
+      </div>
+    );
+    
+    const ConnectedSimpleComponent = connect(
+      state => ({a: state.a})
+    )(SimpleComponent);
+
+    SimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [
+        expect.objectContaining({diffType: diffTypes.deepEquals}),
+      ],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",112,150,steel
+/tests/librariesTests/react-redux.test.js,Magic Number,"{'line': 213, 'column': 37, 'index': 4857}","test('same state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  })",188,214,steel
+/tests/librariesTests/react-redux.test.js,Magic Number,"{'line': 242, 'column': 37, 'index': 5497}","test('different state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'differentState'});
+    });
+
+    expect(store.getState().a.b).toBe('d');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.different, pathString: '.b', prevValue: 'c', nextValue: 'd'},
+          {diffType: diffTypes.different, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'd'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  })",216,255,steel
+/tests/librariesTests/react-redux.test.js,Magic Number,"{'line': 284, 'column': 37, 'index': 6613}","test('deep equals state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">
+          {a.b}
+        </div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.deepEquals, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'c'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  })",257,296,steel
+/tests/hooks/useSyncExternalStore.test.js,Magic Number,"{'line': 70, 'column': 37, 'index': 1556}","test('same value', () => {
+    const store = createSimpleStore('c');
+
+    const ComponentWithSyncExternalStore = ({a, b}) => {
+      const valueFromStore = React.useSyncExternalStore(
+        store.subscribe,
+        store.getState
+      );
+
+      return (
+        <div>
+          hi! {a} {b} {valueFromStore}
+        </div>
+      );
+    };
+    ComponentWithSyncExternalStore.whyDidYouRender = true;
+
+    const OuterComponent = () => {
+      React.useLayoutEffect(() => {
+        store.setState('c');
+      }, []);
+
+      return (
+        <div>
+          <ComponentWithSyncExternalStore a={1} b={2} />
+        </div>
+      );
+    };
+
+    rtl.render(<OuterComponent />);
+
+    expect(updateInfos).toHaveLength(0);
+  })",39,71,steel
+/tests/hooks/useSyncExternalStore.test.js,Magic Number,"{'line': 104, 'column': 37, 'index': 2290}","test('deep equals', () => {
+    const store = createSimpleStore({c: 'c'});
+
+    const ComponentWithSyncExternalStore = ({a, b}) => {
+      const valueFromStore = React.useSyncExternalStore(
+        store.subscribe,
+        store.getState
+      );
+
+      return (
+        <div>
+          hi! {a} {b} {valueFromStore.c}
+        </div>
+      );
+    };
+    ComponentWithSyncExternalStore.whyDidYouRender = true;
+
+    const OuterComponent = () => {
+      React.useLayoutEffect(() => {
+        store.setState({c: 'c'});
+      }, []);
+
+      return (
+        <div>
+          <ComponentWithSyncExternalStore a={1} b={2} />
+        </div>
+      );
+    };
+
+    rtl.render(<OuterComponent />);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [
+        {
+          diffType: diffTypes.deepEquals,
+          pathString: '',
+          nextValue: {c: 'c'},
+          prevValue: {c: 'c'},
+        },
+      ],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",73,118,steel
+/tests/hooks/useState.test.js,Conditional Test Logic,"{'line': 130, 'column': 4, 'index': 2876}","afterEach(() => {
+    if (React.__REVERT_WHY_DID_YOU_RENDER__) {
+      React.__REVERT_WHY_DID_YOU_RENDER__();
+    }
+  })",129,133,steel
+/tests/hooks/useState.test.js,Magic Number,"{'line': 41, 'column': 37, 'index': 914}","test('setState - same value', () => {
+    const initialState = {b: 'b'};
+    const ComponentWithHooks = () => {
+      const [currentState, setCurrentState] = React.useState(initialState);
+
+      React.useLayoutEffect(() => {
+        setCurrentState(initialState);
+      }, []);
+
+      return (
+        <div>hi! {currentState.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks/>
+    );
+
+    expect(updateInfos).toHaveLength(0);
+  })",21,42,steel
+/tests/hooks/useState.test.js,Magic Number,"{'line': 63, 'column': 37, 'index': 1379}","test('setState of different values', () => {
+    const ComponentWithHooks = () => {
+      const [currentState, setCurrentState] = React.useState({b: 'b'});
+
+      React.useLayoutEffect(() => {
+        setCurrentState({b: 'c'});
+      }, []);
+
+      return (
+        <div>hi! {currentState.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: false,
+      stateDifferences: false,
+      hookDifferences: [
+        {
+          pathString: '.b',
+          diffType: diffTypes.different,
+          prevValue: 'b',
+          nextValue: 'c',
+        },
+        {
+          pathString: '',
+          diffType: diffTypes.different,
+          prevValue: {b: 'b'},
+          nextValue: {b: 'c'},
+        },
+      ],
+      ownerDifferences: false,
+    });
+  })",44,83,steel
+/tests/hooks/useState.test.js,Magic Number,"{'line': 104, 'column': 37, 'index': 2330}","test('setState of deep equals values', () => {
+    const ComponentWithHooks = ({a}) => {
+      const [currentState, setCurrentState] = React.useState({b: 'b'});
+
+      React.useLayoutEffect(() => {
+        setCurrentState({b: 'b'});
+      }, []);
+
+      return (
+        <div>hi! {a} {currentState.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: false,
+      stateDifferences: false,
+      hookDifferences: [{
+        pathString: '',
+        diffType: diffTypes.deepEquals,
+        prevValue: {b: 'b'},
+        nextValue: {b: 'b'},
+      }],
+      ownerDifferences: false,
+    });
+  })",85,116,steel
+/tests/hooks/useState.test.js,Magic Number,"{'line': 159, 'column': 37, 'index': 3509}","test('same value', () => {
+    const value = {b: 'b'};
+
+    let effectCalled = false;
+
+    const ComponentWithHooks = ({a}) => {
+      const [currentState, setCurrentState] = React.useState(value);
+
+      React.useLayoutEffect(() => {
+        effectCalled = true;
+        setCurrentState(value);
+      }, []);
+
+      return (
+        <div>hi! {a} {currentState.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(0);
+    expect(effectCalled).toBeTruthy();
+  })",135,161,steel
+/tests/hooks/useState.test.js,Magic Number,"{'line': 185, 'column': 37, 'index': 4109}","test('different (falsy to truthy)', () => {
+    const ComponentWithHooks = () => {
+      const [currentResult, setCurrentState] = React.useState(false);
+      const result = React.useMemo(() => currentResult, [currentResult]);
+
+      React.useLayoutEffect(() => {
+        setCurrentState(true);
+      }, []);
+
+      return (
+        <div>hi! {result}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = {
+      logOnDifferentValues: true,
+    };
+
+    rtl.render(
+      <ComponentWithHooks/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+  })",163,186,steel
+/tests/hooks/useState.test.js,Magic Number,"{'line': 207, 'column': 37, 'index': 4570}","test('deep equals', () => {
+    const ComponentWithHooks = ({a}) => {
+      const [currentState, setCurrentState] = React.useState({b: 'b'});
+
+      React.useLayoutEffect(() => {
+        setCurrentState({b: 'b'});
+      }, []);
+
+      return (
+        <div>hi! {a} {currentState.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {b: 'b'},
+        prevValue: {b: 'b'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",188,219,steel
+/tests/hooks/useState.test.js,Magic Number,"{'line': 240, 'column': 37, 'index': 5348}","test('deep equals direct import', () => {
+    const ComponentWithHooks = ({a}) => {
+      const [currentState, setCurrentState] = React.useState({b: 'b'});
+
+      React.useLayoutEffect(() => {
+        setCurrentState({b: 'b'});
+      }, []);
+
+      return (
+        <div>hi! {a} {currentState.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {b: 'b'},
+        prevValue: {b: 'b'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",221,252,steel
+/tests/hooks/useState.test.js,Magic Number,"{'line': 281, 'column': 37, 'index': 6647}","test('many deep equals direct import', () => {
+    const ComponentWithHooks = ({a}) => {
+      const [currentStateA, setCurrentStateA] = React.useState({a: 'a'});
+      const [currentStateB, setCurrentStateB] = React.useState({b: 'b'});
+      const [currentStateC, setCurrentStateC] = React.useState({c: 'c'});
+      const [currentStateD, setCurrentStateD] = React.useState({d: 'd'});
+      const [currentStateE, setCurrentStateE] = React.useState({e: 'e'});
+
+      React.useLayoutEffect(() => {
+        setCurrentStateA({a: 'a'});
+        setCurrentStateB({b: 'b'});
+        setCurrentStateC({c: 'c'});
+        setCurrentStateD({d: 'd'});
+        setCurrentStateE({e: 'e'});
+      }, []);
+
+      return (
+        <div>hi! {a} {currentStateA.a} {currentStateB.b} {currentStateC.c} {currentStateD.d} {currentStateE.e}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(5);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {a: 'a'},
+        prevValue: {a: 'a'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+    expect(updateInfos[1].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {b: 'b'},
+        prevValue: {b: 'b'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+    expect(updateInfos[2].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {c: 'c'},
+        prevValue: {c: 'c'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+    expect(updateInfos[3].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {d: 'd'},
+        prevValue: {d: 'd'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+    expect(updateInfos[4].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {e: 'e'},
+        prevValue: {e: 'e'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",254,337,steel
+/tests/hooks/useState.test.js,Magic Number,"{'line': 358, 'column': 37, 'index': 8646}","test('deep equals functional use', () => {
+    const ComponentWithHooks = ({a}) => {
+      const [currentState, setCurrentState] = React.useState({b: 'b'});
+
+      React.useLayoutEffect(() => {
+        setCurrentState(() => ({b: 'b'}));
+      }, []);
+
+      return (
+        <div>hi! {a} {currentState.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {b: 'b'},
+        prevValue: {b: 'b'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",339,370,steel
+/tests/hooks/useReducer.test.js,Magic Number,"{'line': 48, 'column': 30, 'index': 996}","test('same value', () => {
+    const initialState = {b: 'b'};
+
+    function reducer() {
+      return initialState;
+    }
+
+    let numOfRenders = 0;
+    const ComponentWithHooks = () => {
+      numOfRenders++;
+      const [state, dispatch] = React.useReducer(reducer, initialState);
+
+      React.useLayoutEffect(() => {
+        dispatch({type: 'something'});
+      }, []);
+
+      return (
+        <div>hi! {state.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks/>
+    );
+
+    expect(numOfRenders).toBe(2);
+    expect(updateInfos).toHaveLength(0);
+  })",21,50,steel
+/tests/hooks/useReducer.test.js,Magic Number,"{'line': 49, 'column': 37, 'index': 1037}","test('same value', () => {
+    const initialState = {b: 'b'};
+
+    function reducer() {
+      return initialState;
+    }
+
+    let numOfRenders = 0;
+    const ComponentWithHooks = () => {
+      numOfRenders++;
+      const [state, dispatch] = React.useReducer(reducer, initialState);
+
+      React.useLayoutEffect(() => {
+        dispatch({type: 'something'});
+      }, []);
+
+      return (
+        <div>hi! {state.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks/>
+    );
+
+    expect(numOfRenders).toBe(2);
+    expect(updateInfos).toHaveLength(0);
+  })",21,50,steel
+/tests/hooks/useReducer.test.js,Magic Number,"{'line': 77, 'column': 37, 'index': 1610}","test('different value', () => {
+    const initialState = {b: 'b'};
+
+    function reducer() {
+      return {a: 'a'};
+    }
+
+    const ComponentWithHooks = ({a}) => {
+      const [state, dispatch] = React.useReducer(reducer, initialState);
+
+      React.useLayoutEffect(() => {
+        dispatch({type: 'something'});
+      }, []);
+
+      return (
+        <div data-testid=""test"">hi! {a} {state.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [{
+        pathString: '',
+        diffType: diffTypes.different,
+        prevValue: {b: 'b'},
+        nextValue: {a: 'a'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",52,89,steel
+/tests/hooks/useReducer.test.js,Magic Number,"{'line': 116, 'column': 37, 'index': 2462}","test('deep equals', () => {
+    const initialState = {b: 'b'};
+
+    function reducer() {
+      return {b: 'b'};
+    }
+
+    const ComponentWithHooks = ({a}) => {
+      const [state, dispatch] = React.useReducer(reducer, initialState);
+
+      React.useLayoutEffect(() => {
+        dispatch({type: 'something'});
+      }, []);
+
+      return (
+        <div>hi! {a} {state.b}</div>
+      );
+    };
+
+    ComponentWithHooks.whyDidYouRender = true;
+
+    rtl.render(
+      <ComponentWithHooks a={1}/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {b: 'b'},
+        prevValue: {b: 'b'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",91,128,steel
+/tests/hooks/useContext.test.js,Magic Number,"{'line': 53, 'column': 37, 'index': 1217}","test('same value', () => {
+    const MyContext = React.createContext('c');
+
+    const ComponentWithContextHook = ({a, b}) => {
+      const valueFromContext = React.useContext(MyContext);
+
+      return (
+        <div>hi! {a} {b} {valueFromContext}</div>
+      );
+    };
+    ComponentWithContextHook.whyDidYouRender = true;
+
+    const OuterComponent = () => {
+      const [currentState, setCurrentState] = React.useState('c');
+
+      React.useLayoutEffect(() => {
+        setCurrentState('c');
+      }, []);
+
+      return (
+        <MyContext.Provider value={currentState}>
+          <div>
+            <ComponentWithContextHook a={1} b={2}/>
+          </div>
+        </MyContext.Provider>
+      );
+    };
+
+    rtl.render(
+      <OuterComponent/>
+    );
+
+    expect(updateInfos).toHaveLength(0);
+  })",21,54,steel
+/tests/hooks/useContext.test.js,Magic Number,"{'line': 88, 'column': 37, 'index': 2060}","test('deep equals - memoized', () => {
+    const MyContext = React.createContext({c: 'c'});
+
+    const ComponentWithContextHook = React.memo(({a, b}) => {
+      const valueFromContext = React.useContext(MyContext);
+
+      return (
+        <div>hi! {a} {b} {valueFromContext.c}</div>
+      );
+    });
+    ComponentWithContextHook.whyDidYouRender = true;
+
+    const OuterComponent = () => {
+      const [currentState, setCurrentState] = React.useState({c: 'c'});
+
+      React.useLayoutEffect(() => {
+        setCurrentState({c: 'c'});
+      }, []);
+
+      return (
+        <MyContext.Provider value={currentState}>
+          <div>
+            <ComponentWithContextHook a={1} b={2}/>
+          </div>
+        </MyContext.Provider>
+      );
+    };
+
+    rtl.render(
+      <OuterComponent/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: '',
+        nextValue: {c: 'c'},
+        prevValue: {c: 'c'},
+      }],
+      propsDifferences: false,
+      stateDifferences: false,
+      ownerDifferences: false,
+    });
+  })",56,100,steel
+/tests/hooks/useContext.test.js,Magic Number,"{'line': 134, 'column': 37, 'index': 3180}","test('deep equals - not memoized', () => {
+    const MyContext = React.createContext({c: 'c'});
+
+    const ComponentWithContextHook = ({a, b}) => {
+      const valueFromContext = React.useContext(MyContext);
+
+      return (
+        <div>hi! {a} {b} {valueFromContext.c}</div>
+      );
+    };
+    ComponentWithContextHook.whyDidYouRender = true;
+
+    const OuterComponent = () => {
+      const [currentState, setCurrentState] = React.useState({c: 'c'});
+
+      React.useLayoutEffect(() => {
+        setCurrentState({c: 'c'});
+      }, []);
+
+      return (
+        <MyContext value={currentState}>
+          <div>
+            <ComponentWithContextHook a={1} b={2}/>
+          </div>
+        </MyContext>
+      );
+    };
+
+    rtl.render(
+      <OuterComponent/>
+    );
+
+    expect(updateInfos).toHaveLength(2);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: false,
+      propsDifferences: [],
+      stateDifferences: false,
+      ownerDifferences: {
+        hookDifferences: [{
+          differences: [{
+            diffType: diffTypes.deepEquals,
+            pathString: '',
+            nextValue: {c: 'c'},
+            prevValue: {c: 'c'},
+          }],
+          hookName: 'useState',
+        }],
+        propsDifferences: false,
+        stateDifferences: false,
+      },
+    });
+    expect(updateInfos[1]).toEqual(expect.objectContaining({
+      hookName: 'useContext',
+      reason: {
+        hookDifferences: [{
+          diffType: diffTypes.deepEquals,
+          pathString: '',
+          nextValue: {c: 'c'},
+          prevValue: {c: 'c'},
+        }],
+        propsDifferences: false,
+        stateDifferences: false,
+        ownerDifferences: false,
+      }
+    }));
+  })",102,167,steel
+/tests/hooks/hooks.test.js,Conditional Test Logic,"{'line': 19, 'column': 6, 'index': 430}","afterEach(() => {
+      if (React.__REVERT_WHY_DID_YOU_RENDER__) {
+        React.__REVERT_WHY_DID_YOU_RENDER__();
+      }
+    })",18,22,steel
+/tests/hooks/hooks.test.js,Conditional Test Logic,"{'line': 160, 'column': 6, 'index': 3876}","afterEach(() => {
+      if (React.__REVERT_WHY_DID_YOU_RENDER__) {
+        React.__REVERT_WHY_DID_YOU_RENDER__();
+      }
+    })",159,163,steel
+/tests/hooks/hooks.test.js,Magic Number,"{'line': 40, 'column': 39, 'index': 950}","test('no whyDidYouRender=true', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState] = React.useState({b: 'b'});
+
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+
+      const {rerender} = rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+      rerender(
+        <ComponentWithHooks a={2}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",24,41,steel
+/tests/hooks/hooks.test.js,Magic Number,"{'line': 59, 'column': 39, 'index': 1450}","test('simple hooks tracking', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState, setCurrentState] = React.useState({b: 'b'});
+        React.useLayoutEffect(() => {
+          setCurrentState({b: 'b'});
+        }, []);
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+      ComponentWithHooks.whyDidYouRender = true;
+
+      rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+
+      expect(updateInfos).toHaveLength(1);
+    })",43,60,steel
+/tests/hooks/hooks.test.js,Magic Number,"{'line': 80, 'column': 39, 'index': 1994}","test('after removing WDYR', () => {
+      React.__REVERT_WHY_DID_YOU_RENDER__();
+
+      const ComponentWithHooks = ({a}) => {
+        const [currentState, setCurrentState] = React.useState({b: 'b'});
+        React.useLayoutEffect(() => {
+          setCurrentState({b: 'b'});
+        }, []);
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+      ComponentWithHooks.whyDidYouRender = true;
+
+      rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",62,81,steel
+/tests/hooks/hooks.test.js,Magic Number,"{'line': 101, 'column': 39, 'index': 2462}","test('track component', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState] = React.useState({b: 'b'});
+
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+
+      ComponentWithHooks.whyDidYouRender = true;
+
+      const {rerender} = rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+      rerender(
+        <ComponentWithHooks a={2}/>
+      );
+
+      expect(updateInfos).toHaveLength(1);
+      expect(updateInfos[0].reason).toEqual({
+        propsDifferences: [{
+          pathString: 'a',
+          diffType: diffTypes.different,
+          prevValue: 1,
+          nextValue: 2,
+        }],
+        stateDifferences: false,
+        hookDifferences: false,
+        ownerDifferences: false,
+      });
+    })",83,113,steel
+/tests/hooks/hooks.test.js,Magic Number,"{'line': 133, 'column': 39, 'index': 3262}","test('track memoized component', () => {
+      const ComponentWithHooks = React.memo(({a}) => {
+        const [currentState] = React.useState({b: 'b'});
+
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      });
+
+      ComponentWithHooks.whyDidYouRender = true;
+
+      const {rerender} = rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+      rerender(
+        <ComponentWithHooks a={2}/>
+      );
+
+      expect(updateInfos).toHaveLength(1);
+      expect(updateInfos[0].reason).toEqual({
+        propsDifferences: [{
+          pathString: 'a',
+          diffType: diffTypes.different,
+          prevValue: 1,
+          nextValue: 2,
+        }],
+        stateDifferences: false,
+        hookDifferences: false,
+        ownerDifferences: false,
+      });
+    })",115,145,steel
+/tests/hooks/hooks.test.js,Magic Number,"{'line': 181, 'column': 39, 'index': 4396}","test('no whyDidYouRender=true', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState] = React.useState({b: 'b'});
+
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+
+      const {rerender} = rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+      rerender(
+        <ComponentWithHooks a={2}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",165,182,steel
+/tests/hooks/hooks.test.js,Magic Number,"{'line': 200, 'column': 39, 'index': 4900}","test('with whyDidYouRender=true', () => {
+      const ComponentWithHooks = ({a}) => {
+        const [currentState, setCurrentState] = React.useState({b: 'b'});
+        React.useLayoutEffect(() => {
+          setCurrentState({b: 'b'});
+        }, []);
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+      ComponentWithHooks.whyDidYouRender = true;
+
+      rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",184,201,steel
+/tests/hooks/hooks.test.js,Magic Number,"{'line': 221, 'column': 39, 'index': 5444}","test('after removing WDYR', () => {
+      React.__REVERT_WHY_DID_YOU_RENDER__();
+
+      const ComponentWithHooks = ({a}) => {
+        const [currentState, setCurrentState] = React.useState({b: 'b'});
+        React.useLayoutEffect(() => {
+          setCurrentState({b: 'b'});
+        }, []);
+        return (
+          <div>hi! {a} {currentState.b}</div>
+        );
+      };
+      ComponentWithHooks.whyDidYouRender = true;
+
+      rtl.render(
+        <ComponentWithHooks a={1}/>
+      );
+
+      expect(updateInfos).toHaveLength(0);
+    })",203,222,steel
+/tests/hooks/childrenUsingHookResults.test.js,Conditional Test Logic,"{'line': 20, 'column': 2, 'index': 404}","afterEach(() => {
+  if (React.__REVERT_WHY_DID_YOU_RENDER__) {
+    React.__REVERT_WHY_DID_YOU_RENDER__();
+  }
+})",19,23,steel
+/tests/hooks/childrenUsingHookResults.test.js,Magic Number,"{'line': 50, 'column': 37, 'index': 1307}","test('without dependencies', () => {
+    const AChild = () => <div>hi!</div>;
+    AChild.whyDidYouRender = true;
+
+    const ComponentWithMemoHook = () => {
+      const [currentState, setCurrentState] = React.useState({c: 'c'});
+      
+      React.useLayoutEffect(() => {
+        setCurrentState({c: 'c'});
+      }, []);
+
+      const fnUseCallback = React.useCallback(() => someFn(currentState.c));
+      const fnUseMemo = React.useMemo(() => () => someFn(currentState.c));
+      const fnRegular = () => someFn(currentState.c);
+
+      return (
+        <AChild type=""button"" fnRegular={fnRegular} fnUseMemo={fnUseMemo} fnUseCallback={fnUseCallback}/>
+      );
+    };
+
+    rtl.render(
+      <ComponentWithMemoHook/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: false,
+      stateDifferences: false,
+      propsDifferences: [
+        expect.objectContaining({
+          pathString: 'fnRegular',
+          diffType: 'function',
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseMemo',
+          diffType: 'function',
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseCallback',
+          diffType: 'function',
+        }),
+      ],
+      ownerDifferences: {
+        hookDifferences: [
+          {
+            differences: [
+              {
+                diffType: 'deepEquals',
+                nextValue: {c: 'c'},
+                pathString: '',
+                prevValue: {c: 'c'},
+              },
+            ],
+            hookName: 'useState',
+          },
+        ],
+        propsDifferences: false,
+        stateDifferences: false,
+      },
+    });
+  })",26,86,steel
+/tests/hooks/childrenUsingHookResults.test.js,Magic Number,"{'line': 112, 'column': 37, 'index': 3018}","test('with different dependencies', () => {
+    const Child = () => <div>hi!</div>;
+    Child.whyDidYouRender = true;
+
+    const ComponentWithMemoHook = () => {
+      const [currentState, setCurrentState] = React.useState({c: 'c'});
+
+      React.useLayoutEffect(() => {
+        setCurrentState({c: 'd'});
+      }, []);
+
+      const fnUseCallback = React.useCallback(() => someFn(currentState.c), [currentState]);
+      const fnUseMemo = React.useMemo(() => () => someFn(currentState.c), [currentState]);
+      const fnRegular = () => someFn(currentState.c);
+
+      return (
+        <Child type=""button"" fnRegular={fnRegular} fnUseMemo={fnUseMemo} fnUseCallback={fnUseCallback}/>
+      );
+    };
+
+    rtl.render(
+      <ComponentWithMemoHook/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: false,
+      stateDifferences: false,
+      propsDifferences: expect.arrayContaining([
+        expect.objectContaining({
+          pathString: 'fnRegular',
+          diffType: diffTypes.function,
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseMemo',
+          diffType: diffTypes.different,
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseCallback',
+          diffType: diffTypes.different,
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseMemo:parent-hook-useMemo-deps',
+          diffType: diffTypes.different,
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseCallback:parent-hook-useCallback-deps',
+          diffType: diffTypes.different,
+        }),
+      ]),
+      ownerDifferences: {
+        hookDifferences: [
+          {
+            differences: [
+              {
+                diffType: diffTypes.different,
+                pathString: '.c',
+                prevValue: 'c',
+                nextValue: 'd',
+              },
+              {
+                diffType: diffTypes.different,
+                pathString: '',
+                prevValue: {c: 'c'},
+                nextValue: {c: 'd'},
+              },
+            ],
+            hookName: 'useState',
+          },
+        ],
+        propsDifferences: false,
+        stateDifferences: false,
+      },
+    });
+  })",88,162,steel
+/tests/hooks/childrenUsingHookResults.test.js,Magic Number,"{'line': 188, 'column': 37, 'index': 5268}","test('with deep Equals dependencies', () => {
+    const Child = () => <div>hi!</div>;
+    Child.whyDidYouRender = true;
+
+    const ComponentWithMemoHook = () => {
+      const [currentState, setCurrentState] = React.useState({c: 'c'});
+
+      React.useLayoutEffect(() => {
+        setCurrentState({c: 'c'});
+      }, []);
+
+      const fnUseCallback = React.useCallback(() => someFn(currentState.c), [currentState]);
+      const fnUseMemo = React.useMemo(() => () => someFn(currentState.c), [currentState]);
+      const fnRegular = () => someFn(currentState.c);
+
+      return (
+        <Child type=""button"" fnRegular={fnRegular} fnUseMemo={fnUseMemo} fnUseCallback={fnUseCallback}/>
+      );
+    };
+
+    rtl.render(
+      <ComponentWithMemoHook/>
+    );
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      hookDifferences: false,
+      stateDifferences: false,
+      propsDifferences: expect.arrayContaining([
+        expect.objectContaining({
+          pathString: 'fnRegular',
+          diffType: diffTypes.function,
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseMemo',
+          diffType: diffTypes.function,
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseCallback',
+          diffType: diffTypes.function,
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseMemo:parent-hook-useMemo-deps',
+          diffType: diffTypes.deepEquals,
+        }),
+        expect.objectContaining({
+          pathString: 'fnUseCallback:parent-hook-useCallback-deps',
+          diffType: diffTypes.deepEquals,
+        }),
+      ]),
+      ownerDifferences: {
+        hookDifferences: [
+          {
+            differences: [
+              {
+                diffType: diffTypes.deepEquals,
+                pathString: '',
+                prevValue: {c: 'c'},
+                nextValue: {c: 'c'},
+              },
+            ],
+            hookName: 'useState',
+          },
+        ],
+        propsDifferences: false,
+        stateDifferences: false,
+      },
+    });
+  })",164,232,steel
+/cypress/e2e/test_console_assertions.js,Redundant Print,"{'line': 6, 'column': 19, 'index': 208}","it('Test console testing throws on wrong console appearance amounts', () => {
+  cy.visitAndSpyConsole('/#bigList', console => {
+    cy.contains('button', 'Increase!').click();
+
+    expect(
+      () => expect(console.group).to.be.calledWithMatches([
+        {match: 'BigList', times: 0},
+      ])
+    ).to.throw();
+
+    expect(
+      () => expect(console.log).to.be.calledWithMatches([
+        {match: [() => true, 'Re-rendered because of props changes'], times: 0},
+      ])
+    ).to.throw();
+  });
+})",1,17,steel
+/cypress/e2e/test_console_assertions.js,Redundant Print,"{'line': 12, 'column': 19, 'index': 346}","it('Test console testing throws on wrong console appearance amounts', () => {
+  cy.visitAndSpyConsole('/#bigList', console => {
+    cy.contains('button', 'Increase!').click();
+
+    expect(
+      () => expect(console.group).to.be.calledWithMatches([
+        {match: 'BigList', times: 0},
+      ])
+    ).to.throw();
+
+    expect(
+      () => expect(console.log).to.be.calledWithMatches([
+        {match: [() => true, 'Re-rendered because of props changes'], times: 0},
+      ])
+    ).to.throw();
+  });
+})",1,17,steel

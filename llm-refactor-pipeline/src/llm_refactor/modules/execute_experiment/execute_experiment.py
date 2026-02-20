@@ -978,7 +978,10 @@ NOTES:
         try:
             # Get configuration
             strategy = PromptStrategy.get_strategy(strategy_id)
-            model = HuggingFaceModels.get_model_by_id(model_id)
+            model_info = HuggingFaceModels.get_model_by_id(model_id)
+            
+            if not model_info:
+                return f"❌ Error: Invalid model ID {model_id}"
             
             # Create client
             client = HuggingFaceRefactorClient()
@@ -990,7 +993,7 @@ NOTES:
                 smell_detection=smell_data.get('smell_detection', ''),
                 test_code=smell_data['code_snippet'],
                 prompt_strategy=strategy,
-                model=model,
+                model=model_info['model_id'],
                 examples=smell_data.get('examples', []),
                 refactoring_strategies=smell_data.get('refactoring_strategies', [])
             )

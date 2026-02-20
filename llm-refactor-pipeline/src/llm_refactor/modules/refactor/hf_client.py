@@ -6,8 +6,45 @@ for LLM-based test smell refactoring.
 """
 
 import os
+import re
 from typing import Optional, Dict, List
 from openai import OpenAI
+
+
+def extract_code_from_response(llm_output: str) -> str:
+    """
+    Extract JavaScript code from LLM response.
+    
+    LLMs often wrap code in markdown code blocks like:
+    ```javascript
+    // code here
+    ```
+    
+    This function extracts only the code, removing explanations and formatting.
+    
+    Args:
+        llm_output: Raw output from LLM
+        
+    Returns:
+        Extracted JavaScript code, or original output if no code block found
+    """
+    # Pattern to match ```javascript ... ``` or ```js ... ```
+    pattern = r'```(?:javascript|js)\s*\n(.*?)\n```'
+    
+    match = re.search(pattern, llm_output, re.DOTALL | re.IGNORECASE)
+    
+    if match:
+        return match.group(1).strip()
+    
+    # Fallback: try to find any code block (```...```)
+    pattern_generic = r'```\s*\n(.*?)\n```'
+    match_generic = re.search(pattern_generic, llm_output, re.DOTALL)
+    
+    if match_generic:
+        return match_generic.group(1).strip()
+    
+    # If no code block found, return original output (trimmed)
+    return llm_output.strip()
 
 
 class HuggingFaceModels:
@@ -19,32 +56,41 @@ class HuggingFaceModels:
             "id": 1,
             "name": "Qwen 2.5 Coder 32B",
             "model_id": "Qwen/Qwen2.5-Coder-32B-Instruct",
-            "description": "High-quality code generation model"
+            "description": "High-quality code generation model",
+            "endpoint_url": None  # Uses default HF router
         },
         {
             "id": 2,
-            "name": "Meta Llama 3.1 8B Instruct",
-            "model_id": "meta-llama/Llama-3.1-8B-Instruct",
-            "description": "8B parameters - Latest Llama 3.1 model, optimized for instruction following"
+            "name": "CodeLlama 13B Instruct",
+            "model_id": "codellama-13b-instruct-hf-qhz",
+            "description": "CodeLlama model via custom Inference Endpoint",
+            "endpoint_url": "https://b12zypnldhhshqdi.us-east-1.aws.endpoints.huggingface.cloud/v1"
+        },
+        {
+            "id": 3,
+            "name": "Llama 3.3 70B Instruct",
+            "model_id": "meta-llama/Llama-3.3-70B-Instruct:novita",
+            "description": "Meta's Llama 3.3 70B instruction-tuned model",
+            "endpoint_url": None  # Uses default HF router
         },
     ]
     
     DEFAULT_MODEL_ID = "Qwen/Qwen2.5-Coder-32B-Instruct"
     
     @classmethod
-    def get_model_by_id(cls, model_id: int) -> Optional[str]:
-        """Get model identifier by numeric ID."""
+    def get_model_by_id(cls, model_id: int) -> Optional[Dict]:
+        """Get model info by numeric ID."""
         for model in cls.MODELS:
             if model["id"] == model_id:
-                return model["model_id"]
+                return model
         return None
     
     @classmethod
-    def get_model_by_name(cls, model_id_str: str) -> Optional[str]:
-        """Get model by model_id string."""
+    def get_model_by_name(cls, model_id_str: str) -> Optional[Dict]:
+        """Get model info by model_id string."""
         for model in cls.MODELS:
             if model["model_id"] == model_id_str:
-                return model["model_id"]
+                return model
         return None
     
     @classmethod
@@ -246,10 +292,8 @@ class HuggingFaceRefactorClient:
                 "Set HF_TOKEN environment variable or pass api_key parameter."
             )
         
-        self.client = OpenAI(
-            base_url="https://router.huggingface.co/v1",
-            api_key=self.api_key,
-        )
+        # Client will be created per-request based on model endpoint
+        self.default_base_url = "https://router.huggingface.co/v1"
     
     def refactor(
         self,
@@ -262,7 +306,7 @@ class HuggingFaceRefactorClient:
         refactoring_strategies: Optional[List[str]] = None,
         smell_detection: str = "",
         temperature: float = 0.3,
-        top_p: float = 1.0,
+        top_p: float = 0.95,
         max_tokens: int = 1400,
     ) -> str:
         """
@@ -278,7 +322,7 @@ class HuggingFaceRefactorClient:
             refactoring_strategies: List of refactoring strategies for CoT (optional)
             smell_detection: Detection criteria description for CoT (optional)
             temperature: Sampling temperature (0.0 to 2.0)
-            top_p: Nucleus sampling parameter (0.0 to 1.0)
+            top_p: Nucleus sampling parameter (must be > 0.0 and < 1.0)
             max_tokens: Maximum tokens to generate
         
         Returns:
@@ -301,19 +345,42 @@ class HuggingFaceRefactorClient:
             raise ValueError(f"Unknown prompt strategy: {prompt_strategy}")
         
         try:
+            # Determine endpoint URL based on model
+            base_url = self.default_base_url
+            model_info = HuggingFaceModels.get_model_by_name(model)
+            
+            # For custom Inference Endpoints, use the endpoint URL
+            # TGI endpoints ignore the model parameter (model is fixed on the endpoint)
+            # but we need to pass something - using the model_id from our registry
+            if model_info and model_info.get("endpoint_url"):
+                base_url = model_info["endpoint_url"]
+                model_param = model_info.get("model_id", "tgi")
+            else:
+                model_param = model  # Use full model path for router
+            
+            # Create client with appropriate endpoint
+            client = OpenAI(
+                base_url=base_url,
+                api_key=self.api_key,
+            )
+            
             # Call HuggingFace API
             messages = [{"role": "user", "content": prompt}]
             
-            response = self.client.chat.completions.create(
-                model=model,
+            response = client.chat.completions.create(
+                model=model_param,
                 messages=messages,
                 temperature=temperature,
                 top_p=top_p,
                 max_tokens=max_tokens
             )
             
-            output = response.choices[0].message.content.strip()
-            return output
+            raw_output = response.choices[0].message.content.strip()
+            
+            # Extract code from response (remove markdown formatting and explanations)
+            code = extract_code_from_response(raw_output)
+            
+            return code
             
         except Exception as e:
             raise RuntimeError(f"HuggingFace API call failed: {e}")

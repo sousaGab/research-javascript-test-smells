@@ -1,0 +1,8 @@
+function testRemove() {
+    el.setAttribute('class', 'show')
+    expect(el.getAttribute('class')).toBe('show')
+    classes(el).remove('show')
+    expect(el.getAttribute('class')).toBe('')
+}
+
+it('should remove', testRemove);

@@ -201,24 +201,18 @@ NOTE:
     def _get_refactor_config(self, strategy_id: int, model_id: int) -> Dict[str, Any]:
         """Get and validate refactoring configuration."""
         strategy = PromptStrategy.get_strategy(strategy_id)
-        model = HuggingFaceModels.get_model_by_id(model_id)
+        model_info = HuggingFaceModels.get_model_by_id(model_id)
         
-        if not strategy or not model:
+        if not strategy or not model_info:
             return "❌ Error: Invalid strategy or model ID"
-        
-        model_name = next(
-            (m['name'] for m in HuggingFaceModels.MODELS if m['id'] == model_id),
-            "Unknown"
-        )
-        strategy_name = PromptStrategy.STRATEGIES[strategy_id][1]
         
         return {
             'strategy': strategy,
-            'model': model,
+            'model': model_info['model_id'],
             'strategy_id': strategy_id,
             'model_id': model_id,
-            'strategy_name': strategy_name,
-            'model_name': model_name
+            'strategy_name': PromptStrategy.STRATEGIES[strategy_id][1],
+            'model_name': model_info['name']
         }
     
     def _fetch_smell_data(self, smell_id: int) -> Dict[str, Any]:
