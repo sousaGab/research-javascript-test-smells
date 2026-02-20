@@ -147,9 +147,8 @@ while strictly preserving the original test behavior.
 
 Constraints:
 - Output ONLY the refactored JavaScript test code.
-- Do NOT add explanations, comments, or metadata.
-- Follow JavaScript testing best practices (e.g., Jest/Mocha/Chai).
-- Ensure the specified test smell is fully removed.
+- Preserve the original test behavior and assertions.
+- Ensure the test smell is completely removed.
 
 ### Test Smell
 {smell_name}
@@ -169,9 +168,31 @@ def create_few_shot_prompt(smell_name: str, smell_description: str,
                           test_code: str, examples: List[Dict]) -> str:
     """Creates a few-shot prompt for test smell refactoring with examples."""
     
-    # Get first two examples if available
-    example_1 = examples[0] if len(examples) > 0 else {'smelly': '', 'refactored': ''}
-    example_2 = examples[1] if len(examples) > 1 else {'smelly': '', 'refactored': ''}
+    # Build examples section dynamically
+    examples_section = ""
+    if examples:
+        valid_examples = []
+        for example in examples[:3]:  # Use first 3 examples maximum
+            # Validate example has required keys and non-empty values
+            if (isinstance(example, dict) and 
+                example.get('smelly') and 
+                example.get('refactored')):
+                valid_examples.append(example)
+        
+        # Build examples section
+        for i, example in enumerate(valid_examples, 1):
+            examples_section += f"""### Example {i}
+Original (with {smell_name}):
+```javascript
+{example['smelly']}
+```
+
+Refactored (smell removed):
+```javascript
+{example['refactored']}
+```
+
+"""
     
     prompt = f"""You are a senior software engineer and researcher specializing in JavaScript test smell refactoring.
 
@@ -180,99 +201,111 @@ You must preserve test semantics and improve test quality.
 
 Constraints:
 - Output ONLY the refactored JavaScript test code.
-- Do NOT explain the changes.
-- Ensure the test smell is removed.
+- Preserve the original test behavior and assertions.
+- Ensure the test smell is completely removed.
 
 Test Smell: {smell_name}
 
-### Example 1
-Original:
-```javascript
-{example_1['smelly']}
-```
-
-Refactored:
-```javascript
-{example_1['refactored']}
-```
-
-### Example 2
-Original:
-```javascript
-{example_2['smelly']}
-```
-
-Refactored:
-```javascript
-{example_2['refactored']}
-```
-
----
-
-### Task
-
 Test Smell Definition:
-
 {smell_description}
+
+{examples_section}{"---\n\n" if examples_section else ""}### Your Task
 
 Original Test Code:
 ```javascript
 {test_code}
 ```
-"""
+
+Now provide the refactored version:"""
     return prompt
 
 
 def create_chain_of_thought_prompt(smell_name: str, smell_description: str,
                                   smell_detection: str, test_code: str,
-                                  refactoring_strategies: List[str]) -> str:
+                                  refactoring_strategies: List[str],
+                                  examples: Optional[List[Dict]] = None) -> str:
     """Creates a chain-of-thought prompt for test smell refactoring."""
     
-    refactoring_guidance = '\n'.join(f"- {strategy}" for strategy in refactoring_strategies)
-
-    prompt = f"""You are a senior software engineer and researcher specializing in automated test quality and test smell refactoring in JavaScript test suites.
-
-Your task is to refactor the test code below to REMOVE a specific test smell.
-
-You MUST follow a rigorous, step-by-step internal reasoning process to ensure correctness and quality.
-However, you MUST NOT reveal, explain, summarize, or reference your reasoning in the output.
-
-────────────────────────────────────────
-INTERNAL REASONING PROCESS (DO NOT OUTPUT):
-1. Identify the exact manifestation of the specified test smell in the code.
-2. Infer the true intent of the test and what behavior it is meant to verify.
-3. Evaluate why the current construct is suboptimal with respect to clarity, expressiveness, or diagnostics.
-4. Design a refactoring strategy that removes the smell while preserving semantics.
-5. Apply the refactoring.
-6. Validate internally that:
-   - Test behavior is preserved
-   - The smell is removed
-   - The test follows JavaScript testing best practices
-────────────────────────────────────────
-
-Output:
-Provide only the refactored JavaScript test code:
+    refactoring_guidance = '\n'.join(f"  {i+1}. {strategy}" for i, strategy in enumerate(refactoring_strategies))
+    
+    # Build examples section if provided (2 examples maximum for CoT)
+    examples_section = ""
+    if examples and len(examples) > 0:
+        examples_section = "\n### Reference Examples\n\n"
+        valid_examples = [ex for ex in examples[:2] if  # Only 2 examples for CoT
+                         isinstance(ex, dict) and 
+                         ex.get('smelly') and 
+                         ex.get('refactored')]
+        
+        for i, example in enumerate(valid_examples, 1):
+            examples_section += f"""#### Example {i}
+Original (with {smell_name}):
 ```javascript
-// Refactored code here
+{example.get('smelly', '')}
 ```
 
-### Test Smell
-{smell_name}
+Refactored (smell removed):
+```javascript
+{example.get('refactored', '')}
+```
 
-### Test Smell Definition
+"""
+
+    prompt = f"""You are a senior software engineer and test quality expert specializing in JavaScript test refactoring.
+
+Your task is to refactor the test code below to completely REMOVE the specified test smell while preserving the original test semantics.
+
+### Test Smell: {smell_name}
+
+### Definition
 {smell_description}
 
 ### Detection Criteria
 {smell_detection}
 
-### Refactoring Guidance
+### Refactoring Strategies (Apply these in your solution)
 {refactoring_guidance}
+{examples_section}
+---
+
+### Reasoning Process
+
+Follow these steps mentally before generating the refactored code:
+
+1. **Locate the Smell**: Identify exactly where and how the test smell manifests in the original code
+   - Look for patterns described in the detection criteria
+   
+2. **Understand Intent**: Determine what behavior the test is meant to verify
+   - What is being tested?
+   - What assertions validate the behavior?
+   
+3. **Evaluate Impact**: Assess why the current structure is problematic
+   - Which best practices are violated?
+   - How does this affect maintainability?
+   
+4. **Plan Refactoring**: Design a solution using the strategies above
+   - Choose the most appropriate strategy (or combination)
+   - Plan structural changes needed
+   
+5. **Validate**: Ensure the refactored version:
+   - Completely removes the test smell
+   - Preserves original test behavior and assertions
+   - Follows JavaScript/Jest/Mocha best practices
+   - Improves readability and expressiveness
+   - Matches patterns shown in reference examples
+
+---
+
+### Output Instructions
+
+Output ONLY the refactored JavaScript test code.
 
 ### Original Test Code
 ```javascript
 {test_code}
 ```
-"""
+
+Now provide the refactored version:"""
     return prompt
 
 
@@ -308,7 +341,7 @@ class HuggingFaceRefactorClient:
         smell_detection: str = "",
         temperature: float = 0.3,
         top_p: float = 0.7,
-        max_tokens: int = 2048,
+        max_tokens: int = 4096,
     ) -> Dict[str, any]:
         """
         Refactor test smell using HuggingFace LLM.
@@ -342,8 +375,10 @@ class HuggingFaceRefactorClient:
         elif prompt_strategy == PromptStrategy.CHAIN_OF_THOUGHT:
             if not refactoring_strategies:
                 refactoring_strategies = []
+            if not examples:
+                examples = []
             prompt = create_chain_of_thought_prompt(
-                smell_name, smell_description, smell_detection, test_code, refactoring_strategies
+                smell_name, smell_description, smell_detection, test_code, refactoring_strategies, examples
             )
         else:
             raise ValueError(f"Unknown prompt strategy: {prompt_strategy}")
