@@ -51,8 +51,12 @@ export function RefatoracaoCard({ experiment, isSelected, onClick }) {
           <Badge value={experiment.coverage_changed} trueLabel="changed" falseLabel="unchanged" />
         </span>
         <span className="rc-badge-group">
-          <span className="rc-badge-label">regression</span>
+          <span className="rc-badge-label">cov. regr.</span>
           <Badge value={experiment.coverage_decreased} trueLabel="yes" falseLabel="no" />
+        </span>
+        <span className="rc-badge-group">
+          <span className="rc-badge-label">test regr.</span>
+          <Badge value={experiment.tests_pass_rate_decreased} trueLabel="yes" falseLabel="no" />
         </span>
       </div>
     </div>

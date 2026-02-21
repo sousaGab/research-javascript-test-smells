@@ -177,6 +177,7 @@ class Experiment(Base):
     coverage_changed = Column(Boolean)  # Test coverage changed (baseline vs refactored)
     coverage_decreased = Column(Boolean)  # Test coverage decreased (regression)
     tests_changed = Column(Boolean)  # Test execution results changed
+    tests_pass_rate_decreased = Column(Boolean)  # Test pass rate decreased (tests_passed/tests_total regression)
     
     # Phase Tracking (for two-phase experiment execution)
     refactor_phase_completed = Column(Boolean, default=False)  # Phase 1: LLM refactoring complete

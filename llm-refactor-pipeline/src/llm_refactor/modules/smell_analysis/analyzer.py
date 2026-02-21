@@ -8,9 +8,11 @@ variations in smell type naming (case, spaces, special characters).
 import re
 from pathlib import Path
 from typing import Dict, Tuple, Optional
+from functools import lru_cache
 import pandas as pd
 
 
+@lru_cache(maxsize=128)
 def normalize_smell_name(smell_name: str) -> str:
     """
     Normalize smell name for robust comparison.

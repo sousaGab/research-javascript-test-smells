@@ -53,14 +53,46 @@ function TestResultsTable({ before, after }) {
           <tbody>
             <tr>
               <td>Tests passing</td>
-              <td>{before ? `${before.tests_passed ?? '—'}/${before.tests_total ?? '—'}` : '—'}</td>
-              <td>{after ? `${after.tests_passed ?? '—'}/${after.tests_total ?? '—'}` : '—'}</td>
+              <td>
+                {before ? (
+                  <>
+                    {before.tests_passed ?? '—'}/{before.tests_total ?? '—'}
+                    {before.tests_passed != null && before.tests_total != null && before.tests_total > 0 ? 
+                      ` (${((before.tests_passed / before.tests_total) * 100).toFixed(1)}%)` : ''}
+                  </>
+                ) : '—'}
+              </td>
+              <td>
+                {after ? (
+                  <>
+                    {after.tests_passed ?? '—'}/{after.tests_total ?? '—'}
+                    {after.tests_passed != null && after.tests_total != null && after.tests_total > 0 ? 
+                      ` (${((after.tests_passed / after.tests_total) * 100).toFixed(1)}%)` : ''}
+                  </>
+                ) : '—'}
+              </td>
               <td>—</td>
             </tr>
             <tr>
               <td>Test suites passing</td>
-              <td>{before ? `${before.test_suites_passed ?? '—'}/${before.test_suites_total ?? '—'}` : '—'}</td>
-              <td>{after ? `${after.test_suites_passed ?? '—'}/${after.test_suites_total ?? '—'}` : '—'}</td>
+              <td>
+                {before ? (
+                  <>
+                    {before.test_suites_passed ?? '—'}/{before.test_suites_total ?? '—'}
+                    {before.test_suites_passed != null && before.test_suites_total != null && before.test_suites_total > 0 ? 
+                      ` (${((before.test_suites_passed / before.test_suites_total) * 100).toFixed(1)}%)` : ''}
+                  </>
+                ) : '—'}
+              </td>
+              <td>
+                {after ? (
+                  <>
+                    {after.test_suites_passed ?? '—'}/{after.test_suites_total ?? '—'}
+                    {after.test_suites_passed != null && after.test_suites_total != null && after.test_suites_total > 0 ? 
+                      ` (${((after.test_suites_passed / after.test_suites_total) * 100).toFixed(1)}%)` : ''}
+                  </>
+                ) : '—'}
+              </td>
               <td>—</td>
             </tr>
             <CoverageRow
@@ -155,15 +187,6 @@ function RefFilter({ filters, filterOptions, onFilterChange, onClear, total }) {
         </select>
 
         <select
-          value={filters.tests_changed}
-          onChange={e => onFilterChange({ tests_changed: e.target.value })}
-        >
-          <option value="">Tests changed: All</option>
-          <option value="true">Tests changed: Yes</option>
-          <option value="false">Tests changed: No</option>
-        </select>
-
-        <select
           value={filters.coverage_changed}
           onChange={e => onFilterChange({ coverage_changed: e.target.value })}
         >
@@ -179,6 +202,15 @@ function RefFilter({ filters, filterOptions, onFilterChange, onClear, total }) {
           <option value="">Coverage decreased: All</option>
           <option value="true">Coverage decreased: Yes</option>
           <option value="false">Coverage decreased: No</option>
+        </select>
+
+        <select
+          value={filters.tests_pass_rate_decreased}
+          onChange={e => onFilterChange({ tests_pass_rate_decreased: e.target.value })}
+        >
+          <option value="">Test pass rate decreased: All</option>
+          <option value="true">Test pass rate decreased: Yes</option>
+          <option value="false">Test pass rate decreased: No</option>
         </select>
 
         <button className="ref-btn-clear" onClick={onClear}>Clear filters</button>
@@ -304,16 +336,16 @@ function ExperimentDetail({ experiment, layout, onLayoutChange, onDelete }) {
             <Badge value={experiment.tests_still_passing} />
           </div>
           <div className="ref-outcome-item">
-            <span className="ref-outcome-label">Tests changed</span>
-            <Badge value={experiment.tests_changed} />
-          </div>
-          <div className="ref-outcome-item">
             <span className="ref-outcome-label">Coverage changed</span>
             <Badge value={experiment.coverage_changed} />
           </div>
           <div className="ref-outcome-item">
             <span className="ref-outcome-label">Coverage decreased</span>
             <Badge value={experiment.coverage_decreased} trueLabel="Yes" falseLabel="No" />
+          </div>
+          <div className="ref-outcome-item">
+            <span className="ref-outcome-label">Test pass rate decreased</span>
+            <Badge value={experiment.tests_pass_rate_decreased} trueLabel="Yes" falseLabel="No" />
           </div>
         </div>
 

@@ -206,6 +206,7 @@ def compare_test_counts(baseline: Dict[str, int], refactored: Dict[str, int]) ->
             'changed': bool,  # True if counts changed
             'all_passed_before': bool,
             'all_passed_after': bool,
+            'pass_rate_decreased': bool,  # True if pass rate regressed
             'details': {
                 'tests_passed': {'before': 455, 'after': 455, 'diff': 0},
                 ...
@@ -244,10 +245,23 @@ def compare_test_counts(baseline: Dict[str, int], refactored: Dict[str, int]) ->
     # Changed if any count changed
     changed = any(d['diff'] != 0 for d in details.values())
     
+    # Calculate pass rate regression
+    # pass_rate = tests_passed / tests_total
+    baseline_total = baseline.get('tests_total', 0)
+    refactored_total = refactored.get('tests_total', 0)
+    
+    # Avoid division by zero
+    baseline_rate = baseline.get('tests_passed', 0) / max(1, baseline_total) if baseline_total > 0 else 0.0
+    refactored_rate = refactored.get('tests_passed', 0) / max(1, refactored_total) if refactored_total > 0 else 0.0
+    
+    # Consider it a regression if rate decreased by more than 0.1% (threshold to avoid false positives)
+    pass_rate_decreased = (refactored_rate < baseline_rate - 0.001)
+    
     return {
         'changed': changed,
         'all_passed_before': all_passed_before,
         'all_passed_after': all_passed_after,
+        'pass_rate_decreased': pass_rate_decreased,
         'details': details
     }
 
@@ -321,12 +335,18 @@ def analyze_test_results(baseline_path: Path, refactored_path: Path) -> Optional
         tests_comparison = compare_test_counts(baseline_tests, refactored_tests)
         tests_changed = tests_comparison['changed']
     
+    # Extract pass rate regression flag
+    pass_rate_decreased = None
+    if tests_comparison:
+        pass_rate_decreased = tests_comparison.get('pass_rate_decreased')
+    
     return {
         'baseline_available': True,
         'refactored_available': True,
         'coverage_changed': coverage_changed,
         'coverage_decreased': coverage_decreased,
         'tests_changed': tests_changed,
+        'tests_pass_rate_decreased': pass_rate_decreased,
         'coverage_comparison': coverage_comparison,
         'tests_comparison': tests_comparison
     }

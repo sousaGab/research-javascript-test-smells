@@ -330,25 +330,12 @@ NOTES:
         
         session = self.db.get_session()
         try:
-            # Get all study smells
-            all_smells = session.query(StudySmells.id).all()
-            all_smell_ids = {s[0] for s in all_smells}
+            # Get strategy and model names for exact matching
+            strategy_name = PromptStrategy.STRATEGIES[strategy_id][1]
+            model_name = HuggingFaceModels.MODELS[model_id - 1]['name']
             
-            # Get already executed smells for this strategy/model
-            executed = session.query(Experiment.study_smell_id).filter(
-                and_(
-                    Experiment.study_smell_id.isnot(None),
-                    Experiment.prompting_approach == PromptStrategy.STRATEGIES[strategy_id][1],
-                    Experiment.ai_model_version.like(f"%{HuggingFaceModels.MODELS[model_id-1]['name'][:20]}%")
-                )
-            ).all()
-            
-            executed_ids = {e[0] for e in executed if e[0] is not None}
-            
-            # Pending = all - executed
-            pending_ids = all_smell_ids - executed_ids
-            
-            # Get details for pending smells
+            # Optimized single query with LEFT JOIN
+            # Returns study smells that don't have an experiment for this strategy/model
             pending_smells = session.query(
                 StudySmells.id,
                 Repository.name,
@@ -358,8 +345,15 @@ NOTES:
                 File, StudySmells.file_id == File.id
             ).join(
                 Repository, File.repository_id == Repository.id
+            ).outerjoin(
+                Experiment,
+                and_(
+                    StudySmells.id == Experiment.study_smell_id,
+                    Experiment.prompting_approach == strategy_name,
+                    Experiment.ai_model_version == model_name
+                )
             ).filter(
-                StudySmells.id.in_(pending_ids)
+                Experiment.id.is_(None)  # Only smells without matching experiment
             ).order_by(StudySmells.id).all()
             
             return [(s[0], s[1], s[2], s[3]) for s in pending_smells]

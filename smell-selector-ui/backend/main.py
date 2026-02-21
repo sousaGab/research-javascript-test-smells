@@ -1000,9 +1000,9 @@ async def get_refatoracoes(
     ai_model_version: Optional[str] = Query(None, description="Filter by ai_model_version value"),
     prompting_approach: Optional[str] = Query(None, description="Filter by prompting approach"),
     smell_removed: Optional[bool] = Query(None, description="Filter by smell_removed"),
-    tests_changed: Optional[bool] = Query(None, description="Filter by tests_changed"),
     coverage_changed: Optional[bool] = Query(None, description="Filter by coverage_changed"),
     coverage_decreased: Optional[bool] = Query(None, description="Filter by coverage_decreased"),
+    tests_pass_rate_decreased: Optional[bool] = Query(None, description="Filter by tests_pass_rate_decreased"),
     limit: int = Query(50, ge=1, le=500, description="Page size"),
     offset: int = Query(0, ge=0, description="Pagination offset"),
 ):
@@ -1038,10 +1038,6 @@ async def get_refatoracoes(
             where_clauses.append("e.smell_removed = :smell_removed")
             params["smell_removed"] = 1 if smell_removed else 0
 
-        if tests_changed is not None:
-            where_clauses.append("e.tests_changed = :tests_changed")
-            params["tests_changed"] = 1 if tests_changed else 0
-
         if coverage_changed is not None:
             where_clauses.append("e.coverage_changed = :coverage_changed")
             params["coverage_changed"] = 1 if coverage_changed else 0
@@ -1049,6 +1045,10 @@ async def get_refatoracoes(
         if coverage_decreased is not None:
             where_clauses.append("e.coverage_decreased = :coverage_decreased")
             params["coverage_decreased"] = 1 if coverage_decreased else 0
+
+        if tests_pass_rate_decreased is not None:
+            where_clauses.append("e.tests_pass_rate_decreased = :tests_pass_rate_decreased")
+            params["tests_pass_rate_decreased"] = 1 if tests_pass_rate_decreased else 0
 
         where_sql = "WHERE " + " AND ".join(where_clauses) if where_clauses else ""
 
@@ -1079,6 +1079,7 @@ async def get_refatoracoes(
                 e.tests_changed,
                 e.coverage_changed,
                 e.coverage_decreased,
+                e.tests_pass_rate_decreased,
                 e.tests_still_passing,
                 e.refactoring_completed,
                 e.introduced_new_smells,
@@ -1114,15 +1115,16 @@ async def get_refatoracoes(
                 "tests_changed": bool(row[8]) if row[8] is not None else None,
                 "coverage_changed": bool(row[9]) if row[9] is not None else None,
                 "coverage_decreased": bool(row[10]) if row[10] is not None else None,
-                "tests_still_passing": bool(row[11]) if row[11] is not None else None,
-                "refactoring_completed": bool(row[12]) if row[12] is not None else None,
-                "introduced_new_smells": bool(row[13]) if row[13] is not None else None,
-                "experiment_date": str(row[14]) if row[14] else None,
-                "execution_time_seconds": row[15],
-                "tokens_used": row[16],
-                "llm_latency_seconds": row[17],
-                "study_smell_id": row[18],
-                "baseline_smell_id": row[19],
+                "tests_pass_rate_decreased": bool(row[11]) if row[11] is not None else None,
+                "tests_still_passing": bool(row[12]) if row[12] is not None else None,
+                "refactoring_completed": bool(row[13]) if row[13] is not None else None,
+                "introduced_new_smells": bool(row[14]) if row[14] is not None else None,
+                "experiment_date": str(row[15]) if row[15] else None,
+                "execution_time_seconds": row[16],
+                "tokens_used": row[17],
+                "llm_latency_seconds": row[18],
+                "study_smell_id": row[19],
+                "baseline_smell_id": row[20],
             })
 
         return {
@@ -1156,6 +1158,7 @@ async def get_refatoracao_detail(experiment_id: int):
                 e.tests_changed,
                 e.coverage_changed,
                 e.coverage_decreased,
+                e.tests_pass_rate_decreased,
                 e.tests_still_passing,
                 e.refactoring_completed,
                 e.introduced_new_smells,
@@ -1284,21 +1287,22 @@ async def get_refatoracao_detail(experiment_id: int):
             "tests_changed": bool(row[8]) if row[8] is not None else None,
             "coverage_changed": bool(row[9]) if row[9] is not None else None,
             "coverage_decreased": bool(row[10]) if row[10] is not None else None,
-            "tests_still_passing": bool(row[11]) if row[11] is not None else None,
-            "refactoring_completed": bool(row[12]) if row[12] is not None else None,
-            "introduced_new_smells": bool(row[13]) if row[13] is not None else None,
-            "experiment_date": str(row[14]) if row[14] else None,
-            "execution_time_seconds": row[15],
-            "tokens_used": row[16],
-            "llm_latency_seconds": row[17],
-            "study_smell_id": row[18],
-            "baseline_smell_id": row[19],
-            "original_code": row[20],
-            "refactored_code": row[21],
-            "original_method": row[22],
-            "refactored_method": row[23],
-            "prompt_text": row[24],
-            "notes": row[25],
+            "tests_pass_rate_decreased": bool(row[11]) if row[11] is not None else None,
+            "tests_still_passing": bool(row[12]) if row[12] is not None else None,
+            "refactoring_completed": bool(row[13]) if row[13] is not None else None,
+            "introduced_new_smells": bool(row[14]) if row[14] is not None else None,
+            "experiment_date": str(row[15]) if row[15] else None,
+            "execution_time_seconds": row[16],
+            "tokens_used": row[17],
+            "llm_latency_seconds": row[18],
+            "study_smell_id": row[19],
+            "baseline_smell_id": row[20],
+            "original_code": row[21],
+            "refactored_code": row[22],
+            "original_method": row[23],
+            "refactored_method": row[24],
+            "prompt_text": row[25],
+            "notes": row[26],
             "test_results_before": test_results_before,
             "test_results_after": test_results_after,
         }

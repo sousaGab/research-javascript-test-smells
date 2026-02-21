@@ -82,6 +82,9 @@ class ExecuteExperimentModule(SimpleModule):
             backup_dir=Config.PROJECT_ROOT / "backup",
             allow_backup_overwrite=True
         )
+        # Performance optimization: cache baseline data during batch processing
+        self._baseline_smell_cache = {}  # key: repo_name -> DataFrame
+        self._baseline_test_cache = {}   # key: repository_id -> test summary dict
     
     def execute(self, args: str = "") -> str:
         """Execute the experiment command."""
@@ -1033,7 +1036,7 @@ NOTES:
     
     def _run_smell_detection(self, repo_name: str, output_dir: Path) -> bool:
         """
-        Run smell detection tools on repository.
+        Run smell detection tools on repository in parallel.
         
         Executes:
         1. Steel detector → saves to output_dir/steel_output/
@@ -1058,38 +1061,72 @@ NOTES:
                 print(f"   ⚠ Repository not found: {repo_path}")
                 return False
             
+            # Run both detectors in parallel using asyncio
+            import asyncio
+            
+            async def run_detectors_parallel():
+                async def run_snuts_async():
+                    try:
+                        success, msg = run_snuts(
+                            repo_name=repo_name,
+                            repo_path=str(repo_path),
+                            output_dir=str(output_dir)
+                        )
+                        return ('snuts', success, msg)
+                    except Exception as e:
+                        return ('snuts', False, str(e))
+                
+                async def run_steel_async():
+                    try:
+                        success, msg = run_steel(
+                            repo_name=repo_name,
+                            repo_path=str(repo_path),
+                            output_dir=str(output_dir)
+                        )
+                        return ('steel', success, msg)
+                    except Exception as e:
+                        return ('steel', False, str(e))
+                
+                # Run both detectors concurrently
+                print("   → Running SNUTS and Steel detectors in parallel...")
+                results = await asyncio.gather(
+                    run_snuts_async(),
+                    run_steel_async(),
+                    return_exceptions=True
+                )
+                return results
+            
+            # Execute async detection
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            
+            results = loop.run_until_complete(run_detectors_parallel())
+            
+            # Process results
             snuts_success = False
             steel_success = False
             
-            # Run SNUTS detector
-            try:
-                print("   → Running SNUTS detector...")
-                snuts_success, snuts_msg = run_snuts(
-                    repo_name=repo_name,
-                    repo_path=str(repo_path),
-                    output_dir=str(output_dir)
-                )
-                if snuts_success:
-                    print("   ✓ SNUTS detection complete")
-                else:
-                    print(f"   ⚠ SNUTS detection failed: {snuts_msg}")
-            except Exception as e:
-                print(f"   ⚠ SNUTS detection error: {e}")
-            
-            # Run Steel detector
-            try:
-                print("   → Running Steel detector...")
-                steel_success, steel_msg = run_steel(
-                    repo_name=repo_name,
-                    repo_path=str(repo_path),
-                    output_dir=str(output_dir)
-                )
-                if steel_success:
-                    print("   ✓ Steel detection complete")
-                else:
-                    print(f"   ⚠ Steel detection failed: {steel_msg}")
-            except Exception as e:
-                print(f"   ⚠ Steel detection error: {e}")
+            for result in results:
+                if isinstance(result, Exception):
+                    print(f"   ⚠ Detector error: {result}")
+                    continue
+                
+                tool_name, success, msg = result
+                if tool_name == 'snuts':
+                    snuts_success = success
+                    if success:
+                        print("   ✓ SNUTS detection complete")
+                    else:
+                        print(f"   ⚠ SNUTS detection failed: {msg}")
+                elif tool_name == 'steel':
+                    steel_success = success
+                    if success:
+                        print("   ✓ Steel detection complete")
+                    else:
+                        print(f"   ⚠ Steel detection failed: {msg}")
             
             # Concatenate CSV files from both tools
             if snuts_success or steel_success:
@@ -1300,9 +1337,19 @@ NOTES:
                 print(f"   ⚠ Refactored CSV not found: {refactored_csv}")
                 return None
             
-            # Load CSVs
+            # Load CSVs with caching for batch performance
             analyzer = SmellAnalyzer()
-            baseline_df = analyzer.load_smell_csv(baseline_csv)
+            
+            # Check cache first (batch optimization)
+            if repo_name in self._baseline_smell_cache:
+                print(f"   → Using cached baseline smells for {repo_name}")
+                baseline_df = self._baseline_smell_cache[repo_name]
+            else:
+                baseline_df = analyzer.load_smell_csv(baseline_csv)
+                if baseline_df is not None:
+                    self._baseline_smell_cache[repo_name] = baseline_df
+                    print(f"   → Cached baseline smells for {repo_name}")
+            
             refactored_df = analyzer.load_smell_csv(refactored_csv)
             
             if baseline_df is None or refactored_df is None:
@@ -1404,8 +1451,14 @@ NOTES:
                 print(f"   ⚠ Baseline test summary not found: {baseline_summary}")
                 return None
             
+            # Check cache first for baseline test results (batch optimization)
+            baseline_cached = False
+            if repository_id and repository_id in self._baseline_test_cache:
+                print(f"   → Using cached baseline test results for repository {repository_id}")
+                baseline_cached = True
+            
             # Save baseline test results to database if not already saved
-            if repository_id and not repository_has_baseline_tests(session, repository_id):
+            if repository_id and not baseline_cached and not repository_has_baseline_tests(session, repository_id):
                 print("   Saving baseline test results for repository...")
                 baseline_text = load_test_summary(baseline_summary)
                 
@@ -1437,10 +1490,15 @@ NOTES:
                         all_tests_passed=all_passed
                     )
                     session.commit()
-                    print("   [OK] Baseline test results saved to database")
+                    
+                    # Cache the baseline
+                    self._baseline_test_cache[repository_id] = True
+                    print("   [OK] Baseline test results saved to database and cached")
                 else:
                     print("   [WARN] Could not parse baseline test summary")
-            elif repository_id:
+            elif repository_id and (baseline_cached or repository_has_baseline_tests(session, repository_id)):
+                if not baseline_cached:
+                    self._baseline_test_cache[repository_id] = True
                 print("   [OK] Baseline test results already saved for this repository")
             
             if not refactored_summary.exists():
@@ -1461,6 +1519,7 @@ NOTES:
             coverage_changed = analysis.get('coverage_changed')
             coverage_decreased = analysis.get('coverage_decreased')
             tests_changed = analysis.get('tests_changed')
+            tests_pass_rate_decreased = analysis.get('tests_pass_rate_decreased')
             
             # Save analysis JSON
             analysis_dir = output_dir / "analysis"
@@ -1474,15 +1533,17 @@ NOTES:
             print(f"   ✓ Test analysis saved: {analysis_dir.relative_to(Config.PROJECT_ROOT)}/test_analysis.json")
             
             # Update experiment flags in database
-            if coverage_changed is not None or coverage_decreased is not None or tests_changed is not None:
-                update_data = {}
-                if coverage_changed is not None:
-                    update_data['coverage_changed'] = coverage_changed
-                if coverage_decreased is not None:
-                    update_data['coverage_decreased'] = coverage_decreased
-                if tests_changed is not None:
-                    update_data['tests_changed'] = tests_changed
-                
+            update_data = {}
+            if coverage_changed is not None:
+                update_data['coverage_changed'] = coverage_changed
+            if coverage_decreased is not None:
+                update_data['coverage_decreased'] = coverage_decreased
+            if tests_changed is not None:
+                update_data['tests_changed'] = tests_changed
+            if tests_pass_rate_decreased is not None:
+                update_data['tests_pass_rate_decreased'] = tests_pass_rate_decreased
+            
+            if update_data:
                 update_experiment(session, experiment_id, **update_data)
                 session.commit()
                 print("   ✓ Updated experiment test analysis flags in database")

@@ -129,9 +129,6 @@ export async function getRefatoracoes(params = {}) {
   if (params.smell_removed !== undefined && params.smell_removed !== '') {
     query.append('smell_removed', params.smell_removed);
   }
-  if (params.tests_changed !== undefined && params.tests_changed !== '') {
-    query.append('tests_changed', params.tests_changed);
-  }
   if (params.coverage_changed !== undefined && params.coverage_changed !== '') {
     query.append('coverage_changed', params.coverage_changed);
   }
