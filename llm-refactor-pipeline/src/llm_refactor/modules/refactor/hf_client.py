@@ -1,20 +1,247 @@
 """
-HuggingFace LLM Client for Test Smell Refactoring.
+Multi-Provider LLM Client for Test Smell Refactoring.
 
-This module handles communication with HuggingFace's router API
-for LLM-based test smell refactoring.
+This module handles communication with multiple LLM providers
+(HuggingFace Router, OpenAI, Anthropic) for LLM-based test smell refactoring.
+
+Architecture:
+- BaseLLMClient: Abstract interface for all providers
+- OpenAICompatibleClient: HF Router, OpenAI, Together, Fireworks, Novita
+- AnthropicClient: Official Anthropic API (non-OpenAI compatible)
+- LLMClientFactory: Provider resolution and client instantiation
 """
 
 import os
 import time
+from abc import ABC, abstractmethod
 from typing import Optional, Dict, List
+
 from openai import OpenAI
+
+try:
+    import anthropic
+    ANTHROPIC_AVAILABLE = True
+except ImportError:
+    ANTHROPIC_AVAILABLE = False
 
 from .code_extractor import extract_code_from_response, CodeExtractionError
 
 
+# =============================================================================
+# LLM Provider Clients (Strategy Pattern)
+# =============================================================================
+
+class BaseLLMClient(ABC):
+    """Abstract base class for LLM providers.
+    
+    Implements Strategy pattern to isolate provider-specific API differences.
+    """
+
+    def __init__(self, api_key: str, base_url: str):
+        self.api_key = api_key
+        self.base_url = base_url
+
+    @abstractmethod
+    def generate(
+        self,
+        model: str,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float,
+        top_p: float,
+        max_tokens: int
+    ) -> Dict:
+        """Generate completion from LLM.
+        
+        Args:
+            model: Model identifier
+            system_prompt: System message content
+            user_prompt: User message content
+            temperature: Sampling temperature
+            top_p: Nucleus sampling parameter
+            max_tokens: Maximum tokens to generate
+            
+        Returns:
+            Dict with 'content', 'tokens', 'latency'
+        """
+        ...
+
+class OpenAICompatibleClient(BaseLLMClient):
+    """
+    Client for OpenAI-compatible APIs.
+
+    Supports:
+    - OpenAI GPT-5.x (via Responses API)
+    - HuggingFace Router
+    - Together AI
+    - Fireworks AI
+    - Novita AI
+    - Any OpenAI-compatible endpoint
+    """
+
+    def generate(
+        self,
+        model: str,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float,
+        top_p: float,
+        max_tokens: int
+    ) -> Dict:
+
+        client = OpenAI(
+            api_key=self.api_key,
+            base_url=self.base_url,
+        )
+
+        model_lower = model.lower().strip()
+        start_time = time.time()
+
+        # ==============================================================
+        # GPT-5.x → MUST use Responses API
+        # ==============================================================
+
+        if model_lower.startswith("gpt-5"):
+            response = client.responses.create(
+                model=model,
+                input=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=temperature,
+                top_p=top_p,
+                max_output_tokens=max_tokens,
+            )
+
+            latency = time.time() - start_time
+
+            # -------- Extract text safely --------
+            content = ""
+
+            # Preferred accessor
+            if hasattr(response, "output_text") and response.output_text:
+                content = response.output_text
+            # Fallback (structured output format)
+            elif hasattr(response, "output") and response.output:
+                try:
+                    content = response.output[0].content[0].text
+                except Exception:
+                    content = ""
+
+            # -------- Token usage --------
+            tokens = 0
+            if hasattr(response, "usage") and response.usage:
+                tokens = getattr(response.usage, "total_tokens", 0)
+
+            return {
+                "content": content.strip(),
+                "tokens": tokens,
+                "latency": latency
+            }
+
+        # ==============================================================
+        # All other models → Chat Completions API
+        # ==============================================================
+
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
+
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            temperature=temperature,
+            top_p=top_p,
+            max_tokens=max_tokens,
+        )
+
+        latency = time.time() - start_time
+
+        tokens = 0
+        if hasattr(response, "usage") and response.usage:
+            tokens = getattr(response.usage, "total_tokens", 0)
+
+        return {
+            "content": response.choices[0].message.content.strip(),
+            "tokens": tokens,
+            "latency": latency
+        }
+
+class AnthropicClient(BaseLLMClient):
+    """Client for Anthropic's official API.
+    
+    Uses the official Anthropic SDK as Anthropic's API is NOT OpenAI-compatible.
+    Key differences:
+    - Uses /v1/messages endpoint (not /chat/completions)
+    - System prompt is a separate parameter (not a message role)
+    - Requires anthropic-version header
+    - Different response structure
+    """
+
+    def __init__(self, api_key: str, base_url: str = None):
+        super().__init__(api_key, base_url)
+        if not ANTHROPIC_AVAILABLE:
+            raise ImportError(
+                "Anthropic SDK not installed. Install with: pip install anthropic"
+            )
+
+    def generate(
+        self,
+        model: str,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float,
+        top_p: float,
+        max_tokens: int
+    ) -> Dict:
+        
+        client = anthropic.Anthropic(api_key=self.api_key)
+
+        start_time = time.time()
+
+        # Anthropic does not allow both temperature and top_p simultaneously.
+        # Per docs: "You should either alter temperature or top_p, but not both."
+        # We use temperature only (recommended for most use cases).
+        response = client.messages.create(
+            model=model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            system=system_prompt,
+            messages=[
+                {"role": "user", "content": user_prompt}
+            ]
+        )
+
+        latency = time.time() - start_time
+
+        # Anthropic returns usage differently
+        tokens = 0
+        if hasattr(response, 'usage') and response.usage:
+            input_tokens = getattr(response.usage, 'input_tokens', 0)
+            output_tokens = getattr(response.usage, 'output_tokens', 0)
+            tokens = input_tokens + output_tokens
+
+        return {
+            "content": response.content[0].text.strip(),
+            "tokens": tokens,
+            "latency": latency
+        }
+
+
+# =============================================================================
+# Provider Definitions
+# =============================================================================
+
+class LLMProvider:
+    """Supported LLM providers."""
+    HUGGINGFACE = "huggingface"
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+
+
 class HuggingFaceModels:
-    """Available HuggingFace models for refactoring."""
+    """Available models for refactoring across different providers."""
     
     # Model registry with display names and identifiers
     MODELS: List[Dict[str, str]] = [
@@ -23,21 +250,45 @@ class HuggingFaceModels:
             "name": "Qwen 2.5 Coder 32B",
             "model_id": "Qwen/Qwen2.5-Coder-32B-Instruct",
             "description": "High-quality code generation model",
-            "endpoint_url": None  # Uses default HF router
+            "endpoint_url": None,  # Uses default HF router
+            "provider": LLMProvider.HUGGINGFACE,
+            "api_key_env": "HF_TOKEN"
         },
         {
             "id": 2,
             "name": "CodeLlama 34B Instruct",
             "model_id": "meta-llama/CodeLlama-34b-Instruct-hf",
             "description": "CodeLlama model via custom Inference Endpoint",
-            "endpoint_url": "https://u1i04a28mj4iv60z.us-east-1.aws.endpoints.huggingface.cloud/v1"
+            "endpoint_url": "https://u1i04a28mj4iv60z.us-east-1.aws.endpoints.huggingface.cloud/v1",
+            "provider": LLMProvider.HUGGINGFACE,
+            "api_key_env": "HF_TOKEN"
         },
         {
             "id": 3,
             "name": "Llama 3.3 70B Instruct",
             "model_id": "meta-llama/Llama-3.3-70B-Instruct:novita",
             "description": "Meta's Llama 3.3 70B instruction-tuned model",
-            "endpoint_url": None  # Uses default HF router
+            "endpoint_url": None,  # Uses default HF router
+            "provider": LLMProvider.HUGGINGFACE,
+            "api_key_env": "HF_TOKEN"
+        },
+        {
+            "id": 4,
+            "name": "Claude Sonnet 4.6",
+            "model_id": "claude-sonnet-4-6",
+            "description": "Anthropic's Claude Sonnet 4.6 - balanced speed and intelligence (Feb 2026)",
+            "endpoint_url": "https://api.anthropic.com/v1",
+            "provider": LLMProvider.ANTHROPIC,
+            "api_key_env": "CLAUDE_TOKEN"
+        },
+        {
+            "id": 5,
+            "name": "GPT-5.2",
+            "model_id": "gpt-5.2",
+            "description": "OpenAI's GPT-5.2 model",
+            "endpoint_url": "https://api.openai.com/v1",
+            "provider": LLMProvider.OPENAI,
+            "api_key_env": "GPT_TOKEN"
         },
     ]
     
@@ -62,14 +313,48 @@ class HuggingFaceModels:
     @classmethod
     def list_models(cls) -> str:
         """Return formatted list of available models."""
-        lines = ["Available HuggingFace Models:", ""]
+        lines = ["Available LLM Models:", ""]
         for model in cls.MODELS:
             default = " (DEFAULT)" if model["model_id"] == cls.DEFAULT_MODEL_ID else ""
-            lines.append(f"  [{model['id']}] {model['name']}{default}")
+            provider = model.get("provider", LLMProvider.HUGGINGFACE).upper()
+            lines.append(f"  [{model['id']}] {model['name']} [{provider}]{default}")
             lines.append(f"      {model['description']}")
             lines.append(f"      Model ID: {model['model_id']}")
             lines.append("")
         return "\n".join(lines)
+
+
+# =============================================================================
+# Client Factory (Strategy Pattern Resolution)
+# =============================================================================
+
+class LLMClientFactory:
+    """Factory for creating provider-specific LLM clients.
+    
+    Implements Factory pattern to isolate client instantiation logic
+    and ensure correct client is used for each provider.
+    """
+    
+    @staticmethod
+    def create(provider: str, api_key: str, base_url: str) -> BaseLLMClient:
+        """Create appropriate LLM client based on provider.
+        
+        Args:
+            provider: Provider identifier (LLMProvider constant)
+            api_key: API key for the provider
+            base_url: Base URL for the API endpoint
+            
+        Returns:
+            BaseLLMClient instance appropriate for the provider
+            
+        Raises:
+            ValueError: If provider is not supported
+        """
+        if provider == LLMProvider.ANTHROPIC:
+            return AnthropicClient(api_key=api_key, base_url=base_url)
+        
+        # OpenAI, HuggingFace, and other OpenAI-compatible providers
+        return OpenAICompatibleClient(api_key=api_key, base_url=base_url)
 
 
 class PromptStrategy:
@@ -96,7 +381,7 @@ class PromptStrategy:
     def list_strategies(cls) -> str:
         """Return formatted list of available strategies."""
         lines = ["Available Prompt Strategies:", ""]
-        for sid, (key, name, desc) in cls.STRATEGIES.items():
+        for sid, (_key, name, desc) in cls.STRATEGIES.items():
             lines.append(f"  [{sid}] {name}")
             lines.append(f"      {desc}")
             lines.append("")
@@ -343,24 +628,121 @@ Provide your response:"""
 
 
 class HuggingFaceRefactorClient:
-    """Client for HuggingFace-based test smell refactoring."""
+    """Client for multi-provider LLM-based test smell refactoring.
+    
+    This client provides a unified interface for refactoring test smells
+    using multiple LLM providers. It automatically selects the correct
+    client implementation based on the provider type.
+    
+    Supported providers:
+    - HuggingFace Router (OpenAI-compatible)
+    - OpenAI (GPT models)
+    - Anthropic (Claude models) - uses native Anthropic SDK
+    - Together, Fireworks, Novita (OpenAI-compatible)
+    """
+    
+    # Default endpoint URLs per provider
+    PROVIDER_ENDPOINTS = {
+        LLMProvider.HUGGINGFACE: "https://router.huggingface.co/v1",
+        LLMProvider.OPENAI: "https://api.openai.com/v1",
+        LLMProvider.ANTHROPIC: "https://api.anthropic.com/v1",
+    }
     
     def __init__(self, api_key: Optional[str] = None):
         """
-        Initialize HuggingFace client.
+        Initialize LLM client.
         
         Args:
-            api_key: HuggingFace API token (defaults to HF_TOKEN env var)
+            api_key: Default API token (defaults to HF_TOKEN env var).
+                     Provider-specific tokens are loaded automatically from env vars.
         """
+        # Store default API key (for backward compatibility)
         self.api_key = api_key or os.getenv("HF_TOKEN")
-        if not self.api_key:
-            raise ValueError(
-                "HuggingFace API token not found. "
-                "Set HF_TOKEN environment variable or pass api_key parameter."
-            )
+        
+        # Cache for API keys per provider
+        self._api_keys: Dict[str, str] = {}
         
         # Client will be created per-request based on model endpoint
         self.default_base_url = "https://router.huggingface.co/v1"
+    
+    def _get_api_key(self, model_info: Optional[Dict]) -> str:
+        """Get the appropriate API key for the given model.
+        
+        Args:
+            model_info: Model configuration dict from HuggingFaceModels.MODELS
+            
+        Returns:
+            API key string for the model's provider
+            
+        Raises:
+            ValueError: If no API key is found for the provider
+        """
+        if not model_info:
+            # Fallback to default HF key
+            if not self.api_key:
+                raise ValueError(
+                    "HuggingFace API token not found. "
+                    "Set HF_TOKEN environment variable or pass api_key parameter."
+                )
+            return self.api_key
+        
+        # Get env var name for this model's API key
+        api_key_env = model_info.get("api_key_env", "HF_TOKEN")
+        provider = model_info.get("provider", LLMProvider.HUGGINGFACE)
+        
+        # Check cache first
+        if api_key_env in self._api_keys:
+            return self._api_keys[api_key_env]
+        
+        # Load from environment
+        api_key = os.getenv(api_key_env)
+        if not api_key:
+            raise ValueError(
+                f"API token for {provider} not found. "
+                f"Set {api_key_env} environment variable."
+            )
+        
+        # Cache and return
+        self._api_keys[api_key_env] = api_key
+        return api_key
+    
+    def _build_prompt(
+        self,
+        smell_name: str,
+        smell_description: str,
+        test_code: str,
+        prompt_strategy: str,
+        examples: Optional[List[Dict]] = None,
+        refactoring_strategies: Optional[List[str]] = None,
+        smell_detection: str = "",
+    ) -> Dict[str, str]:
+        """Build prompt dict based on strategy.
+        
+        Args:
+            smell_name: Name of the test smell
+            smell_description: Description of the test smell
+            test_code: Original test code with the smell
+            prompt_strategy: Prompting strategy (zero_shot, few_shot, cot)
+            examples: List of example dicts for few-shot (optional)
+            refactoring_strategies: List of refactoring strategies for CoT (optional)
+            smell_detection: Detection criteria description for CoT (optional)
+            
+        Returns:
+            Dict with 'system' and 'user' message content
+        """
+        if prompt_strategy == PromptStrategy.ZERO_SHOT:
+            return create_zero_shot_prompt(smell_name, smell_description, test_code)
+        elif prompt_strategy == PromptStrategy.FEW_SHOT:
+            return create_few_shot_prompt(
+                smell_name, smell_description, test_code, examples or []
+            )
+        elif prompt_strategy == PromptStrategy.CHAIN_OF_THOUGHT:
+            return create_chain_of_thought_prompt(
+                smell_name, smell_description, smell_detection, 
+                test_code, refactoring_strategies or [], examples or []
+            )
+        else:
+            raise ValueError(f"Unknown prompt strategy: {prompt_strategy}")
     
     def refactor(
         self,
@@ -377,14 +759,17 @@ class HuggingFaceRefactorClient:
         max_tokens: int = 4096,
     ) -> Dict[str, any]:
         """
-        Refactor test smell using HuggingFace LLM.
+        Refactor test smell using LLM (multi-provider support).
+        
+        This method automatically selects the correct client implementation
+        based on the model's provider (Anthropic vs OpenAI-compatible).
         
         Args:
             smell_name: Name of the test smell
             smell_description: Description of the test smell
             test_code: Original test code with the smell
             prompt_strategy: Prompting strategy (zero_shot, few_shot, cot)
-            model: HuggingFace model identifier
+            model: Model identifier (from HuggingFaceModels.MODELS)
             examples: List of example dicts for few-shot (optional)
             refactoring_strategies: List of refactoring strategies for CoT (optional)
             smell_detection: Detection criteria description for CoT (optional)
@@ -398,81 +783,73 @@ class HuggingFaceRefactorClient:
                 - tokens: Total tokens used (int) - prompt + completion
                 - latency: API response time in seconds (float)
         """
-        # Create prompt based on strategy
-        if prompt_strategy == PromptStrategy.ZERO_SHOT:
-            prompt_dict = create_zero_shot_prompt(smell_name, smell_description, test_code)
-        elif prompt_strategy == PromptStrategy.FEW_SHOT:
-            if not examples:
-                examples = []
-            prompt_dict = create_few_shot_prompt(smell_name, smell_description, test_code, examples)
-        elif prompt_strategy == PromptStrategy.CHAIN_OF_THOUGHT:
-            if not refactoring_strategies:
-                refactoring_strategies = []
-            if not examples:
-                examples = []
-            prompt_dict = create_chain_of_thought_prompt(
-                smell_name, smell_description, smell_detection, test_code, refactoring_strategies, examples
-            )
-        else:
-            raise ValueError(f"Unknown prompt strategy: {prompt_strategy}")
+        # Build prompt based on strategy
+        prompt_dict = self._build_prompt(
+            smell_name=smell_name,
+            smell_description=smell_description,
+            test_code=test_code,
+            prompt_strategy=prompt_strategy,
+            examples=examples,
+            refactoring_strategies=refactoring_strategies,
+            smell_detection=smell_detection,
+        )
         
-        try:
-            # Determine endpoint URL based on model
-            base_url = self.default_base_url
-            model_info = HuggingFaceModels.get_model_by_name(model)
-            
-            # For custom Inference Endpoints, use the endpoint URL
-            # TGI endpoints ignore the model parameter (model is fixed on the endpoint)
-            # but we need to pass something - using the model_id from our registry
-            if model_info and model_info.get("endpoint_url"):
-                base_url = model_info["endpoint_url"]
-                model_param = model_info.get("model_id", "tgi")
-            else:
-                model_param = model  # Use full model path for router
-            
-            # Create client with appropriate endpoint
-            client = OpenAI(
-                base_url=base_url,
-                api_key=self.api_key,
-            )
-            
-            # Call HuggingFace API with system and user roles
-            messages = [
-                {"role": "system", "content": prompt_dict["system"]},
-                {"role": "user", "content": prompt_dict["user"]}
-            ]
-            
-            # Measure API latency
-            start_time = time.time()
-            
-            response = client.chat.completions.create(
-                model=model_param,
-                messages=messages,
-                temperature=temperature,
-                top_p=top_p,
-                max_tokens=max_tokens
-            )
-            
-            latency = time.time() - start_time
-            
-            raw_output = response.choices[0].message.content.strip()
-            
-            # Extract code from response (remove markdown formatting and explanations)
+        # Resolve model configuration
+        model_info = HuggingFaceModels.get_model_by_name(model)
+        
+        # Get provider-specific settings
+        provider = model_info.get("provider", LLMProvider.HUGGINGFACE) if model_info else LLMProvider.HUGGINGFACE
+        api_key = self._get_api_key(model_info)
+        
+        # Determine base URL
+        if model_info and model_info.get("endpoint_url"):
+            base_url = model_info["endpoint_url"]
+        else:
+            base_url = self.PROVIDER_ENDPOINTS.get(provider, self.default_base_url)
+        
+        # Determine model parameter to send to API
+        model_param = model_info.get("model_id", model) if model_info else model
+        
+        import time
+        max_retries = 3
+        retry_delay = 2  # seconds
+        last_exception = None
+        for attempt in range(1, max_retries + 1):
             try:
-                code = extract_code_from_response(raw_output)
-            except CodeExtractionError as e:
-                raise RuntimeError(f"Failed to extract valid JavaScript code from model output: {e}") from e
-            
-            # Extract token usage (if available)
-            tokens = 0
-            if hasattr(response, 'usage') and response.usage:
-                tokens = getattr(response.usage, 'total_tokens', 0)
-            
-            return {
-                'code': code,
-                'tokens': tokens,
-                'latency': latency
-            }
-            
-        except Exception as e:
-            raise RuntimeError(f"HuggingFace API call failed: {e}")
+                # Create provider-specific client using Factory pattern
+                client = LLMClientFactory.create(
+                    provider=provider,
+                    api_key=api_key,
+                    base_url=base_url
+                )
+                # Generate response using the appropriate client
+                response = client.generate(
+                    model=model_param,
+                    system_prompt=prompt_dict["system"],
+                    user_prompt=prompt_dict["user"],
+                    temperature=temperature,
+                    top_p=top_p,
+                    max_tokens=max_tokens
+                )
+                # Extract code from response (remove markdown formatting and explanations)
+                try:
+                    code = extract_code_from_response(response["content"])
+                except CodeExtractionError as e:
+                    raise RuntimeError(f"Failed to extract valid JavaScript code from model output: {e}") from e
+                return {
+                    'code': code,
+                    'tokens': response["tokens"],
+                    'latency': response["latency"]
+                }
+            except ImportError as e:
+                raise RuntimeError(f"Missing dependency for {provider}: {e}") from e
+            except Exception as e:
+                last_exception = e
+                err_str = str(e)
+                # Retry for server overload, 429, or similar errors
+                if any(keyword in err_str.lower() for keyword in ["server overload", "429", "too many requests", "overload", "rate limit", "temporarily unavailable"]):
+                    if attempt < max_retries:
+                        time.sleep(retry_delay)
+                        continue
+                provider_name = provider.upper() if provider else "UNKNOWN"
+                raise RuntimeError(f"{provider_name} API call failed: {e}") from e
