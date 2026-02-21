@@ -1,0 +1,497 @@
+================================================================================
+Test Execution Report: winston
+================================================================================
+Timestamp: 2026-02-21 00:43:32
+Command: npm run test
+Status: FAILED
+================================================================================
+
+OUTPUT:
+--------------------------------------------------------------------------------
+
+> winston@3.18.3 test
+> jest --coverage --coverageReporters=text-summary
+
+
+Cleaning test artifacts...
+
+=============================== Coverage summary ===============================
+Statements   : 73.46% ( 789/1074 )
+Branches     : 64.63% ( 435/673 )
+Functions    : 76.36% ( 168/220 )
+Lines        : 73.72% ( 769/1043 )
+================================================================================
+
+PASS test/unit/winston/logger.test.js
+  Logger Instance
+    Configuration
+      ✓ .configure() (18 ms)
+      ✓ .configure({ transports }) (1 ms)
+      ✓ .configure({ transports, format }) (1 ms)
+    Get Highest Log Level
+      ✓ should return the highest log level (1 ms)
+    Is Log Level Enabled
+      ✓ should indicate "error" level is enabled if logger is constructed with that level (1 ms)
+      ✓ should indicate "warn" level is enabled if logger is constructed with that level
+      ✓ should indicate "info" level is enabled if logger is constructed with that level
+      ✓ should indicate "http" level is enabled if logger is constructed with that level
+      ✓ should indicate "verbose" level is enabled if logger is constructed with that level (1 ms)
+      ✓ should indicate "debug" level is enabled if logger is constructed with that level
+      ✓ should indicate "silly" level is enabled if logger is constructed with that level (1 ms)
+      ✓ should only enable levels "info" and above by default
+      ✓ should indicate "null" level is not enabled (1 ms)
+      ✓ should indicate "undefined" level is not enabled
+      ✓ should indicate all levels are disabled if configured with a level of null
+    Transports
+      add
+        ✓ should throw error when adding an invalid transport (1 ms)
+        ✓ should add the expected transport (2 ms)
+        ✓ should allow adding multiple transports (23 ms)
+      remove
+        ✓ should do nothing if transport was not added (1 ms)
+        ✓ should remove transport when matching one is found (1 ms)
+        ✓ should remove specified logger even when duplicate exists (1 ms)
+      clear
+        ✓ should do nothing when no transports exist
+        ✓ should remove all transports (1 ms)
+      stream
+        ✓ should return a log stream for all transports
+    Log Levels
+      ✓ report unknown levels (1 ms)
+      ✓ .<level>() (7 ms)
+      ✓ default levels (1 ms)
+      ✓ custom levels
+      ✓ sets transports levels (2 ms)
+      Log Levels Enabled
+        ✓ default levels (2 ms)
+        ✓ default levels, transport override (1 ms)
+        ✓ default levels, no transports (1 ms)
+        ✓ custom levels (1 ms)
+        ✓ custom levels, no transports
+        ✓ custom levels, transport override (1 ms)
+    Transport Events
+      ✓ 'finish' event awaits transports to emit 'finish' (2 ms)
+      ✓ error (1 ms)
+      ✓ warn
+    Formats
+      ✓ rethrows errors from user-defined formats (2 ms)
+    Profiling
+      ✓ ending profiler with object argument should be included in output (102 ms)
+      ✓ calling profile with a callback function should not make a difference (101 ms)
+      ✓ should stop a timer when `done` is called on it (101 ms)
+    Logging non-primitive data types
+      .log
+        ✓ .log(new Error()) uses Error instance as info
+        ✓ .info('Hello') preserve meta without splat format (1 ms)
+        ✓ .info('Hello %d') does not mutate unnecessarily with string interpolation tokens (1 ms)
+        ✓ .info('Hello') and .info('Hello %d') preserve meta with splat format (1 ms)
+      .info
+        ✓ .info(undefined) creates info with { message: undefined } (1 ms)
+        ✓ .info(null) creates info with { message: null } (1 ms)
+        ✓ .info(new Error()) uses Error instance as info
+        ✎ todo https://github.com/winstonjs/winston/issues/2103
+    Metadata Precedence
+      Should support child loggers & defaultMeta
+        ✓ sets child meta for text messages correctly (1 ms)
+        ✓ sets child meta for json messages correctly
+        ✓ merges child and provided meta correctly (1 ms)
+        ✓ provided meta take precedence over defaultMeta
+        ✓ provided meta take precedence over child meta (1 ms)
+        ✓ handles error stack traces in child loggers correctly (21 ms)
+        ✓ defaultMeta() autobinds correctly (1 ms)
+    Backwards Compatability
+      Winston V2 Log
+        ✓ .log(level, message)
+        ✓ .log(level, undefined) creates info with { message: undefined } (1 ms)
+        ✓ .log(level, null) creates info with { message: null }
+        ✓ .log(level, new Error()) uses Error instance as info (1 ms)
+        ✓ .log(level, message, meta)
+        ✓ .log(level, formatStr, ...splat) (2 ms)
+        ✓ .log(level, formatStr, ...splat, meta)
+        ✓ .log(level, new Error()) creates info with error cause (1 ms)
+
+PASS test/unit/winston/transports/http.test.js
+  Http({ host, port, path })
+    nominal
+      ✓ should send logs over HTTP (14 ms)
+    batch mode: max message
+      ✓ test max message reached (4 ms)
+    batch mode: timeout
+      ✓ test timeout reached (2008 ms)
+    circular structure
+      ✓ should be able to handle options with circular structure (14 ms)
+      ✓ should be able to handle options with circular structure when passing maximumDepth (4 ms)
+
+PASS test/unit/winston/log-exception.test.js
+  Logger, ExceptionHandler
+    ✓ Custom exitOnError function does not exit (1005 ms)
+    .exceptions.unhandle()
+      ✓ does not log to any transports (146 ms)
+      ✓ handlers immutable (30 ms)
+    Exception Handler
+      should save the error information to the specified file
+        ✓ with the default winston logger (507 ms)
+        with a Custom Logger instance
+          ✓ when strings are thrown as errors (538 ms)
+          ✓ with a custom winston.Logger instance (514 ms)
+
+PASS test/unit/winston/profiler.test.js
+  Profiler
+    ✓ new Profiler()
+    ✓ .done({ info }) (204 ms)
+    ✓ non logger object (1 ms)
+
+PASS test/integration/formats.test.js
+  winston.format.colorize (Integration)
+    ✓ non-TTY environment (115 ms)
+
+PASS test/unit/winston/transports/file-create-dir.test.js
+  winston/transports/file/createLogDir
+    ✓ should create directory if it does not exist (20 ms)
+    ✓ should create directory if it does not exist when write to the stream (3 ms)
+
+PASS test/unit/winston/exception-handler.test.js
+  ExceptionHandler
+    basics
+      ✓ has expected methods (1 ms)
+      ✓ new ExceptionHandler()
+      ✓ new ExceptionHandler(logger) (1 ms)
+      ✓ .getProcessInfo()
+      ✓ .getOsInfo() (1 ms)
+      ✓ .getTrace(new Error) (7 ms)
+      ✓ .getTrace() (2 ms)
+      ✓ .getAllInfo(undefined) (1 ms)
+    when error case is triggered
+      ✓ .handle() (3 ms)
+
+PASS test/unit/winston/logger-legacy.test.js
+  Deprecated APIs
+    Instantiation Options
+      ✓ should throw when instantiating with deprecated option of { colors: true } (1 ms)
+      ✓ should throw when instantiating with deprecated option of { emitErrs: true } (1 ms)
+      ✓ should throw when instantiating with deprecated option of { formatters: [] }
+      ✓ should throw when instantiating with deprecated option of { padLevels: true }
+      ✓ should throw when instantiating with deprecated option of { rewriters: [] }
+      ✓ should throw when instantiating with deprecated option of { stripColors: true } (1 ms)
+    Instance methods
+      ✓ should throw when invoking deprecated cli() instance method
+    Transports
+      Transport inheriting from winston@2
+        ✓ .add() is successful but logs deprecation notice (1 ms)
+        ✓ .add() multiple transports is successful but logs deprecation notice (1 ms)
+        ✓ .remove() is successful (1 ms)
+      Transport inheriting from winston@3 but conforming to winston@2 API
+        ✓ .add() is successful but logs deprecation notice (1 ms)
+        ✓ .add() multiple transports is successful but logs deprecation notice
+        ✓ .remove() is successful (1 ms)
+
+PASS test/unit/formats/errors.test.js
+  format.errors (integration)
+    ✓ logger.log(level, error) (3 ms)
+    ✓ logger.log(level, error) [custom error properties]
+    ✓ logger.log(level, error, meta) (1 ms)
+    ✓ logger.log(level, error, meta) [custom error properties] (1 ms)
+    ✓ logger.log(level, msg, meta<error>) (8 ms)
+    ✓ logger.log(level, msg, meta<error>) [custom error properties] (1 ms)
+    ✓ logger.<level>(error) (1 ms)
+    ✓ logger.<level>(error) [custom error properties]
+    ✓ logger.<level>(error, meta) (1 ms)
+    ✓ logger.<level>(error, meta) [custom error properties] (1 ms)
+    ✓ logger.<level>(msg, meta<error>)
+    ✓ logger.<level>(msg, meta<error>) [custom error properties] (1 ms)
+    ✓ Promise.reject().catch(logger.<level>) (1 ms)
+    ✓ Promise.reject().catch(logger.<level>) [custom error properties] (1 ms)
+
+PASS test/unit/winston/rejection-handler.test.js
+  UnhandledRejectionHandler
+    basics
+      ✓ has expected methods (6 ms)
+      ✓ new RejectionHandler()
+      ✓ new RejectionHandler(logger) (1 ms)
+      ✓ .getProcessInfo()
+      ✓ .getOsInfo() (1 ms)
+      ✓ .getTrace(new Error) (9 ms)
+      ✓ .getTrace() (3 ms)
+      ✓ .getAllInfo(undefined)
+    when error case is triggered
+      ✓ .handle() (10 ms)
+
+PASS test/unit/winston/winston.test.js
+  Winston
+    ✓ should expose transports (4 ms)
+    ✓ should have the expected initial state
+    exposed interface
+      ✓ should expose a method of "log()"
+      ✓ should expose a method of "query()"
+      ✓ should expose a method of "stream()"
+      ✓ should expose a method of "add()"
+      ✓ should expose a method of "remove()" (1 ms)
+      ✓ should expose a method of "clear()"
+      ✓ should expose a method of "profile()"
+      ✓ should expose a method of "startTimer()"
+      ✓ should expose a method of "handleExceptions()"
+      ✓ should expose a method of "unhandleExceptions()"
+      ✓ should expose a method of "handleRejections()"
+      ✓ should expose a method of "unhandleRejections()"
+      ✓ should expose a method of "configure()"
+      ✓ should expose a method of "child()"
+      ✓ should expose a method of "createLogger()"
+      ✓ should expose a property of "level" (1 ms)
+      ✓ should expose a property of "exceptions"
+      ✓ should expose a property of "rejections"
+      ✓ should expose a property of "exitOnError"
+      ✓ should expose a level method of "error()"
+      ✓ should expose a level method of "warn()"
+      ✓ should expose a level method of "info()" (1 ms)
+      ✓ should expose a level method of "http()"
+      ✓ should expose a level method of "verbose()"
+      ✓ should expose a level method of "debug()"
+      ✓ should expose a level method of "silly()"
+      ✓ exposes the configuration
+      ✓ exposes the version
+    Deprecated Winston properties from < v3.x
+      ✓ should throw when the deprecated function "addRewriter()" is invoked (1 ms)
+      ✓ should throw when the deprecated function "addFilter()" is invoked
+      ✓ should throw when the deprecated function "cli()" is invoked
+      ✓ should throw when the deprecated function "clone()" is invoked
+      ✓ should throw when the deprecated function "extend()" is invoked
+      ✓ should throw when the deprecated property "emitErrs" is accessed
+      ✓ should throw when the deprecated property "levelLength" is accessed
+      ✓ should throw when the deprecated property "padLevels" is accessed
+      ✓ should throw when the deprecated property "stripColors" is accessed
+
+PASS test/unit/winston/exception-stream.test.js
+  ExceptionStream
+    ✓ has expected methods (4 ms)
+    ✓ throws without a transport
+    _write method
+      ✓ should write to the transport when the exception property is false (1 ms)
+      ✓ should not write to transport when the exception property is a falsy value of: "false"
+      ✓ should not write to transport when the exception property is a falsy value of: "null" (1 ms)
+      ✓ should not write to transport when the exception property is a falsy value of: "undefined"
+      ✓ should not write to transport when the exception property is a falsy value of: "0"
+      ✓ should not write to transport when the exception property is a falsy value of: ""
+      ✓ should not write to transport when the exception property is a falsy value of: "NaN"
+
+PASS test/unit/winston/transports/console.test.js
+  Console transport
+    ✓ { stderrLevels: ['info', 'error'] } logs to them appropriately
+    ✓ { consoleWarnLevels: ['warn', 'debug'] } logs to them appropriately
+    ✓ { eol } adds a custom EOL delimiter
+    with defaults
+      ✓ logs all levels to stdout (1 ms)
+      ✓ should set stderrLevels to [] by default
+    throws an appropriate error when
+      ✓ if stderrLevels is set, but not an Array { stderrLevels: 'Not an Array' }
+      ✓ if stderrLevels contains non-string elements { stderrLevels: ['good', /^invalid$/, 'valid'] (1 ms)
+
+PASS test/unit/winston/transports/stream.test.js
+  Stream({ stream })
+    ✓ should support objectMode streams (1 ms)
+    ✓ should support UTF8 encoding streams (1 ms)
+    ✓ should throw when not passed a stream
+
+PASS test/unit/winston/container.test.js
+  Container
+    no transports
+      ✓ .add(default-test)
+      ✓ .get(default-test)
+      ✓ .has(default-test) (1 ms)
+      ✓ .has(not-has)
+      ✓ .close(default-test)
+      ✓ .close(non-existent)
+      ✓ .close()
+    explicit transports
+      ✓ .get(some-logger) (1 ms)
+      ✓ .get(some-other-logger)
+    explicit non-array transport
+      ✓ .get(some-logger)
+      ✓ .get(some-other-logger) (1 ms)
+
+PASS test/unit/winston/transports/error.test.js
+  transports issue 1364
+    only log once
+      ✓ logger transport has single correct transport (1 ms)
+      ✓ error didn't
+    log twice
+      ✓ logger transport has single correct transport (1 ms)
+      ✓ error occurred
+    log thrice
+      ✓ logger transport has single correct transport (1 ms)
+      ✓ error occurred (1 ms)
+    log four times
+      ✓ logger transport has single correct transport (1 ms)
+      ✓ other error occurred
+
+PASS test/unit/winston/create-logger.test.js
+  Create Logger
+    ✓ should build a logger with default values (1 ms)
+    ✓ new Logger({ silent: true }) (1 ms)
+    ✓ new Logger({ parameters })
+    ✓ new Logger({ levels }) defines custom methods
+    ✓ new Logger({ levels }) custom methods are not bound to instance (1 ms)
+
+PASS test/unit/winston/config/config.test.js
+  winston.config
+    ✓ should have expected methods (1 ms)
+
+PASS test/integration/logger.test.js
+  Logger class
+    ✓ that Logger class is exported
+    ✓ can be inherited
+
+PASS test/unit/winston/tail-file.test.js (7.348 s)
+  tailFile
+    ✓ is a function (18 ms)
+    ✓ returns a stream that emits "line" for every line (5124 ms)
+
+FAIL test/unit/winston/transports/file.test.js (12.967 s)
+  File Transport
+    Construction
+      ✓ should throw an error if conflicting options are provided (38 ms)
+      ✓ should throw an error if conflicting options are provided (3 ms)
+      ✓ should throw an error if conflicting options are provided (2 ms)
+    Filename Option
+      ✓ should log to the file with the given filename (26 ms)
+    Rotation Format option
+      ✓ should create multiple files correctly with rotation Function (26 ms)
+    Archive option
+      ✓ should archive log file when max size is exceeded (65 ms)
+      ✓ should not archive log file when max size is exceeded (65 ms)
+    Maxsize option
+      ✓ should create a new file the configured max size is exceeded (45 ms)
+      ✓ should not exceed max size for any file (46 ms)
+    Maxfiles option
+      ✓ should not exceed the max files (5008 ms)
+      ✕ should delete the oldest file when maxfiles is met (5005 ms)
+    Tailable option
+      ✓ should write to original file and older files will be in ascending order (29 ms)
+      ✕ should write to the newest file and older files will be in descending order (37 ms)
+    Lazy option
+      ✓ should not create log file until needed when lazy is enabled (5 ms)
+      ✓ should create log files on initializaiton when lazy is enabled (23 ms)
+    Stream Option
+      ✎ todo should display the deprecation notice
+      ✎ todo should write to the stream when logged to with expected object
+
+  ● File Transport › Maxfiles option › should delete the oldest file when maxfiles is met
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      272 |     }, 10000);
+      273 |
+    > 274 |     it('should delete the oldest file when maxfiles is met', async function () {
+          |     ^
+      275 |       const transport = new winston.transports.File({
+      276 |         ...defaultTransportOptions,
+      277 |         maxsize: 1024, // Small size to trigger frequent rotations
+
+      at it (test/unit/winston/transports/file.test.js:274:5)
+      at describe (test/unit/winston/transports/file.test.js:247:3)
+      at Object.describe (test/unit/winston/transports/file.test.js:99:1)
+
+  ● File Transport › Tailable option › should write to the newest file and older files will be in descending order
+
+    assert.strictEqual(received, expected)
+
+    Expected value to strictly be equal to:
+      "A"
+    Received:
+      undefined
+
+    Message:
+      Content of file testarchive.log was not filled with A
+
+    undefined !== 'A'
+
+
+    Difference:
+
+      Comparing two different types of values. Expected string but received undefined.
+
+      83 | const assertFileContentsStartWith = (filename, char) => {
+      84 |   const fileContents = fs.readFileSync(getFilePath(filename), 'utf8');
+    > 85 |   assert.strictEqual(
+         |          ^
+      86 |     fileContents[0],
+      87 |     char,
+      88 |     `Content of file ${filename} was not filled with ${char}`
+
+      at strictEqual (test/unit/winston/transports/file.test.js:85:10)
+      at assertFileContentsStartWith (test/unit/winston/transports/file.test.js:355:3)
+      at Generator.call (test/unit/winston/transports/file.test.js:2:1)
+      at Generator._invoke [as next] (test/unit/winston/transports/file.test.js:2:1)
+      at asyncGeneratorStep (test/unit/winston/transports/file.test.js:2:1)
+      at asyncGeneratorStep (test/unit/winston/transports/file.test.js:2:1)
+
+PASS test/unit/winston/transports/00-file-stress.test.js (44.1 s)
+  File (stress)
+    ✓ should handle a high volume of writes (10389 ms)
+    ✓ should handle a high volume of large writes (11148 ms)
+    ✓ should handle a high volume of large writes synchronous (10027 ms)
+    ✓ should handle a high volume of writes with lazy option enabled (10314 ms)
+
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
+Summary of all failing tests
+FAIL test/unit/winston/transports/file.test.js (12.967 s)
+  ● File Transport › Maxfiles option › should delete the oldest file when maxfiles is met
+
+    thrown: "Exceeded timeout of 5000 ms for a test.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      272 |     }, 10000);
+      273 |
+    > 274 |     it('should delete the oldest file when maxfiles is met', async function () {
+          |     ^
+      275 |       const transport = new winston.transports.File({
+      276 |         ...defaultTransportOptions,
+      277 |         maxsize: 1024, // Small size to trigger frequent rotations
+
+      at it (test/unit/winston/transports/file.test.js:274:5)
+      at describe (test/unit/winston/transports/file.test.js:247:3)
+      at Object.describe (test/unit/winston/transports/file.test.js:99:1)
+
+  ● File Transport › Tailable option › should write to the newest file and older files will be in descending order
+
+    assert.strictEqual(received, expected)
+
+    Expected value to strictly be equal to:
+      "A"
+    Received:
+      undefined
+
+    Message:
+      Content of file testarchive.log was not filled with A
+
+    undefined !== 'A'
+
+
+    Difference:
+
+      Comparing two different types of values. Expected string but received undefined.
+
+      83 | const assertFileContentsStartWith = (filename, char) => {
+      84 |   const fileContents = fs.readFileSync(getFilePath(filename), 'utf8');
+    > 85 |   assert.strictEqual(
+         |          ^
+      86 |     fileContents[0],
+      87 |     char,
+      88 |     `Content of file ${filename} was not filled with ${char}`
+
+      at strictEqual (test/unit/winston/transports/file.test.js:85:10)
+      at assertFileContentsStartWith (test/unit/winston/transports/file.test.js:355:3)
+      at Generator.call (test/unit/winston/transports/file.test.js:2:1)
+      at Generator._invoke [as next] (test/unit/winston/transports/file.test.js:2:1)
+      at asyncGeneratorStep (test/unit/winston/transports/file.test.js:2:1)
+      at asyncGeneratorStep (test/unit/winston/transports/file.test.js:2:1)
+
+
+Test Suites: 1 failed, 21 passed, 22 total
+Tests:       2 failed, 3 todo, 230 passed, 235 total
+Snapshots:   0 total
+Time:        45.019 s
+
+--------------------------------------------------------------------------------
+
+================================================================================

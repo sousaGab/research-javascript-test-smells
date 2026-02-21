@@ -6,46 +6,11 @@ for LLM-based test smell refactoring.
 """
 
 import os
-import re
 import time
 from typing import Optional, Dict, List
 from openai import OpenAI
 
-
-def extract_code_from_response(llm_output: str) -> str:
-    """
-    Extract JavaScript code from LLM response.
-    
-    LLMs often wrap code in markdown code blocks like:
-    ```javascript
-    // code here
-    ```
-    
-    This function extracts only the code, removing explanations and formatting.
-    
-    Args:
-        llm_output: Raw output from LLM
-        
-    Returns:
-        Extracted JavaScript code, or original output if no code block found
-    """
-    # Pattern to match ```javascript ... ``` or ```js ... ```
-    pattern = r'```(?:javascript|js)\s*\n(.*?)\n```'
-    
-    match = re.search(pattern, llm_output, re.DOTALL | re.IGNORECASE)
-    
-    if match:
-        return match.group(1).strip()
-    
-    # Fallback: try to find any code block (```...```)
-    pattern_generic = r'```\s*\n(.*?)\n```'
-    match_generic = re.search(pattern_generic, llm_output, re.DOTALL)
-    
-    if match_generic:
-        return match_generic.group(1).strip()
-    
-    # If no code block found, return original output (trimmed)
-    return llm_output.strip()
+from .code_extractor import extract_code_from_response, CodeExtractionError
 
 
 class HuggingFaceModels:
@@ -63,9 +28,9 @@ class HuggingFaceModels:
         {
             "id": 2,
             "name": "CodeLlama 34B Instruct",
-            "model_id": "CodeLlama-34b-Instruct-hf",
+            "model_id": "meta-llama/CodeLlama-34b-Instruct-hf",
             "description": "CodeLlama model via custom Inference Endpoint",
-            "endpoint_url": "https://b12zypnldhhshqdi.us-east-1.aws.endpoints.huggingface.cloud/v1"
+            "endpoint_url": "https://u1i04a28mj4iv60z.us-east-1.aws.endpoints.huggingface.cloud/v1"
         },
         {
             "id": 3,
@@ -138,35 +103,69 @@ class PromptStrategy:
         return "\n".join(lines)
 
 
-def create_zero_shot_prompt(smell_name: str, smell_description: str, test_code: str) -> str:
-    """Creates a zero-shot prompt for test smell refactoring."""
-    prompt = f"""You are a senior software engineer and researcher specializing in JavaScript test quality.
+def create_zero_shot_prompt(smell_name: str, smell_description: str, test_code: str) -> Dict[str, str]:
+    """Creates a zero-shot prompt for test smell refactoring.
+    
+    Returns:
+        Dict with 'system' and 'user' message content
+    """
+    system_message = "You are a JavaScript test refactoring expert. Follow instructions strictly and output ONLY valid JavaScript code."
+    
+    user_message = f"""### Your Task
 
-Your task is to refactor the test code below to REMOVE the specified test smell,
-while strictly preserving the original test behavior.
+Refactor the test code below to eliminate the test smell.
 
-Constraints:
-- Output ONLY the refactored JavaScript test code.
-- Preserve the original test behavior and assertions.
-- Ensure the test smell is completely removed.
+---
 
-### Test Smell
-{smell_name}
+### Context
 
-### Test Smell Definition
+**Test Smell:** {smell_name}
+
+**Definition:**
 {smell_description}
 
-### Original Test Code
+**Original Test Code:**
 ```javascript
 {test_code}
 ```
+
+---
+
+### Output Requirements
+
+You MUST provide your response in this exact format:
+
+```javascript
+// Your COMPLETE refactored test code here
+```
+
+**PRIMARY OBJECTIVE:**
+- Completely remove the test smell from the code
+
+**CONSTRAINTS (you MUST):**
+- Include the COMPLETE test function/method (entire it() or describe() block)
+- Preserve semantic behavior and all assertions (you may improve structure)
+- Ensure code is syntactically correct and executable
+
+**PROHIBITIONS (you MUST NOT):**
+- Output partial code, fragments, or snippets
+- Add explanations, descriptions, or commentary
+- Include text outside the code block
+- Describe what you changed
+
+Provide the complete refactored test code:
 """
-    return prompt
+    return {"system": system_message, "user": user_message}
 
 
 def create_few_shot_prompt(smell_name: str, smell_description: str, 
-                          test_code: str, examples: List[Dict]) -> str:
-    """Creates a few-shot prompt for test smell refactoring with examples."""
+                          test_code: str, examples: List[Dict]) -> Dict[str, str]:
+    """Creates a few-shot prompt for test smell refactoring with examples.
+    
+    Returns:
+        Dict with 'system' and 'user' message content
+    """
+    system_message = "You are a JavaScript test refactoring expert. Follow instructions strictly and output ONLY valid JavaScript code."
     
     # Build examples section dynamically
     examples_section = ""
@@ -194,37 +193,62 @@ Refactored (smell removed):
 
 """
     
-    prompt = f"""You are a senior software engineer and researcher specializing in JavaScript test smell refactoring.
+    user_message = f"""### Your Task
 
-Your task is to refactor a JavaScript test to REMOVE a specific test smell.
-You must preserve test semantics and improve test quality.
+Refactor the test code below to eliminate the test smell. Study the examples to understand the refactoring pattern.
 
-Constraints:
-- Output ONLY the refactored JavaScript test code.
-- Preserve the original test behavior and assertions.
-- Ensure the test smell is completely removed.
+---
 
-Test Smell: {smell_name}
+### Context
 
-Test Smell Definition:
+**Test Smell:** {smell_name}
+
+**Definition:**
 {smell_description}
 
-{examples_section}{"---\n\n" if examples_section else ""}### Your Task
-
-Original Test Code:
+{examples_section}{("---\n\n" if examples_section else "")}**Original Test Code:**
 ```javascript
 {test_code}
 ```
 
-Now provide the refactored version:"""
-    return prompt
+---
+
+### Output Requirements
+
+You MUST provide your response in this exact format:
+
+```javascript
+// Your COMPLETE refactored test code here
+```
+
+**PRIMARY OBJECTIVE:**
+- Completely remove the test smell from the code
+
+**CONSTRAINTS (you MUST):**
+- Include the COMPLETE test function/method (entire it() or describe() block)
+- Preserve semantic behavior and all assertions (you may improve structure)
+- Ensure code is syntactically correct and executable
+
+**PROHIBITIONS (you MUST NOT):**
+- Output partial code, fragments, or snippets
+- Add explanations, descriptions, or commentary
+- Include text outside the code block
+- Describe what you changed
+
+Provide the complete refactored test code:"""
+    return {"system": system_message, "user": user_message}
 
 
 def create_chain_of_thought_prompt(smell_name: str, smell_description: str,
                                   smell_detection: str, test_code: str,
                                   refactoring_strategies: List[str],
-                                  examples: Optional[List[Dict]] = None) -> str:
-    """Creates a chain-of-thought prompt for test smell refactoring."""
+                                  examples: Optional[List[Dict]] = None) -> Dict[str, str]:
+    """Creates a chain-of-thought prompt for test smell refactoring.
+    
+    Returns:
+        Dict with 'system' and 'user' message content
+    """
+    system_message = "You are a JavaScript test refactoring expert. Follow instructions strictly and output ONLY valid JavaScript code."
     
     refactoring_guidance = '\n'.join(f"  {i+1}. {strategy}" for i, strategy in enumerate(refactoring_strategies))
     
@@ -251,62 +275,71 @@ Refactored (smell removed):
 
 """
 
-    prompt = f"""You are a senior software engineer and test quality expert specializing in JavaScript test refactoring.
+    user_message = f"""### Your Task
 
-Your task is to refactor the test code below to completely REMOVE the specified test smell while preserving the original test semantics.
+Refactor the test code below to eliminate the test smell.
 
-### Test Smell: {smell_name}
+---
 
-### Definition
+### Context
+
+**Test Smell:** {smell_name}
+
+**Definition:**
 {smell_description}
 
-### Detection Criteria
+**Detection Criteria:**
 {smell_detection}
 
-### Refactoring Strategies (Apply these in your solution)
+**Refactoring Strategies:**
+Apply these strategies in your solution:
 {refactoring_guidance}
 {examples_section}
----
-
-### Reasoning Process
-
-Follow these steps mentally before generating the refactored code:
-
-1. **Locate the Smell**: Identify exactly where and how the test smell manifests in the original code
-   - Look for patterns described in the detection criteria
-   
-2. **Understand Intent**: Determine what behavior the test is meant to verify
-   - What is being tested?
-   - What assertions validate the behavior?
-   
-3. **Evaluate Impact**: Assess why the current structure is problematic
-   - Which best practices are violated?
-   - How does this affect maintainability?
-   
-4. **Plan Refactoring**: Design a solution using the strategies above
-   - Choose the most appropriate strategy (or combination)
-   - Plan structural changes needed
-   
-5. **Validate**: Ensure the refactored version:
-   - Completely removes the test smell
-   - Preserves original test behavior and assertions
-   - Follows JavaScript/Jest/Mocha best practices
-   - Improves readability and expressiveness
-   - Matches patterns shown in reference examples
-
----
-
-### Output Instructions
-
-Output ONLY the refactored JavaScript test code.
-
-### Original Test Code
+**Original Test Code:**
 ```javascript
 {test_code}
 ```
 
-Now provide the refactored version:"""
-    return prompt
+---
+
+### Internal Reasoning (Hidden Chain-of-Thought)
+
+You MUST internally reason step by step following this process:
+
+1. **Locate the Smell**: Identify where and how the test smell manifests based on detection criteria
+2. **Understand Intent**: Determine what behavior the test verifies and which assertions validate it
+3. **Evaluate Impact**: Assess why the current structure violates best practices
+4. **Plan Refactoring**: Design a solution using the strategies provided above
+5. **Validate**: Ensure the refactored version meets all requirements
+
+**CRITICAL:** DO NOT reveal your reasoning. ONLY output the final refactored code.
+
+---
+
+### Output Requirements
+
+You MUST provide your response in this exact format:
+
+```javascript
+// Your COMPLETE refactored test code here
+```
+
+**PRIMARY OBJECTIVE:**
+- Completely remove the test smell using the strategies provided
+
+**CONSTRAINTS (you MUST):**
+- Include the COMPLETE test function/method (entire it() or describe() block)
+- Preserve semantic behavior and all assertions (you may improve structure)
+- Ensure code is syntactically correct and executable
+
+**PROHIBITIONS (you MUST NOT):**
+- Output only fragments, snippets, or parts of the code
+- Include explanations or commentary about your reasoning
+- Describe what you changed
+- Provide code outside the markdown code block
+
+Provide your response:"""
+    return {"system": system_message, "user": user_message}
 
 
 class HuggingFaceRefactorClient:
@@ -367,17 +400,17 @@ class HuggingFaceRefactorClient:
         """
         # Create prompt based on strategy
         if prompt_strategy == PromptStrategy.ZERO_SHOT:
-            prompt = create_zero_shot_prompt(smell_name, smell_description, test_code)
+            prompt_dict = create_zero_shot_prompt(smell_name, smell_description, test_code)
         elif prompt_strategy == PromptStrategy.FEW_SHOT:
             if not examples:
                 examples = []
-            prompt = create_few_shot_prompt(smell_name, smell_description, test_code, examples)
+            prompt_dict = create_few_shot_prompt(smell_name, smell_description, test_code, examples)
         elif prompt_strategy == PromptStrategy.CHAIN_OF_THOUGHT:
             if not refactoring_strategies:
                 refactoring_strategies = []
             if not examples:
                 examples = []
-            prompt = create_chain_of_thought_prompt(
+            prompt_dict = create_chain_of_thought_prompt(
                 smell_name, smell_description, smell_detection, test_code, refactoring_strategies, examples
             )
         else:
@@ -403,8 +436,11 @@ class HuggingFaceRefactorClient:
                 api_key=self.api_key,
             )
             
-            # Call HuggingFace API
-            messages = [{"role": "user", "content": prompt}]
+            # Call HuggingFace API with system and user roles
+            messages = [
+                {"role": "system", "content": prompt_dict["system"]},
+                {"role": "user", "content": prompt_dict["user"]}
+            ]
             
             # Measure API latency
             start_time = time.time()
@@ -422,7 +458,10 @@ class HuggingFaceRefactorClient:
             raw_output = response.choices[0].message.content.strip()
             
             # Extract code from response (remove markdown formatting and explanations)
-            code = extract_code_from_response(raw_output)
+            try:
+                code = extract_code_from_response(raw_output)
+            except CodeExtractionError as e:
+                raise RuntimeError(f"Failed to extract valid JavaScript code from model output: {e}") from e
             
             # Extract token usage (if available)
             tokens = 0

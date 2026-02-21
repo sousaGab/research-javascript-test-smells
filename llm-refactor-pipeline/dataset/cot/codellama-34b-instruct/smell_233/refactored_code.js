@@ -1,0 +1,6 @@
+expect(wrapper.emitted('dismiss-count-down').length).toBe(1)
+expect(wrapper.emitted('dismiss-count-down').length).toBe(2)
+expect(wrapper.emitted('dismiss-count-down').length).toBe(3)
+expect(wrapper.emitted('dismiss-count-down').length).toBe(4)
+expect(wrapper.emitted('dismiss-count-down').length).toBe(5)
+expect(wrapper.emitted('dismiss-count-down').length).toBe(6)

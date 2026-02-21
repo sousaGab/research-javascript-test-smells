@@ -1,0 +1,214 @@
+================================================================================
+Test Execution Report: react-grid-layout
+================================================================================
+Timestamp: 2026-02-21 02:02:28
+Command: NODE_ENV=test npx jest --coverage --coverageReporters=text-summary
+Status: FAILED
+================================================================================
+
+OUTPUT:
+--------------------------------------------------------------------------------
+
+=============================== Coverage summary ===============================
+Statements   : 89.58% ( 1462/1632 )
+Branches     : 81.4% ( 740/909 )
+Functions    : 90.33% ( 243/269 )
+Lines        : 91.51% ( 1381/1509 )
+================================================================================
+
+PASS test/spec/utils-test.js
+PASS test/spec/fast-compactor-test.js
+  ● Console
+
+    console.log
+      
+        With static items (200 items, 20 static):
+          Standard: 15.57ms
+          Fast:     0.57ms
+          Speedup:  27.17x
+
+      at Object.log (test/spec/fast-compactor-test.js:245:15)
+
+    console.log
+      
+      ┌──────────────────────────────────────────────────────────────────────────────┐
+      │                    ⚡ Compactor Performance Comparison                       │
+      ├──────────────────────────────────────────────────────────────────────────────┤
+      │ Items    │ Standard Vertical     │ Fast Vertical         │ Speedup          │
+      ├──────────┼───────────────────────┼───────────────────────┼──────────────────┤
+      │ 50       │               1.66 ms │             308.90 µs │   5.39x faster │
+      │ 100      │               2.12 ms │             402.89 µs │   5.27x faster │
+      │ 200      │               6.16 ms │             720.81 µs │   8.55x faster │
+      │ 500      │              42.87 ms │               1.32 ms │  32.39x faster │
+      └──────────────────────────────────────────────────────────────────────────────┘
+
+      at Object.log (test/spec/fast-compactor-test.js:201:15)
+
+    console.log
+      
+        Compaction height comparison (50 random layouts):
+          Fast better: 5
+          Standard better: 23
+          Equal: 22
+
+      at Object.log (test/spec/fast-compactor-test.js:399:15)
+
+    console.log
+      
+        Deterministic 100-item layout:
+          Standard height: 50
+          Fast height: 50
+          Difference: 0.0%
+
+      at Object.log (test/spec/fast-compactor-test.js:483:15)
+
+FAIL test/spec/backcompat-test.js
+  ● Backwards Compatibility: Callback Signatures › onDrag provides newItem with updated position during drag
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: ObjectContaining {"i": "a", "x": Any<Number>, "y": Any<Number>}
+    Received: [{"constraints": undefined, "h": 2, "i": "a", "isBounded": undefined, "isDraggable": undefined, "isResizable": undefined, "maxH": undefined, "maxW": undefined, "minH": undefined, "minW": undefined, "moved": true, "resizeHandles": undefined, "static": false, "w": 2, "x": 3, "y": 4}], {"constraints": undefined, "h": 2, "i": "a", "isBounded": undefined, "isDraggable": undefined, "isResizable": undefined, "maxH": undefined, "maxW": undefined, "minH": undefined, "minW": undefined, "moved": false, "resizeHandles": undefined, "static": false, "w": 2, "x": 0, "y": 0}, {"constraints": undefined, "h": 2, "i": "a", "isBounded": undefined, "isDraggable": undefined, "isResizable": undefined, "maxH": undefined, "maxW": undefined, "minH": undefined, "minW": undefined, "moved": true, "resizeHandles": undefined, "static": false, "w": 2, "x": 3, "y": 4}, {"h": 2, "i": "a", "w": 2, "x": 0, "y": 0}, {"isTrusted": false}, <div class="react-grid-item react-draggable react-draggable-dragging cssTransforms react-resizable" style="transform: translate(350px,150px); -webkit-transform: translate(350px,150px); width: 188px; height: 70px; position: absolute;">A<span class="react-resizable-handle react-resizable-handle-se" /></div>
+
+    Number of calls: 1
+
+      116 |     fireEvent.mouseMove(document, { clientX: 400, clientY: 200 });
+      117 |
+    > 118 |     expect(onDrag).toHaveBeenCalledWith(
+          |                    ^
+      119 |       expect.objectContaining({
+      120 |         i: "a",
+      121 |         x: expect.any(Number),
+
+      at Object.toHaveBeenCalledWith (test/spec/backcompat-test.js:118:20)
+
+PASS test/spec/hooks-test.tsx
+PASS test/spec/fast-horizontal-compactor-test.js
+  ● Console
+
+    console.log
+      
+        With static items (200 items, 20 static):
+          Standard: 12.49ms
+          Fast:     0.60ms
+          Speedup:  20.83x
+
+      at Object.log (test/spec/fast-horizontal-compactor-test.js:328:15)
+
+    console.log
+      
+      ┌──────────────────────────────────────────────────────────────────────────────────┐
+      │                    ⚡ Horizontal Compactor Performance Comparison                │
+      ├──────────────────────────────────────────────────────────────────────────────────┤
+      │ Items    │ Standard Horizontal   │ Fast Horizontal       │ Speedup              │
+      ├──────────┼───────────────────────┼───────────────────────┼──────────────────────┤
+      │ 50       │             990.61 µs │             288.25 µs │   3.44x faster     │
+      │ 100      │               3.43 ms │             984.31 µs │   3.49x faster     │
+      │ 200      │              10.56 ms │             283.76 µs │  37.22x faster     │
+      │ 500      │              90.72 ms │               1.36 ms │  66.54x faster     │
+      └──────────────────────────────────────────────────────────────────────────────────┘
+
+      at Object.log (test/spec/fast-horizontal-compactor-test.js:284:15)
+
+    console.warn
+      Fast horizontal compactor: Item "a" exceeded max row limit (10001). This may indicate a layout that cannot be compacted within grid bounds.
+
+      216 |       if (targetY > maxRowLimit) {
+      217 |         if (typeof console !== "undefined" && console.warn) {
+    > 218 |           console.warn(
+          |                   ^
+      219 |             `Fast horizontal compactor: Item "${item.i}" exceeded max row limit (${targetY}). ` +
+      220 |               `This may indicate a layout that cannot be compacted within grid bounds.`
+      221 |           );
+
+      at warn (src/extras/fastHorizontalCompactor.ts:218:19)
+      at Object.compactHorizontalFast [as compact] (src/extras/fastHorizontalCompactor.ts:262:5)
+      at Object.compact (test/spec/fast-horizontal-compactor-test.js:373:49)
+
+    console.log
+      
+        Compaction width comparison (50 random layouts):
+          Fast better: 1
+          Standard better: 0
+          Equal: 49
+
+      at Object.log (test/spec/fast-horizontal-compactor-test.js:517:15)
+
+    console.log
+      
+        Deterministic 100-item layout:
+          Standard width: 12
+          Fast width: 12
+          Difference: 0.0%
+
+      at Object.log (test/spec/fast-horizontal-compactor-test.js:600:15)
+
+PASS test/spec/lifecycle-test.js
+PASS test/spec/typescript-components-test.tsx
+PASS test/spec/core-functions-test.ts
+PASS test/spec/constraints-test.ts
+PASS test/spec/compactors-test.ts
+PASS test/spec/drop-alignment.test.ts
+PASS test/spec/margin-consistency.test.ts
+PASS test/spec/wrapCompactor-test.ts
+PASS test/spec/static-compaction.test.ts
+PASS test/spec/benchmark-test.js (10.197 s)
+  ● Console
+
+    console.log
+      
+      ┌────────────────────────────────────────────────────────────────────┐
+      │                      📊 Benchmark Results                          │
+      ├────────────────────────────────────────────────────────────────────┤
+      │ Test                                              │ Time           │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      │ COMPACTION                                        │                │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      │   compact vertical 100 items                      │        3.81 ms │
+      │   compact horizontal 100 items                    │        3.74 ms │
+      │   compact vertical 500 items                      │       48.00 ms │
+      │   compact horizontal 500 items                    │       72.08 ms │
+      │   compact vertical 1000 items                     │      169.46 ms │
+      │   compact horizontal 1000 items                   │      383.92 ms │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      │ MOVE                                              │                │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      │   element 100 items                               │       61.65 µs │
+      │   element 500 items                               │      312.39 µs │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      │ SORT                                              │                │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      │   100 items                                       │       31.16 µs │
+      │   500 items                                       │      241.87 µs │
+      │   1000 items                                      │      602.90 µs │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      │ BOUNDS                                            │                │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      │   correct  100 items                              │       62.33 µs │
+      │   correct  500 items                              │      194.97 µs │
+      │   correct  1000 items                             │      138.08 µs │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      │ RENDER                                            │                │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      │   50 items                                        │       35.01 ms │
+      │   100 items                                       │       54.62 ms │
+      │   200 items                                       │       92.56 ms │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      │ SIMULATION                                        │                │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      │   drag  100 items 20 steps                        │       12.66 ms │
+      ├───────────────────────────────────────────────────┼────────────────┤
+      └────────────────────────────────────────────────────────────────────┘
+
+      at Object.log (test/spec/benchmark-test.js:158:13)
+
+
+Test Suites: 1 failed, 14 passed, 15 total
+Tests:       1 failed, 8 skipped, 516 passed, 525 total
+Snapshots:   2 passed, 2 total
+Time:        13.283 s
+Ran all test suites.
+
+--------------------------------------------------------------------------------
+
+================================================================================

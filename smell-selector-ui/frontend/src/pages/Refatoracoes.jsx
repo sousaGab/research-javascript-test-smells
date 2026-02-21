@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRefatoracoes } from '../hooks/useRefatoracoes';
 import { DiffViewer } from '../components/DiffViewer/DiffViewer';
 import { RefatoracaoCard } from '../components/RefatoracaoCard/RefatoracaoCard';
@@ -266,6 +266,14 @@ function ExperimentDetail({ experiment, layout, onLayoutChange, onDelete }) {
         <div className="ref-detail-title">
           <span className="ref-detail-id">Experiment #{experiment.id}</span>
           <span className="ref-detail-smell">{experiment.smell_type || '—'}</span>
+          <span style={{
+            fontSize: '13px',
+            color: '#6b7280',
+            fontWeight: 'normal',
+            marginLeft: '12px'
+          }}>
+            ← → Navigate
+          </span>
         </div>
         <div className="ref-detail-file">
           <span className="ref-detail-repo">{experiment.repository}</span>
@@ -398,6 +406,52 @@ function Refatoracoes() {
     setSelectedId(exp.id);
     await loadExperimentDetail(exp.id);
   };
+
+  // Keyboard navigation: Arrow left/right to navigate between experiments
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!selectedId ||
+          e.target.tagName === 'INPUT' ||
+          e.target.tagName === 'TEXTAREA' ||
+          e.target.tagName === 'SELECT') {
+        return;
+      }
+
+      const currentIndex = experiments.findIndex(exp => exp.id === selectedId);
+      if (currentIndex === -1) return;
+
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (currentIndex < experiments.length - 1) {
+          const nextExperiment = experiments[currentIndex + 1];
+          handleCardClick(nextExperiment);
+        } else if (page < totalPages) {
+          setPage(page + 1);
+        }
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (currentIndex > 0) {
+          const prevExperiment = experiments[currentIndex - 1];
+          handleCardClick(prevExperiment);
+        } else if (page > 1) {
+          setPage(page - 1);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedId, experiments, page, totalPages]);
+
+  // Auto-select first experiment when page changes
+  useEffect(() => {
+    if (experiments.length > 0 && selectedId) {
+      const isInCurrentPage = experiments.some(exp => exp.id === selectedId);
+      if (!isInCurrentPage) {
+        handleCardClick(experiments[0]);
+      }
+    }
+  }, [experiments]);
 
   const handleDeleteClick = (experiment) => {
     setExperimentToDelete(experiment);
