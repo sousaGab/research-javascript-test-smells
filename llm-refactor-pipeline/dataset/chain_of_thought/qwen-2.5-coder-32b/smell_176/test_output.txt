@@ -1,0 +1,101 @@
+================================================================================
+Test Execution Report: jscodeshift
+================================================================================
+Timestamp: 2026-02-21 13:42:21
+Command: yarn test --coverage --coverageReporters=text-summary
+Status: FAILED
+================================================================================
+
+OUTPUT:
+--------------------------------------------------------------------------------
+yarn run v1.22.22
+$ jest --bail --coverage --coverageReporters=text-summary
+
+=============================== Coverage summary ===============================
+Statements   : 91.24% ( 792/868 )
+Branches     : 85.11% ( 423/497 )
+Functions    : 92% ( 184/200 )
+Lines        : 92.04% ( 775/842 )
+================================================================================
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+
+PASS src/collections/__tests__/VariableDeclarator-test.js (8.81 s)
+PASS src/collections/__tests__/Node-test.js (9.257 s)
+PASS src/__tests__/Collection-test.js (10.023 s)
+PASS src/__tests__/testUtils-test.js
+PASS src/collections/__tests__/ImportDeclaration-test.js
+PASS src/collections/__tests__/JSXElement-test.js
+PASS src/__tests__/template-test.js
+PASS src/__tests__/ts-decorator-auto-accessor-test.js
+PASS src/__tests__/core-test.js
+PASS sample/__tests__/reverse-identifiers-test.js
+PASS src/utils/__tests__/intersection-test.js
+PASS parser/__tests__/tsx-test.js
+PASS src/__tests__/matchNode-test.js
+PASS src/utils/__tests__/union-test.js
+PASS src/utils/__tests__/once-test.js
+PASS src/__tests__/argsParser-test.js
+FAIL src/__tests__/Worker-test.js (16.407 s)
+  ● Worker API › transforms files
+
+    thrown: "Exceeded timeout of 5000 ms for a test while waiting for `done()` to be called.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      16 |
+      17 | describe('Worker API', () => {
+    > 18 |   it('transforms files', done => {
+         |   ^
+      19 |     const worker = require('../Worker');
+      20 |     const transformPath =
+      21 |       createTransformWith('return fileInfo.source + " changed";');
+
+      at it (src/__tests__/Worker-test.js:18:3)
+      at Object.describe (src/__tests__/Worker-test.js:17:1)
+
+  ● Worker API › passes j as argument
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "ok"
+    Received: "error"
+
+      44 |     emitter.send({files: [sourcePath]});
+      45 |     emitter.once('message', (data) => {
+    > 46 |       expect(data.status).toBe('ok');
+         |                           ^
+      47 |       expect(getFileContent(sourcePath)).toBe(
+      48 |         'const x = 10;' + ' changed'
+      49 |       );
+
+      at EventEmitter.toBe (src/__tests__/Worker-test.js:46:27)
+      at emit (src/Worker.js:36:32)
+      at notify (src/Worker.js:110:3)
+      at updateStatus (src/Worker.js:183:17)
+      at writeFile (node_modules/write-file-atomic/lib/index.js:173:14)
+
+  ● Worker API › passes j as argument
+
+    thrown: "Exceeded timeout of 5000 ms for a test while waiting for `done()` to be called.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+      32 |   });
+      33 |
+    > 34 |   it('passes j as argument', done => {
+         |   ^
+      35 |     const worker = require('../Worker');
+      36 |     const transformPath = createTempFileWith(
+      37 |       `module.exports = function (file, api) {
+
+      at it (src/__tests__/Worker-test.js:34:3)
+      at Object.describe (src/__tests__/Worker-test.js:17:1)
+
+Test Suites: 1 failed, 16 passed, 17 of 18 total
+Tests:       2 failed, 183 passed, 185 total
+Snapshots:   8 passed, 8 total
+Time:        17.902 s, estimated 28 s
+Ran all test suites.
+error Command failed with exit code 1.
+
+--------------------------------------------------------------------------------
+
+================================================================================

@@ -1,0 +1,13 @@
+test('revert on removal of chunked upload with chunkForce set', () => {
+    pond = setupPond({ chunkUploads: true, chunkForce: true, chunkSize: 1024 }, TEXT_FILE_LARGE);
+    const revertSpy = jest.spyOn(item, 'revert');
+    
+    pond.onremovefile = (error, file) => {
+        expect(revertSpy).toHaveBeenCalledWith(expect.any(Function), false);
+        expect(error).toBe(null);
+        expect(pond.getFiles().length).toBe(0);
+        done();
+    };
+    
+    pond.removeFile(item);
+});
