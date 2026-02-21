@@ -359,6 +359,10 @@ NOTES:
                 refactored_code, prompt_text, tokens_used, llm_latency
             )
             
+            # COMMIT 1: Persist experiment ID before potentially failing steps
+            session.commit()
+            print(f"   ✓ Experiment #{experiment_id} created and committed")
+            
             # Step 5: Run smell detection
             print("🔬 [5/8] Running smell detection on refactored code...")
             smell_output_dir = output_dir / "smell_detection"
@@ -443,7 +447,10 @@ NOTES:
             
             # Update execution time in database
             update_experiment(session, experiment_id, execution_time_seconds=execution_time)
+            
+            # COMMIT 2: Batch commit all updates (analysis flags, test results, execution time)
             session.commit()
+            print("   ✓ All experiment results committed to database")
             
             # Print summary
             return self._format_summary(
@@ -555,7 +562,10 @@ NOTES:
             
             execution_time = time.time() - start_time
             update_experiment(session, experiment_id, execution_time_seconds=execution_time)
+            
+            # SINGLE COMMIT: Batch all operations (create experiment + flags + execution_time)
             session.commit()
+            print(f"   ✓ Experiment #{experiment_id} committed to database")
             
             # Format result
             strategy_name = PromptStrategy.STRATEGIES[strategy_id][1]
@@ -807,7 +817,10 @@ NOTES:
             
             # Calculate execution time (phase 2 only)
             execution_time = time.time() - start_time
+            
+            # SINGLE COMMIT: Batch all operations (analysis flags, test results, execution phase flag)
             session.commit()
+            print("   ✓ All execution phase results committed to database")
             
             # Format summary
             result = [
@@ -1299,7 +1312,8 @@ NOTES:
             llm_latency_seconds=llm_latency_seconds
         )
         
-        session.commit()
+        # Flush to generate ID without committing - caller decides when to commit
+        session.flush()
         return experiment.id
     
     def _analyze_smells(self, session, experiment_id: int, repo_name: str,
@@ -1489,11 +1503,11 @@ NOTES:
                         coverage_lines=baseline_coverage.get('lines') if baseline_coverage else None,
                         all_tests_passed=all_passed
                     )
-                    session.commit()
+                    # Note: commit deferred to caller for batch optimization
                     
                     # Cache the baseline
                     self._baseline_test_cache[repository_id] = True
-                    print("   [OK] Baseline test results saved to database and cached")
+                    print("   [OK] Baseline test results saved to database (commit pending)")
                 else:
                     print("   [WARN] Could not parse baseline test summary")
             elif repository_id and (baseline_cached or repository_has_baseline_tests(session, repository_id)):
@@ -1545,8 +1559,8 @@ NOTES:
             
             if update_data:
                 update_experiment(session, experiment_id, **update_data)
-                session.commit()
-                print("   ✓ Updated experiment test analysis flags in database")
+                # Note: commit deferred to caller for batch optimization
+                print("   ✓ Updated experiment test analysis flags (commit pending)")
             
             return analysis
             
@@ -1629,7 +1643,7 @@ NOTES:
                 all_tests_passed=tests_passed
             )
         
-        session.commit()
+        # Note: commit deferred to caller for batch optimization
     
     def _format_summary(self, smell_id: int, smell_data: Dict[str, Any],
                        strategy_id: int, model_id: int,
