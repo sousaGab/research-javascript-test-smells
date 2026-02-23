@@ -1,0 +1,79 @@
+================================================================================
+Test Execution Report: jscodeshift
+================================================================================
+Timestamp: 2026-02-22 02:36:41
+Command: yarn test --coverage --coverageReporters=text-summary
+Status: FAILED
+================================================================================
+
+OUTPUT:
+--------------------------------------------------------------------------------
+yarn run v1.22.22
+$ jest --bail --coverage --coverageReporters=text-summary
+
+=============================== Coverage summary ===============================
+Statements   : 86.57% ( 374/432 )
+Branches     : 81.27% ( 230/283 )
+Functions    : 88.54% ( 85/96 )
+Lines        : 87.11% ( 365/419 )
+================================================================================
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
+
+PASS src/collections/__tests__/VariableDeclarator-test.js (5.199 s)
+PASS src/collections/__tests__/Node-test.js (5.517 s)
+FAIL src/__tests__/argsParser-test.js
+  ● argsParser › prints the help text
+
+    expect(received).toThrow(expected)
+
+    Expected asymmetric matcher: ObjectContaining {"exitCode": 0, "message": "Usage: jscodeshift [OPTION]... PATH...
+      or:  jscodeshift [OPTION]... -t TRANSFORM_PATH PATH...
+      or:  jscodeshift [OPTION]... -t URL PATH...
+      or:  jscodeshift [OPTION]... --stdin < file_list.txt·
+    Apply transform logic in TRANSFORM_PATH (recursively) to every PATH.
+    If --stdin is set, each line of the standard input is used as a path.·
+    Options:
+    \"...\" behind an option means that it can be supplied multiple times.
+    All options are also passed to the transformer, which means you can supply custom options that are not listed here.··
+    "}
+
+    Received name:    "Error"
+    Received message: "Usage: jscodeshift [OPTION]... PATH...
+      or:  jscodeshift [OPTION]... -t TRANSFORM_PATH PATH...
+      or:  jscodeshift [OPTION]... -t URL PATH...
+      or:  jscodeshift [OPTION]... --stdin < file_list.txt·
+    Apply transform logic in TRANSFORM_PATH (recursively) to every PATH.
+    If --stdin is set, each line of the standard input is used as a path.·
+    Options:
+    \"...\" behind an option means that it can be supplied multiple times.
+    All options are also passed to the transformer, which means you can supply custom options that are not listed here.·
+      -h, --help                    print this help and exit
+    "
+
+           7 |
+           8 | function throwError(exitCode, message, helpText) {
+        >  9 |   const error = new Error(
+             |                 ^
+          10 |     helpText ?  `${message}\n\n---\n\n${helpText}` : message
+          11 |   );
+          12 |   error.exitCode = exitCode;
+
+      at throwError (src/argsParser.js:9:17)
+      at throwError (src/argsParser.js:193:9)
+      at Object.parse (src/argsParser.js:266:16)
+      at parse (src/__tests__/argsParser-test.js:17:25)
+      at Object.<anonymous> (node_modules/expect/build/toThrowMatchers.js:74:11)
+      at Object.throwingMatcher [as toThrow] (node_modules/expect/build/index.js:320:21)
+      at Object.toThrow (src/__tests__/argsParser-test.js:17:44)
+      at Object.toThrow (src/__tests__/argsParser-test.js:17:44)
+
+Test Suites: 1 failed, 2 passed, 3 of 18 total
+Tests:       1 failed, 66 passed, 67 total
+Snapshots:   0 total
+Time:        6.779 s, estimated 32 s
+Ran all test suites.
+error Command failed with exit code 1.
+
+--------------------------------------------------------------------------------
+
+================================================================================

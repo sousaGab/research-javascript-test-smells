@@ -1,0 +1,54 @@
+it('records and replays correctly with filteringRequestBody', async () => {
+  const responseBody = '<html><body>example</body></html>'
+
+  const { origin } = await servers.startHttpServer((request, response) => {
+    response.write(responseBody)
+    response.end()
+  })
+
+  const resetRecorder = () => {
+    nock.restore()
+    nock.recorder.clear()
+    expect(nock.recorder.play()).to.be.empty()
+  }
+
+  const startRecording = () => {
+    nock.recorder.rec({
+      dont_print: true,
+      output_objects: true,
+    })
+  }
+
+  const fetchAndAssert = async () => {
+    const res = await got(origin)
+    expect(res.body).to.equal(responseBody)
+    return res
+  }
+
+  resetRecorder()
+  startRecording()
+
+  const response1 = await fetchAndAssert()
+  expect(response1.headers).to.be.ok()
+
+  nock.restore()
+  const recorded = nock.recorder.play()
+  nock.recorder.clear()
+  nock.activate()
+
+  expect(recorded).to.have.lengthOf(1)
+
+  const onFilteringRequestBody = sinon.spy()
+  const [definition] = recorded
+  definition.filteringRequestBody = (body, aRecodedBody) => {
+    onFilteringRequestBody()
+    expect(body).to.equal(aRecodedBody)
+    return body
+  }
+
+  const nocks = nock.define([definition])
+
+  await fetchAndAssert()
+  nocks.forEach(n => n.done())
+  expect(onFilteringRequestBody).to.have.been.calledOnce()
+})

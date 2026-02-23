@@ -19,12 +19,14 @@ from llm_refactor.modules.database.crud import (
     create_test_results,
     get_or_create_baseline_smell_from_study,
     create_repository_baseline_tests,
-    repository_has_baseline_tests
+    repository_has_baseline_tests,
+    reset_experiment_execution_data
 )
 from llm_refactor.modules.refactor.hf_client import (
     HuggingFaceRefactorClient,
     HuggingFaceModels,
-    PromptStrategy
+    PromptStrategy,
+    LLMProvider
 )
 from llm_refactor.modules.refactor.smell_catalog import TEST_SMELL_CATALOG
 from llm_refactor.modules.refactor.utils import clean_code_fences
@@ -73,6 +75,14 @@ class ExecuteExperimentModule(SimpleModule):
     name = "execute_experiment"
     description = "Execute complete refactoring experiment with smell detection and testing"
     
+    # Provider enum to database ai_tool mapping
+    PROVIDER_TO_AI_TOOL = {
+        LLMProvider.HUGGINGFACE: "HuggingFace",
+        LLMProvider.OPENAI: "OpenAI",
+        LLMProvider.ANTHROPIC: "Anthropic",
+        LLMProvider.GOOGLE: "Google"
+    }
+    
     def __init__(self):
         super().__init__()
         # Repositories are at project root (parent of llm-refactor-pipeline)
@@ -80,7 +90,9 @@ class ExecuteExperimentModule(SimpleModule):
         self.backup_manager = BackupManager(
             repositories_dir=project_root / "repositories",
             backup_dir=Config.PROJECT_ROOT / "backup",
-            allow_backup_overwrite=True
+            # Preserve original backups during re-execution (--redo)
+            # This ensures backup files are never overwritten, only reused
+            allow_backup_overwrite=False
         )
         # Performance optimization: cache baseline data during batch processing
         self._baseline_smell_cache = {}  # key: repo_name -> DataFrame
@@ -115,11 +127,15 @@ class ExecuteExperimentModule(SimpleModule):
         smell_id = None
         strategy_id = None
         model_id = None
+        delay_seconds = 0  # default: no delay
         
         # Parse flags and positional arguments
         i = 0
         while i < len(parts):
-            if parts[i] == "--phase" and i + 1 < len(parts):
+            if parts[i] == "--delay":
+                delay_seconds = 5  # 5-second delay when flag is present
+                i += 1
+            elif parts[i] == "--phase" and i + 1 < len(parts):
                 phase = parts[i + 1]
                 i += 2
             elif parts[i] == "--experiment-id" and i + 1 < len(parts):
@@ -172,7 +188,7 @@ class ExecuteExperimentModule(SimpleModule):
         
         # Execute based on phase
         if phase == "refactor":
-            return self._run_refactor_phase_only(smell_id, strategy_id, model_id)
+            return self._run_refactor_phase_only(smell_id, strategy_id, model_id, delay_seconds)
         elif phase == "execute":
             if experiment_id:
                 return self._run_execution_phase_only(experiment_id=experiment_id)
@@ -183,7 +199,7 @@ class ExecuteExperimentModule(SimpleModule):
                     model_id=model_id
                 )
         else:  # phase == "all"
-            return self._run_experiment(smell_id, strategy_id, model_id)
+            return self._run_experiment(smell_id, strategy_id, model_id, delay_seconds)
     
     def _show_help(self) -> str:
         """Show detailed help message."""
@@ -222,10 +238,12 @@ ARGUMENTS:
     model_id         LLM model (use 'execute_experiment models' to see list)
     --phase          Phase to execute: refactor, execute, or all (default: all)
     --experiment-id  Experiment ID for execution phase (alternative to smell_id)
+    --delay          Add 5-second delay after LLM refactoring (useful for rate limits)
 
 EXAMPLES:
     # Traditional usage (single-phase)
-    execute_experiment 42 3 1    # Smell #42, Chain-of-Thought, Qwen 2.5
+    execute_experiment 42 3 1           # Smell #42, Chain-of-Thought, Qwen 2.5
+    execute_experiment 42 3 1 --delay   # With 5-second delay after LLM call
     
     # Two-phase usage (for time-based LLM pricing)
     execute_experiment 42 3 1 --phase refactor      # Phase 1: Refactor only
@@ -266,7 +284,7 @@ NOTES:
     - Requires HuggingFace API token (HUGGINGFACE_TOKEN env var)
 """
     
-    def _run_experiment(self, smell_id: int, strategy_id: int, model_id: int) -> str:
+    def _run_experiment(self, smell_id: int, strategy_id: int, model_id: int, delay_seconds: int = 0) -> str:
         """
         Run complete experiment workflow.
         
@@ -274,6 +292,7 @@ NOTES:
             smell_id: Study smell ID from database
             strategy_id: Prompting strategy (1-3)
             model_id: LLM model ID
+            delay_seconds: Seconds to wait after LLM refactoring (default: 0)
             
         Returns:
             Formatted results message
@@ -313,7 +332,7 @@ NOTES:
             
             # Step 3: Refactor code
             print("🤖 [3/7] Refactoring code with LLM...")
-            refactor_result = self._refactor_smell(smell_data, strategy_id, model_id)
+            refactor_result = self._refactor_smell(smell_data, strategy_id, model_id, delay_seconds)
             if isinstance(refactor_result, str) and refactor_result.startswith("❌"):
                 return refactor_result
             
@@ -492,7 +511,7 @@ NOTES:
             if session:
                 session.close()
     
-    def _run_refactor_phase_only(self, smell_id: int, strategy_id: int, model_id: int) -> str:
+    def _run_refactor_phase_only(self, smell_id: int, strategy_id: int, model_id: int, delay_seconds: int = 0) -> str:
         """
         Execute only Phase 1: Refactor with LLM and save code.
         
@@ -503,6 +522,7 @@ NOTES:
             smell_id: Study smell ID
             strategy_id: Prompting strategy (1-3)
             model_id: LLM model ID
+            delay_seconds: Seconds to wait after LLM refactoring (default: 0)
             
         Returns:
             Formatted result message with experiment ID
@@ -529,7 +549,7 @@ NOTES:
             
             # Step 3: Refactor code with LLM
             print("🤖 Refactoring code with LLM...")
-            refactor_result = self._refactor_smell(smell_data, strategy_id, model_id)
+            refactor_result = self._refactor_smell(smell_data, strategy_id, model_id, delay_seconds)
             if isinstance(refactor_result, str) and refactor_result.startswith("❌"):
                 return refactor_result
             
@@ -682,9 +702,16 @@ NOTES:
                     "Tip: Run refactor phase first"
                 )
             
-            # Check if already executed
+            # Check if already executed - if so, clean previous execution data
             if experiment.execution_phase_completed:
-                print(f"   ⚠️  Warning: Experiment #{experiment_id} already executed. Re-running...")
+                print(f"   ⚠️  Warning: Experiment #{experiment_id} already executed. Cleaning previous data...")
+                try:
+                    reset_experiment_execution_data(session, experiment_id)
+                    session.commit()
+                    print("   ✓ Previous execution data cleaned successfully")
+                except Exception as e:
+                    session.rollback()
+                    return f"❌ Error: Failed to clean previous execution data: {e}"
             
             # Get refactored code
             refactored_code = experiment.refactored_code
@@ -1003,9 +1030,15 @@ NOTES:
         return name
     
     def _refactor_smell(self, smell_data: Dict[str, Any], 
-                       strategy_id: int, model_id: int) -> Dict[str, Any]:
+                       strategy_id: int, model_id: int, delay_seconds: int = 0) -> Dict[str, Any]:
         """
         Refactor smell using LLM.
+        
+        Args:
+            smell_data: Dictionary containing smell information
+            strategy_id: Prompting strategy (1-3)
+            model_id: LLM model ID
+            delay_seconds: Seconds to wait after LLM refactoring (default: 0)
         
         Returns:
             Dict with 'refactored_code', 'prompt_text', 'tokens_used', 'llm_latency' keys,
@@ -1033,6 +1066,10 @@ NOTES:
                 examples=smell_data.get('examples', []),
                 refactoring_strategies=smell_data.get('refactoring_strategies', [])
             )
+            
+            # Apply delay if requested (for rate limiting)
+            if delay_seconds > 0:
+                time.sleep(delay_seconds)
             
             if not result or not result.get('code'):
                 return "❌ Error: LLM did not return refactored code"
@@ -1282,8 +1319,12 @@ NOTES:
         """Create experiment record in database with LLM performance metrics."""
         model_info = next(
             (m for m in HuggingFaceModels.MODELS if m['id'] == model_id),
-            {'name': 'Unknown'}
+            {'name': 'Unknown', 'provider': LLMProvider.HUGGINGFACE}
         )
+        
+        # Map provider enum to database ai_tool string
+        provider = model_info.get('provider', LLMProvider.HUGGINGFACE)
+        ai_tool = self.PROVIDER_TO_AI_TOOL.get(provider, "HuggingFace")
         
         strategy_info = PromptStrategy.STRATEGIES.get(strategy_id, (None, 'Unknown', None))
         
@@ -1295,12 +1336,12 @@ NOTES:
         # Get or create baseline smell from study smell
         baseline_smell = get_or_create_baseline_smell_from_study(session, study_smell)
         
-        # Create experiment with both baseline_smell_id and study_smell_id
+        # Create experiment with correct provider-specific ai_tool
         experiment = create_experiment(
             session=session,
             baseline_smell_id=baseline_smell.id,
             file_id=smell_data['file_id'],
-            ai_tool="HuggingFace",
+            ai_tool=ai_tool,
             original_code=smell_data['code_snippet'],
             study_smell_id=smell_data['smell_id'],
             ai_model_version=model_info['name'],

@@ -1,0 +1,460 @@
+% LaTeX supplement: Additional sections for dissertation
+
+\section{Implementation Architecture}
+\label{sec:implementation}
+
+\subsection{System Architecture Overview}
+
+The LLM-based refactoring system implements a modular, pipeline-oriented architecture consisting of five primary subsystems:
+
+\begin{enumerate}
+    \item \textbf{Smell Detection Layer}: Integrates Steel and SNutsJS detectors
+    \item \textbf{LLM Orchestration Layer}: Multi-provider client with strategy pattern
+    \item \textbf{Database Layer}: SQLite-based experiment repository
+    \item \textbf{Execution Engine}: Automated test runner and validation framework
+    \item \textbf{Analysis Layer}: Statistical comparison and metric computation
+\end{enumerate}
+
+\subsection{Multi-Provider LLM Client Architecture}
+
+The system employs a factory pattern to abstract provider-specific API differences:
+
+\begin{lstlisting}[language=Python, caption=LLM Client Factory Pattern]
+class BaseLLMClient(ABC):
+    """Abstract interface for all providers"""
+    @abstractmethod
+    def generate(self, model, system_prompt, user_prompt,
+                 temperature, top_p, max_tokens) -> Dict:
+        pass
+
+class OpenAICompatibleClient(BaseLLMClient):
+    """Supports: HuggingFace, OpenAI, Together, Fireworks"""
+    def generate(self, ...):
+        client = OpenAI(api_key=self.api_key, 
+                       base_url=self.base_url)
+        # GPT-5.x uses Responses API
+        if model.startswith("gpt-5"):
+            response = client.responses.create(...)
+        else:
+            response = client.chat.completions.create(...)
+        return {"content": ..., "tokens": ..., "latency": ...}
+
+class AnthropicClient(BaseLLMClient):
+    """Native Anthropic SDK for Claude models"""
+    def generate(self, ...):
+        client = anthropic.Anthropic(api_key=self.api_key)
+        response = client.messages.create(...)
+        return {"content": ..., "tokens": ..., "latency": ...}
+
+class LLMClientFactory:
+    @staticmethod
+    def create(provider: str, api_key: str, 
+               base_url: str) -> BaseLLMClient:
+        if provider == LLMProvider.ANTHROPIC:
+            return AnthropicClient(api_key, base_url)
+        else:
+            return OpenAICompatibleClient(api_key, base_url)
+\end{lstlisting}
+
+\textbf{Design Rationale:}
+\begin{itemize}
+    \item Isolates provider-specific authentication, request formatting, and response parsing
+    \item Enables seamless addition of new providers without modifying core refactoring logic
+    \item Standardizes token counting and latency measurement across providers
+\end{itemize}
+
+\subsection{Prompt Construction Pipeline}
+
+Dynamic prompt generation follows a template-based approach with strategy-specific augmentation:
+
+\begin{algorithm}
+\caption{Prompt Construction}
+\label{alg:prompt-construction}
+\begin{algorithmic}[1]
+\Require $smell\_context$, $strategy\_id$
+\Ensure $prompt = \{system, user\}$
+\State $base \gets \text{LoadTemplate}(strategy\_id)$
+\State $definition \gets smell\_context.\text{definition}$
+\State $code \gets smell\_context.\text{code\_snippet}$
+\If{$strategy\_id = \text{ZERO\_SHOT}$}
+    \State $user \gets base + definition + code$
+\ElsIf{$strategy\_id = \text{FEW\_SHOT}$}
+    \State $examples \gets smell\_context.\text{examples}[1:3]$
+    \State $user \gets base + definition + \text{FormatExamples}(examples) + code$
+\ElsIf{$strategy\_id = \text{COT}$}
+    \State $detection \gets smell\_context.\text{detection\_criteria}$
+    \State $strategies \gets smell\_context.\text{refactoring\_strategies}$
+    \State $examples \gets smell\_context.\text{examples}[1:2]$
+    \State $cot\_template \gets \text{LoadCoTReasoning}()$
+    \State $user \gets base + definition + detection + strategies + examples + code + cot\_template$
+\EndIf
+\State $system \gets \text{"You are a JavaScript test refactoring expert..."}$
+\State \Return $\{system, user\}$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Code Extraction and Validation}
+
+LLM responses undergo multi-stage parsing to extract executable code:
+
+\begin{lstlisting}[language=Python, caption=Code Extraction Pipeline]
+def extract_code_from_response(text: str) -> str:
+    """Extract JavaScript code from LLM response"""
+    # Stage 1: Markdown fence extraction
+    code_blocks = re.findall(
+        r'```(?:javascript|js)?\n(.*?)```', 
+        text, 
+        re.DOTALL | re.IGNORECASE
+    )
+    
+    if code_blocks:
+        # Prefer explicitly marked JavaScript blocks
+        return clean_extracted_code(code_blocks[0])
+    
+    # Stage 2: Fallback - entire response if no fences
+    clean_text = re.sub(r'^[#\s]*(?:javascript|js)\s*', '', text)
+    return clean_extracted_code(clean_text)
+
+def clean_extracted_code(code: str) -> str:
+    """Remove LLM artifacts and formatting"""
+    # Remove leading/trailing markers
+    code = re.sub(r'^```(?:javascript|js)?\s*', '', code)
+    code = re.sub(r'```\s*$', '', code)
+    # Remove explanatory comments added by LLM
+    code = re.sub(r'^\s*//\s*(Refactored|Complete).*$', '', 
+                  code, flags=re.MULTILINE)
+    return code.strip()
+\end{lstlisting}
+
+\subsection{Backup and Restoration System}
+
+To ensure repository integrity during experiments, the system implements a transactional backup mechanism:
+
+\begin{lstlisting}[language=Python, caption=Backup Manager]
+class BackupManager:
+    def replace_snippet(self, repo_name, file_path, 
+                       original_snippet, refactored_snippet):
+        """Atomic snippet replacement with backup"""
+        # 1. Create timestamped backup
+        backup_path = self._create_backup(repo_name, file_path)
+        
+        # 2. Validate snippet exists in file
+        full_path = self.repos_dir / repo_name / file_path
+        content = full_path.read_text()
+        if original_snippet not in content:
+            raise SnippetReplacementError("Original not found")
+        
+        # 3. Replace and write
+        new_content = content.replace(
+            original_snippet, 
+            refactored_snippet, 
+            1  # Replace only first occurrence
+        )
+        full_path.write_text(new_content)
+        
+        return backup_path
+    
+    def undo_refactor(self, repo_name, file_path):
+        """Restore from most recent backup"""
+        backup = self._find_latest_backup(repo_name, file_path)
+        shutil.copy(backup, self.repos_dir / repo_name / file_path)
+\end{lstlisting}
+
+\textbf{Backup Structure:}
+\begin{verbatim}
+.backup/
+├── repository_name/
+│   ├── path/to/test_file.test.js.20260222_143052.bak
+│   ├── path/to/test_file.test.js.20260222_143053.bak
+│   └── ...
+\end{verbatim}
+
+\subsection{Smell Analysis Framework}
+
+Post-execution analysis compares baseline and refactored smell detection results:
+
+\begin{lstlisting}[language=Python, caption=Smell Analysis]
+def compare_repositories(baseline_df, refactored_df, 
+                        target_file, target_smell):
+    """Compare smell detection results"""
+    # Filter to target file
+    baseline_smells = baseline_df[
+        baseline_df['file'] == target_file
+    ]
+    refactored_smells = refactored_df[
+        refactored_df['file'] == target_file
+    ]
+    
+    # Target smell removal check
+    target_baseline = baseline_smells[
+        baseline_smells['smell_type'] == target_smell
+    ]
+    target_refactored = refactored_smells[
+        refactored_smells['smell_type'] == target_smell
+    ]
+    
+    target_removed = (
+        len(target_baseline) > 0 and 
+        len(target_refactored) == 0
+    )
+    
+    # New smell introduction check
+    baseline_types = set(baseline_smells['smell_type'])
+    refactored_types = set(refactored_smells['smell_type'])
+    
+    introduced_smells = refactored_types - baseline_types
+    introduced_new = len(introduced_smells) > 0
+    
+    return {
+        'target_smell_removed': target_removed,
+        'introduced_new_smells': introduced_new,
+        'new_smell_types': list(introduced_smells),
+        'baseline_count': len(baseline_smells),
+        'refactored_count': len(refactored_smells)
+    }
+\end{lstlisting}
+
+\subsection{Test Execution and Coverage Analysis}
+
+The system executes test suites and parses Jest output for comprehensive metrics:
+
+\begin{lstlisting}[language=Python, caption=Test Results Parsing]
+def extract_coverage_summary(output: str) -> str:
+    """Parse Jest coverage table"""
+    match = re.search(
+        r'(-+\|){4,}.*?(-+\|){4,}', 
+        output, 
+        re.DOTALL
+    )
+    return match.group(0) if match else None
+
+def extract_test_results(output: str) -> str:
+    """Parse test execution summary"""
+    patterns = [
+        r'Tests:\s+\d+\s+passed.*',
+        r'Test Suites:\s+\d+\s+passed.*',
+        r'Time:\s+[\d.]+s'
+    ]
+    
+    results = []
+    for pattern in patterns:
+        match = re.search(pattern, output)
+        if match:
+            results.append(match.group(0))
+    
+    return '\n'.join(results)
+
+def parse_test_counts_from_summary(summary: str) -> Dict:
+    """Extract numeric test metrics"""
+    test_match = re.search(
+        r'Tests:\s+(\d+)\s+passed,\s+(\d+)\s+total',
+        summary
+    )
+    suite_match = re.search(
+        r'Test Suites:\s+(\d+)\s+passed.*?(\d+)\s+total',
+        summary
+    )
+    
+    return {
+        'tests_passed': int(test_match.group(1)),
+        'tests_total': int(test_match.group(2)),
+        'test_suites_passed': int(suite_match.group(1)),
+        'test_suites_total': int(suite_match.group(2))
+    }
+\end{lstlisting}
+
+\subsection{Database Schema Details}
+
+\begin{table}[h]
+\centering
+\caption{Complete Experiment Table Schema}
+\small
+\begin{tabular}{@{}llp{5cm}@{}}
+\toprule
+\textbf{Column} & \textbf{Type} & \textbf{Description} \\ \midrule
+id & INTEGER & Primary key \\
+study\_smell\_id & INTEGER & FK to study\_smells \\
+file\_id & INTEGER & FK to files \\
+ai\_tool & STRING & Provider name (HuggingFace/OpenAI/Anthropic) \\
+ai\_model\_version & STRING & Model display name \\
+prompting\_approach & STRING & Strategy (Zero-Shot/Few-Shot/CoT) \\
+original\_code & TEXT & Baseline smelly code \\
+refactored\_code & TEXT & LLM-generated code \\
+prompt\_text & TEXT & Full prompt sent (optional) \\
+refactoring\_completed & BOOLEAN & Phase 1 success \\
+smell\_removed & BOOLEAN & Target smell eliminated \\
+introduced\_new\_smells & BOOLEAN & New smells detected \\
+tests\_still\_passing & BOOLEAN & Test suite status \\
+coverage\_decreased & BOOLEAN & Coverage regression \\
+tests\_changed & BOOLEAN & Test count/status changed \\
+tests\_pass\_rate\_decreased & BOOLEAN & Pass rate regression \\
+refactor\_phase\_completed & BOOLEAN & Phase 1 checkpoint \\
+execution\_phase\_completed & BOOLEAN & Phase 2 checkpoint \\
+tokens\_used & INTEGER & Total LLM tokens \\
+llm\_latency\_seconds & FLOAT & API response time \\
+execution\_time\_seconds & FLOAT & Total experiment time \\
+created\_at & DATETIME & Record creation \\
+updated\_at & DATETIME & Last modification \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Batch Experiment Orchestration}
+
+For large-scale experiments, the system supports batch processing with progress tracking:
+
+\begin{lstlisting}[language=Python, caption=Batch Execution]
+def run_batch_experiments(strategy_id, model_id, limit=None):
+    """Execute refactoring experiments in batch"""
+    smells = get_pending_smells(strategy_id, model_id, limit)
+    
+    stats = {'total': len(smells), 'completed': 0, 'failed': 0}
+    failed_experiments = []
+    
+    for idx, (smell_id, repo, file_path, smell_type) in enumerate(smells):
+        try:
+            # Phase 1: Refactor
+            result = refactor_smell(smell_id, strategy_id, model_id)
+            experiment_id = result['experiment_id']
+            
+            # Phase 2: Execute
+            validation = execute_experiment(experiment_id)
+            
+            stats['completed'] += 1
+            
+        except Exception as e:
+            stats['failed'] += 1
+            failed_experiments.append((smell_id, str(e)))
+            
+        # Progress reporting
+        progress = (idx + 1) / stats['total'] * 100
+        print(f"Progress: {progress:.1f}% ({idx+1}/{stats['total']})")
+    
+    # Generate summary report
+    write_batch_summary(strategy_id, model_id, stats, 
+                       failed_experiments)
+\end{lstlisting}
+
+\subsection{Performance Optimizations}
+
+Several optimizations ensure scalability:
+
+\begin{enumerate}
+    \item \textbf{Parallel Smell Detection}: Steel and SNutsJS run concurrently via \texttt{asyncio}
+    \item \textbf{Database Caching}: Baseline smell results cached to avoid redundant queries
+    \item \textbf{Incremental Commits}: Results committed per experiment to enable interruption/resumption
+    \item \textbf{Manifest-Based Execution}: Phase 2 can resume from Phase 1 manifest files
+    \item \textbf{Connection Pooling}: Database session management with proper cleanup
+\end{enumerate}
+
+\begin{lstlisting}[language=Python, caption=Async Smell Detection]
+async def run_detectors_parallel(repo_path, output_dir):
+    """Run smell detectors concurrently"""
+    async def run_snuts_async():
+        # Execute SNutsJS detector
+        result = await asyncio.to_thread(
+            run_snuts_detector, repo_path, output_dir
+        )
+        return ('snuts', result['success'], result['message'])
+    
+    async def run_steel_async():
+        # Execute Steel detector
+        result = await asyncio.to_thread(
+            run_steel_detector, repo_path, output_dir
+        )
+        return ('steel', result['success'], result['message'])
+    
+    # Concurrent execution
+    results = await asyncio.gather(
+        run_snuts_async(),
+        run_steel_async(),
+        return_exceptions=True
+    )
+    
+    return results
+\end{lstlisting}
+
+\subsection{Error Handling and Recovery}
+
+The system implements comprehensive error handling:
+
+\begin{itemize}
+    \item \textbf{Network Errors}: Automatic retry with exponential backoff for transient API failures
+    \item \textbf{Extraction Failures}: Fallback parsers when primary code extraction fails
+    \item \textbf{Test Timeouts}: Configurable timeout (default: 300s) with graceful termination
+    \item \textbf{File Restoration}: Automatic backup restoration on any exception during Phase 2
+    \item \textbf{Database Rollback}: Transaction-based updates with rollback on constraint violations
+\end{itemize}
+
+\subsection{Re-execution Support (--redo Flag)}
+
+To enable experiment re-runs (e.g., after fixing issues), the system supports execution phase reset:
+
+\begin{lstlisting}[language=Python, caption=Experiment Reset]
+def reset_experiment_execution_data(session, experiment_id):
+    """Clean execution phase data for re-run"""
+    # Delete all test_results records
+    session.query(TestResult).filter_by(
+        experiment_id=experiment_id
+    ).delete()
+    
+    # Reset analysis flags
+    update_experiment(
+        session, experiment_id,
+        execution_phase_completed=False,
+        tests_still_passing=None,
+        smell_removed=None,
+        introduced_new_smells=None,
+        coverage_decreased=None,
+        tests_changed=None,
+        tests_pass_rate_decreased=None
+    )
+    
+    session.flush()
+\end{lstlisting}
+
+\textbf{Preservation Guarantees:}
+\begin{itemize}
+    \item Refactored code preserved (Phase 1 data intact)
+    \item Experiment ID and associations maintained
+    \item LLM metrics (tokens, latency) retained
+    \item Only execution-phase results cleared
+\end{itemize}
+
+This ensures experiments can be re-validated without re-calling LLM APIs, supporting:
+\begin{enumerate}
+    \item Test suite updates (new tests added to repository)
+    \item Smell detector improvements (re-run detection with updated tools)
+    \item Analysis bug fixes (correct metric calculation errors)
+\end{enumerate}
+
+\section{Research Implications}
+
+\subsection{Contributions to SE Literature}
+
+This methodology advances software engineering research in three dimensions:
+
+\begin{enumerate}
+    \item \textbf{Automated Test Maintenance}: Demonstrates LLM viability for systematic test quality improvement
+    \item \textbf{Prompt Engineering for Code}: Quantifies impact of strategy selection on refactoring success
+    \item \textbf{LLM Comparative Analysis}: Provides empirical evidence of model-specific strengths in code transformation
+\end{enumerate}
+
+\subsection{Practical Applications}
+
+Results inform development of:
+\begin{itemize}
+    \item IDE-integrated refactoring assistants
+    \item CI/CD quality gates for test smell detection + automated fixes
+    \item Educational tools demonstrating test best practices
+\end{itemize}
+
+\subsection{Future Research Directions}
+
+Potential extensions include:
+\begin{enumerate}
+    \item \textbf{Multi-Smell Refactoring}: Handling tests with multiple concurrent smells
+    \item \textbf{Cross-Language Transfer}: Evaluating methodology on Python, Java, C\# codebases
+    \item \textbf{Human-in-the-Loop}: Hybrid approaches combining LLM suggestions with developer review
+    \item \textbf{Fine-Tuning}: Training specialized models on curated smell-refactoring pairs
+    \item \textbf{Incremental Refactoring}: Iterative improvement cycles with developer feedback
+\end{enumerate}

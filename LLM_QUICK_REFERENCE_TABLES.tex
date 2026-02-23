@@ -1,0 +1,407 @@
+% LaTeX Quick Reference: Tables and Summaries
+
+\section{Quick Reference: Key Information Tables}
+\label{sec:quick-reference}
+
+\subsection{Test Smell Catalog Summary}
+
+\begin{table}[h]
+\centering
+\caption{Test Smells Analyzed in This Research}
+\label{tab:smell-catalog}
+\small
+\begin{tabular}{@{}p{3.5cm}p{7cm}p{2.5cm}@{}}
+\toprule
+\textbf{Smell Name} & \textbf{Definition} & \textbf{Frequency} \\ \midrule
+Anonymous Test & Test case assigned vague or generic name failing to describe behavior, conditions, or expected outcome & Common \\
+\addlinespace
+Conditional Test Logic & Test contains control-flow constructs (if/else, loops) causing different assertions based on runtime conditions & Moderate \\
+\addlinespace
+Duplicate Assert & Multiple identical assertions within same test, redundantly verifying same condition & Low \\
+\addlinespace
+Exception Handling & Test directly handles exceptions rather than using framework's assertion mechanisms & Moderate \\
+\addlinespace
+Magic Number & Hardcoded numeric/string literals without explanation of semantic meaning & Very Common \\
+\addlinespace
+Overcommented Test & Excessive comments compensating for poor test structure or unclear naming & Moderate \\
+\addlinespace
+Sleepy Test & Test includes arbitrary delays (setTimeout, sleep) instead of proper async handling & Common \\
+\addlinespace
+Suboptimal Assertion & Use of weak or imprecise assertions when more specific matchers available & Common \\
+\addlinespace
+Unknown Test & Test with unclear purpose, ambiguous structure, or missing documentation & Moderate \\
+\addlinespace
+Verbose Test & Excessive setup code, redundant operations, or unnecessarily complex test logic & Common \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{LLM Configuration Details}
+
+\begin{table}[h]
+\centering
+\caption{Complete LLM Model Specifications}
+\label{tab:llm-specs-detailed}
+\scriptsize
+\begin{tabular}{@{}lllllll@{}}
+\toprule
+\textbf{Model} & \textbf{Provider} & \textbf{API} & \textbf{Temp.} & \textbf{Top-P} & \textbf{Max Tokens} & \textbf{Cost/1M Tokens} \\ \midrule
+Qwen 2.5 Coder 32B & HuggingFace & Router & 0.1 & 0.95 & 8192 & \$0.50 \\
+CodeLlama 34B & HF (Custom) & Endpoint & 0.1 & 0.95 & 8192 & \$0.60 \\
+Claude Sonnet 4.6 & Anthropic & Native & 0.1 & - & 8192 & \$3.00 \\
+GPT-5.2 & OpenAI & Responses & 0.1 & 0.95 & 16384 & \$10.00 \\
+DeepSeek-Coder 33B & HuggingFace & Router & 0.1 & 0.95 & 8192 & \$0.40 \\
+Gemini 1.5 Pro & Google & Native & 0.1 & 0.95 & 32768 & \$2.50 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Note:} Temperature set to 0.1 for reproducibility; top-p at 0.95 for diversity control. Costs are approximate based on provider pricing as of February 2026.
+
+\subsection{Prompt Strategy Comparison Matrix}
+
+\begin{table}[h]
+\centering
+\caption{Detailed Comparison of Prompting Strategies}
+\label{tab:strategy-comparison-detailed}
+\small
+\begin{tabular}{@{}p{3cm}p{3.5cm}p{3.5cm}p{3.5cm}@{}}
+\toprule
+\textbf{Characteristic} & \textbf{Zero-Shot} & \textbf{Few-Shot} & \textbf{Chain-of-Thought} \\ \midrule
+\textbf{Input Components} & 
+  Definition, Code & 
+  Definition, 1-3 Examples, Code & 
+  Definition, Detection, Strategies, 0-2 Examples, Code, CoT Template \\
+\addlinespace
+\textbf{Prompt Size} & 
+  $\sim$200 tokens & 
+  $\sim$600 tokens & 
+  $\sim$800 tokens \\
+\addlinespace
+\textbf{Reasoning Mode} & 
+  Implicit, model-dependent & 
+  Pattern-based, implicit & 
+  Explicit steps (hidden from output) \\
+\addlinespace
+\textbf{Example Count} & 
+  0 & 
+  1-3 (smell-dependent) & 
+  0-2 (optional reference) \\
+\addlinespace
+\textbf{Guidance Level} & 
+  Minimal (definition only) & 
+  Moderate (patterns shown) & 
+  High (strategies + structure) \\
+\addlinespace
+\textbf{Expected Consistency} & 
+  Variable & 
+  Improved & 
+  Highest \\
+\addlinespace
+\textbf{Token Cost} & 
+  Low & 
+  Medium & 
+  High \\
+\addlinespace
+\textbf{Best For} & 
+  Well-defined smells, strong models & 
+  Pattern-heavy smells & 
+  Complex smells requiring multi-step reasoning \\
+\addlinespace
+\textbf{Limitations} & 
+  May miss nuances & 
+  Example selection bias & 
+  Prompt complexity, verbose \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Experimental Variables}
+
+\begin{table}[h]
+\centering
+\caption{Research Variables and Levels}
+\label{tab:variables}
+\begin{tabular}{@{}p{4cm}p{3cm}p{6cm}@{}}
+\toprule
+\textbf{Variable Type} & \textbf{Variable} & \textbf{Levels/Measurement} \\ \midrule
+\multirow{3}{4cm}{\textbf{Independent Variables}} & 
+  Prompt Strategy & 
+  Zero-Shot, Few-Shot, CoT (3 levels) \\
+ & LLM Model & 
+  Qwen, CodeLlama, Claude, GPT-5.2, DeepSeek, Gemini (6 levels) \\
+ & Smell Type & 
+  10 distinct smell categories \\ 
+\addlinespace
+\midrule
+\multirow{6}{4cm}{\textbf{Dependent Variables}} & 
+  Smell Removal & 
+  Boolean (target smell eliminated?) \\
+ & New Smells & 
+  Boolean (new smells introduced?) \\
+ & Test Preservation & 
+  Boolean (tests still pass?) \\
+ & Coverage Change & 
+  Boolean (coverage decreased?) \\
+ & Token Usage & 
+  Integer (total prompt + completion) \\
+ & Latency & 
+  Float (seconds for LLM response) \\
+\addlinespace
+\midrule
+\multirow{3}{4cm}{\textbf{Control Variables}} & 
+  Temperature & 
+  Fixed at 0.1 \\
+ & Top-P & 
+  Fixed at 0.95 \\
+ & Max Tokens & 
+  8192 (models 1-2,5); 16384 (model 4); 32768 (model 6) \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Validation Metric Definitions}
+
+\begin{table}[h]
+\centering
+\caption{Comprehensive Validation Metrics}
+\label{tab:metrics-definitions}
+\small
+\begin{tabular}{@{}p{3.5cm}p{5cm}p{4.5cm}@{}}
+\toprule
+\textbf{Metric} & \textbf{Definition} & \textbf{Computation} \\ \midrule
+\textbf{Smell Removal Rate} & 
+  Percentage of experiments where target smell eliminated & 
+  $\frac{\text{smell\_removed} = \text{True}}{\text{total}}$ \\
+\addlinespace
+\textbf{Test Pass Rate} & 
+  Percentage where tests still pass after refactoring & 
+  $\frac{\text{tests\_passing} = \text{True}}{\text{total}}$ \\
+\addlinespace
+\textbf{Coverage Preservation} & 
+  Percentage where coverage maintained or improved & 
+  $\frac{\text{coverage\_decreased} = \text{False}}{\text{total}}$ \\
+\addlinespace
+\textbf{New Smell Rate} & 
+  Percentage introducing new smells & 
+  $\frac{\text{new\_smells} = \text{True}}{\text{total}}$ \\
+\addlinespace
+\textbf{Success Rate} & 
+  Combined: smell removed AND tests pass AND no new smells & 
+  $\frac{\text{all conditions met}}{\text{total}}$ \\
+\addlinespace
+\textbf{Cost Efficiency} & 
+  Tokens per successful refactoring & 
+  $\frac{\sum \text{tokens}}{\text{successes}}$ \\
+\addlinespace
+\textbf{Mean Latency} & 
+  Average LLM response time & 
+  $\frac{\sum \text{latency}}{n}$ \\
+\addlinespace
+\textbf{Semantic Preservation} & 
+  Test assertions unchanged (manual review) & 
+  Qualitative assessment \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Database Schema Reference}
+
+\begin{table}[h]
+\centering
+\caption{Core Database Tables}
+\label{tab:db-tables}
+\footnotesize
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Table} & \textbf{Purpose \& Key Columns} \\ \midrule
+\texttt{repositories} & 
+  GitHub repositories analyzed. \newline
+  \textit{Columns:} id, name, url, stars, language \\
+\addlinespace
+\texttt{files} & 
+  Test files within repositories. \newline
+  \textit{Columns:} id, repository\_id, path \\
+\addlinespace
+\texttt{detected\_smells} & 
+  Baseline smell detection results (Steel + SNutsJS). \newline
+  \textit{Columns:} id, file\_id, smell\_type, line\_numbers, tool \\
+\addlinespace
+\texttt{study\_smells} & 
+  Curated smells selected for refactoring experiments. \newline
+  \textit{Columns:} id, file\_id, smell\_type, code\_snippet \\
+\addlinespace
+\texttt{experiments} & 
+  Refactoring experiments (1 per smell × strategy × model). \newline
+  \textit{Columns:} id, study\_smell\_id, prompting\_approach, ai\_model\_version, \newline
+  original\_code, refactored\_code, smell\_removed, tests\_passing, tokens\_used, \newline
+  refactor\_phase\_completed, execution\_phase\_completed \\
+\addlinespace
+\texttt{test\_results} & 
+  Detailed test execution metrics (before/after phases). \newline
+  \textit{Columns:} id, experiment\_id, phase, tests\_passed, tests\_total, \newline
+  coverage\_lines, coverage\_branches \\
+\addlinespace
+\texttt{smell\_detection\_results} & 
+  Smell counts per experiment phase. \newline
+  \textit{Columns:} id, experiment\_id, phase, smell\_type, is\_target\_smell \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Tool Versions and Environment}
+
+\begin{table}[h]
+\centering
+\caption{Software Environment}
+\label{tab:environment}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Component} & \textbf{Version/Specification} \\ \midrule
+\textbf{Primary Language} & JavaScript (ES6+), Node.js 18+ \\
+\textbf{Test Framework} & Jest 29.x \\
+\textbf{Smell Detectors} & 
+  \begin{tabular}[t]{@{}l@{}}
+    Steel v2.1 (TypeScript-based) \\
+    SNutsJS v1.0 (Python-based)
+  \end{tabular} \\
+\textbf{Python Environment} & Python 3.10+, SQLAlchemy 2.0, OpenAI SDK 1.x \\
+\textbf{Database} & SQLite 3.40+ (development), PostgreSQL (production) \\
+\textbf{LLM APIs} & 
+  \begin{tabular}[t]{@{}l@{}}
+    OpenAI SDK (HF Router, OpenAI, custom endpoints) \\
+    Anthropic SDK 0.20+ (Claude models) \\
+    Google GenAI SDK (Gemini)
+  \end{tabular} \\
+\textbf{Operating System} & Ubuntu 22.04 LTS, macOS 13+ \\
+\textbf{Version Control} & Git 2.40+, GitHub for repository hosting \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Example Experiment Record}
+
+\begin{table}[h]
+\centering
+\caption{Sample Experiment Database Entry}
+\label{tab:example-experiment}
+\scriptsize
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Field} & \textbf{Value} \\ \midrule
+experiment\_id & 2860 \\
+study\_smell\_id & 3 \\
+file\_id & 42 \\
+prompting\_approach & Zero-Shot \\
+ai\_model\_version & Qwen 2.5 Coder 32B \\
+smell\_type & Anonymous Test \\
+smell\_removed & True \\
+introduced\_new\_smells & False \\
+tests\_still\_passing & True \\
+coverage\_decreased & False \\
+tests\_changed & False \\
+refactor\_phase\_completed & True \\
+execution\_phase\_completed & True \\
+tokens\_used & 847 \\
+llm\_latency\_seconds & 3.2 \\
+execution\_time\_seconds & 12.5 \\
+created\_at & 2026-02-20 14:30:52 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Interpretation:} This experiment successfully refactored an Anonymous Test smell using Zero-Shot prompting with Qwen 2.5 Coder. The target smell was removed, no new smells were introduced, all tests passed, and code coverage was maintained.
+
+\subsection{Statistical Analysis Methods}
+
+\begin{table}[h]
+\centering
+\caption{Statistical Tests Applied}
+\label{tab:statistical-tests}
+\small
+\begin{tabular}{@{}p{3cm}p{4.5cm}p{5cm}@{}}
+\toprule
+\textbf{Test} & \textbf{Purpose} & \textbf{Application} \\ \midrule
+Chi-Square ($\chi^2$) & 
+  Independence of categorical variables & 
+  Compare smell removal rates across strategies \\
+\addlinespace
+ANOVA & 
+  Difference in means across groups & 
+  Compare token usage, latency across models \\
+\addlinespace
+Tukey HSD & 
+  Post-hoc pairwise comparisons & 
+  Identify which model/strategy pairs differ \\
+\addlinespace
+Mann-Whitney U & 
+  Non-parametric group comparison & 
+  Compare success rates (non-normal distribution) \\
+\addlinespace
+Kruskal-Wallis & 
+  Non-parametric alternative to ANOVA & 
+  Compare latency across models (skewed data) \\
+\addlinespace
+Fisher's Exact & 
+  Small sample categorical analysis & 
+  Compare success in low-frequency smells \\
+\addlinespace
+Effect Size (Cohen's d) & 
+  Practical significance & 
+  Quantify magnitude of strategy differences \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Threats to Validity Summary}
+
+\begin{table}[h]
+\centering
+\caption{Validity Threats and Mitigation Strategies}
+\label{tab:validity-threats}
+\footnotesize
+\begin{tabular}{@{}p{2.5cm}p{5cm}p{5cm}@{}}
+\toprule
+\textbf{Validity Type} & \textbf{Threat} & \textbf{Mitigation} \\ \midrule
+\textbf{Internal} & 
+  LLM non-determinism & 
+  Fixed temperature (0.1), multiple runs, statistical aggregation \\
+ & Smell detector errors & 
+  Manual validation of subset, cross-tool verification \\
+\addlinespace
+\textbf{External} & 
+  JavaScript/Jest specificity & 
+  Explicit scope definition; future work for other languages \\
+ & Repository selection bias & 
+  Document selection criteria; analyze popular GitHub projects \\
+\addlinespace
+\textbf{Construct} & 
+  Smell definition subjectivity & 
+  Use established academic definitions; expert review \\
+ & Semantic equivalence & 
+  Manual code review; assertion-level comparison \\
+\addlinespace
+\textbf{Conclusion} & 
+  Over-generalization & 
+  Clear limitations statement; context-specific claims \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Typical Experiment Costs}
+
+\begin{table}[h]
+\centering
+\caption{Estimated Costs per Experiment Configuration}
+\label{tab:costs}
+\small
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+\textbf{Model} & \textbf{Strategy} & \textbf{Avg Tokens} & \textbf{Latency (s)} & \textbf{Cost (\$)} \\ \midrule
+Qwen 2.5 & Zero-Shot & 650 & 2.8 & \$0.0003 \\
+Qwen 2.5 & Few-Shot & 1200 & 4.2 & \$0.0006 \\
+Qwen 2.5 & CoT & 1500 & 5.5 & \$0.0008 \\
+\addlinespace
+Claude 4.6 & Zero-Shot & 700 & 1.9 & \$0.0021 \\
+Claude 4.6 & Few-Shot & 1300 & 2.8 & \$0.0039 \\
+Claude 4.6 & CoT & 1600 & 3.5 & \$0.0048 \\
+\addlinespace
+GPT-5.2 & Zero-Shot & 680 & 2.1 & \$0.0068 \\
+GPT-5.2 & Few-Shot & 1250 & 3.0 & \$0.0125 \\
+GPT-5.2 & CoT & 1550 & 4.2 & \$0.0155 \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Total Estimated Cost:} For a dataset of 100 smells × 3 strategies × 6 models = 1,800 experiments, total cost: approximately \$5-15 depending on model distribution, assuming balanced usage.
+
+\end{document}

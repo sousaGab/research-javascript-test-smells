@@ -1,0 +1,15 @@
+test('open() should emit error and call writeStream with error handler', (done) => {
+    const error = new Error('test');
+    file.on('error', (err) => {
+      expect(err).toBe(error);
+      done();
+    });
+
+    file.emit('error', error);
+
+    expect(writeStreamMock).toBeCalled();
+    expect(writeStreamInstanceMock.on).toBeCalledWith(
+      'error',
+      expect.any(Function),
+    );
+  })

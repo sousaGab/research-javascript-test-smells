@@ -1,0 +1,12 @@
+it('can be called without a callback', done => {
+    nock('http://example.test').get('/').delayConnection(100).reply()
+
+    http.get('http://example.test').on('socket', socket => {
+      socket.setTimeout(50)
+
+      socket.on('timeout', () => {
+        assert.ok(true, 'Socket timeout was triggered as expected')
+        done()
+      })
+    })
+  })

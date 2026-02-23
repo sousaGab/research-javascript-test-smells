@@ -86,8 +86,10 @@ class BatchExperimentsModule(SimpleModule):
         verbose = False
         dry_run = False
         skip_executed = True
+        redo = False  # force re-execution even if already executed
         phase = "all"  # default: full experiment (refactor + execute)
         manifest_path = None
+        delay_seconds = 0  # delay after LLM refactoring (0 = no delay)
         while i < len(parts):
             if parts[i] == "--limit" and i + 1 < len(parts):
                 limit = int(parts[i + 1])
@@ -101,6 +103,9 @@ class BatchExperimentsModule(SimpleModule):
             elif parts[i] == "--manifest" and i + 1 < len(parts):
                 manifest_path = parts[i + 1]
                 i += 2
+            elif parts[i] == "--delay":
+                delay_seconds = 5
+                i += 1
             elif parts[i] == "--verbose" or parts[i] == "-v":
                 verbose = True
                 i += 1
@@ -109,6 +114,9 @@ class BatchExperimentsModule(SimpleModule):
                 i += 1
             elif parts[i] == "--force" or parts[i] == "--no-skip":
                 skip_executed = False
+                i += 1
+            elif parts[i] == "--redo":
+                redo = True
                 i += 1
             elif parts[i] == "--list-pending":
                 return self._show_pending_executions(strategy_id, model_id)
@@ -155,7 +163,8 @@ class BatchExperimentsModule(SimpleModule):
                 limit=limit,
                 skip_executed=skip_executed,
                 verbose=verbose,
-                dry_run=dry_run
+                dry_run=dry_run,
+                delay_seconds=delay_seconds
             )
         elif phase == "execute":
             return self._run_batch_execution_phase(
@@ -163,6 +172,7 @@ class BatchExperimentsModule(SimpleModule):
                 manifest_path=manifest_path,
                 start_from=start_from,
                 limit=limit,
+                redo=redo,
                 verbose=verbose,
                 dry_run=dry_run
             )
@@ -173,7 +183,8 @@ class BatchExperimentsModule(SimpleModule):
                 limit=limit,
                 skip_executed=skip_executed,
                 verbose=verbose,
-                dry_run=dry_run
+                dry_run=dry_run,
+                delay_seconds=delay_seconds
             )
     
     def _show_help(self) -> str:
@@ -215,9 +226,11 @@ OPTIONS:
     --manifest FILE   Use manifest file for execution phase
     --limit N         Process at most N smells/experiments
     --start-from N    Start from smell/experiment ID N
+    --delay           Add 5-second delay after LLM refactoring (useful for rate limits)
     --verbose         Show detailed output from each experiment
     --dry-run         Preview what would be executed
     --force           Re-run all (overwrite existing results, refactor phase only)
+    --redo            Re-execute ALL experiments (execution phase only, even if already executed)
     --show-pending    Show experiments ready for execution
     --show-failed     Show failed experiments
 
@@ -225,6 +238,7 @@ EXAMPLES:
     # Traditional single-phase mode (backward compatible)
     batch_experiments 3 1                    # Execute all pending smells
     batch_experiments 3 1 --limit 10         # Execute 10 smells
+    batch_experiments 3 1 --limit 10 --delay # With 5-second delay after each LLM call
     
     # Full-prompt mode (NEW - runs all 3 strategies automatically)
     batch_experiments --full-prompt 1                  # All strategies, all smells
@@ -234,6 +248,9 @@ EXAMPLES:
     # Two-phase mode (for time-based LLM pricing)
     batch_experiments 3 1 --phase refactor   # Phase 1: Refactor all
     batch_experiments 3 1 --phase execute    # Phase 2: Test all
+    
+    # Re-execute experiments from scratch (even if already executed)
+    batch_experiments 2 2 --phase execute --redo
     
     # With manifest file
     batch_experiments 3 1 --phase refactor --limit 20
@@ -283,11 +300,10 @@ MODELS:
 
 NOTES:
     - By default, skips smells already executed for the strategy/model
-    - Use --force with refactor phase to re-run all smells
+    - Use --force with refactor phase to re-run all smells from scratch
+    - Use --redo with execution phase to re-execute ALL experiments (even completed ones)
     - Execution phase can be re-run safely (uses backups)
     - Manifest files are saved to batch_summaries/
-    - Press Ctrl+C to interrupt (progress is saved)
-    - Use --force to re-execute all smells (overwrite results)
     - Press Ctrl+C to interrupt (progress is saved)
     - Failed experiments are logged and written to summary file
 """
@@ -405,7 +421,7 @@ NOTES:
     
     def _run_batch(self, strategy_id: int, model_id: int, 
                    start_from=None, limit=None, skip_executed=True, 
-                   verbose=False, dry_run=False) -> str:
+                   verbose=False, dry_run=False, delay_seconds=0) -> str:
         """Run batch experiments."""
         if not self.db:
             self.db = ResearchDB()
@@ -496,7 +512,8 @@ NOTES:
             
             try:
                 # Run experiment
-                result = self.exp_module.execute(f"{smell_id} {strategy_id} {model_id}")
+                delay_flag = " --delay" if delay_seconds > 0 else ""
+                result = self.exp_module.execute(f"{smell_id} {strategy_id} {model_id}{delay_flag}")
                 
                 if verbose and result:
                     print("\n" + "-" * 40)
@@ -897,7 +914,8 @@ NOTES:
         limit=None,
         skip_executed=True,
         verbose=False,
-        dry_run=False
+        dry_run=False,
+        delay_seconds=0
     ) -> str:
         """
         Execute Phase 1 (Refactor) for multiple smells in batch.
@@ -988,8 +1006,9 @@ NOTES:
             
             try:
                 # Call execute_experiment with --phase refactor
+                delay_flag = " --delay" if delay_seconds > 0 else ""
                 result = self.exp_module.execute(
-                    f"{smell_id} {strategy_id} {model_id} --phase refactor"
+                    f"{smell_id} {strategy_id} {model_id} --phase refactor{delay_flag}"
                 )
                 
                 if verbose:
@@ -1097,6 +1116,7 @@ NOTES:
         manifest_path=None,
         start_from=None,
         limit=None,
+        redo=False,
         verbose=False,
         dry_run=False
     ) -> str:
@@ -1139,18 +1159,29 @@ NOTES:
             
             source = f"manifest {manifest_file.name}"
         else:
-            # Query database for pending executions
+            # Query database for pending or all executions
             session = self.db.get_session()
             try:
-                experiments = get_refactored_pending_execution(
-                    session, strategy_name, model_name
-                )
-                experiments_to_process = [exp.id for exp in experiments]
+                if redo:
+                    # Get ALL experiments for this strategy/model (including already executed)
+                    from llm_refactor.modules.database.models import Experiment
+                    experiments = session.query(Experiment).filter(
+                        Experiment.prompting_approach == strategy_name,
+                        Experiment.ai_model_version == model_name,
+                        Experiment.refactored_code.isnot(None)  # Must have refactored code
+                    ).all()
+                    experiments_to_process = [exp.id for exp in experiments]
+                    source = "database query (redo all)"
+                else:
+                    # Get only pending executions
+                    experiments = get_refactored_pending_execution(
+                        session, strategy_name, model_name
+                    )
+                    experiments_to_process = [exp.id for exp in experiments]
+                    source = "database query (pending only)"
                 session.close()
             finally:
                 pass
-            
-            source = "database query"
         
         # Apply filters
         if start_from:
@@ -1172,6 +1203,7 @@ NOTES:
         output.append(f"Strategy: {strategy_name} (ID: {strategy_id})")
         output.append(f"Model:    {model_name} (ID: {model_id})")
         output.append(f"Source:   {source}")
+        output.append(f"Mode:     {'REDO (re-execute all)' if redo else 'Execute pending only'}")
         output.append(f"Total:    {total_experiments} experiments")
         output.append("=" * 80)
         

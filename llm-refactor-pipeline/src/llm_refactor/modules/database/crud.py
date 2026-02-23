@@ -796,6 +796,64 @@ def get_test_results(session: Session, experiment_id: int,
     return query.all()
 
 
+def delete_test_results(session: Session, experiment_id: int, phase: Optional[str] = None) -> int:
+    """
+    Delete test results for an experiment.
+    
+    Used when re-executing experiments (--redo flag) to clean previous execution data.
+
+    Args:
+        session: Database session
+        experiment_id: Experiment ID
+        phase: Filter by phase ('before' or 'after'), optional. If None, deletes all phases.
+
+    Returns:
+        Number of deleted records
+    """
+    query = session.query(TestResult).filter_by(experiment_id=experiment_id)
+    if phase:
+        query = query.filter_by(phase=phase)
+    
+    count = query.count()
+    query.delete(synchronize_session=False)
+    session.flush()
+    return count
+
+
+def reset_experiment_execution_data(session: Session, experiment_id: int) -> None:
+    """
+    Reset execution phase data for an experiment.
+    
+    This function:
+    1. Deletes all test results
+    2. Resets analysis flags (smell detection, test analysis)
+    3. Resets execution_phase_completed flag
+    
+    Used when re-executing experiments (--redo flag) to start fresh.
+
+    Args:
+        session: Database session
+        experiment_id: Experiment ID
+    """
+    # Delete test results
+    delete_test_results(session, experiment_id)
+    
+    # Reset experiment flags
+    update_experiment(
+        session=session,
+        experiment_id=experiment_id,
+        execution_phase_completed=False,
+        tests_still_passing=None,
+        smell_removed=None,
+        introduced_new_smells=None,
+        coverage_decreased=None,
+        tests_changed=None,
+        tests_pass_rate_decreased=None
+    )
+    
+    session.flush()
+
+
 # =============================================================================
 # REPOSITORY BASELINE TEST RESULTS
 # =============================================================================

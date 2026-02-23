@@ -1,0 +1,33 @@
+it('response readable pull stream works as expected', done => {
+  nock('http://example.test')
+    .get('/ssstream')
+    .reply(200, 'this is the response body yeah')
+
+  const req = http.request(
+    {
+      host: 'example.test',
+      path: '/ssstream',
+      port: 80,
+    },
+    res => {
+      expect(res.statusCode).to.equal(200)
+
+      let responseBody = ''
+      res.setEncoding('utf8')
+
+      res.on('data', chunk => {
+        responseBody += chunk
+      })
+
+      res.on('end', () => {
+        expect(responseBody).to.equal('this is the response body yeah')
+        done()
+      })
+
+      res.on('error', done)
+    },
+  )
+
+  req.on('error', done)
+  req.end()
+})

@@ -1,0 +1,13 @@
+it('should be triggered before and after filter', function (done) {
+      var done1 = false
+      list.on('filterStart', function (list) {
+        done1 = true
+      })
+      list.on('filterComplete', function (list) {
+        expect(done1).toBe(true)
+        done()
+      })
+      list.filter(function () {
+        return true
+      })
+    })

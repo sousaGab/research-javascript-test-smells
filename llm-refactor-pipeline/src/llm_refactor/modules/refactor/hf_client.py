@@ -24,6 +24,13 @@ try:
 except ImportError:
     ANTHROPIC_AVAILABLE = False
 
+try:
+    from google import genai
+    from google.genai import types as genai_types
+    GOOGLE_AVAILABLE = True
+except ImportError:
+    GOOGLE_AVAILABLE = False
+
 from .code_extractor import extract_code_from_response, CodeExtractionError
 
 
@@ -229,6 +236,172 @@ class AnthropicClient(BaseLLMClient):
         }
 
 
+class GoogleClient(BaseLLMClient):
+    """Client for Google's Generative AI API (Gemini models).
+    
+    Uses the official Google Genai SDK as Google's API is NOT OpenAI-compatible.
+    Key differences:
+    - Uses /v1beta/models/{model}:generateContent endpoint
+    - Different request structure with contents and parts
+    - Config is separate from messages (GenerateContentConfig)
+    - Requires x-goog-api-key header
+    - Each request is independent (no conversation context carried over)
+    """
+
+    def __init__(self, api_key: str, base_url: str = None):
+        super().__init__(api_key, base_url)
+        if not GOOGLE_AVAILABLE:
+            raise ImportError(
+                "Google Genai SDK not installed. Install with: pip install google-genai"
+            )
+
+    def generate(
+        self,
+        model: str,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float,
+        top_p: float,
+        max_tokens: int
+    ) -> Dict:
+        """
+        Generate content using Gemini API with retry logic.
+        
+        Each call creates a completely NEW client instance - no conversation history.
+        Retries up to 3 times if response is empty.
+        """
+        
+        max_retries = 3
+        last_error = None
+        
+        for attempt in range(1, max_retries + 1):
+            try:
+                # Create FRESH client for THIS request only (no history)
+                client = genai.Client(api_key=self.api_key)
+
+                start_time = time.time()
+
+                # Generate content with proper system instruction
+                # Gemini uses system_instruction parameter in config (not combined prompts)
+                # Limit thinking budget to prevent overthinking
+                response = client.models.generate_content(
+                    model=model,
+                    contents=user_prompt,
+                    config=genai_types.GenerateContentConfig(
+                        system_instruction=system_prompt,
+                        temperature=temperature,
+                        top_p=top_p,
+                        thinking_config=genai_types.ThinkingConfig(
+                            include_thoughts=True,
+                            thinking_budget=max_tokens 
+                        )
+                    )
+                )
+
+                latency = time.time() - start_time
+
+                # Extract text content safely, filtering out thought parts
+                content = ""
+                finish_reason = None
+                empty_reason = None  # Track why content was empty for debugging
+                
+                try:
+                    if hasattr(response, 'text') and response.text:
+                        # Simple text response (no structured parts)
+                        content = response.text.strip()
+                    elif hasattr(response, 'candidates') and response.candidates:
+                        candidate = response.candidates[0]
+                        finish_reason = getattr(candidate, 'finish_reason', None)
+                        
+                        if hasattr(candidate, 'content') and candidate.content:
+                            if hasattr(candidate.content, 'parts') and candidate.content.parts:
+                                # Extract text from all non-thought parts
+                                # Gemini may return multiple parts: some with thought=true (reasoning), 
+                                # some without (actual answer). We only want the non-thought parts.
+                                text_parts = []
+                                total_parts = len(candidate.content.parts)
+                                thought_parts_count = 0
+                                
+                                for part in candidate.content.parts:
+                                    # Skip thought parts (internal reasoning)
+                                    is_thought = getattr(part, 'thought', False)
+                                    if is_thought:
+                                        thought_parts_count += 1
+                                        continue
+                                    # Append non-thought text
+                                    if hasattr(part, 'text') and part.text:
+                                        text_parts.append(part.text)
+                                
+                                # Combine all non-thought text parts
+                                content = ''.join(text_parts).strip()
+                                
+                                # Track why content might be empty
+                                if not content:
+                                    if total_parts == thought_parts_count:
+                                        empty_reason = f"all {total_parts} parts were thoughts"
+                                    elif not text_parts:
+                                        empty_reason = f"{total_parts} parts but none had text"
+                                    else:
+                                        empty_reason = "text parts were empty strings"
+                            else:
+                                empty_reason = "no parts in content"
+                        else:
+                            empty_reason = "no content in candidate"
+                    else:
+                        empty_reason = "no candidates in response"
+                except (AttributeError, IndexError, TypeError) as e:
+                    empty_reason = f"exception during extraction: {e}"
+
+                # Check for empty responses and retry
+                if not content:
+                    if attempt < max_retries:
+                        # Empty response - retry with fresh client
+                        reason_msg = f" ({empty_reason})" if empty_reason else ""
+                        print(f"   ⚠ Gemini returned empty response{reason_msg} (attempt {attempt}/{max_retries}), retrying...")
+                        time.sleep(2)  # Brief delay before retry
+                        continue
+                    else:
+                        reason_msg = f" Reason: {empty_reason}." if empty_reason else ""
+                        raise RuntimeError(
+                            f"Gemini returned no content after {max_retries} attempts. "
+                            f"Finish reason: {finish_reason or 'unknown'}.{reason_msg}"
+                        )
+
+                # Extract token usage safely (handle None values)
+                tokens = 0
+                if hasattr(response, 'usage_metadata') and response.usage_metadata:
+                    # Use total_token_count if available
+                    total = getattr(response.usage_metadata, 'total_token_count', None)
+                    if total is not None and total > 0:
+                        tokens = total
+                    else:
+                        # Fallback: sum prompt and candidate tokens (handle None)
+                        prompt_tokens = getattr(response.usage_metadata, 'prompt_token_count', 0) or 0
+                        candidate_tokens = getattr(response.usage_metadata, 'candidates_token_count', 0) or 0
+                        tokens = prompt_tokens + candidate_tokens
+
+                return {
+                    "content": content,
+                    "tokens": tokens,
+                    "latency": latency
+                }
+                
+            except RuntimeError:
+                # Re-raise RuntimeError (MAX_TOKENS, empty response)
+                raise
+            except Exception as e:
+                last_error = e
+                if attempt < max_retries:
+                    print(f"   ⚠ Gemini API error (attempt {attempt}/{max_retries}): {e}. Retrying...")
+                    time.sleep(2)
+                    continue
+                else:
+                    raise RuntimeError(f"Gemini API failed after {max_retries} attempts: {e}")
+        
+        # Should never reach here, but just in case
+        raise RuntimeError(f"Gemini generation failed: {last_error}")
+
+
 # =============================================================================
 # Provider Definitions
 # =============================================================================
@@ -238,6 +411,7 @@ class LLMProvider:
     HUGGINGFACE = "huggingface"
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
+    GOOGLE = "google"
 
 
 class HuggingFaceModels:
@@ -250,7 +424,7 @@ class HuggingFaceModels:
             "name": "Qwen 2.5 Coder 32B",
             "model_id": "Qwen/Qwen2.5-Coder-32B-Instruct",
             "description": "High-quality code generation model",
-            "endpoint_url": None,  # Uses default HF router
+            "endpoint_url": None, # Uses default HF router
             "provider": LLMProvider.HUGGINGFACE,
             "api_key_env": "HF_TOKEN"
         },
@@ -265,15 +439,6 @@ class HuggingFaceModels:
         },
         {
             "id": 3,
-            "name": "Llama 3.3 70B Instruct",
-            "model_id": "meta-llama/Llama-3.3-70B-Instruct:novita",
-            "description": "Meta's Llama 3.3 70B instruction-tuned model",
-            "endpoint_url": None,  # Uses default HF router
-            "provider": LLMProvider.HUGGINGFACE,
-            "api_key_env": "HF_TOKEN"
-        },
-        {
-            "id": 4,
             "name": "Claude Sonnet 4.6",
             "model_id": "claude-sonnet-4-6",
             "description": "Anthropic's Claude Sonnet 4.6 - balanced speed and intelligence (Feb 2026)",
@@ -282,13 +447,31 @@ class HuggingFaceModels:
             "api_key_env": "CLAUDE_TOKEN"
         },
         {
-            "id": 5,
+            "id": 4,
             "name": "GPT-5.2",
             "model_id": "gpt-5.2",
             "description": "OpenAI's GPT-5.2 model",
             "endpoint_url": "https://api.openai.com/v1",
             "provider": LLMProvider.OPENAI,
             "api_key_env": "GPT_TOKEN"
+        },
+        {
+            "id": 5,
+            "name": "DeepSeek-Coder 33B Instruct",
+            "model_id": "deepseek-coder-33b-instruct",
+            "description": "DeepSeek 33B instruction model",
+            "endpoint_url": "https://r05jq8jtnawsmv6c.us-east-1.aws.endpoints.huggingface.cloud/v1", # Uses default HF router 
+            "provider": LLMProvider.HUGGINGFACE,
+            "api_key_env": "HF_TOKEN"
+        },
+        {
+            "id": 6,
+            "name": "Gemini 2.5 Pro",
+            "model_id": "gemini-2.5-pro",
+            "description": "Google DeepMind's Gemini 2.5 Pro - advanced reasoning, improved coding, and long-context performance",
+            "endpoint_url": "https://generativelanguage.googleapis.com/v1",
+            "provider": LLMProvider.GOOGLE,
+            "api_key_env": "GOOGLE_TOKEN"
         },
     ]
     
@@ -352,6 +535,9 @@ class LLMClientFactory:
         """
         if provider == LLMProvider.ANTHROPIC:
             return AnthropicClient(api_key=api_key, base_url=base_url)
+        
+        if provider == LLMProvider.GOOGLE:
+            return GoogleClient(api_key=api_key, base_url=base_url)
         
         # OpenAI, HuggingFace, and other OpenAI-compatible providers
         return OpenAICompatibleClient(api_key=api_key, base_url=base_url)
@@ -646,6 +832,7 @@ class HuggingFaceRefactorClient:
         LLMProvider.HUGGINGFACE: "https://router.huggingface.co/v1",
         LLMProvider.OPENAI: "https://api.openai.com/v1",
         LLMProvider.ANTHROPIC: "https://api.anthropic.com/v1",
+        LLMProvider.GOOGLE: "https://generativelanguage.googleapis.com/v1",
     }
     
     def __init__(self, api_key: Optional[str] = None):
@@ -812,7 +999,7 @@ class HuggingFaceRefactorClient:
         
         import time
         max_retries = 3
-        retry_delay = 2  # seconds
+        retry_delay = 2  # seconds (default for most providers)
         last_exception = None
         for attempt in range(1, max_retries + 1):
             try:
@@ -835,6 +1022,12 @@ class HuggingFaceRefactorClient:
                 try:
                     code = extract_code_from_response(response["content"])
                 except CodeExtractionError as e:
+                    # Debug logging: print raw API response for analysis
+                    print("\n" + "="*80)
+                    print("DEBUG: Code extraction failed. Raw API response:")
+                    print("="*80)
+                    print(response["content"])
+                    print("="*80 + "\n")
                     raise RuntimeError(f"Failed to extract valid JavaScript code from model output: {e}") from e
                 return {
                     'code': code,
@@ -849,7 +1042,10 @@ class HuggingFaceRefactorClient:
                 # Retry for server overload, 429, or similar errors
                 if any(keyword in err_str.lower() for keyword in ["server overload", "429", "too many requests", "overload", "rate limit", "temporarily unavailable"]):
                     if attempt < max_retries:
-                        time.sleep(retry_delay)
+                        # Anthropic requires 60 second wait for 429 rate limits
+                        # Per their docs: retry-after header indicates wait time
+                        wait_time = 60 if (provider == LLMProvider.ANTHROPIC and "429" in err_str) else retry_delay
+                        time.sleep(wait_time)
                         continue
                 provider_name = provider.upper() if provider else "UNKNOWN"
                 raise RuntimeError(f"{provider_name} API call failed: {e}") from e

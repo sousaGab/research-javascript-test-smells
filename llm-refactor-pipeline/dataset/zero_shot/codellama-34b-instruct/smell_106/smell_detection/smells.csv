@@ -1,0 +1,1399 @@
+file,type,line,method,methodStart,methodEnd,source
+/test-node/standalone/createDirsFromUploads.test.js,AnonymousTest,"{'startLine':10,'endLine':65}","test('folder created', (t,done) => {
+  const server = createServer((req, res) => {
+    const form = formidable({
+      createDirsFromUploads: true,
+      uploadDir: uploads,
+      filename: (x) => {
+        return 'x/y/z.txt'
+      }
+    });
+
+    form.parse(req, () => {
+      res.writeHead(200);
+      res.end(""ok"")
+    });
+  });
+
+  server.listen(PORT, () => {
+    const chosenPort = server.address().port;
+    const  body = `----13068458571765726332503797717\r
+Content-Disposition: form-data; name=""title""\r
+\r
+a\r
+----13068458571765726332503797717\r
+Content-Disposition: form-data; name=""multipleFiles""; filename=""x.txt""\r
+Content-Type: application/x-javascript\r
+\r
+\r
+\r
+a\r
+b\r
+c\r
+d\r
+\r
+----13068458571765726332503797717--\r
+`;
+    fetch(String(new URL(`http:localhost:${chosenPort}/`)), {
+      method: 'POST',
+      
+      headers: {
+        'Content-Length': body.length,
+        Host: `localhost:${chosenPort}`,
+        'Content-Type': 'multipart/form-data; boundary=--13068458571765726332503797717',
+      },
+      body
+    }).then(res => {
+      //may also contain tests from other tests
+      deepEqual(fs.readdirSync(uploads).includes('x'), true);
+      deepEqual(fs.readdirSync(`${uploads}/x`), ['y']);
+      deepEqual(fs.readdirSync(`${uploads}/x/y`), ['z.txt']);
+      strictEqual(res.status, 200);
+      server.close();
+      done();
+    });
+   
+  });
+})",10,65,snuts
+/test/unit/volatile-file.test.js,AnonymousTest,"{'startLine':29,'endLine':43}","test('open()', (done) => {
+    const error = new Error('test');
+    file.on('error', (err) => {
+      expect(err).toBe(error);
+      done();
+    });
+
+    file.emit('error', error);
+
+    expect(writeStreamMock).toBeCalled();
+    expect(writeStreamInstanceMock.on).toBeCalledWith(
+      'error',
+      expect.any(Function),
+    );
+  })",29,43,snuts
+/test/unit/volatile-file.test.js,AnonymousTest,"{'startLine':45,'endLine':50}","test('toJSON()', () => {
+    const obj = file.toJSON();
+
+    expect(obj.mimetype).toBe('image/png');
+    expect(obj.originalFilename).toBe('cat.png');
+  })",45,50,snuts
+/test/unit/volatile-file.test.js,AnonymousTest,"{'startLine':52,'endLine':54}","test('toString()', () => {
+    expect(file.toString()).toBe('VolatileFile: cat.png');
+  })",52,54,snuts
+/test/unit/volatile-file.test.js,AnonymousTest,"{'startLine':56,'endLine':66}","test('write()', (done) => {
+    const buffer = Buffer.alloc(5);
+    writeStreamInstanceMock.write.mockImplementationOnce((writeBuffer, cb) => {
+      expect(buffer).toBe(writeBuffer);
+      cb();
+    });
+
+    file.write(buffer, () => {
+      done();
+    });
+  })",56,66,snuts
+/test/unit/volatile-file.test.js,AnonymousTest,"{'startLine':68,'endLine':77}","test('end()', (done) => {
+    writeStreamInstanceMock.end.mockImplementationOnce((cb) => {
+      cb();
+    });
+    const fileEmitSpy = jest.spyOn(file, 'emit');
+
+    file.end(() => done());
+
+    expect(fileEmitSpy).toBeCalledWith('end');
+  })",68,77,snuts
+/test/unit/volatile-file.test.js,AnonymousTest,"{'startLine':79,'endLine':82}","test('destroy()', () => {
+    file.destroy();
+    expect(writeStreamInstanceMock.destroy).toBeCalled();
+  })",79,82,snuts
+/test/unit/querystring-parser.test.js,AnonymousTest,"{'startLine':3,'endLine':6}","test('on constructor', () => {
+  const parser = new QuerystringParser();
+  expect(parser.constructor.name).toBe('QuerystringParser');
+})",3,6,snuts
+/test/unit/multipart-parser.test.js,AnonymousTest,"{'startLine':3,'endLine':12}","test('on constructor', () => {
+  const parser = new MultipartParser();
+  expect(parser.boundary).toBeNull();
+  expect(parser.state).toBe(0);
+  expect(parser.flags).toBe(0);
+  expect(parser.boundaryChars).toBeNull();
+  expect(parser.index).toBeNull();
+  expect(parser.lookbehind).toBeNull();
+  expect(parser.constructor.name).toBe('MultipartParser');
+})",3,12,snuts
+/test/unit/multipart-parser.test.js,AnonymousTest,"{'startLine':14,'endLine':38}","test('initWithBoundary', () => {
+  const boundary = 'abc';
+  const parser = new MultipartParser();
+  parser.initWithBoundary(boundary);
+
+  expect(Array.prototype.slice.call(parser.boundary)).toMatchObject([
+    13,
+    10,
+    45,
+    45,
+    97,
+    98,
+    99,
+  ]);
+  expect(parser.state).toBe(MultipartParser.STATES.START);
+
+  expect(parser.boundaryChars).toMatchObject({
+    10: true,
+    13: true,
+    45: true,
+    97: true,
+    98: true,
+    99: true,
+  });
+})",14,38,snuts
+/test/unit/multipart-parser.test.js,AnonymousTest,"{'startLine':40,'endLine':51}","test('initWithBoundary failing', () => {
+  const parser = new MultipartParser();
+  const boundary = 'abc';
+  const buffer = Buffer.alloc(5);
+
+  parser.initWithBoundary(boundary);
+  buffer.write('--ad', 0);
+  expect(parser.bufferLength).toBe(0);
+
+  parser.write(buffer);
+  expect(parser.bufferLength).toBe(5);
+})",40,51,snuts
+/test/unit/multipart-parser.test.js,NonFunctionalStatement,"{'startLine':55,'endLine':55}","test('on .end() throwing', () => {
+  const parser = new MultipartParser();
+  parser.once('error', () => {});
+
+  const res = parser.end();
+  expect(res.state).toBe(0);
+
+  // expect(() => { parser.end() }).toThrow(/MultipartParser/);
+  // expect(() => { parser.end() }).toThrow(/stream ended unexpectedly/);
+  // expect(() => { parser.end() }).toThrow(parser.explain());
+})",53,63,snuts
+/test/unit/formidable.test.js,AnonymousTest,"{'startLine':288,'endLine':301}","test('emits error', (done) => {
+        const form = getForm(name, {
+          maxFields: 1,
+        });
+
+        form.on('error', (error) => {
+          expect(error.message.includes('maxFields')).toBe(true);
+          done();
+        });
+
+        form.emit('field', 'a', '1');
+        form.emit('field', 'b', '2');
+        form.emit('end');
+      })",288,301,snuts
+/test/unit/formidable.test.js,IdenticalTestDescription,"{'startLine':236,'endLine':246}","test('not emits error when part is received', () => {
+        const form = getForm(name, {  });
+        const formEmitSpy = jest.spyOn(form, 'emit');
+
+        const part = new Stream();
+        part.mimetype = 'text/plain';
+        form.onPart(part);
+        part.emit('end');
+        form.emit('end');
+        expect(formEmitSpy).not.toBeCalledWith('error');
+      })",236,246,snuts
+/test/unit/formidable.test.js,IdenticalTestDescription,"{'startLine':250,'endLine':269}","test('emits error when part is received', (done) => {
+        const form = getForm(name, { minFileSize: 5 });
+
+        const part = new Stream();
+        const req = requestStub();
+        part.mimetype = 'text/plain';
+        form.on('error', (error) => {
+          expect(error.message).toBe(
+            'options.minFileSize (5 bytes) inferior, received 4 bytes of file data',
+          );
+          done();
+        });
+        form.req = req;
+        form.onPart(part).then(function () {
+          part.emit('data', Buffer.alloc(4));
+          part.emit('end');
+          form.emit('end');
+        });
+
+      })",250,269,snuts
+/test/unit/formidable.test.js,IdenticalTestDescription,"{'startLine':273,'endLine':284}","test('not emits error when part is received', () => {
+        const form = getForm(name, { minFileSize: 10 });
+        const formEmitSpy = jest.spyOn(form, 'emit');
+
+        const part = new Stream();
+        part.mimetype = 'text/plain';
+        form.onPart(part);
+        part.emit('data', Buffer.alloc(11));
+        part.emit('end');
+        form.emit('end');
+        expect(formEmitSpy).not.toBeCalledWith('error');
+      })",273,284,snuts
+/test/unit/formidable.test.js,NonFunctionalStatement,"{'startLine':15,'endLine':15}",Unknown,,,snuts
+/test/unit/formidable.test.js,NonFunctionalStatement,"{'startLine':16,'endLine':16}",Unknown,,,snuts
+/test/unit/custom-plugins.test.js,OvercommentedTest,"{'startLine':100,'endLine':153}","test('.parse throw error when some plugin fail', async () => {
+  const server = createServer(
+    { enabledPlugins: [octetstream, json] },
+    async (ctx, form) => {
+      // const failedIsOkay = false;
+      // ! not emitted?
+      // form.on('file', () => {
+      //   ctx.__onFileCalled = ctx.__onFileCalled || 0;
+      //   ctx.__onFileCalled += 1;
+      // });
+
+      form.on('plugin', () => {
+        ctx.__pluginsCount = ctx.__pluginsCount || 0;
+        ctx.__pluginsCount += 1;
+      });
+
+      form.once('error', () => {
+        throw new Error('error event should not be fired when plugin throw');
+      });
+
+      form.use(() => {
+        throw new Error('custom plugin err');
+      });
+
+      let res = null;
+      try {
+        await form.parse(ctx.req);
+      } catch (err) {
+        expect(err.code).toBe(errors.pluginFailed);
+        expect(err.httpCode).toBe(500);
+
+        expect(form._plugins.length).toBe(3);
+        expect(ctx.__pluginsCount).toBe(2);
+        expect(ctx.__pluginsResults).toBe(undefined);
+
+        res = err;
+      }
+
+      if (!res) {
+        throw new Error(
+          '^ .parse should throw & be caught with the try/catch ^',
+        );
+      }
+    },
+  );
+
+  return new Promise((resolve, reject) => {
+    request(server.callback())
+      .post('/')
+      .type('application/octet-stream')
+      .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'))
+      .end((err) => (err ? reject(err) : resolve()));
+  });
+})",100,153,snuts
+/test/unit/custom-plugins.test.js,ConditionalTestLogic,"{'startLine':138,'endLine':142}","test('.parse throw error when some plugin fail', async () => {
+  const server = createServer(
+    { enabledPlugins: [octetstream, json] },
+    async (ctx, form) => {
+      // const failedIsOkay = false;
+      // ! not emitted?
+      // form.on('file', () => {
+      //   ctx.__onFileCalled = ctx.__onFileCalled || 0;
+      //   ctx.__onFileCalled += 1;
+      // });
+
+      form.on('plugin', () => {
+        ctx.__pluginsCount = ctx.__pluginsCount || 0;
+        ctx.__pluginsCount += 1;
+      });
+
+      form.once('error', () => {
+        throw new Error('error event should not be fired when plugin throw');
+      });
+
+      form.use(() => {
+        throw new Error('custom plugin err');
+      });
+
+      let res = null;
+      try {
+        await form.parse(ctx.req);
+      } catch (err) {
+        expect(err.code).toBe(errors.pluginFailed);
+        expect(err.httpCode).toBe(500);
+
+        expect(form._plugins.length).toBe(3);
+        expect(ctx.__pluginsCount).toBe(2);
+        expect(ctx.__pluginsResults).toBe(undefined);
+
+        res = err;
+      }
+
+      if (!res) {
+        throw new Error(
+          '^ .parse should throw & be caught with the try/catch ^',
+        );
+      }
+    },
+  );
+
+  return new Promise((resolve, reject) => {
+    request(server.callback())
+      .post('/')
+      .type('application/octet-stream')
+      .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'))
+      .end((err) => (err ? reject(err) : resolve()));
+  });
+})",100,153,snuts
+/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':131,'endLine':131}","test('.parse throw error when some plugin fail', async () => {
+  const server = createServer(
+    { enabledPlugins: [octetstream, json] },
+    async (ctx, form) => {
+      // const failedIsOkay = false;
+      // ! not emitted?
+      // form.on('file', () => {
+      //   ctx.__onFileCalled = ctx.__onFileCalled || 0;
+      //   ctx.__onFileCalled += 1;
+      // });
+
+      form.on('plugin', () => {
+        ctx.__pluginsCount = ctx.__pluginsCount || 0;
+        ctx.__pluginsCount += 1;
+      });
+
+      form.once('error', () => {
+        throw new Error('error event should not be fired when plugin throw');
+      });
+
+      form.use(() => {
+        throw new Error('custom plugin err');
+      });
+
+      let res = null;
+      try {
+        await form.parse(ctx.req);
+      } catch (err) {
+        expect(err.code).toBe(errors.pluginFailed);
+        expect(err.httpCode).toBe(500);
+
+        expect(form._plugins.length).toBe(3);
+        expect(ctx.__pluginsCount).toBe(2);
+        expect(ctx.__pluginsResults).toBe(undefined);
+
+        res = err;
+      }
+
+      if (!res) {
+        throw new Error(
+          '^ .parse should throw & be caught with the try/catch ^',
+        );
+      }
+    },
+  );
+
+  return new Promise((resolve, reject) => {
+    request(server.callback())
+      .post('/')
+      .type('application/octet-stream')
+      .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'))
+      .end((err) => (err ? reject(err) : resolve()));
+  });
+})",100,153,snuts
+/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':133,'endLine':133}","test('.parse throw error when some plugin fail', async () => {
+  const server = createServer(
+    { enabledPlugins: [octetstream, json] },
+    async (ctx, form) => {
+      // const failedIsOkay = false;
+      // ! not emitted?
+      // form.on('file', () => {
+      //   ctx.__onFileCalled = ctx.__onFileCalled || 0;
+      //   ctx.__onFileCalled += 1;
+      // });
+
+      form.on('plugin', () => {
+        ctx.__pluginsCount = ctx.__pluginsCount || 0;
+        ctx.__pluginsCount += 1;
+      });
+
+      form.once('error', () => {
+        throw new Error('error event should not be fired when plugin throw');
+      });
+
+      form.use(() => {
+        throw new Error('custom plugin err');
+      });
+
+      let res = null;
+      try {
+        await form.parse(ctx.req);
+      } catch (err) {
+        expect(err.code).toBe(errors.pluginFailed);
+        expect(err.httpCode).toBe(500);
+
+        expect(form._plugins.length).toBe(3);
+        expect(ctx.__pluginsCount).toBe(2);
+        expect(ctx.__pluginsResults).toBe(undefined);
+
+        res = err;
+      }
+
+      if (!res) {
+        throw new Error(
+          '^ .parse should throw & be caught with the try/catch ^',
+        );
+      }
+    },
+  );
+
+  return new Promise((resolve, reject) => {
+    request(server.callback())
+      .post('/')
+      .type('application/octet-stream')
+      .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'))
+      .end((err) => (err ? reject(err) : resolve()));
+  });
+})",100,153,snuts
+/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':162,'endLine':162}","test('multipart plugin fire `error` event when malformed boundary', async () => {
+  const server = createServer(
+    { enabledPlugins: [json, multipart] },
+    (ctx, form) => {
+      let failedIsOkay = false;
+
+      form.once('error', (err) => {
+        expect(form._plugins.length).toBe(2);
+        expect(err).toBeTruthy();
+        expect(err.message).toMatch(/bad content-type header/);
+        expect(err.message).toMatch(/no multipart boundary/);
+        failedIsOkay = true;
+      });
+
+      // Should never be called when `error`
+      form.on('end', () => {
+        throw new Error('should not fire `end` event when error');
+      });
+
+      form.parse(ctx.req, (err) => {
+        expect(err).toBeTruthy();
+        expect(failedIsOkay).toBe(true);
+      });
+    },
+  );
+
+  // 'Content-Length': 1111111,
+  // 'content-Disposition': 'form-data; bouZndary=',
+  // 'Content-Type': 'multipart/form-data; bouZndary=',
+  await new Promise((resolve, reject) => {
+    request(server.callback())
+      .post('/')
+      .type('multipart/form-data')
+      .set('Content-Length', 11111111)
+      .set('Content-Disposition', 'form-data; bouZndary=')
+      .set('Content-Type', 'multipart/form-data; bouZndary=')
+      .end((err) => (err ? reject(err) : resolve()));
+  });
+})",155,193,snuts
+/test/standalone/issue-46.test.js,AnonymousTest,"{'startLine':12,'endLine':41}","test(""issue 46"", (done) => {
+  const server = createServer(async (req, res) => {
+    // Parse form and write results to response.
+    const form = formidable();
+    const [fields] = await form.parse(req);
+    ok(fields.foo, 'should have fields.foo === barry');
+    strictEqual(fields.foo[0], 'barry');
+    res.end();
+    server.close(() => {
+      done();
+    });
+  });
+
+  server.listen(PORT, () => {
+    const chosenPort = server.address().port;
+    const url = `http://localhost:${chosenPort}`;
+
+    const req = request(url, {
+      method: ""POST"",
+      headers: {
+        ""Content-Type"": type,
+        ""Content-Length"": buffer.byteLength
+      }
+    });
+
+    req.write(buffer);
+    req.end();
+    
+  });
+})",12,41,snuts
+/test/standalone/content-transfer-encoding.test.js,NonFunctionalStatement,"{'startLine':25,'endLine':26}","test('content transfer encoding', (done) => {
+  const server = createServer(async (req, res) => {
+    const form = formidable({
+      uploadDir: UPLOAD_DIR
+    });
+    form.on('end', () => {
+      throw new Error('Unexpected ""end"" event');
+    });
+    form.on('error', (e) => {
+      res.writeHead(500);
+      res.end(e.message);
+    });
+    try {
+      await form.parse(req);
+    } catch (formidableError) {
+    }
+  });
+
+  server.listen(PORT, () => {
+    const chosenPort = server.address().port;
+
+    const body =
+      '--foo\r\n' +
+      'Content-Disposition: form-data; name=""file1""; filename=""file1""\r\n' +
+      'Content-Type: application/octet-stream\r\n' +
+      '\r\nThis is the first file\r\n' +
+      '--foo\r\n' +
+      'Content-Type: application/octet-stream\r\n' +
+      'Content-Disposition: form-data; name=""file2""; filename=""file2""\r\n' +
+      'Content-Transfer-Encoding: unknown\r\n' +
+      '\r\nThis is the second file\r\n' +
+      '--foo--\r\n';
+
+    const req = request({
+      method: 'POST',
+      port: chosenPort,
+      headers: {
+        'Content-Length': body.length,
+        'Content-Type': 'multipart/form-data; boundary=foo',
+      },
+    });
+
+    req.on('response', (res) => {
+      strictEqual(res.statusCode, 500);
+      res.on('data', () => {});
+      res.on('end', () => {
+        server.close();
+        done();
+      });
+    });
+    req.end(body);
+  });
+})",11,63,snuts
+/test/standalone/content-transfer-encoding.test.js,NonFunctionalStatement,"{'startLine':55,'endLine':55}","test('content transfer encoding', (done) => {
+  const server = createServer(async (req, res) => {
+    const form = formidable({
+      uploadDir: UPLOAD_DIR
+    });
+    form.on('end', () => {
+      throw new Error('Unexpected ""end"" event');
+    });
+    form.on('error', (e) => {
+      res.writeHead(500);
+      res.end(e.message);
+    });
+    try {
+      await form.parse(req);
+    } catch (formidableError) {
+    }
+  });
+
+  server.listen(PORT, () => {
+    const chosenPort = server.address().port;
+
+    const body =
+      '--foo\r\n' +
+      'Content-Disposition: form-data; name=""file1""; filename=""file1""\r\n' +
+      'Content-Type: application/octet-stream\r\n' +
+      '\r\nThis is the first file\r\n' +
+      '--foo\r\n' +
+      'Content-Type: application/octet-stream\r\n' +
+      'Content-Disposition: form-data; name=""file2""; filename=""file2""\r\n' +
+      'Content-Transfer-Encoding: unknown\r\n' +
+      '\r\nThis is the second file\r\n' +
+      '--foo--\r\n';
+
+    const req = request({
+      method: 'POST',
+      port: chosenPort,
+      headers: {
+        'Content-Length': body.length,
+        'Content-Type': 'multipart/form-data; boundary=foo',
+      },
+    });
+
+    req.on('response', (res) => {
+      strictEqual(res.statusCode, 500);
+      res.on('data', () => {});
+      res.on('end', () => {
+        server.close();
+        done();
+      });
+    });
+    req.end(body);
+  });
+})",11,63,snuts
+/test/standalone/connection-aborted.test.js,AnonymousTest,"{'startLine':24,'endLine':58}","test('connection aborted', (done) => {
+  server.on('request', (req) => {
+    const form = formidable();
+
+    let abortedReceived = false;
+    form.on('aborted', () => {
+      abortedReceived = true;
+    });
+    form.on('error', () => {
+      assert(abortedReceived, 'Error event should follow aborted');
+    });
+    form.on('end', () => {
+      throw new Error('Unexpected ""end"" event');
+    });
+    form.parse(req, () => {
+      assert(
+        abortedReceived,
+        'from .parse() callback: Error event should follow aborted',
+      );
+      done();
+    });
+  });
+
+  server.listen(port, 'localhost', () => {
+    const client = connect(port);
+
+    client.write(
+      'POST / HTTP/1.1\r\n' +
+        'Host: localhost\r\n' +
+        'Content-Length: 70\r\n' +
+        'Content-Type: multipart/form-data; boundary=foo\r\n\r\n',
+    );
+    client.end();
+  });
+})",24,58,snuts
+/test/integration/store-files-option.test.js,ConditionalTestLogic,"{'startLine':28,'endLine':30}","test('store files option', (done) => {
+  const server = createServer((req, res) => {
+    if (!existsSync(DEFAULT_UPLOAD_DIR)) {
+      mkdirSync(DEFAULT_UPLOAD_DIR);
+    }
+    const form = formidable({
+      uploadDir: DEFAULT_UPLOAD_DIR,
+      fileWriteStreamHandler: () => new WriteStream(CUSTOM_UPLOAD_FILE_PATH),
+    });
+
+    form.parse(req, (err, fields, files) => {
+      strictEqual(Object.keys(files).length, 1);
+      const file = files.file[0];
+
+      strictEqual(file.size, 301);
+      strictEqual(typeof file.filepath, 'string');
+
+      const uploadedFileStats = statSync(CUSTOM_UPLOAD_FILE_PATH);
+      ok(uploadedFileStats.size === file.size);
+
+      unlinkSync(CUSTOM_UPLOAD_FILE_PATH);
+      res.end();
+      server.close();
+      done();
+    });
+  });
+
+  server.listen(PORT, (err) => {
+    assert(!err, 'should not have error, but be falsey');
+
+    const request = _request({
+      port: PORT,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/octet-stream',
+      },
+    });
+
+    createReadStream(testFilePath).pipe(request);
+  });
+})",26,66,snuts
+/test/integration/octet-stream.test.js,AnonymousTest,"{'startLine':20,'endLine':54}","test('octet stream', (done) => {
+  const server = createServer((req, res) => {
+    const form = formidable();
+
+    form.parse(req, (err, fields, files) => {
+      strictEqual(Object.keys(files).length, 1);
+      const file = files.file[0];
+
+      strictEqual(file.size, 301);
+
+      const uploaded = readFileSync(file.filepath);
+      const original = readFileSync(testFilePath);
+
+      deepStrictEqual(uploaded, original);
+
+      res.end();
+      server.close();
+      done();
+    });
+  });
+
+  server.listen(PORT, (err) => {
+    assert(!err, 'should not have error, but be falsey');
+
+    const request = _request({
+      port: PORT,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/octet-stream',
+      },
+    });
+
+    createReadStream(testFilePath).pipe(request);
+  });
+})",20,54,snuts
+/test/integration/json.test.js,AnonymousTest,"{'startLine':11,'endLine':41}","test('json', (done) => {
+  const server = createServer((req, res) => {
+    const form = formidable({ });
+
+    form.parse(req, (err, fields) => {
+      deepStrictEqual(fields, {
+        numbers: [1, 2, 3, 4, 5],
+        nested: { key: 'val' },
+      });
+
+      res.end();
+      server.close();
+      done();
+    });
+  });
+
+  server.listen(PORT, (err) => {
+    assert(!err, 'should not have error, but be falsey');
+
+    const request = _request({
+      port: PORT,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    request.write(JSON.stringify(testData));
+    request.end();
+  });
+})",11,41,snuts
+/test/integration/fixtures.test.js,AnonymousTest,"{'startLine':32,'endLine':131}","test('fixtures', (done) => {
+  const server = createServer();
+  server.listen(PORT, findFixtures);
+
+  function findFixtures() {
+      const results = Object.entries(fixtures).map(([fixtureGroup, fixture]) => {
+        return Object.entries(fixture).map(([k, v]) => {
+          return v.map(details => {
+            return {
+              fixture: v,
+              name: `${fixtureGroup}/${details.fixture}.http`
+            };
+          });
+        });
+      }).flat(Infinity);
+      testNext(results);
+  }
+
+  function testNext(results) {
+    const fixtureWithName = results.shift();
+    if (!fixtureWithName) {
+      server.close();
+      done();
+      return;
+    }
+    const fixtureName = fixtureWithName.name;
+    const fixture = fixtureWithName.fixture;
+
+    uploadFixture(fixtureName, (err, parts) => {
+      if (err) {
+        err.fixtureName = fixtureName;
+        throw err;
+      }
+
+      fixture.forEach((expectedPart, i) => {
+        const parsedPart = parts[i];
+        strictEqual(parsedPart.type, expectedPart.type);
+        strictEqual(parsedPart.name, expectedPart.name);
+
+        if (parsedPart.type === 'file') {
+          const file = parsedPart.value;
+          strictEqual(file.originalFilename, expectedPart.originalFilename,
+            `${JSON.stringify([expectedPart, file])}`);
+
+          if (expectedPart.sha1) {
+            strictEqual(
+              file.hash,
+              expectedPart.sha1,
+              `SHA1 error ${file.originalFilename} on ${file.filepath} ${JSON.stringify([expectedPart, file])}`,
+            );
+          }
+        }
+      });
+
+      testNext(results);
+    });
+  }
+
+  function uploadFixture(fixtureName, cb) {
+    server.once('request', (req, res) => {
+      const form = formidable({
+        uploadDir: UPLOAD_DIR,
+        hashAlgorithm: 'sha1',
+      });
+      form.parse(req);
+
+      function callback(...args) {
+        const realCallback = cb;
+        // eslint-disable-next-line no-param-reassign
+        cb = function callbackFn() {};
+
+        realCallback(...args);
+      }
+
+      const parts = [];
+      form
+        .on('error', callback)
+        .on('fileBegin', (name, value) => {
+          parts.push({ type: 'file', name, value });
+        })
+        .on('field', (name, value) => {
+          parts.push({ type: 'field', name, value });
+        })
+        .on('end', () => {
+          res.end();
+          callback(null, parts);
+        });
+    });
+
+    const socket = createConnection(PORT);
+    const fixturePath = join(FIXTURES_HTTP, fixtureName);
+    const file = createReadStream(fixturePath);
+
+    file.pipe(socket, { end: false });
+
+    socket.on('data', () => {
+      socket.end();
+    });
+  }
+})",32,131,snuts
+/test/integration/fixtures.test.js,ConditionalTestLogic,"{'startLine':52,'endLine':56}","test('fixtures', (done) => {
+  const server = createServer();
+  server.listen(PORT, findFixtures);
+
+  function findFixtures() {
+      const results = Object.entries(fixtures).map(([fixtureGroup, fixture]) => {
+        return Object.entries(fixture).map(([k, v]) => {
+          return v.map(details => {
+            return {
+              fixture: v,
+              name: `${fixtureGroup}/${details.fixture}.http`
+            };
+          });
+        });
+      }).flat(Infinity);
+      testNext(results);
+  }
+
+  function testNext(results) {
+    const fixtureWithName = results.shift();
+    if (!fixtureWithName) {
+      server.close();
+      done();
+      return;
+    }
+    const fixtureName = fixtureWithName.name;
+    const fixture = fixtureWithName.fixture;
+
+    uploadFixture(fixtureName, (err, parts) => {
+      if (err) {
+        err.fixtureName = fixtureName;
+        throw err;
+      }
+
+      fixture.forEach((expectedPart, i) => {
+        const parsedPart = parts[i];
+        strictEqual(parsedPart.type, expectedPart.type);
+        strictEqual(parsedPart.name, expectedPart.name);
+
+        if (parsedPart.type === 'file') {
+          const file = parsedPart.value;
+          strictEqual(file.originalFilename, expectedPart.originalFilename,
+            `${JSON.stringify([expectedPart, file])}`);
+
+          if (expectedPart.sha1) {
+            strictEqual(
+              file.hash,
+              expectedPart.sha1,
+              `SHA1 error ${file.originalFilename} on ${file.filepath} ${JSON.stringify([expectedPart, file])}`,
+            );
+          }
+        }
+      });
+
+      testNext(results);
+    });
+  }
+
+  function uploadFixture(fixtureName, cb) {
+    server.once('request', (req, res) => {
+      const form = formidable({
+        uploadDir: UPLOAD_DIR,
+        hashAlgorithm: 'sha1',
+      });
+      form.parse(req);
+
+      function callback(...args) {
+        const realCallback = cb;
+        // eslint-disable-next-line no-param-reassign
+        cb = function callbackFn() {};
+
+        realCallback(...args);
+      }
+
+      const parts = [];
+      form
+        .on('error', callback)
+        .on('fileBegin', (name, value) => {
+          parts.push({ type: 'file', name, value });
+        })
+        .on('field', (name, value) => {
+          parts.push({ type: 'field', name, value });
+        })
+        .on('end', () => {
+          res.end();
+          callback(null, parts);
+        });
+    });
+
+    const socket = createConnection(PORT);
+    const fixturePath = join(FIXTURES_HTTP, fixtureName);
+    const file = createReadStream(fixturePath);
+
+    file.pipe(socket, { end: false });
+
+    socket.on('data', () => {
+      socket.end();
+    });
+  }
+})",32,131,snuts
+/test/integration/fixtures.test.js,ConditionalTestLogic,"{'startLine':61,'endLine':64}","test('fixtures', (done) => {
+  const server = createServer();
+  server.listen(PORT, findFixtures);
+
+  function findFixtures() {
+      const results = Object.entries(fixtures).map(([fixtureGroup, fixture]) => {
+        return Object.entries(fixture).map(([k, v]) => {
+          return v.map(details => {
+            return {
+              fixture: v,
+              name: `${fixtureGroup}/${details.fixture}.http`
+            };
+          });
+        });
+      }).flat(Infinity);
+      testNext(results);
+  }
+
+  function testNext(results) {
+    const fixtureWithName = results.shift();
+    if (!fixtureWithName) {
+      server.close();
+      done();
+      return;
+    }
+    const fixtureName = fixtureWithName.name;
+    const fixture = fixtureWithName.fixture;
+
+    uploadFixture(fixtureName, (err, parts) => {
+      if (err) {
+        err.fixtureName = fixtureName;
+        throw err;
+      }
+
+      fixture.forEach((expectedPart, i) => {
+        const parsedPart = parts[i];
+        strictEqual(parsedPart.type, expectedPart.type);
+        strictEqual(parsedPart.name, expectedPart.name);
+
+        if (parsedPart.type === 'file') {
+          const file = parsedPart.value;
+          strictEqual(file.originalFilename, expectedPart.originalFilename,
+            `${JSON.stringify([expectedPart, file])}`);
+
+          if (expectedPart.sha1) {
+            strictEqual(
+              file.hash,
+              expectedPart.sha1,
+              `SHA1 error ${file.originalFilename} on ${file.filepath} ${JSON.stringify([expectedPart, file])}`,
+            );
+          }
+        }
+      });
+
+      testNext(results);
+    });
+  }
+
+  function uploadFixture(fixtureName, cb) {
+    server.once('request', (req, res) => {
+      const form = formidable({
+        uploadDir: UPLOAD_DIR,
+        hashAlgorithm: 'sha1',
+      });
+      form.parse(req);
+
+      function callback(...args) {
+        const realCallback = cb;
+        // eslint-disable-next-line no-param-reassign
+        cb = function callbackFn() {};
+
+        realCallback(...args);
+      }
+
+      const parts = [];
+      form
+        .on('error', callback)
+        .on('fileBegin', (name, value) => {
+          parts.push({ type: 'file', name, value });
+        })
+        .on('field', (name, value) => {
+          parts.push({ type: 'field', name, value });
+        })
+        .on('end', () => {
+          res.end();
+          callback(null, parts);
+        });
+    });
+
+    const socket = createConnection(PORT);
+    const fixturePath = join(FIXTURES_HTTP, fixtureName);
+    const file = createReadStream(fixturePath);
+
+    file.pipe(socket, { end: false });
+
+    socket.on('data', () => {
+      socket.end();
+    });
+  }
+})",32,131,snuts
+/test/integration/fixtures.test.js,ConditionalTestLogic,"{'startLine':71,'endLine':83}","test('fixtures', (done) => {
+  const server = createServer();
+  server.listen(PORT, findFixtures);
+
+  function findFixtures() {
+      const results = Object.entries(fixtures).map(([fixtureGroup, fixture]) => {
+        return Object.entries(fixture).map(([k, v]) => {
+          return v.map(details => {
+            return {
+              fixture: v,
+              name: `${fixtureGroup}/${details.fixture}.http`
+            };
+          });
+        });
+      }).flat(Infinity);
+      testNext(results);
+  }
+
+  function testNext(results) {
+    const fixtureWithName = results.shift();
+    if (!fixtureWithName) {
+      server.close();
+      done();
+      return;
+    }
+    const fixtureName = fixtureWithName.name;
+    const fixture = fixtureWithName.fixture;
+
+    uploadFixture(fixtureName, (err, parts) => {
+      if (err) {
+        err.fixtureName = fixtureName;
+        throw err;
+      }
+
+      fixture.forEach((expectedPart, i) => {
+        const parsedPart = parts[i];
+        strictEqual(parsedPart.type, expectedPart.type);
+        strictEqual(parsedPart.name, expectedPart.name);
+
+        if (parsedPart.type === 'file') {
+          const file = parsedPart.value;
+          strictEqual(file.originalFilename, expectedPart.originalFilename,
+            `${JSON.stringify([expectedPart, file])}`);
+
+          if (expectedPart.sha1) {
+            strictEqual(
+              file.hash,
+              expectedPart.sha1,
+              `SHA1 error ${file.originalFilename} on ${file.filepath} ${JSON.stringify([expectedPart, file])}`,
+            );
+          }
+        }
+      });
+
+      testNext(results);
+    });
+  }
+
+  function uploadFixture(fixtureName, cb) {
+    server.once('request', (req, res) => {
+      const form = formidable({
+        uploadDir: UPLOAD_DIR,
+        hashAlgorithm: 'sha1',
+      });
+      form.parse(req);
+
+      function callback(...args) {
+        const realCallback = cb;
+        // eslint-disable-next-line no-param-reassign
+        cb = function callbackFn() {};
+
+        realCallback(...args);
+      }
+
+      const parts = [];
+      form
+        .on('error', callback)
+        .on('fileBegin', (name, value) => {
+          parts.push({ type: 'file', name, value });
+        })
+        .on('field', (name, value) => {
+          parts.push({ type: 'field', name, value });
+        })
+        .on('end', () => {
+          res.end();
+          callback(null, parts);
+        });
+    });
+
+    const socket = createConnection(PORT);
+    const fixturePath = join(FIXTURES_HTTP, fixtureName);
+    const file = createReadStream(fixturePath);
+
+    file.pipe(socket, { end: false });
+
+    socket.on('data', () => {
+      socket.end();
+    });
+  }
+})",32,131,snuts
+/test/integration/fixtures.test.js,ConditionalTestLogic,"{'startLine':76,'endLine':82}","test('fixtures', (done) => {
+  const server = createServer();
+  server.listen(PORT, findFixtures);
+
+  function findFixtures() {
+      const results = Object.entries(fixtures).map(([fixtureGroup, fixture]) => {
+        return Object.entries(fixture).map(([k, v]) => {
+          return v.map(details => {
+            return {
+              fixture: v,
+              name: `${fixtureGroup}/${details.fixture}.http`
+            };
+          });
+        });
+      }).flat(Infinity);
+      testNext(results);
+  }
+
+  function testNext(results) {
+    const fixtureWithName = results.shift();
+    if (!fixtureWithName) {
+      server.close();
+      done();
+      return;
+    }
+    const fixtureName = fixtureWithName.name;
+    const fixture = fixtureWithName.fixture;
+
+    uploadFixture(fixtureName, (err, parts) => {
+      if (err) {
+        err.fixtureName = fixtureName;
+        throw err;
+      }
+
+      fixture.forEach((expectedPart, i) => {
+        const parsedPart = parts[i];
+        strictEqual(parsedPart.type, expectedPart.type);
+        strictEqual(parsedPart.name, expectedPart.name);
+
+        if (parsedPart.type === 'file') {
+          const file = parsedPart.value;
+          strictEqual(file.originalFilename, expectedPart.originalFilename,
+            `${JSON.stringify([expectedPart, file])}`);
+
+          if (expectedPart.sha1) {
+            strictEqual(
+              file.hash,
+              expectedPart.sha1,
+              `SHA1 error ${file.originalFilename} on ${file.filepath} ${JSON.stringify([expectedPart, file])}`,
+            );
+          }
+        }
+      });
+
+      testNext(results);
+    });
+  }
+
+  function uploadFixture(fixtureName, cb) {
+    server.once('request', (req, res) => {
+      const form = formidable({
+        uploadDir: UPLOAD_DIR,
+        hashAlgorithm: 'sha1',
+      });
+      form.parse(req);
+
+      function callback(...args) {
+        const realCallback = cb;
+        // eslint-disable-next-line no-param-reassign
+        cb = function callbackFn() {};
+
+        realCallback(...args);
+      }
+
+      const parts = [];
+      form
+        .on('error', callback)
+        .on('fileBegin', (name, value) => {
+          parts.push({ type: 'file', name, value });
+        })
+        .on('field', (name, value) => {
+          parts.push({ type: 'field', name, value });
+        })
+        .on('end', () => {
+          res.end();
+          callback(null, parts);
+        });
+    });
+
+    const socket = createConnection(PORT);
+    const fixturePath = join(FIXTURES_HTTP, fixtureName);
+    const file = createReadStream(fixturePath);
+
+    file.pipe(socket, { end: false });
+
+    socket.on('data', () => {
+      socket.end();
+    });
+  }
+})",32,131,snuts
+/test/integration/fixtures.test.js,NonFunctionalStatement,"{'startLine':101,'endLine':101}","test('fixtures', (done) => {
+  const server = createServer();
+  server.listen(PORT, findFixtures);
+
+  function findFixtures() {
+      const results = Object.entries(fixtures).map(([fixtureGroup, fixture]) => {
+        return Object.entries(fixture).map(([k, v]) => {
+          return v.map(details => {
+            return {
+              fixture: v,
+              name: `${fixtureGroup}/${details.fixture}.http`
+            };
+          });
+        });
+      }).flat(Infinity);
+      testNext(results);
+  }
+
+  function testNext(results) {
+    const fixtureWithName = results.shift();
+    if (!fixtureWithName) {
+      server.close();
+      done();
+      return;
+    }
+    const fixtureName = fixtureWithName.name;
+    const fixture = fixtureWithName.fixture;
+
+    uploadFixture(fixtureName, (err, parts) => {
+      if (err) {
+        err.fixtureName = fixtureName;
+        throw err;
+      }
+
+      fixture.forEach((expectedPart, i) => {
+        const parsedPart = parts[i];
+        strictEqual(parsedPart.type, expectedPart.type);
+        strictEqual(parsedPart.name, expectedPart.name);
+
+        if (parsedPart.type === 'file') {
+          const file = parsedPart.value;
+          strictEqual(file.originalFilename, expectedPart.originalFilename,
+            `${JSON.stringify([expectedPart, file])}`);
+
+          if (expectedPart.sha1) {
+            strictEqual(
+              file.hash,
+              expectedPart.sha1,
+              `SHA1 error ${file.originalFilename} on ${file.filepath} ${JSON.stringify([expectedPart, file])}`,
+            );
+          }
+        }
+      });
+
+      testNext(results);
+    });
+  }
+
+  function uploadFixture(fixtureName, cb) {
+    server.once('request', (req, res) => {
+      const form = formidable({
+        uploadDir: UPLOAD_DIR,
+        hashAlgorithm: 'sha1',
+      });
+      form.parse(req);
+
+      function callback(...args) {
+        const realCallback = cb;
+        // eslint-disable-next-line no-param-reassign
+        cb = function callbackFn() {};
+
+        realCallback(...args);
+      }
+
+      const parts = [];
+      form
+        .on('error', callback)
+        .on('fileBegin', (name, value) => {
+          parts.push({ type: 'file', name, value });
+        })
+        .on('field', (name, value) => {
+          parts.push({ type: 'field', name, value });
+        })
+        .on('end', () => {
+          res.end();
+          callback(null, parts);
+        });
+    });
+
+    const socket = createConnection(PORT);
+    const fixturePath = join(FIXTURES_HTTP, fixtureName);
+    const file = createReadStream(fixturePath);
+
+    file.pipe(socket, { end: false });
+
+    socket.on('data', () => {
+      socket.end();
+    });
+  }
+})",32,131,snuts
+/test-legacy/simple/test-file.js,NonFunctionalStatement,"{'startLine':99,'endLine':99}","test(function end() {
+  let CB_STUB;
+  const CB = function() {
+    CB_STUB.apply(this, arguments);
+  };
+
+  file._writeStream = {};
+
+  gently.expect(file._writeStream, 'end', function(cb) {
+    gently.expect(file, 'emit', function(event) {
+      assert.equal(event, 'end');
+    });
+
+    CB_STUB = gently.expect(function endCb() {});
+
+    cb();
+  });
+
+  file.end(CB);
+})",86,105,snuts
+/test/unit/persistent-file.disabled-test.js,AnonymousTest,"{'startLine':27,'endLine':34}","test('toJSON()', () => {
+    const obj = file.toJSON();
+    const len = Object.keys(obj).length;
+
+    expect(obj.filepath).toBe('/tmp/cat.png');
+    expect(obj.mimetype).toBe('image/png');
+    expect(obj.originalFilename).toBe('cat.png');
+  })",27,34,snuts
+/test/unit/persistent-file.disabled-test.js,AnonymousTest,"{'startLine':36,'endLine':39}","test('toString()', () => {
+    const result = file.toString();
+    expect(result).toBe('PersistentFile: dff1d2eaab9752165764dcd00, Original: cat.png, Path: /tmp/cat.png')
+  })",36,39,snuts
+/test/unit/persistent-file.disabled-test.js,AnonymousTest,"{'startLine':41,'endLine':46}","test('destroy()', () => {
+    file.open();
+    file.destroy();
+    // eslint-disable-next-line global-require
+    expect(mockFn).toBeCalled();
+  })",41,46,snuts
+/test/unit/formidable.test.js,Conditional Test Logic,"{'line': 27, 'column': 45, 'index': 691}",Unknown,,,steel
