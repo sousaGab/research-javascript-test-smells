@@ -1349,6 +1349,477 @@ async def delete_refatoracao(experiment_id: int):
 
 
 # =============================================================================
+# ANALYTICS ENDPOINTS
+# =============================================================================
+
+def build_analytics_filters(
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    model_ids: Optional[str] = None,
+    smell_types: Optional[str] = None,
+    prompting_approaches: Optional[str] = None,
+    repos: Optional[str] = None,
+    smell_removed: Optional[bool] = None,
+    tests_passing: Optional[bool] = None,
+    test_pass_rate_decreased: Optional[bool] = None,
+    coverage_decreased: Optional[bool] = None,
+) -> tuple:
+    """Build WHERE clause conditions and parameters for analytics filtering."""
+    conditions = []
+    params = {}
+    
+    # Date range
+    if start_date:
+        conditions.append("e.created_at >= :start_date")
+        params["start_date"] = start_date
+    if end_date:
+        conditions.append("e.created_at <= :end_date")
+        params["end_date"] = end_date
+    
+    # Models
+    if model_ids:
+        models = [m.strip() for m in model_ids.split(',') if m.strip()]
+        if models:
+            placeholders = ','.join([f":model_{i}" for i in range(len(models))])
+            conditions.append(f"e.ai_model_version IN ({placeholders})")
+            for i, model in enumerate(models):
+                params[f"model_{i}"] = model
+    
+    # Smell types
+    if smell_types:
+        types = [t.strip() for t in smell_types.split(',') if t.strip()]
+        if types:
+            placeholders = ','.join([f":smell_{i}" for i in range(len(types))])
+            conditions.append(f"ss.smell_type IN ({placeholders})")
+            for i, smell in enumerate(types):
+                params[f"smell_{i}"] = smell
+    
+    # Prompting approaches
+    if prompting_approaches:
+        approaches = [a.strip() for a in prompting_approaches.split(',') if a.strip()]
+        if approaches:
+            placeholders = ','.join([f":approach_{i}" for i in range(len(approaches))])
+            conditions.append(f"e.prompting_approach IN ({placeholders})")
+            for i, approach in enumerate(approaches):
+                params[f"approach_{i}"] = approach
+    
+    # Repositories
+    if repos:
+        repo_names = [r.strip() for r in repos.split(',') if r.strip()]
+        if repo_names:
+            placeholders = ','.join([f":repo_{i}" for i in range(len(repo_names))])
+            conditions.append(f"r.name IN ({placeholders})")
+            for i, repo in enumerate(repo_names):
+                params[f"repo_{i}"] = repo
+    
+    # Boolean filters
+    if smell_removed is not None:
+        conditions.append("e.smell_removed = :smell_removed")
+        params["smell_removed"] = smell_removed
+    if tests_passing is not None:
+        conditions.append("e.tests_still_passing = :tests_passing")
+        params["tests_passing"] = tests_passing
+    if test_pass_rate_decreased is not None:
+        conditions.append("e.tests_pass_rate_decreased = :test_pass_rate_decreased")
+        params["test_pass_rate_decreased"] = test_pass_rate_decreased
+    if coverage_decreased is not None:
+        conditions.append("e.coverage_decreased = :coverage_decreased")
+        params["coverage_decreased"] = coverage_decreased
+    
+    return conditions, params
+
+
+@app.get("/api/analytics/overview")
+async def get_analytics_overview(
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    model_ids: Optional[str] = Query(None),
+    smell_types: Optional[str] = Query(None),
+    prompting_approaches: Optional[str] = Query(None),
+    repos: Optional[str] = Query(None),
+    smell_removed: Optional[bool] = Query(None),
+    tests_passing: Optional[bool] = Query(None),
+    test_pass_rate_decreased: Optional[bool] = Query(None),
+    coverage_decreased: Optional[bool] = Query(None),
+):
+    """Get overview KPIs: total experiments, success rate, avg tokens, avg latency."""
+    session = get_db_session()
+    try:
+        conditions, params = build_analytics_filters(
+            start_date, end_date, model_ids, smell_types,
+            prompting_approaches, repos, smell_removed,
+            tests_passing, test_pass_rate_decreased, coverage_decreased
+        )
+        
+        where_clause = " AND " + " AND ".join(conditions) if conditions else ""
+        
+        query = text(f"""
+            SELECT 
+                COUNT(*) as total_experiments,
+                AVG(CASE WHEN e.smell_removed = 1 AND e.tests_still_passing = 1 THEN 100.0 ELSE 0.0 END) as success_rate,
+                AVG(e.tokens_used) as avg_tokens,
+                AVG(e.llm_latency_seconds) as avg_latency
+            FROM experiments e
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN files f ON ss.file_id = f.id
+            LEFT JOIN repositories r ON f.repository_id = r.id
+            WHERE 1=1{where_clause}
+        """)
+        
+        result = session.execute(query, params).fetchone()
+        
+        return {
+            "total_experiments": result.total_experiments or 0,
+            "success_rate": round(result.success_rate or 0, 2),
+            "avg_tokens": round(result.avg_tokens or 0, 0),
+            "avg_latency": round(result.avg_latency or 0, 2)
+        }
+    finally:
+        session.close()
+
+
+@app.get("/api/analytics/models")
+async def get_analytics_by_model(
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    model_ids: Optional[str] = Query(None),
+    smell_types: Optional[str] = Query(None),
+    prompting_approaches: Optional[str] = Query(None),
+    repos: Optional[str] = Query(None),
+    smell_removed: Optional[bool] = Query(None),
+    tests_passing: Optional[bool] = Query(None),
+    test_pass_rate_decreased: Optional[bool] = Query(None),
+    coverage_decreased: Optional[bool] = Query(None),
+):
+    """Get statistics grouped by AI model."""
+    session = get_db_session()
+    try:
+        conditions, params = build_analytics_filters(
+            start_date, end_date, model_ids, smell_types,
+            prompting_approaches, repos, smell_removed,
+            tests_passing, test_pass_rate_decreased, coverage_decreased
+        )
+        
+        where_clause = " AND " + " AND ".join(conditions) if conditions else ""
+        
+        query = text(f"""
+            SELECT 
+                e.ai_model_version as model_name,
+                COUNT(*) as total_experiments,
+                AVG(CASE WHEN e.smell_removed = 1 AND e.tests_still_passing = 1 THEN 100.0 ELSE 0.0 END) as success_rate,
+                AVG(CASE WHEN e.smell_removed = 1 THEN 100.0 ELSE 0.0 END) as smell_removal_rate,
+                AVG(CASE WHEN e.tests_still_passing = 1 THEN 100.0 ELSE 0.0 END) as test_pass_rate,
+                AVG(e.tokens_used) as avg_tokens,
+                AVG(e.llm_latency_seconds) as avg_latency
+            FROM experiments e
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN files f ON ss.file_id = f.id
+            LEFT JOIN repositories r ON f.repository_id = r.id
+            WHERE e.ai_model_version IS NOT NULL{where_clause}
+            GROUP BY e.ai_model_version
+            ORDER BY total_experiments DESC
+        """)
+        
+        results = session.execute(query, params).fetchall()
+        
+        return [
+            {
+                "model_name": row.model_name,
+                "total_experiments": row.total_experiments,
+                "success_rate": round(row.success_rate, 2),
+                "smell_removal_rate": round(row.smell_removal_rate, 2),
+                "test_pass_rate": round(row.test_pass_rate, 2),
+                "avg_tokens": round(row.avg_tokens or 0, 0),
+                "avg_latency": round(row.avg_latency or 0, 2)
+            }
+            for row in results
+        ]
+    finally:
+        session.close()
+
+
+@app.get("/api/analytics/smells")
+async def get_analytics_by_smell(
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    model_ids: Optional[str] = Query(None),
+    smell_types: Optional[str] = Query(None),
+    prompting_approaches: Optional[str] = Query(None),
+    repos: Optional[str] = Query(None),
+    smell_removed: Optional[bool] = Query(None),
+    tests_passing: Optional[bool] = Query(None),
+    test_pass_rate_decreased: Optional[bool] = Query(None),
+    coverage_decreased: Optional[bool] = Query(None),
+):
+    """Get statistics grouped by smell type."""
+    session = get_db_session()
+    try:
+        conditions, params = build_analytics_filters(
+            start_date, end_date, model_ids, smell_types,
+            prompting_approaches, repos, smell_removed,
+            tests_passing, test_pass_rate_decreased, coverage_decreased
+        )
+        
+        where_clause = " AND " + " AND ".join(conditions) if conditions else ""
+        
+        # Get total for percentage calculation
+        total_query = text(f"""
+            SELECT COUNT(*) as total
+            FROM experiments e
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN files f ON ss.file_id = f.id
+            LEFT JOIN repositories r ON f.repository_id = r.id
+            WHERE ss.smell_type IS NOT NULL{where_clause}
+        """)
+        total_result = session.execute(total_query, params).fetchone()
+        total_experiments = total_result.total or 1  # Avoid division by zero
+        
+        query = text(f"""
+            SELECT 
+                ss.smell_type,
+                COUNT(*) as total_experiments,
+                AVG(CASE WHEN e.smell_removed = 1 THEN 100.0 ELSE 0.0 END) as removal_rate
+            FROM experiments e
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN files f ON ss.file_id = f.id
+            LEFT JOIN repositories r ON f.repository_id = r.id
+            WHERE ss.smell_type IS NOT NULL{where_clause}
+            GROUP BY ss.smell_type
+            ORDER BY total_experiments DESC
+        """)
+        
+        results = session.execute(query, params).fetchall()
+        
+        return [
+            {
+                "smell_type": row.smell_type,
+                "total_experiments": row.total_experiments,
+                "removal_rate": round(row.removal_rate, 2),
+                "percentage_of_total": round((row.total_experiments / total_experiments) * 100, 2)
+            }
+            for row in results
+        ]
+    finally:
+        session.close()
+
+
+@app.get("/api/analytics/tests")
+async def get_analytics_tests(
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    model_ids: Optional[str] = Query(None),
+    smell_types: Optional[str] = Query(None),
+    prompting_approaches: Optional[str] = Query(None),
+    repos: Optional[str] = Query(None),
+    smell_removed: Optional[bool] = Query(None),
+    tests_passing: Optional[bool] = Query(None),
+    test_pass_rate_decreased: Optional[bool] = Query(None),
+    coverage_decreased: Optional[bool] = Query(None),
+):
+    """Get test and coverage statistics."""
+    session = get_db_session()
+    try:
+        conditions, params = build_analytics_filters(
+            start_date, end_date, model_ids, smell_types,
+            prompting_approaches, repos, smell_removed,
+            tests_passing, test_pass_rate_decreased, coverage_decreased
+        )
+        
+        where_clause = " AND " + " AND ".join(conditions) if conditions else ""
+        
+        query = text(f"""
+            SELECT 
+                AVG(CASE WHEN e.tests_still_passing = 1 THEN 100.0 ELSE 0.0 END) as tests_passing_rate,
+                AVG(tr_before.coverage_lines) as avg_coverage_before,
+                AVG(tr_after.coverage_lines) as avg_coverage_after,
+                AVG(CASE WHEN tr_after.coverage_lines > tr_before.coverage_lines THEN 100.0 ELSE 0.0 END) as coverage_improved_rate,
+                AVG(CASE WHEN e.coverage_decreased = 1 THEN 100.0 ELSE 0.0 END) as coverage_decreased_rate,
+                AVG(CASE WHEN e.tests_pass_rate_decreased = 1 THEN 100.0 ELSE 0.0 END) as test_pass_rate_regression_rate
+            FROM experiments e
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN files f ON ss.file_id = f.id
+            LEFT JOIN repositories r ON f.repository_id = r.id
+            LEFT JOIN test_results tr_before ON e.id = tr_before.experiment_id AND tr_before.phase = 'before'
+            LEFT JOIN test_results tr_after ON e.id = tr_after.experiment_id AND tr_after.phase = 'after'
+            WHERE 1=1{where_clause}
+        """)
+        
+        result = session.execute(query, params).fetchone()
+        
+        return {
+            "tests_passing_rate": round(result.tests_passing_rate or 0, 2),
+            "avg_coverage_before": round(result.avg_coverage_before or 0, 2),
+            "avg_coverage_after": round(result.avg_coverage_after or 0, 2),
+            "coverage_improved_rate": round(result.coverage_improved_rate or 0, 2),
+            "coverage_decreased_rate": round(result.coverage_decreased_rate or 0, 2),
+            "test_pass_rate_regression_rate": round(result.test_pass_rate_regression_rate or 0, 2)
+        }
+    finally:
+        session.close()
+
+
+@app.get("/api/analytics/timeline")
+async def get_analytics_timeline(
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    model_ids: Optional[str] = Query(None),
+    smell_types: Optional[str] = Query(None),
+    prompting_approaches: Optional[str] = Query(None),
+    repos: Optional[str] = Query(None),
+    smell_removed: Optional[bool] = Query(None),
+    tests_passing: Optional[bool] = Query(None),
+    test_pass_rate_decreased: Optional[bool] = Query(None),
+    coverage_decreased: Optional[bool] = Query(None),
+):
+    """Get experiments over time (daily aggregation)."""
+    session = get_db_session()
+    try:
+        conditions, params = build_analytics_filters(
+            start_date, end_date, model_ids, smell_types,
+            prompting_approaches, repos, smell_removed,
+            tests_passing, test_pass_rate_decreased, coverage_decreased
+        )
+        
+        where_clause = " AND " + " AND ".join(conditions) if conditions else ""
+        
+        query = text(f"""
+            SELECT 
+                DATE(e.created_at) as date,
+                COUNT(*) as total_experiments,
+                AVG(CASE WHEN e.smell_removed = 1 AND e.tests_still_passing = 1 THEN 100.0 ELSE 0.0 END) as success_rate
+            FROM experiments e
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN files f ON ss.file_id = f.id
+            LEFT JOIN repositories r ON f.repository_id = r.id
+            WHERE 1=1{where_clause}
+            GROUP BY DATE(e.created_at)
+            ORDER BY date ASC
+        """)
+        
+        results = session.execute(query, params).fetchall()
+        
+        return [
+            {
+                "date": str(row.date),
+                "total_experiments": row.total_experiments,
+                "success_rate": round(row.success_rate, 2)
+            }
+            for row in results
+        ]
+    finally:
+        session.close()
+
+
+@app.get("/api/analytics/regressions")
+async def get_analytics_regressions(
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    model_ids: Optional[str] = Query(None),
+    smell_types: Optional[str] = Query(None),
+    prompting_approaches: Optional[str] = Query(None),
+    repos: Optional[str] = Query(None),
+    smell_removed: Optional[bool] = Query(None),
+    tests_passing: Optional[bool] = Query(None),
+):
+    """Get regression statistics (test pass rate decreased, coverage decreased)."""
+    session = get_db_session()
+    try:
+        # Don't filter by regression flags for this endpoint
+        conditions, params = build_analytics_filters(
+            start_date, end_date, model_ids, smell_types,
+            prompting_approaches, repos, smell_removed, tests_passing,
+            None, None
+        )
+        
+        where_clause = " AND " + " AND ".join(conditions) if conditions else ""
+        
+        # Overall stats
+        overall_query = text(f"""
+            SELECT 
+                SUM(CASE WHEN e.tests_pass_rate_decreased = 1 THEN 1 ELSE 0 END) as test_pass_rate_decreased_count,
+                SUM(CASE WHEN e.coverage_decreased = 1 THEN 1 ELSE 0 END) as coverage_decreased_count,
+                SUM(CASE WHEN e.tests_pass_rate_decreased = 1 AND e.coverage_decreased = 1 THEN 1 ELSE 0 END) as both_decreased_count,
+                COUNT(*) as total_experiments
+            FROM experiments e
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN files f ON ss.file_id = f.id
+            LEFT JOIN repositories r ON f.repository_id = r.id
+            WHERE 1=1{where_clause}
+        """)
+        
+        overall = session.execute(overall_query, params).fetchone()
+        
+        # By model
+        by_model_query = text(f"""
+            SELECT 
+                e.ai_model_version as model_name,
+                SUM(CASE WHEN e.tests_pass_rate_decreased = 1 THEN 1 ELSE 0 END) as test_pass_rate_decreased_count,
+                SUM(CASE WHEN e.coverage_decreased = 1 THEN 1 ELSE 0 END) as coverage_decreased_count,
+                SUM(CASE WHEN e.tests_pass_rate_decreased = 1 AND e.coverage_decreased = 1 THEN 1 ELSE 0 END) as both_decreased_count,
+                COUNT(*) as total_experiments
+            FROM experiments e
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN files f ON ss.file_id = f.id
+            LEFT JOIN repositories r ON f.repository_id = r.id
+            WHERE e.ai_model_version IS NOT NULL{where_clause}
+            GROUP BY e.ai_model_version
+            ORDER BY total_experiments DESC
+        """)
+        
+        by_model = session.execute(by_model_query, params).fetchall()
+        
+        # By smell type
+        by_smell_query = text(f"""
+            SELECT 
+                ss.smell_type,
+                SUM(CASE WHEN e.tests_pass_rate_decreased = 1 THEN 1 ELSE 0 END) as test_pass_rate_decreased_count,
+                SUM(CASE WHEN e.coverage_decreased = 1 THEN 1 ELSE 0 END) as coverage_decreased_count,
+                SUM(CASE WHEN e.tests_pass_rate_decreased = 1 AND e.coverage_decreased = 1 THEN 1 ELSE 0 END) as both_decreased_count,
+                COUNT(*) as total_experiments
+            FROM experiments e
+            LEFT JOIN study_smells ss ON e.study_smell_id = ss.id
+            LEFT JOIN files f ON ss.file_id = f.id
+            LEFT JOIN repositories r ON f.repository_id = r.id
+            WHERE ss.smell_type IS NOT NULL{where_clause}
+            GROUP BY ss.smell_type
+            ORDER BY total_experiments DESC
+        """)
+        
+        by_smell = session.execute(by_smell_query, params).fetchall()
+        
+        return {
+            "overall": {
+                "test_pass_rate_decreased_count": overall.test_pass_rate_decreased_count or 0,
+                "coverage_decreased_count": overall.coverage_decreased_count or 0,
+                "both_decreased_count": overall.both_decreased_count or 0,
+                "total_experiments": overall.total_experiments or 0
+            },
+            "by_model": [
+                {
+                    "model_name": row.model_name,
+                    "test_pass_rate_decreased_count": row.test_pass_rate_decreased_count or 0,
+                    "coverage_decreased_count": row.coverage_decreased_count or 0,
+                    "both_decreased_count": row.both_decreased_count or 0,
+                    "total_experiments": row.total_experiments
+                }
+                for row in by_model
+            ],
+            "by_smell_type": [
+                {
+                    "smell_type": row.smell_type,
+                    "test_pass_rate_decreased_count": row.test_pass_rate_decreased_count or 0,
+                    "coverage_decreased_count": row.coverage_decreased_count or 0,
+                    "both_decreased_count": row.both_decreased_count or 0,
+                    "total_experiments": row.total_experiments
+                }
+                for row in by_smell
+            ]
+        }
+    finally:
+        session.close()
+
+
+# =============================================================================
 # MAIN
 # =============================================================================
 

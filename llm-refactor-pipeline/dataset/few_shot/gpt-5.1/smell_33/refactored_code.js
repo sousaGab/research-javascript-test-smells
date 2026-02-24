@@ -1,0 +1,21 @@
+it('should have default settings', function () {
+  const EXPECTED_LINK_COUNT = 4
+  const FIRST_PAGE_INDEX = 0
+  const SECOND_PAGE_INDEX = 1
+  const ELLIPSIS_INDEX = 2
+  const LAST_PAGE_INDEX = 3
+  const OUT_OF_RANGE_INDEX = 4
+
+  const FIRST_PAGE_LABEL = '1'
+  const SECOND_PAGE_LABEL = '2'
+  const ELLIPSIS_LABEL = '...'
+  const LAST_PAGE_LABEL = '9'
+  const OUT_OF_RANGE_VALUE = undefined
+
+  expect(pagination.find('a').length).toEqual(EXPECTED_LINK_COUNT)
+  expect(pagination.find('a').get(FIRST_PAGE_INDEX).innerHTML).toEqual(FIRST_PAGE_LABEL)
+  expect(pagination.find('a').get(SECOND_PAGE_INDEX).innerHTML).toEqual(SECOND_PAGE_LABEL)
+  expect(pagination.find('a').get(ELLIPSIS_INDEX).innerHTML).toEqual(ELLIPSIS_LABEL)
+  expect(pagination.find('a').get(LAST_PAGE_INDEX).innerHTML).toEqual(LAST_PAGE_LABEL)
+  expect(pagination.find('a').get(OUT_OF_RANGE_INDEX)).toEqual(OUT_OF_RANGE_VALUE)
+})

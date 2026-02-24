@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
 import SmellSelector from './pages/SmellSelector';
 import Refatoracoes from './pages/Refatoracoes';
+import DataAnalysis from './pages/DataAnalysis';
 import './App.css';
 
 function App() {
@@ -27,6 +28,12 @@ function App() {
               >
                 Refactorings
               </NavLink>
+              <NavLink
+                to="/analysis"
+                className={({ isActive }) => `nav-link${isActive ? ' nav-link-active' : ''}`}
+              >
+                Data Analysis
+              </NavLink>
             </nav>
           </div>
         </header>
@@ -34,6 +41,7 @@ function App() {
         <Routes>
           <Route path="/" element={<SmellSelector />} />
           <Route path="/refactorings" element={<Refatoracoes />} />
+          <Route path="/analysis" element={<DataAnalysis />} />
         </Routes>
       </div>
     </Router>

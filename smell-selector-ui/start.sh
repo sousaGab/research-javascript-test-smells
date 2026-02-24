@@ -68,7 +68,12 @@ echo "✓ Database found"
 if ! grep -q "smell_ui_metadata" <(sqlite3 ../research_data/research.db ".tables") 2>/dev/null; then
     echo "  Running database migration..."
     cd backend
-    python3 migrate_database.py
+    # Use virtual environment Python if available, otherwise system python3
+    if [ -f "../../.venv/bin/python" ]; then
+        ../../.venv/bin/python migrate_database.py
+    else
+        python3 migrate_database.py
+    fi
     cd ..
 else
     echo "✓ Database schema up-to-date"
@@ -83,12 +88,15 @@ echo ""
 echo -e "${BLUE}📦 Installing dependencies...${NC}"
 
 # Backend dependencies
-if [ ! -d "backend/.venv" ] && [ ! -f "backend/.dependencies_installed" ]; then
-    echo "  Installing backend dependencies..."
-    cd backend
-    pip3 install -q -r requirements.txt
-    touch .dependencies_installed
-    cd ..
+if [ ! -f ".backend_dependencies_installed" ]; then
+    echo "  Installing backend dependencies from root requirements.txt..."
+    # Use virtual environment pip if available
+    if [ -f "../.venv/bin/pip" ]; then
+        ../.venv/bin/pip install -q fastapi uvicorn[standard] pydantic sqlalchemy python-multipart
+    else
+        pip3 install -q --user fastapi uvicorn[standard] pydantic sqlalchemy python-multipart
+    fi
+    touch .backend_dependencies_installed
 else
     echo "✓ Backend dependencies installed"
 fi
@@ -125,7 +133,12 @@ trap cleanup SIGINT SIGTERM
 # Start backend
 echo -e "${BLUE}🔧 Starting backend (FastAPI)...${NC}"
 cd backend
-python3 main.py > /tmp/smell-selector-backend.log 2>&1 &
+# Use virtual environment Python if available, otherwise system python3
+if [ -f "../../.venv/bin/python" ]; then
+    ../../.venv/bin/python main.py > /tmp/smell-selector-backend.log 2>&1 &
+else
+    python3 main.py > /tmp/smell-selector-backend.log 2>&1 &
+fi
 BACKEND_PID=$!
 cd ..
 

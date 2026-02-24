@@ -10,7 +10,7 @@ Architecture:
 - AnthropicClient: Official Anthropic API (non-OpenAI compatible)
 - LLMClientFactory: Provider resolution and client instantiation
 """
-
+import requests
 import os
 import time
 from abc import ABC, abstractmethod
@@ -44,7 +44,7 @@ class BaseLLMClient(ABC):
     Implements Strategy pattern to isolate provider-specific API differences.
     """
 
-    def __init__(self, api_key: str, base_url: str):
+    def __init__(self, api_key: Optional[str], base_url: str):
         self.api_key = api_key
         self.base_url = base_url
 
@@ -72,6 +72,75 @@ class BaseLLMClient(ABC):
             Dict with 'content', 'tokens', 'latency'
         """
         ...
+
+class TGIClient(BaseLLMClient):
+    """
+    Client for HuggingFace Text Generation Inference (TGI)
+    Used by RunPod DeepSeek Coder template and other TGI endpoints.
+    """
+
+    def generate(
+        self,
+        model: str,
+        system_prompt: str,
+        user_prompt: str,
+        temperature: float,
+        top_p: float,
+        max_tokens: int
+    ) -> Dict:
+
+        start_time = time.time()
+
+        # DeepSeek Coder chat format (based on apply_chat_template)
+        # Combines system and user messages, then expects model to generate as Assistant
+        combined_message = f"{system_prompt}\n\n{user_prompt}" if system_prompt else user_prompt
+        full_prompt = f"{combined_message}\n"
+
+        url = f"{self.base_url}/generate"
+
+        payload = {
+            "inputs": full_prompt,
+            "parameters": {
+                "max_new_tokens": max_tokens,
+                "temperature": temperature if temperature > 0 else 0.01,  # TGI requires temp > 0
+                "top_p": top_p,
+                "do_sample": True,
+                "stop": ["<|EOT|>"],  # DeepSeek end-of-turn token
+                "repetition_penalty": 1.0,
+            }
+        }
+
+        headers = {
+            "Content-Type": "application/json"
+        }
+
+        try:
+            response = requests.post(url, json=payload, headers=headers, timeout=300)
+            response.raise_for_status()
+        except requests.exceptions.Timeout:
+            raise RuntimeError(f"TGI endpoint timeout after 300 seconds: {url}")
+        except requests.exceptions.ConnectionError as e:
+            raise RuntimeError(f"Failed to connect to TGI endpoint {url}: {e}")
+        except requests.exceptions.HTTPError as e:
+            raise RuntimeError(f"TGI endpoint returned error: {e}. Response: {response.text if response else 'N/A'}")
+
+        latency = time.time() - start_time
+
+        try:
+            result = response.json()
+        except Exception as e:
+            raise RuntimeError(f"Failed to parse TGI response as JSON: {e}. Response: {response.text}")
+
+        content = result.get("generated_text", "").strip()
+        
+        if not content:
+            raise RuntimeError(f"TGI returned empty generated_text. Response: {result}")
+
+        return {
+            "content": content,
+            "tokens": 0,   # TGI doesn't return usage by default
+            "latency": latency
+        }
 
 class OpenAICompatibleClient(BaseLLMClient):
     """
@@ -412,6 +481,7 @@ class LLMProvider:
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
     GOOGLE = "google"
+    TGI = "tgi" 
 
 
 class HuggingFaceModels:
@@ -457,10 +527,10 @@ class HuggingFaceModels:
         },
         {
             "id": 5,
-            "name": "DeepSeek-Coder 33B Instruct",
-            "model_id": "deepseek-coder-33b-instruct",
-            "description": "DeepSeek 33B instruction model",
-            "endpoint_url": "https://r05jq8jtnawsmv6c.us-east-1.aws.endpoints.huggingface.cloud/v1", # Uses default HF router 
+            "name": "DeepSeek-V3.2: Efficient Reasoning & Agentic AI",
+            "model_id": "deepseek-ai/DeepSeek-V3.2",
+            "description": "DeepSeek-V3.2: Efficient Reasoning & Agentic AI",
+            "endpoint_url": None, # Uses default HF router
             "provider": LLMProvider.HUGGINGFACE,
             "api_key_env": "HF_TOKEN"
         },
@@ -472,6 +542,15 @@ class HuggingFaceModels:
             "endpoint_url": "https://generativelanguage.googleapis.com/v1",
             "provider": LLMProvider.GOOGLE,
             "api_key_env": "GOOGLE_TOKEN"
+        },
+        {
+            "id": 7,
+            "name": "GPT-5.1",
+            "model_id": "gpt-5.1",
+            "description": "OpenAI's GPT-5.1 model",
+            "endpoint_url": "https://api.openai.com/v1",
+            "provider": LLMProvider.OPENAI,
+            "api_key_env": "GPT_TOKEN"
         },
     ]
     
@@ -538,6 +617,10 @@ class LLMClientFactory:
         
         if provider == LLMProvider.GOOGLE:
             return GoogleClient(api_key=api_key, base_url=base_url)
+        
+        if provider == LLMProvider.TGI:
+            # RunPod TGI uses native /generate endpoint
+            return TGIClient(api_key=None, base_url=base_url)
         
         # OpenAI, HuggingFace, and other OpenAI-compatible providers
         return OpenAICompatibleClient(api_key=api_key, base_url=base_url)
@@ -852,17 +935,17 @@ class HuggingFaceRefactorClient:
         # Client will be created per-request based on model endpoint
         self.default_base_url = "https://router.huggingface.co/v1"
     
-    def _get_api_key(self, model_info: Optional[Dict]) -> str:
+    def _get_api_key(self, model_info: Optional[Dict]) -> Optional[str]:
         """Get the appropriate API key for the given model.
         
         Args:
             model_info: Model configuration dict from HuggingFaceModels.MODELS
             
         Returns:
-            API key string for the model's provider
+            API key string for the model's provider, or None for local endpoints (e.g., TGI)
             
         Raises:
-            ValueError: If no API key is found for the provider
+            ValueError: If no API key is found for the provider (when required)
         """
         if not model_info:
             # Fallback to default HF key
@@ -876,6 +959,10 @@ class HuggingFaceRefactorClient:
         # Get env var name for this model's API key
         api_key_env = model_info.get("api_key_env", "HF_TOKEN")
         provider = model_info.get("provider", LLMProvider.HUGGINGFACE)
+        
+        # TGI and other local endpoints don't require API keys
+        if api_key_env is None:
+            return None
         
         # Check cache first
         if api_key_env in self._api_keys:
@@ -1023,11 +1110,15 @@ class HuggingFaceRefactorClient:
                     code = extract_code_from_response(response["content"])
                 except CodeExtractionError as e:
                     # Debug logging: print raw API response for analysis
-                    print("\n" + "="*80)
-                    print("DEBUG: Code extraction failed. Raw API response:")
-                    print("="*80)
-                    print(response["content"])
-                    print("="*80 + "\n")
+                    import sys
+                    sys.stderr.write("\n" + "="*80 + "\n")
+                    sys.stderr.write("🔍 DEBUG: Code extraction failed. Raw API response:\n")
+                    sys.stderr.write("="*80 + "\n")
+                    sys.stderr.write(response["content"] + "\n")
+                    sys.stderr.write("="*80 + "\n")
+                    sys.stderr.write(f"Error: {e}\n")
+                    sys.stderr.write("="*80 + "\n\n")
+                    sys.stderr.flush()
                     raise RuntimeError(f"Failed to extract valid JavaScript code from model output: {e}") from e
                 return {
                     'code': code,
@@ -1036,6 +1127,26 @@ class HuggingFaceRefactorClient:
                 }
             except ImportError as e:
                 raise RuntimeError(f"Missing dependency for {provider}: {e}") from e
+            except RuntimeError as e:
+                # Don't retry RuntimeError (e.g., code extraction failures)
+                # These are not transient API errors
+                err_str = str(e)
+                if "Failed to extract valid JavaScript code" in err_str:
+                    # Code extraction error - print additional context and fail immediately
+                    import sys
+                    sys.stderr.write(f"\n⚠️  Code extraction failed for {provider.upper()} provider\n")
+                    sys.stderr.write("\n" + "="*80 + "\n")
+                    sys.stderr.write("🔍 DEBUG: Code extraction failed. Raw API response:\n")
+                    sys.stderr.write("="*80 + "\n")
+                    sys.stderr.write(response["content"] + "\n")
+                    sys.stderr.write("="*80 + "\n")
+                    sys.stderr.write(f"Error: {e}\n")
+                    sys.stderr.write("="*80 + "\n\n")
+                    sys.stderr.flush()
+                    raise
+                # Other RuntimeErrors - wrap with provider context
+                provider_name = provider.upper() if provider else "UNKNOWN"
+                raise RuntimeError(f"{provider_name} API call failed: {e}") from e
             except Exception as e:
                 last_exception = e
                 err_str = str(e)
