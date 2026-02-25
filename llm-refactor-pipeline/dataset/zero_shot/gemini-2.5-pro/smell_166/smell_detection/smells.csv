@@ -3122,17 +3122,324 @@ file,type,line,method,methodStart,methodEnd,source
         expect(fastCompacted.length).toBe(stdCompacted.length);
       }
     })",360,376,snuts
-/test/spec/backcompat-test.js,OvercommentedTest,"{'startLine':65,'endLine':95}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,snuts
-/test/spec/backcompat-test.js,OvercommentedTest,"{'startLine':97,'endLine':133}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,snuts
-/test/spec/backcompat-test.js,OvercommentedTest,"{'startLine':806,'endLine':823}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,snuts
-/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':82,'endLine':84}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,snuts
-/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':156,'endLine':156}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,snuts
-/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':232,'endLine':232}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,snuts
-/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':259,'endLine':263}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,snuts
-/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':290,'endLine':294}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,snuts
-/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':517,'endLine':522}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,snuts
-/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':547,'endLine':551}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,snuts
-/test/spec/backcompat-test.js,SubOptimalAssert,"{'startLine':886,'endLine':886}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,snuts
+/test/spec/backcompat-test.js,OvercommentedTest,"{'startLine':65,'endLine':95}","it(""onDragStart provides layout, oldItem, newItem, placeholder, event, and node"", () => {
+    const onDragStart = jest.fn();
+    const layout = [{ i: ""a"", x: 0, y: 0, w: 2, h: 2 }];
+
+    const { container } = render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        onDragStart={onDragStart}
+      >
+        <div key=""a"">A</div>
+      </ReactGridLayout>
+    );
+
+    const item = container.querySelector("".react-grid-item"");
+    if (item) {
+      fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
+    }
+
+    expect(onDragStart).toHaveBeenCalled();
+    // Verify callback signature: (layout, oldItem, newItem, placeholder, e, node)
+    const args = onDragStart.mock.calls[0];
+    expect(Array.isArray(args[0])).toBe(true); // layout
+    expect(args[1]).toHaveProperty(""i"", ""a""); // oldItem
+    expect(args[2]).toHaveProperty(""i"", ""a""); // newItem
+    expect(args[3]).toBeNull(); // placeholder is null at drag start (per API)
+    expect(args[4]).toBeDefined(); // event
+    expect(args[5]).toBeDefined(); // node
+  })",65,95,snuts
+/test/spec/backcompat-test.js,OvercommentedTest,"{'startLine':97,'endLine':132}","it(""onDrag provides newItem with updated position during drag"", () => {
+  const onDrag = jest.fn();
+  const layout = [{ i: ""a"", x: 0, y: 0, w: 2, h: 2 }];
+
+  const { container } = render(
+    <ReactGridLayout
+      layout={layout}
+      width={1200}
+      cols={12}
+      rowHeight={30}
+      onDrag={onDrag}
+    >
+      <div key=""a"">A</div>
+    </ReactGridLayout>
+  );
+
+  const item = container.querySelector("".react-grid-item"");
+  // The test should fail if the item to be dragged is not found.
+  expect(item).not.toBeNull();
+
+  // $FlowIgnore - item is checked for nullity above
+  fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
+  // Move significantly right and down
+  fireEvent.mouseMove(document, { clientX: 400, clientY: 200 });
+
+  // The test should fail if the onDrag handler is not called.
+  expect(onDrag).toHaveBeenCalled();
+
+  const [, oldItem, newItem] = onDrag.mock.calls[0];
+  // newItem should reflect the new position (different from old)
+  // $FlowIgnore - test assertion, we know these exist
+  expect(newItem.i).toBe(""a"");
+  // Position should have changed
+  // $FlowIgnore - test assertion, we know these exist
+  expect(newItem.x !== oldItem.x || newItem.y !== oldItem.y).toBe(true);
+})",97,132,snuts
+/test/spec/backcompat-test.js,OvercommentedTest,"{'startLine':805,'endLine':822}","it(""compact() respects allowOverlap=true"", () => {
+    // Directly test the compact function with overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    // With allowOverlap=true, positions should be preserved
+    const compactedWithOverlap = compact(layout, ""vertical"", 12, true);
+    expect(compactedWithOverlap.find(l => l.i === ""b"").y).toBe(2);
+
+    // With allowOverlap=false (default), items should be separated
+    // Note: Use ""vertical"" compactType to get collision resolution (#2213)
+    // With compactType=null and allowOverlap=false, items stay in place (noCompactor)
+    const compactedWithoutOverlap = compact(layout, ""vertical"", 12, false);
+    // b should be pushed to y=4 (after a ends)
+    expect(compactedWithoutOverlap.find(l => l.i === ""b"").y).toBe(4);
+  })",805,822,snuts
+/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':82,'endLine':84}","it(""onDragStart provides layout, oldItem, newItem, placeholder, event, and node"", () => {
+    const onDragStart = jest.fn();
+    const layout = [{ i: ""a"", x: 0, y: 0, w: 2, h: 2 }];
+
+    const { container } = render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        onDragStart={onDragStart}
+      >
+        <div key=""a"">A</div>
+      </ReactGridLayout>
+    );
+
+    const item = container.querySelector("".react-grid-item"");
+    if (item) {
+      fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
+    }
+
+    expect(onDragStart).toHaveBeenCalled();
+    // Verify callback signature: (layout, oldItem, newItem, placeholder, e, node)
+    const args = onDragStart.mock.calls[0];
+    expect(Array.isArray(args[0])).toBe(true); // layout
+    expect(args[1]).toHaveProperty(""i"", ""a""); // oldItem
+    expect(args[2]).toHaveProperty(""i"", ""a""); // newItem
+    expect(args[3]).toBeNull(); // placeholder is null at drag start (per API)
+    expect(args[4]).toBeDefined(); // event
+    expect(args[5]).toBeDefined(); // node
+  })",65,95,snuts
+/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':155,'endLine':155}","it(""extracts x, y, w, h from data-grid (with compactType=null)"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Use compactType={null} to test raw data-grid extraction without compaction
+    render(
+      <ReactGridLayout
+        width={1200}
+        cols={12}
+        compactType={null}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""test"" data-grid={{ x: 3, y: 5, w: 4, h: 2 }}>
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.x).toBe(3);
+    expect(item.y).toBe(5);
+    expect(item.w).toBe(4);
+    expect(item.h).toBe(2);
+  })",136,161,snuts
+/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':231,'endLine':231}","it(""extracts minW, maxW, minH, maxH from data-grid"", () => {
+    const onLayoutChange = jest.fn();
+
+    render(
+      <ReactGridLayout width={1200} cols={12} onLayoutChange={onLayoutChange}>
+        <div
+          key=""test""
+          data-grid={{
+            x: 0,
+            y: 0,
+            w: 2,
+            h: 2,
+            minW: 1,
+            maxW: 4,
+            minH: 1,
+            maxH: 3
+          }}
+        >
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.minW).toBe(1);
+    expect(item.maxW).toBe(4);
+    expect(item.minH).toBe(1);
+    expect(item.maxH).toBe(3);
+  })",206,237,snuts
+/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':258,'endLine':262}","it(""static:true in data-grid prevents item from being dragged"", () => {
+    const onDragStart = jest.fn();
+
+    const { container } = render(
+      <ReactGridLayout
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        onDragStart={onDragStart}
+      >
+        <div key=""static"" data-grid={{ x: 0, y: 0, w: 2, h: 2, static: true }}>
+          Static
+        </div>
+      </ReactGridLayout>
+    );
+
+    const item = container.querySelector("".react-grid-item.static"");
+    expect(item).toBeInTheDocument();
+
+    if (item) {
+      fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
+      fireEvent.mouseMove(document, { clientX: 200, clientY: 200 });
+      fireEvent.mouseUp(document);
+    }
+
+    // onDragStart should NOT have been called for static item
+    expect(onDragStart).not.toHaveBeenCalled();
+  })",239,266,snuts
+/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':289,'endLine':293}","it(""isDraggable:false in data-grid prevents dragging that item"", () => {
+    const onDragStart = jest.fn();
+
+    const { container } = render(
+      <ReactGridLayout
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        isDraggable={true}
+        onDragStart={onDragStart}
+      >
+        <div
+          key=""nodrag""
+          data-grid={{ x: 0, y: 0, w: 2, h: 2, isDraggable: false }}
+        >
+          No Drag
+        </div>
+      </ReactGridLayout>
+    );
+
+    const item = container.querySelector("".react-grid-item"");
+    if (item) {
+      fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
+      fireEvent.mouseMove(document, { clientX: 200, clientY: 200 });
+      fireEvent.mouseUp(document);
+    }
+
+    expect(onDragStart).not.toHaveBeenCalled();
+  })",268,296,snuts
+/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':516,'endLine':521}","it(""uses correct layout for current breakpoint"", () => {
+    const onLayoutChange = jest.fn();
+
+    const layouts = {
+      lg: [{ i: ""a"", x: 0, y: 0, w: 4, h: 2 }],
+      sm: [{ i: ""a"", x: 0, y: 0, w: 2, h: 2 }]
+    };
+
+    render(
+      <ResponsiveRGL
+        layouts={layouts}
+        breakpoints={{ lg: 1200, sm: 768 }}
+        cols={{ lg: 12, sm: 6 }}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+      </ResponsiveRGL>
+    );
+
+    // Trigger resize to small breakpoint
+    act(() => {
+      global.triggerResize(600, 400);
+    });
+
+    // Find the call after resize
+    const calls = onLayoutChange.mock.calls;
+    if (calls.length > 0) {
+      const lastCall = calls[calls.length - 1];
+      const [layout] = lastCall;
+      // At sm breakpoint, width should be 2
+      expect(layout[0].w).toBeLessThanOrEqual(6); // Within sm cols
+    }
+  })",490,522,snuts
+/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':546,'endLine':550}","it(""onBreakpointChange provides breakpoint name and cols count"", () => {
+    const onBreakpointChange = jest.fn();
+
+    render(
+      <ResponsiveRGL
+        layouts={{ lg: [{ i: ""a"", x: 0, y: 0, w: 4, h: 2 }] }}
+        breakpoints={{ lg: 1200, md: 996, sm: 768 }}
+        cols={{ lg: 12, md: 10, sm: 6 }}
+        onBreakpointChange={onBreakpointChange}
+      >
+        <div key=""a"">A</div>
+      </ResponsiveRGL>
+    );
+
+    // Trigger resize to md breakpoint
+    act(() => {
+      global.triggerResize(1000, 600);
+    });
+
+    const mdCalls = onBreakpointChange.mock.calls.filter(
+      call => call[0] === ""md""
+    );
+    if (mdCalls.length > 0) {
+      const [breakpoint, cols] = mdCalls[0];
+      expect(breakpoint).toBe(""md"");
+      expect(cols).toBe(10);
+    }
+  })",524,551,snuts
+/test/spec/backcompat-test.js,SubOptimalAssert,"{'startLine':885,'endLine':885}","it(""includes margin in item positioning"", () => {
+    const { container } = render(
+      <ReactGridLayout
+        layout={[
+          { i: ""a"", x: 0, y: 0, w: 2, h: 2 },
+          { i: ""b"", x: 0, y: 2, w: 2, h: 2 }
+        ]}
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        margin={[10, 10]}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    const items = container.querySelectorAll("".react-grid-item"");
+    expect(items.length).toBe(2);
+
+    // Both items should have positioning styles
+    items.forEach(item => {
+      const style = item.getAttribute(""style"") || """";
+      expect(style.length).toBeGreaterThan(0);
+    });
+  })",867,892,snuts
 /test/spec/utils-test.js,Conditional Test Logic,"{'line': 39, 'column': 2, 'index': 1239}",Unknown,,,steel
 /test/spec/utils-test.js,Conditional Test Logic,"{'line': 85, 'column': 2, 'index': 2115}",Unknown,,,steel
 /test/spec/utils-test.js,Conditional Test Logic,"{'line': 86, 'column': 4, 'index': 2155}",Unknown,,,steel
@@ -11550,52 +11857,1378 @@ file,type,line,method,methodStart,methodEnd,source
       // Full drag should complete quickly for smooth 60fps
       expect(time).toBeLessThan(100); // 100ms for entire drag
     })",264,294,steel
-/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 82, 'column': 4, 'index': 2567}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 156, 'column': 4, 'index': 5098}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 232, 'column': 4, 'index': 6982}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 259, 'column': 4, 'index': 7688}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 290, 'column': 4, 'index': 8538}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 517, 'column': 4, 'index': 14859}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 547, 'column': 4, 'index': 15717}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 52, 'column': 6, 'index': 1640}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 53, 'column': 6, 'index': 1680}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 54, 'column': 6, 'index': 1720}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 55, 'column': 6, 'index': 1760}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 56, 'column': 6, 'index': 1800}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 382, 'column': 4, 'index': 11276}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 383, 'column': 4, 'index': 11312}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 384, 'column': 4, 'index': 11349}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Exception Handling,"{'line': 156, 'column': 15, 'index': 5109}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Exception Handling,"{'line': 232, 'column': 15, 'index': 6993}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 158, 'column': 24, 'index': 5169}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 159, 'column': 24, 'index': 5197}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 160, 'column': 24, 'index': 5225}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 161, 'column': 24, 'index': 5253}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 234, 'column': 27, 'index': 7056}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 235, 'column': 27, 'index': 7087}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 236, 'column': 27, 'index': 7118}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 237, 'column': 27, 'index': 7149}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 307, 'column': 32, 'index': 9140}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 316, 'column': 32, 'index': 9455}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 324, 'column': 32, 'index': 9702}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 325, 'column': 32, 'index': 9738}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 521, 'column': 46, 'index': 15055}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 550, 'column': 24, 'index': 15849}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 578, 'column': 36, 'index': 16642}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 658, 'column': 41, 'index': 18820}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 696, 'column': 25, 'index': 19881}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 697, 'column': 25, 'index': 19910}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 698, 'column': 25, 'index': 19939}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 699, 'column': 25, 'index': 19968}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 732, 'column': 25, 'index': 20880}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 733, 'column': 25, 'index': 20909}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 734, 'column': 25, 'index': 20938}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 735, 'column': 25, 'index': 20967}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 768, 'column': 25, 'index': 21914}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 769, 'column': 25, 'index': 21943}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 770, 'column': 25, 'index': 21972}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 771, 'column': 25, 'index': 22032}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 815, 'column': 63, 'index': 23392}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 822, 'column': 66, 'index': 23818}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 886, 'column': 30, 'index': 25553}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 891, 'column': 43, 'index': 25732}","Failed to parse file: Unexpected token, expected "","" (119:26)",,,steel
+/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 82, 'column': 4, 'index': 2567}","it(""onDragStart provides layout, oldItem, newItem, placeholder, event, and node"", () => {
+    const onDragStart = jest.fn();
+    const layout = [{ i: ""a"", x: 0, y: 0, w: 2, h: 2 }];
+
+    const { container } = render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        onDragStart={onDragStart}
+      >
+        <div key=""a"">A</div>
+      </ReactGridLayout>
+    );
+
+    const item = container.querySelector("".react-grid-item"");
+    if (item) {
+      fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
+    }
+
+    expect(onDragStart).toHaveBeenCalled();
+    // Verify callback signature: (layout, oldItem, newItem, placeholder, e, node)
+    const args = onDragStart.mock.calls[0];
+    expect(Array.isArray(args[0])).toBe(true); // layout
+    expect(args[1]).toHaveProperty(""i"", ""a""); // oldItem
+    expect(args[2]).toHaveProperty(""i"", ""a""); // newItem
+    expect(args[3]).toBeNull(); // placeholder is null at drag start (per API)
+    expect(args[4]).toBeDefined(); // event
+    expect(args[5]).toBeDefined(); // node
+  })",65,95,steel
+/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 155, 'column': 4, 'index': 5039}","it(""extracts x, y, w, h from data-grid (with compactType=null)"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Use compactType={null} to test raw data-grid extraction without compaction
+    render(
+      <ReactGridLayout
+        width={1200}
+        cols={12}
+        compactType={null}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""test"" data-grid={{ x: 3, y: 5, w: 4, h: 2 }}>
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.x).toBe(3);
+    expect(item.y).toBe(5);
+    expect(item.w).toBe(4);
+    expect(item.h).toBe(2);
+  })",136,161,steel
+/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 231, 'column': 4, 'index': 6923}","it(""extracts minW, maxW, minH, maxH from data-grid"", () => {
+    const onLayoutChange = jest.fn();
+
+    render(
+      <ReactGridLayout width={1200} cols={12} onLayoutChange={onLayoutChange}>
+        <div
+          key=""test""
+          data-grid={{
+            x: 0,
+            y: 0,
+            w: 2,
+            h: 2,
+            minW: 1,
+            maxW: 4,
+            minH: 1,
+            maxH: 3
+          }}
+        >
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.minW).toBe(1);
+    expect(item.maxW).toBe(4);
+    expect(item.minH).toBe(1);
+    expect(item.maxH).toBe(3);
+  })",206,237,steel
+/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 258, 'column': 4, 'index': 7629}","it(""static:true in data-grid prevents item from being dragged"", () => {
+    const onDragStart = jest.fn();
+
+    const { container } = render(
+      <ReactGridLayout
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        onDragStart={onDragStart}
+      >
+        <div key=""static"" data-grid={{ x: 0, y: 0, w: 2, h: 2, static: true }}>
+          Static
+        </div>
+      </ReactGridLayout>
+    );
+
+    const item = container.querySelector("".react-grid-item.static"");
+    expect(item).toBeInTheDocument();
+
+    if (item) {
+      fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
+      fireEvent.mouseMove(document, { clientX: 200, clientY: 200 });
+      fireEvent.mouseUp(document);
+    }
+
+    // onDragStart should NOT have been called for static item
+    expect(onDragStart).not.toHaveBeenCalled();
+  })",239,266,steel
+/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 289, 'column': 4, 'index': 8479}","it(""isDraggable:false in data-grid prevents dragging that item"", () => {
+    const onDragStart = jest.fn();
+
+    const { container } = render(
+      <ReactGridLayout
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        isDraggable={true}
+        onDragStart={onDragStart}
+      >
+        <div
+          key=""nodrag""
+          data-grid={{ x: 0, y: 0, w: 2, h: 2, isDraggable: false }}
+        >
+          No Drag
+        </div>
+      </ReactGridLayout>
+    );
+
+    const item = container.querySelector("".react-grid-item"");
+    if (item) {
+      fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
+      fireEvent.mouseMove(document, { clientX: 200, clientY: 200 });
+      fireEvent.mouseUp(document);
+    }
+
+    expect(onDragStart).not.toHaveBeenCalled();
+  })",268,296,steel
+/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 516, 'column': 4, 'index': 14800}","it(""uses correct layout for current breakpoint"", () => {
+    const onLayoutChange = jest.fn();
+
+    const layouts = {
+      lg: [{ i: ""a"", x: 0, y: 0, w: 4, h: 2 }],
+      sm: [{ i: ""a"", x: 0, y: 0, w: 2, h: 2 }]
+    };
+
+    render(
+      <ResponsiveRGL
+        layouts={layouts}
+        breakpoints={{ lg: 1200, sm: 768 }}
+        cols={{ lg: 12, sm: 6 }}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+      </ResponsiveRGL>
+    );
+
+    // Trigger resize to small breakpoint
+    act(() => {
+      global.triggerResize(600, 400);
+    });
+
+    // Find the call after resize
+    const calls = onLayoutChange.mock.calls;
+    if (calls.length > 0) {
+      const lastCall = calls[calls.length - 1];
+      const [layout] = lastCall;
+      // At sm breakpoint, width should be 2
+      expect(layout[0].w).toBeLessThanOrEqual(6); // Within sm cols
+    }
+  })",490,522,steel
+/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 546, 'column': 4, 'index': 15658}","it(""onBreakpointChange provides breakpoint name and cols count"", () => {
+    const onBreakpointChange = jest.fn();
+
+    render(
+      <ResponsiveRGL
+        layouts={{ lg: [{ i: ""a"", x: 0, y: 0, w: 4, h: 2 }] }}
+        breakpoints={{ lg: 1200, md: 996, sm: 768 }}
+        cols={{ lg: 12, md: 10, sm: 6 }}
+        onBreakpointChange={onBreakpointChange}
+      >
+        <div key=""a"">A</div>
+      </ResponsiveRGL>
+    );
+
+    // Trigger resize to md breakpoint
+    act(() => {
+      global.triggerResize(1000, 600);
+    });
+
+    const mdCalls = onBreakpointChange.mock.calls.filter(
+      call => call[0] === ""md""
+    );
+    if (mdCalls.length > 0) {
+      const [breakpoint, cols] = mdCalls[0];
+      expect(breakpoint).toBe(""md"");
+      expect(cols).toBe(10);
+    }
+  })",524,551,steel
+/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 52, 'column': 6, 'index': 1640}","it(""onLayoutChange provides layout with all required fields"", () => {
+    const onLayoutChange = jest.fn();
+
+    render(
+      <ReactGridLayout
+        layout={baseLayout}
+        width={1200}
+        cols={12}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [layout] = onLayoutChange.mock.calls[0];
+
+    // Verify all items have required fields
+    layout.forEach(item => {
+      expect(item).toHaveProperty(""i"");
+      expect(item).toHaveProperty(""x"");
+      expect(item).toHaveProperty(""y"");
+      expect(item).toHaveProperty(""w"");
+      expect(item).toHaveProperty(""h"");
+      expect(typeof item.i).toBe(""string"");
+      expect(typeof item.x).toBe(""number"");
+      expect(typeof item.y).toBe(""number"");
+      expect(typeof item.w).toBe(""number"");
+      expect(typeof item.h).toBe(""number"");
+    });
+  })",32,63,steel
+/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 53, 'column': 6, 'index': 1680}","it(""onLayoutChange provides layout with all required fields"", () => {
+    const onLayoutChange = jest.fn();
+
+    render(
+      <ReactGridLayout
+        layout={baseLayout}
+        width={1200}
+        cols={12}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [layout] = onLayoutChange.mock.calls[0];
+
+    // Verify all items have required fields
+    layout.forEach(item => {
+      expect(item).toHaveProperty(""i"");
+      expect(item).toHaveProperty(""x"");
+      expect(item).toHaveProperty(""y"");
+      expect(item).toHaveProperty(""w"");
+      expect(item).toHaveProperty(""h"");
+      expect(typeof item.i).toBe(""string"");
+      expect(typeof item.x).toBe(""number"");
+      expect(typeof item.y).toBe(""number"");
+      expect(typeof item.w).toBe(""number"");
+      expect(typeof item.h).toBe(""number"");
+    });
+  })",32,63,steel
+/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 54, 'column': 6, 'index': 1720}","it(""onLayoutChange provides layout with all required fields"", () => {
+    const onLayoutChange = jest.fn();
+
+    render(
+      <ReactGridLayout
+        layout={baseLayout}
+        width={1200}
+        cols={12}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [layout] = onLayoutChange.mock.calls[0];
+
+    // Verify all items have required fields
+    layout.forEach(item => {
+      expect(item).toHaveProperty(""i"");
+      expect(item).toHaveProperty(""x"");
+      expect(item).toHaveProperty(""y"");
+      expect(item).toHaveProperty(""w"");
+      expect(item).toHaveProperty(""h"");
+      expect(typeof item.i).toBe(""string"");
+      expect(typeof item.x).toBe(""number"");
+      expect(typeof item.y).toBe(""number"");
+      expect(typeof item.w).toBe(""number"");
+      expect(typeof item.h).toBe(""number"");
+    });
+  })",32,63,steel
+/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 55, 'column': 6, 'index': 1760}","it(""onLayoutChange provides layout with all required fields"", () => {
+    const onLayoutChange = jest.fn();
+
+    render(
+      <ReactGridLayout
+        layout={baseLayout}
+        width={1200}
+        cols={12}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [layout] = onLayoutChange.mock.calls[0];
+
+    // Verify all items have required fields
+    layout.forEach(item => {
+      expect(item).toHaveProperty(""i"");
+      expect(item).toHaveProperty(""x"");
+      expect(item).toHaveProperty(""y"");
+      expect(item).toHaveProperty(""w"");
+      expect(item).toHaveProperty(""h"");
+      expect(typeof item.i).toBe(""string"");
+      expect(typeof item.x).toBe(""number"");
+      expect(typeof item.y).toBe(""number"");
+      expect(typeof item.w).toBe(""number"");
+      expect(typeof item.h).toBe(""number"");
+    });
+  })",32,63,steel
+/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 56, 'column': 6, 'index': 1800}","it(""onLayoutChange provides layout with all required fields"", () => {
+    const onLayoutChange = jest.fn();
+
+    render(
+      <ReactGridLayout
+        layout={baseLayout}
+        width={1200}
+        cols={12}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [layout] = onLayoutChange.mock.calls[0];
+
+    // Verify all items have required fields
+    layout.forEach(item => {
+      expect(item).toHaveProperty(""i"");
+      expect(item).toHaveProperty(""x"");
+      expect(item).toHaveProperty(""y"");
+      expect(item).toHaveProperty(""w"");
+      expect(item).toHaveProperty(""h"");
+      expect(typeof item.i).toBe(""string"");
+      expect(typeof item.x).toBe(""number"");
+      expect(typeof item.y).toBe(""number"");
+      expect(typeof item.w).toBe(""number"");
+      expect(typeof item.h).toBe(""number"");
+    });
+  })",32,63,steel
+/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 381, 'column': 4, 'index': 11217}","it(""useCSSTransforms=false applies top/left style"", () => {
+    const { container } = render(
+      <ReactGridLayout
+        layout={[{ i: ""a"", x: 1, y: 1, w: 2, h: 2 }]}
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        useCSSTransforms={false}
+      >
+        <div key=""a"">A</div>
+      </ReactGridLayout>
+    );
+
+    const item = container.querySelector("".react-grid-item"");
+    const style = item?.getAttribute(""style"") || """";
+
+    expect(style).toContain(""top"");
+    expect(style).toContain(""left"");
+    expect(style).not.toContain(""transform"");
+  })",365,384,steel
+/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 382, 'column': 4, 'index': 11253}","it(""useCSSTransforms=false applies top/left style"", () => {
+    const { container } = render(
+      <ReactGridLayout
+        layout={[{ i: ""a"", x: 1, y: 1, w: 2, h: 2 }]}
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        useCSSTransforms={false}
+      >
+        <div key=""a"">A</div>
+      </ReactGridLayout>
+    );
+
+    const item = container.querySelector("".react-grid-item"");
+    const style = item?.getAttribute(""style"") || """";
+
+    expect(style).toContain(""top"");
+    expect(style).toContain(""left"");
+    expect(style).not.toContain(""transform"");
+  })",365,384,steel
+/test/spec/backcompat-test.js,Duplicate Assert,"{'line': 383, 'column': 4, 'index': 11290}","it(""useCSSTransforms=false applies top/left style"", () => {
+    const { container } = render(
+      <ReactGridLayout
+        layout={[{ i: ""a"", x: 1, y: 1, w: 2, h: 2 }]}
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        useCSSTransforms={false}
+      >
+        <div key=""a"">A</div>
+      </ReactGridLayout>
+    );
+
+    const item = container.querySelector("".react-grid-item"");
+    const style = item?.getAttribute(""style"") || """";
+
+    expect(style).toContain(""top"");
+    expect(style).toContain(""left"");
+    expect(style).not.toContain(""transform"");
+  })",365,384,steel
+/test/spec/backcompat-test.js,Exception Handling,"{'line': 155, 'column': 15, 'index': 5050}","it(""extracts x, y, w, h from data-grid (with compactType=null)"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Use compactType={null} to test raw data-grid extraction without compaction
+    render(
+      <ReactGridLayout
+        width={1200}
+        cols={12}
+        compactType={null}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""test"" data-grid={{ x: 3, y: 5, w: 4, h: 2 }}>
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.x).toBe(3);
+    expect(item.y).toBe(5);
+    expect(item.w).toBe(4);
+    expect(item.h).toBe(2);
+  })",136,161,steel
+/test/spec/backcompat-test.js,Exception Handling,"{'line': 231, 'column': 15, 'index': 6934}","it(""extracts minW, maxW, minH, maxH from data-grid"", () => {
+    const onLayoutChange = jest.fn();
+
+    render(
+      <ReactGridLayout width={1200} cols={12} onLayoutChange={onLayoutChange}>
+        <div
+          key=""test""
+          data-grid={{
+            x: 0,
+            y: 0,
+            w: 2,
+            h: 2,
+            minW: 1,
+            maxW: 4,
+            minH: 1,
+            maxH: 3
+          }}
+        >
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.minW).toBe(1);
+    expect(item.maxW).toBe(4);
+    expect(item.minH).toBe(1);
+    expect(item.maxH).toBe(3);
+  })",206,237,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 157, 'column': 24, 'index': 5110}","it(""extracts x, y, w, h from data-grid (with compactType=null)"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Use compactType={null} to test raw data-grid extraction without compaction
+    render(
+      <ReactGridLayout
+        width={1200}
+        cols={12}
+        compactType={null}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""test"" data-grid={{ x: 3, y: 5, w: 4, h: 2 }}>
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.x).toBe(3);
+    expect(item.y).toBe(5);
+    expect(item.w).toBe(4);
+    expect(item.h).toBe(2);
+  })",136,161,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 158, 'column': 24, 'index': 5138}","it(""extracts x, y, w, h from data-grid (with compactType=null)"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Use compactType={null} to test raw data-grid extraction without compaction
+    render(
+      <ReactGridLayout
+        width={1200}
+        cols={12}
+        compactType={null}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""test"" data-grid={{ x: 3, y: 5, w: 4, h: 2 }}>
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.x).toBe(3);
+    expect(item.y).toBe(5);
+    expect(item.w).toBe(4);
+    expect(item.h).toBe(2);
+  })",136,161,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 159, 'column': 24, 'index': 5166}","it(""extracts x, y, w, h from data-grid (with compactType=null)"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Use compactType={null} to test raw data-grid extraction without compaction
+    render(
+      <ReactGridLayout
+        width={1200}
+        cols={12}
+        compactType={null}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""test"" data-grid={{ x: 3, y: 5, w: 4, h: 2 }}>
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.x).toBe(3);
+    expect(item.y).toBe(5);
+    expect(item.w).toBe(4);
+    expect(item.h).toBe(2);
+  })",136,161,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 160, 'column': 24, 'index': 5194}","it(""extracts x, y, w, h from data-grid (with compactType=null)"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Use compactType={null} to test raw data-grid extraction without compaction
+    render(
+      <ReactGridLayout
+        width={1200}
+        cols={12}
+        compactType={null}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""test"" data-grid={{ x: 3, y: 5, w: 4, h: 2 }}>
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.x).toBe(3);
+    expect(item.y).toBe(5);
+    expect(item.w).toBe(4);
+    expect(item.h).toBe(2);
+  })",136,161,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 233, 'column': 27, 'index': 6997}","it(""extracts minW, maxW, minH, maxH from data-grid"", () => {
+    const onLayoutChange = jest.fn();
+
+    render(
+      <ReactGridLayout width={1200} cols={12} onLayoutChange={onLayoutChange}>
+        <div
+          key=""test""
+          data-grid={{
+            x: 0,
+            y: 0,
+            w: 2,
+            h: 2,
+            minW: 1,
+            maxW: 4,
+            minH: 1,
+            maxH: 3
+          }}
+        >
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.minW).toBe(1);
+    expect(item.maxW).toBe(4);
+    expect(item.minH).toBe(1);
+    expect(item.maxH).toBe(3);
+  })",206,237,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 234, 'column': 27, 'index': 7028}","it(""extracts minW, maxW, minH, maxH from data-grid"", () => {
+    const onLayoutChange = jest.fn();
+
+    render(
+      <ReactGridLayout width={1200} cols={12} onLayoutChange={onLayoutChange}>
+        <div
+          key=""test""
+          data-grid={{
+            x: 0,
+            y: 0,
+            w: 2,
+            h: 2,
+            minW: 1,
+            maxW: 4,
+            minH: 1,
+            maxH: 3
+          }}
+        >
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.minW).toBe(1);
+    expect(item.maxW).toBe(4);
+    expect(item.minH).toBe(1);
+    expect(item.maxH).toBe(3);
+  })",206,237,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 235, 'column': 27, 'index': 7059}","it(""extracts minW, maxW, minH, maxH from data-grid"", () => {
+    const onLayoutChange = jest.fn();
+
+    render(
+      <ReactGridLayout width={1200} cols={12} onLayoutChange={onLayoutChange}>
+        <div
+          key=""test""
+          data-grid={{
+            x: 0,
+            y: 0,
+            w: 2,
+            h: 2,
+            minW: 1,
+            maxW: 4,
+            minH: 1,
+            maxH: 3
+          }}
+        >
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.minW).toBe(1);
+    expect(item.maxW).toBe(4);
+    expect(item.minH).toBe(1);
+    expect(item.maxH).toBe(3);
+  })",206,237,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 236, 'column': 27, 'index': 7090}","it(""extracts minW, maxW, minH, maxH from data-grid"", () => {
+    const onLayoutChange = jest.fn();
+
+    render(
+      <ReactGridLayout width={1200} cols={12} onLayoutChange={onLayoutChange}>
+        <div
+          key=""test""
+          data-grid={{
+            x: 0,
+            y: 0,
+            w: 2,
+            h: 2,
+            minW: 1,
+            maxW: 4,
+            minH: 1,
+            maxH: 3
+          }}
+        >
+          Test
+        </div>
+      </ReactGridLayout>
+    );
+
+    const [layout] = onLayoutChange.mock.calls[0];
+    const item = layout.find(l => l.i === ""test"");
+    if (!item) throw new Error(""Item not found"");
+
+    expect(item.minW).toBe(1);
+    expect(item.maxW).toBe(4);
+    expect(item.minH).toBe(1);
+    expect(item.maxH).toBe(3);
+  })",206,237,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 306, 'column': 32, 'index': 9081}","it(""vertical compaction moves items up to fill gaps"", () => {
+    // Layout with a gap: item at y=5, nothing above
+    const layout = [{ i: ""a"", x: 0, y: 5, w: 2, h: 2 }];
+    const compacted = compact(layout, ""vertical"", 12);
+
+    // Should be moved to y=0
+    expect(compacted[0].y).toBe(0);
+  })",300,307,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 315, 'column': 32, 'index': 9396}","it(""horizontal compaction moves items left to fill gaps"", () => {
+    // Layout with a gap: item at x=5, nothing to the left
+    const layout = [{ i: ""a"", x: 5, y: 0, w: 2, h: 2 }];
+    const compacted = compact(layout, ""horizontal"", 12);
+
+    // Should be moved to x=0
+    expect(compacted[0].x).toBe(0);
+  })",309,316,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 323, 'column': 32, 'index': 9643}","it(""null compaction preserves original positions"", () => {
+    const layout = [{ i: ""a"", x: 5, y: 5, w: 2, h: 2 }];
+    const compacted = compact(layout, null, 12);
+
+    // Position should be unchanged
+    expect(compacted[0].x).toBe(5);
+    expect(compacted[0].y).toBe(5);
+  })",318,325,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 324, 'column': 32, 'index': 9679}","it(""null compaction preserves original positions"", () => {
+    const layout = [{ i: ""a"", x: 5, y: 5, w: 2, h: 2 }];
+    const compacted = compact(layout, null, 12);
+
+    // Position should be unchanged
+    expect(compacted[0].x).toBe(5);
+    expect(compacted[0].y).toBe(5);
+  })",318,325,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 520, 'column': 46, 'index': 14996}","it(""uses correct layout for current breakpoint"", () => {
+    const onLayoutChange = jest.fn();
+
+    const layouts = {
+      lg: [{ i: ""a"", x: 0, y: 0, w: 4, h: 2 }],
+      sm: [{ i: ""a"", x: 0, y: 0, w: 2, h: 2 }]
+    };
+
+    render(
+      <ResponsiveRGL
+        layouts={layouts}
+        breakpoints={{ lg: 1200, sm: 768 }}
+        cols={{ lg: 12, sm: 6 }}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+      </ResponsiveRGL>
+    );
+
+    // Trigger resize to small breakpoint
+    act(() => {
+      global.triggerResize(600, 400);
+    });
+
+    // Find the call after resize
+    const calls = onLayoutChange.mock.calls;
+    if (calls.length > 0) {
+      const lastCall = calls[calls.length - 1];
+      const [layout] = lastCall;
+      // At sm breakpoint, width should be 2
+      expect(layout[0].w).toBeLessThanOrEqual(6); // Within sm cols
+    }
+  })",490,522,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 549, 'column': 24, 'index': 15790}","it(""onBreakpointChange provides breakpoint name and cols count"", () => {
+    const onBreakpointChange = jest.fn();
+
+    render(
+      <ResponsiveRGL
+        layouts={{ lg: [{ i: ""a"", x: 0, y: 0, w: 4, h: 2 }] }}
+        breakpoints={{ lg: 1200, md: 996, sm: 768 }}
+        cols={{ lg: 12, md: 10, sm: 6 }}
+        onBreakpointChange={onBreakpointChange}
+      >
+        <div key=""a"">A</div>
+      </ResponsiveRGL>
+    );
+
+    // Trigger resize to md breakpoint
+    act(() => {
+      global.triggerResize(1000, 600);
+    });
+
+    const mdCalls = onBreakpointChange.mock.calls.filter(
+      call => call[0] === ""md""
+    );
+    if (mdCalls.length > 0) {
+      const [breakpoint, cols] = mdCalls[0];
+      expect(breakpoint).toBe(""md"");
+      expect(cols).toBe(10);
+    }
+  })",524,551,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 577, 'column': 36, 'index': 16583}","it(""generates missing breakpoint layouts by interpolation"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Only provide lg layout
+    render(
+      <ResponsiveRGL
+        layouts={{ lg: [{ i: ""a"", x: 0, y: 0, w: 6, h: 2 }] }}
+        breakpoints={{ lg: 1200, sm: 768 }}
+        cols={{ lg: 12, sm: 6 }}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+      </ResponsiveRGL>
+    );
+
+    // Trigger resize to sm (no layout provided)
+    act(() => {
+      global.triggerResize(600, 400);
+    });
+
+    // Should still render without error and generate a layout
+    expect(onLayoutChange).toHaveBeenCalled();
+    const lastLayout =
+      onLayoutChange.mock.calls[onLayoutChange.mock.calls.length - 1][0];
+    expect(lastLayout).toHaveLength(1);
+    expect(lastLayout[0].i).toBe(""a"");
+  })",553,579,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 657, 'column': 41, 'index': 18761}","it(""defers ResizeObserver updates via requestAnimationFrame (#1959)"", () => {
+    // Track requestAnimationFrame calls
+    let rafCallCount = 0;
+    const originalRaf = global.requestAnimationFrame;
+    global.requestAnimationFrame = jest.fn(cb => {
+      rafCallCount++;
+      cb(0);
+      return rafCallCount;
+    });
+
+    render(
+      <WidthProvidedRGL layout={[{ i: ""a"", x: 0, y: 0, w: 2, h: 2 }]} cols={12}>
+        <div key=""a"">A</div>
+      </WidthProvidedRGL>
+    );
+
+    // Clear initial RAF calls
+    rafCallCount = 0;
+
+    // Trigger resize
+    act(() => {
+      global.triggerResize(800, 600);
+    });
+
+    // RAF should have been called to defer the state update
+    expect(rafCallCount).toBeGreaterThan(0);
+
+    // Restore
+    global.requestAnimationFrame = originalRaf;
+  })",632,661,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 695, 'column': 25, 'index': 19822}","it(""allowOverlap=true with compactType=null preserves overlapping items"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Create layout with intentionally overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        compactType={null}
+        allowOverlap={true}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [resultLayout] = onLayoutChange.mock.calls[0];
+
+    // Items should remain in their original positions (overlapping)
+    const itemA = resultLayout.find(l => l.i === ""a"");
+    const itemB = resultLayout.find(l => l.i === ""b"");
+
+    expect(itemA.x).toBe(0);
+    expect(itemA.y).toBe(0);
+    expect(itemB.x).toBe(2);
+    expect(itemB.y).toBe(2);
+  })",665,699,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 696, 'column': 25, 'index': 19851}","it(""allowOverlap=true with compactType=null preserves overlapping items"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Create layout with intentionally overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        compactType={null}
+        allowOverlap={true}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [resultLayout] = onLayoutChange.mock.calls[0];
+
+    // Items should remain in their original positions (overlapping)
+    const itemA = resultLayout.find(l => l.i === ""a"");
+    const itemB = resultLayout.find(l => l.i === ""b"");
+
+    expect(itemA.x).toBe(0);
+    expect(itemA.y).toBe(0);
+    expect(itemB.x).toBe(2);
+    expect(itemB.y).toBe(2);
+  })",665,699,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 697, 'column': 25, 'index': 19880}","it(""allowOverlap=true with compactType=null preserves overlapping items"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Create layout with intentionally overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        compactType={null}
+        allowOverlap={true}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [resultLayout] = onLayoutChange.mock.calls[0];
+
+    // Items should remain in their original positions (overlapping)
+    const itemA = resultLayout.find(l => l.i === ""a"");
+    const itemB = resultLayout.find(l => l.i === ""b"");
+
+    expect(itemA.x).toBe(0);
+    expect(itemA.y).toBe(0);
+    expect(itemB.x).toBe(2);
+    expect(itemB.y).toBe(2);
+  })",665,699,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 698, 'column': 25, 'index': 19909}","it(""allowOverlap=true with compactType=null preserves overlapping items"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Create layout with intentionally overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        compactType={null}
+        allowOverlap={true}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [resultLayout] = onLayoutChange.mock.calls[0];
+
+    // Items should remain in their original positions (overlapping)
+    const itemA = resultLayout.find(l => l.i === ""a"");
+    const itemB = resultLayout.find(l => l.i === ""b"");
+
+    expect(itemA.x).toBe(0);
+    expect(itemA.y).toBe(0);
+    expect(itemB.x).toBe(2);
+    expect(itemB.y).toBe(2);
+  })",665,699,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 731, 'column': 25, 'index': 20821}","it(""allowOverlap=true with compactType='vertical' preserves overlapping items"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Create layout with overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        compactType=""vertical""
+        allowOverlap={true}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [resultLayout] = onLayoutChange.mock.calls[0];
+
+    // Items should remain overlapping (not pushed apart)
+    const itemA = resultLayout.find(l => l.i === ""a"");
+    const itemB = resultLayout.find(l => l.i === ""b"");
+
+    expect(itemA.x).toBe(0);
+    expect(itemA.y).toBe(0);
+    expect(itemB.x).toBe(2);
+    expect(itemB.y).toBe(2); // Should NOT be pushed to y=4
+  })",701,735,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 732, 'column': 25, 'index': 20850}","it(""allowOverlap=true with compactType='vertical' preserves overlapping items"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Create layout with overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        compactType=""vertical""
+        allowOverlap={true}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [resultLayout] = onLayoutChange.mock.calls[0];
+
+    // Items should remain overlapping (not pushed apart)
+    const itemA = resultLayout.find(l => l.i === ""a"");
+    const itemB = resultLayout.find(l => l.i === ""b"");
+
+    expect(itemA.x).toBe(0);
+    expect(itemA.y).toBe(0);
+    expect(itemB.x).toBe(2);
+    expect(itemB.y).toBe(2); // Should NOT be pushed to y=4
+  })",701,735,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 733, 'column': 25, 'index': 20879}","it(""allowOverlap=true with compactType='vertical' preserves overlapping items"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Create layout with overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        compactType=""vertical""
+        allowOverlap={true}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [resultLayout] = onLayoutChange.mock.calls[0];
+
+    // Items should remain overlapping (not pushed apart)
+    const itemA = resultLayout.find(l => l.i === ""a"");
+    const itemB = resultLayout.find(l => l.i === ""b"");
+
+    expect(itemA.x).toBe(0);
+    expect(itemA.y).toBe(0);
+    expect(itemB.x).toBe(2);
+    expect(itemB.y).toBe(2); // Should NOT be pushed to y=4
+  })",701,735,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 734, 'column': 25, 'index': 20908}","it(""allowOverlap=true with compactType='vertical' preserves overlapping items"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Create layout with overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        compactType=""vertical""
+        allowOverlap={true}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [resultLayout] = onLayoutChange.mock.calls[0];
+
+    // Items should remain overlapping (not pushed apart)
+    const itemA = resultLayout.find(l => l.i === ""a"");
+    const itemB = resultLayout.find(l => l.i === ""b"");
+
+    expect(itemA.x).toBe(0);
+    expect(itemA.y).toBe(0);
+    expect(itemB.x).toBe(2);
+    expect(itemB.y).toBe(2); // Should NOT be pushed to y=4
+  })",701,735,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 767, 'column': 25, 'index': 21855}","it(""allowOverlap=true with compactType='horizontal' preserves overlapping items"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Create layout with overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        compactType=""horizontal""
+        allowOverlap={true}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [resultLayout] = onLayoutChange.mock.calls[0];
+
+    // Items should remain overlapping (not pushed apart)
+    const itemA = resultLayout.find(l => l.i === ""a"");
+    const itemB = resultLayout.find(l => l.i === ""b"");
+
+    expect(itemA.x).toBe(0);
+    expect(itemA.y).toBe(0);
+    expect(itemB.x).toBe(2); // Should NOT be pushed to x=4
+    expect(itemB.y).toBe(2);
+  })",737,771,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 768, 'column': 25, 'index': 21884}","it(""allowOverlap=true with compactType='horizontal' preserves overlapping items"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Create layout with overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        compactType=""horizontal""
+        allowOverlap={true}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [resultLayout] = onLayoutChange.mock.calls[0];
+
+    // Items should remain overlapping (not pushed apart)
+    const itemA = resultLayout.find(l => l.i === ""a"");
+    const itemB = resultLayout.find(l => l.i === ""b"");
+
+    expect(itemA.x).toBe(0);
+    expect(itemA.y).toBe(0);
+    expect(itemB.x).toBe(2); // Should NOT be pushed to x=4
+    expect(itemB.y).toBe(2);
+  })",737,771,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 769, 'column': 25, 'index': 21913}","it(""allowOverlap=true with compactType='horizontal' preserves overlapping items"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Create layout with overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        compactType=""horizontal""
+        allowOverlap={true}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [resultLayout] = onLayoutChange.mock.calls[0];
+
+    // Items should remain overlapping (not pushed apart)
+    const itemA = resultLayout.find(l => l.i === ""a"");
+    const itemB = resultLayout.find(l => l.i === ""b"");
+
+    expect(itemA.x).toBe(0);
+    expect(itemA.y).toBe(0);
+    expect(itemB.x).toBe(2); // Should NOT be pushed to x=4
+    expect(itemB.y).toBe(2);
+  })",737,771,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 770, 'column': 25, 'index': 21973}","it(""allowOverlap=true with compactType='horizontal' preserves overlapping items"", () => {
+    const onLayoutChange = jest.fn();
+
+    // Create layout with overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    render(
+      <ReactGridLayout
+        layout={layout}
+        width={1200}
+        cols={12}
+        compactType=""horizontal""
+        allowOverlap={true}
+        onLayoutChange={onLayoutChange}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    expect(onLayoutChange).toHaveBeenCalled();
+    const [resultLayout] = onLayoutChange.mock.calls[0];
+
+    // Items should remain overlapping (not pushed apart)
+    const itemA = resultLayout.find(l => l.i === ""a"");
+    const itemB = resultLayout.find(l => l.i === ""b"");
+
+    expect(itemA.x).toBe(0);
+    expect(itemA.y).toBe(0);
+    expect(itemB.x).toBe(2); // Should NOT be pushed to x=4
+    expect(itemB.y).toBe(2);
+  })",737,771,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 814, 'column': 63, 'index': 23333}","it(""compact() respects allowOverlap=true"", () => {
+    // Directly test the compact function with overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    // With allowOverlap=true, positions should be preserved
+    const compactedWithOverlap = compact(layout, ""vertical"", 12, true);
+    expect(compactedWithOverlap.find(l => l.i === ""b"").y).toBe(2);
+
+    // With allowOverlap=false (default), items should be separated
+    // Note: Use ""vertical"" compactType to get collision resolution (#2213)
+    // With compactType=null and allowOverlap=false, items stay in place (noCompactor)
+    const compactedWithoutOverlap = compact(layout, ""vertical"", 12, false);
+    // b should be pushed to y=4 (after a ends)
+    expect(compactedWithoutOverlap.find(l => l.i === ""b"").y).toBe(4);
+  })",805,822,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 821, 'column': 66, 'index': 23759}","it(""compact() respects allowOverlap=true"", () => {
+    // Directly test the compact function with overlapping items
+    const layout = [
+      { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
+      { i: ""b"", x: 2, y: 2, w: 4, h: 4 } // Overlaps with 'a'
+    ];
+
+    // With allowOverlap=true, positions should be preserved
+    const compactedWithOverlap = compact(layout, ""vertical"", 12, true);
+    expect(compactedWithOverlap.find(l => l.i === ""b"").y).toBe(2);
+
+    // With allowOverlap=false (default), items should be separated
+    // Note: Use ""vertical"" compactType to get collision resolution (#2213)
+    // With compactType=null and allowOverlap=false, items stay in place (noCompactor)
+    const compactedWithoutOverlap = compact(layout, ""vertical"", 12, false);
+    // b should be pushed to y=4 (after a ends)
+    expect(compactedWithoutOverlap.find(l => l.i === ""b"").y).toBe(4);
+  })",805,822,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 885, 'column': 30, 'index': 25494}","it(""includes margin in item positioning"", () => {
+    const { container } = render(
+      <ReactGridLayout
+        layout={[
+          { i: ""a"", x: 0, y: 0, w: 2, h: 2 },
+          { i: ""b"", x: 0, y: 2, w: 2, h: 2 }
+        ]}
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        margin={[10, 10]}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    const items = container.querySelectorAll("".react-grid-item"");
+    expect(items.length).toBe(2);
+
+    // Both items should have positioning styles
+    items.forEach(item => {
+      const style = item.getAttribute(""style"") || """";
+      expect(style.length).toBeGreaterThan(0);
+    });
+  })",867,892,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 890, 'column': 43, 'index': 25673}","it(""includes margin in item positioning"", () => {
+    const { container } = render(
+      <ReactGridLayout
+        layout={[
+          { i: ""a"", x: 0, y: 0, w: 2, h: 2 },
+          { i: ""b"", x: 0, y: 2, w: 2, h: 2 }
+        ]}
+        width={1200}
+        cols={12}
+        rowHeight={30}
+        margin={[10, 10]}
+      >
+        <div key=""a"">A</div>
+        <div key=""b"">B</div>
+      </ReactGridLayout>
+    );
+
+    const items = container.querySelectorAll("".react-grid-item"");
+    expect(items.length).toBe(2);
+
+    // Both items should have positioning styles
+    items.forEach(item => {
+      const style = item.getAttribute(""style"") || """";
+      expect(style.length).toBeGreaterThan(0);
+    });
+  })",867,892,steel

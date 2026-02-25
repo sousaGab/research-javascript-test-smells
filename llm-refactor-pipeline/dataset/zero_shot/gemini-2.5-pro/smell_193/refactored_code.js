@@ -1,15 +1,18 @@
-test('when use parse and parseAsync then option values reset', async () => {
-  const program = new commander.Command().option('--black').option('--white');
-  const results = [];
+describe('commander option parsing', () => {
+  let program;
 
-  program.parse(['--black'], { from: 'user' });
-  results.push(program.opts());
+  beforeEach(() => {
+    program = new commander.Command().option('--black').option('--white');
+  });
 
-  await program.parseAsync(['--white'], { from: 'user' });
-  results.push(program.opts());
+  test('when using parse, then option values are set', () => {
+    program.parse(['--black'], { from: 'user' });
+    expect(program.opts()).toEqual({ black: true });
+  });
 
-  expect(results).toEqual([
-    { black: true },
-    { white: true }
-  ]);
+  test('when using parseAsync after parse, then option values are reset', async () => {
+    program.parse(['--black'], { from: 'user' }); // Set initial state
+    await program.parseAsync(['--white'], { from: 'user' });
+    expect(program.opts()).toEqual({ white: true });
+  });
 });

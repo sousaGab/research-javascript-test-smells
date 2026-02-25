@@ -1,7 +1,7 @@
-it('should find matches and trigger searchComplete', function (done) {
+it('should trigger searchComplete', function (done) {
       list.on('searchComplete', function (list) {
-        expect(list.visibleItems.length).toBe(1);
-        expect(list.visibleItems[0].values().name).toBe('Angelica');
+        expect(list.matchingItems.length).toBe(1);
+        expect(list.matchingItems[0].values().name).toBe('Angelica');
         done();
       });
       $('#list-fuzzy-search .fuzzy-search').val('angelica');

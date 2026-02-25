@@ -811,37 +811,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     logger.info('Caught error:', new Error('Errors lack .toJSON() lulz'));
   })",200,213,snuts
-/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':248,'endLine':277}","it('should not exceed the max files', async function () {
-      const transport = new winston.transports.File({
-        ...defaultTransportOptions,
-        maxsize: 2024, // Small size to trigger frequent rotations
-        maxFiles: 3, // Only allow 3 files total
-        lazy: true
-      });
-
-      const finished = new Promise(resolve => transport.on('finish', resolve));
-
-      // Log well beyond enough data to create 3 files
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-
-      // End the stream to trigger the 'finish' event after all logs are processed
-      transport.close();
-
-      // Wait for all file operations to complete
-      await finished;
-
-      // Should have 3 files total (maxFiles)
-      assertFileExists('testarchive.log');
-      assertFileExists('testarchive1.log');
-      assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
-    }, 10000)",248,277,snuts
-/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':279,'endLine':303}","it('should delete the oldest file when maxfiles is met', async function () {
+/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':281,'endLine':305}","it('should delete the oldest file when maxfiles is met', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         maxsize: 1024, // Small size to trigger frequent rotations
@@ -865,8 +835,8 @@ file,type,line,method,methodStart,methodEnd,source
       assertFileDoesNotExist('testarchive.log'); // The oldest file should be deleted
       assertFileExists('testarchive1.log');
       assertFileExists('testarchive2.log');
-    })",279,303,snuts
-/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':308,'endLine':338}","it('should write to original file and older files will be in ascending order', async function () {
+    })",281,305,snuts
+/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':310,'endLine':340}","it('should write to original file and older files will be in ascending order', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         maxFiles: 4,
@@ -896,8 +866,8 @@ file,type,line,method,methodStart,methodEnd,source
       // FIX: I would expect the first file that was rolled to be filled with the first log message
       // instead the file is empty. Investigation needed.
       // assertFileContentsStartWith('testarchive3.log', 'A');
-    })",308,338,snuts
-/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':340,'endLine':369}","it('should write to the newest file and older files will be in descending order', async function () {
+    })",310,340,snuts
+/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':342,'endLine':371}","it('should write to the newest file and older files will be in descending order', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         tailable: false
@@ -926,8 +896,8 @@ file,type,line,method,methodStart,methodEnd,source
       //   file testarchive3.log - empty
       // assertFileContentsStartWith('testarchive1.log', 'A');
       // assertFileContentsStartWith('testarchive2.log', 'B');
-    })",340,369,snuts
-/test/unit/winston/transports/file.test.js,VerboseStatement,"{'startLine':248,'endLine':277}","it('should not exceed the max files', async function () {
+    })",342,371,snuts
+/test/unit/winston/transports/file.test.js,ConditionalTestLogic,"{'startLine':262,'endLine':268}","it('should not exceed the max files', function (done) {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         maxsize: 2024, // Small size to trigger frequent rotations
@@ -935,29 +905,31 @@ file,type,line,method,methodStart,methodEnd,source
         lazy: true
       });
 
-      const finished = new Promise(resolve => transport.on('finish', resolve));
+      const logCount = 7;
+      const expectedRotations = logCount - 1;
+      let rotationCount = 0;
 
-      // Log well beyond enough data to create 3 files
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
+      transport.on('rotate', () => {
+        rotationCount++;
+        if (rotationCount === expectedRotations) {
+          // After the final rotation, we can safely check the file system state.
+          assertFileExists('testarchive.log');
+          assertFileExists('testarchive1.log');
+          assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
+          done();
+        }
+      });
 
-      // End the stream to trigger the 'finish' event after all logs are processed
-      transport.close();
+      const performLogging = async () => {
+        // Log well beyond enough data to create 3 files
+        for (let i = 0; i < logCount; i++) {
+          await logToTransport(transport);
+        }
+      };
 
-      // Wait for all file operations to complete
-      await finished;
-
-      // Should have 3 files total (maxFiles)
-      assertFileExists('testarchive.log');
-      assertFileExists('testarchive1.log');
-      assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
-    }, 10000)",248,277,snuts
-/test/unit/winston/transports/file.test.js,VerboseStatement,"{'startLine':308,'endLine':338}","it('should write to original file and older files will be in ascending order', async function () {
+      performLogging().catch(done);
+    }, 10000)",248,279,snuts
+/test/unit/winston/transports/file.test.js,VerboseStatement,"{'startLine':310,'endLine':340}","it('should write to original file and older files will be in ascending order', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         maxFiles: 4,
@@ -987,7 +959,7 @@ file,type,line,method,methodStart,methodEnd,source
       // FIX: I would expect the first file that was rolled to be filled with the first log message
       // instead the file is empty. Investigation needed.
       // assertFileContentsStartWith('testarchive3.log', 'A');
-    })",308,338,snuts
+    })",310,340,snuts
 /test/unit/winston/transports/error.test.js,AnonymousTest,"{'startLine':57,'endLine':59}","it(""error didn't"", () => {
       assume(logError).not.exists();
     })",57,59,snuts
@@ -3275,6 +3247,70 @@ file,type,line,method,methodStart,methodEnd,source
     })",167,180,steel
 /test/unit/winston/transports/file.test.js,Conditional Test Logic,"{'line': 31, 'column': 2, 'index': 1456}",Unknown,,,steel
 /test/unit/winston/transports/file.test.js,Conditional Test Logic,"{'line': 53, 'column': 2, 'index': 2357}",Unknown,,,steel
+/test/unit/winston/transports/file.test.js,Conditional Test Logic,"{'line': 262, 'column': 8, 'index': 8966}","it('should not exceed the max files', function (done) {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        maxsize: 2024, // Small size to trigger frequent rotations
+        maxFiles: 3, // Only allow 3 files total
+        lazy: true
+      });
+
+      const logCount = 7;
+      const expectedRotations = logCount - 1;
+      let rotationCount = 0;
+
+      transport.on('rotate', () => {
+        rotationCount++;
+        if (rotationCount === expectedRotations) {
+          // After the final rotation, we can safely check the file system state.
+          assertFileExists('testarchive.log');
+          assertFileExists('testarchive1.log');
+          assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
+          done();
+        }
+      });
+
+      const performLogging = async () => {
+        // Log well beyond enough data to create 3 files
+        for (let i = 0; i < logCount; i++) {
+          await logToTransport(transport);
+        }
+      };
+
+      performLogging().catch(done);
+    }, 10000)",248,279,steel
+/test/unit/winston/transports/file.test.js,Conditional Test Logic,"{'line': 273, 'column': 8, 'index': 9433}","it('should not exceed the max files', function (done) {
+      const transport = new winston.transports.File({
+        ...defaultTransportOptions,
+        maxsize: 2024, // Small size to trigger frequent rotations
+        maxFiles: 3, // Only allow 3 files total
+        lazy: true
+      });
+
+      const logCount = 7;
+      const expectedRotations = logCount - 1;
+      let rotationCount = 0;
+
+      transport.on('rotate', () => {
+        rotationCount++;
+        if (rotationCount === expectedRotations) {
+          // After the final rotation, we can safely check the file system state.
+          assertFileExists('testarchive.log');
+          assertFileExists('testarchive1.log');
+          assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
+          done();
+        }
+      });
+
+      const performLogging = async () => {
+        // Log well beyond enough data to create 3 files
+        for (let i = 0; i < logCount; i++) {
+          await logToTransport(transport);
+        }
+      };
+
+      performLogging().catch(done);
+    }, 10000)",248,279,steel
 /test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 130}","it('should log to the file with the given filename', async function () {
       const expectedFilename = 'testfilename.log';
       const transport = new winston.transports.File({
@@ -3379,7 +3415,7 @@ file,type,line,method,methodStart,methodEnd,source
       assertFileSizeLessThan('testarchive1.log', 2048);
       assertFileSizeLessThan('testarchive2.log', 2048);
     })",227,244,steel
-/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 248}","it('should not exceed the max files', async function () {
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 248}","it('should not exceed the max files', function (done) {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         maxsize: 2024, // Small size to trigger frequent rotations
@@ -3387,29 +3423,31 @@ file,type,line,method,methodStart,methodEnd,source
         lazy: true
       });
 
-      const finished = new Promise(resolve => transport.on('finish', resolve));
+      const logCount = 7;
+      const expectedRotations = logCount - 1;
+      let rotationCount = 0;
 
-      // Log well beyond enough data to create 3 files
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
+      transport.on('rotate', () => {
+        rotationCount++;
+        if (rotationCount === expectedRotations) {
+          // After the final rotation, we can safely check the file system state.
+          assertFileExists('testarchive.log');
+          assertFileExists('testarchive1.log');
+          assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
+          done();
+        }
+      });
 
-      // End the stream to trigger the 'finish' event after all logs are processed
-      transport.close();
+      const performLogging = async () => {
+        // Log well beyond enough data to create 3 files
+        for (let i = 0; i < logCount; i++) {
+          await logToTransport(transport);
+        }
+      };
 
-      // Wait for all file operations to complete
-      await finished;
-
-      // Should have 3 files total (maxFiles)
-      assertFileExists('testarchive.log');
-      assertFileExists('testarchive1.log');
-      assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
-    }, 10000)",248,277,steel
-/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 279}","it('should delete the oldest file when maxfiles is met', async function () {
+      performLogging().catch(done);
+    }, 10000)",248,279,steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 281}","it('should delete the oldest file when maxfiles is met', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         maxsize: 1024, // Small size to trigger frequent rotations
@@ -3433,8 +3471,8 @@ file,type,line,method,methodStart,methodEnd,source
       assertFileDoesNotExist('testarchive.log'); // The oldest file should be deleted
       assertFileExists('testarchive1.log');
       assertFileExists('testarchive2.log');
-    })",279,303,steel
-/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 308}","it('should write to original file and older files will be in ascending order', async function () {
+    })",281,305,steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 310}","it('should write to original file and older files will be in ascending order', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         maxFiles: 4,
@@ -3464,8 +3502,8 @@ file,type,line,method,methodStart,methodEnd,source
       // FIX: I would expect the first file that was rolled to be filled with the first log message
       // instead the file is empty. Investigation needed.
       // assertFileContentsStartWith('testarchive3.log', 'A');
-    })",308,338,steel
-/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 340}","it('should write to the newest file and older files will be in descending order', async function () {
+    })",310,340,steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 342}","it('should write to the newest file and older files will be in descending order', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         tailable: false
@@ -3494,8 +3532,8 @@ file,type,line,method,methodStart,methodEnd,source
       //   file testarchive3.log - empty
       // assertFileContentsStartWith('testarchive1.log', 'A');
       // assertFileContentsStartWith('testarchive2.log', 'B');
-    })",340,369,steel
-/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 373}","it('should not create log file until needed when lazy is enabled', async function () {
+    })",342,371,steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 375}","it('should not create log file until needed when lazy is enabled', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         lazy: true
@@ -3506,8 +3544,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       assertFileExists('testarchive.log');
       assertFileDoesNotExist('testarchive1.log');
-    })",373,384,steel
-/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 386}","it('should create log files on initializaiton when lazy is enabled', async function () {
+    })",375,386,steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 388}","it('should create log files on initializaiton when lazy is enabled', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         lazy: false
@@ -3519,7 +3557,7 @@ file,type,line,method,methodStart,methodEnd,source
       assertFileExists('testarchive.log');
       assertFileExists('testarchive1.log');
       assertFileDoesNotExist('testarchive2.log');
-    })",386,398,steel
+    })",388,400,steel
 /test/unit/winston/transports/file-create-dir.test.js,Conditional Test Logic,"{'line': 16, 'column': 6, 'index': 437}","beforeEach(function () {
     return rimraf(logDir).catch(err => {
       if (err){

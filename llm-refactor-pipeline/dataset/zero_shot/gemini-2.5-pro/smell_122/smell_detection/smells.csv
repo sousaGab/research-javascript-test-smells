@@ -1879,123 +1879,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(response3.body).to.equal('server response')
     expect(scope.isDone()).to.equal(false)
   })",30,68,snuts
-/tests/got/test_allow_unmocked.js,ConditionalTestLogic,"{'startLine':45,'endLine':50}","it('allow unmocked option allows traffic to server', async () => {
-    const serverRoutes = {
-      '/': { statusCode: 200, body: 'server served a response' },
-      '/abc': { statusCode: 200, body: 'server served a response' },
-      '/not/available': { statusCode: 404 },
-    };
-
-    const { origin } = await startHttpServer((request, response) => {
-      const route = serverRoutes[request.url];
-      if (route) {
-        response.writeHead(route.statusCode);
-        if (route.body) {
-          response.write(route.body);
-        }
-      }
-      response.end();
-    });
-
-    const scope = nock(origin, { allowUnmocked: true })
-      .get('/abc')
-      .reply(307, 'served from our mock')
-      .get('/wont/get/here')
-      .reply(307, 'served from our mock');
-    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false });
-
-    const response1 = await client('abc');
-    expect(response1.statusCode).to.equal(307);
-    expect(response1.body).to.equal('served from our mock');
-    expect(scope.isDone()).to.equal(false);
-
-    const response2 = await client('not/available');
-    expect(response2.statusCode).to.equal(404);
-    expect(scope.isDone()).to.equal(false);
-
-    const response3 = await client('');
-    expect(response3.statusCode).to.equal(200);
-    expect(response3.body).to.equal('server served a response');
-    expect(scope.isDone()).to.equal(false);
-  })",36,74,snuts
-/tests/got/test_allow_unmocked.js,ConditionalTestLogic,"{'startLine':47,'endLine':49}","it('allow unmocked option allows traffic to server', async () => {
-    const serverRoutes = {
-      '/': { statusCode: 200, body: 'server served a response' },
-      '/abc': { statusCode: 200, body: 'server served a response' },
-      '/not/available': { statusCode: 404 },
-    };
-
-    const { origin } = await startHttpServer((request, response) => {
-      const route = serverRoutes[request.url];
-      if (route) {
-        response.writeHead(route.statusCode);
-        if (route.body) {
-          response.write(route.body);
-        }
-      }
-      response.end();
-    });
-
-    const scope = nock(origin, { allowUnmocked: true })
-      .get('/abc')
-      .reply(307, 'served from our mock')
-      .get('/wont/get/here')
-      .reply(307, 'served from our mock');
-    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false });
-
-    const response1 = await client('abc');
-    expect(response1.statusCode).to.equal(307);
-    expect(response1.body).to.equal('served from our mock');
-    expect(scope.isDone()).to.equal(false);
-
-    const response2 = await client('not/available');
-    expect(response2.statusCode).to.equal(404);
-    expect(scope.isDone()).to.equal(false);
-
-    const response3 = await client('');
-    expect(response3.statusCode).to.equal(200);
-    expect(response3.body).to.equal('server served a response');
-    expect(scope.isDone()).to.equal(false);
-  })",36,74,snuts
-/tests/got/test_allow_unmocked.js,VerboseStatement,"{'startLine':36,'endLine':74}","it('allow unmocked option allows traffic to server', async () => {
-    const serverRoutes = {
-      '/': { statusCode: 200, body: 'server served a response' },
-      '/abc': { statusCode: 200, body: 'server served a response' },
-      '/not/available': { statusCode: 404 },
-    };
-
-    const { origin } = await startHttpServer((request, response) => {
-      const route = serverRoutes[request.url];
-      if (route) {
-        response.writeHead(route.statusCode);
-        if (route.body) {
-          response.write(route.body);
-        }
-      }
-      response.end();
-    });
-
-    const scope = nock(origin, { allowUnmocked: true })
-      .get('/abc')
-      .reply(307, 'served from our mock')
-      .get('/wont/get/here')
-      .reply(307, 'served from our mock');
-    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false });
-
-    const response1 = await client('abc');
-    expect(response1.statusCode).to.equal(307);
-    expect(response1.body).to.equal('served from our mock');
-    expect(scope.isDone()).to.equal(false);
-
-    const response2 = await client('not/available');
-    expect(response2.statusCode).to.equal(404);
-    expect(scope.isDone()).to.equal(false);
-
-    const response3 = await client('');
-    expect(response3.statusCode).to.equal(200);
-    expect(response3.body).to.equal('server served a response');
-    expect(scope.isDone()).to.equal(false);
-  })",36,74,snuts
 /tests/test_unix_socket.js,Conditional Test Logic,"{'line': 14, 'column': 0, 'index': 309}",Failed to parse file: 'return' outside of function. (16:2),,,steel
 /tests/test_unix_socket.js,Conditional Test Logic,"{'line': 27, 'column': 8, 'index': 630}",Failed to parse file: 'return' outside of function. (16:2),,,steel
 /tests/test_unix_socket.js,Conditional Test Logic,"{'line': 36, 'column': 8, 'index': 799}",Failed to parse file: 'return' outside of function. (16:2),,,steel
@@ -7873,84 +7756,50 @@ file,type,line,method,methodStart,methodEnd,source
     expect(response3.body).to.equal('server response')
     expect(scope.isDone()).to.equal(false)
   })",30,68,steel
-/tests/got/test_allow_unmocked.js,Conditional Test Logic,"{'line': 45, 'column': 6, 'index': 1431}","it('allow unmocked option allows traffic to server', async () => {
-    const serverRoutes = {
-      '/': { statusCode: 200, body: 'server served a response' },
-      '/abc': { statusCode: 200, body: 'server served a response' },
-      '/not/available': { statusCode: 404 },
-    };
-
+/tests/got/test_allow_unmocked.js,Conditional Test Logic,"{'line': 38, 'column': 6, 'index': 1169}","it('allow unmocked option allows traffic to server', async () => {
     const { origin } = await startHttpServer((request, response) => {
-      const route = serverRoutes[request.url];
-      if (route) {
-        response.writeHead(route.statusCode);
-        if (route.body) {
-          response.write(route.body);
-        }
+      switch (request.url) {
+        case '/':
+          response.writeHead(200)
+          response.write('server served a response')
+          break
+        case '/not/available':
+          response.writeHead(404)
+          break
+        case '/abc':
+          response.writeHead(200)
+          response.write('server served a response')
+          break
       }
-      response.end();
-    });
+
+      response.end()
+    })
 
     const scope = nock(origin, { allowUnmocked: true })
       .get('/abc')
       .reply(307, 'served from our mock')
       .get('/wont/get/here')
-      .reply(307, 'served from our mock');
-    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false });
-
-    const response1 = await client('abc');
-    expect(response1.statusCode).to.equal(307);
-    expect(response1.body).to.equal('served from our mock');
-    expect(scope.isDone()).to.equal(false);
-
-    const response2 = await client('not/available');
-    expect(response2.statusCode).to.equal(404);
-    expect(scope.isDone()).to.equal(false);
-
-    const response3 = await client('');
-    expect(response3.statusCode).to.equal(200);
-    expect(response3.body).to.equal('server served a response');
-    expect(scope.isDone()).to.equal(false);
-  })",36,74,steel
-/tests/got/test_allow_unmocked.js,Conditional Test Logic,"{'line': 47, 'column': 8, 'index': 1498}","it('allow unmocked option allows traffic to server', async () => {
-    const serverRoutes = {
-      '/': { statusCode: 200, body: 'server served a response' },
-      '/abc': { statusCode: 200, body: 'server served a response' },
-      '/not/available': { statusCode: 404 },
-    };
-
-    const { origin } = await startHttpServer((request, response) => {
-      const route = serverRoutes[request.url];
-      if (route) {
-        response.writeHead(route.statusCode);
-        if (route.body) {
-          response.write(route.body);
-        }
-      }
-      response.end();
-    });
-
-    const scope = nock(origin, { allowUnmocked: true })
-      .get('/abc')
       .reply(307, 'served from our mock')
-      .get('/wont/get/here')
-      .reply(307, 'served from our mock');
-    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false });
+    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false })
 
-    const response1 = await client('abc');
-    expect(response1.statusCode).to.equal(307);
-    expect(response1.body).to.equal('served from our mock');
-    expect(scope.isDone()).to.equal(false);
+    const response1 = await client('abc')
+    expect(response1).to.include({
+      statusCode: 307,
+      body: 'served from our mock',
+    })
+    expect(scope.isDone()).to.be.false()
 
-    const response2 = await client('not/available');
-    expect(response2.statusCode).to.equal(404);
-    expect(scope.isDone()).to.equal(false);
+    const response2 = await client('not/available')
+    expect(response2).to.include({ statusCode: 404 })
+    expect(scope.isDone()).to.be.false()
 
-    const response3 = await client('');
-    expect(response3.statusCode).to.equal(200);
-    expect(response3.body).to.equal('server served a response');
-    expect(scope.isDone()).to.equal(false);
-  })",36,74,steel
+    const response3 = await client('')
+    expect(response3).to.include({
+      statusCode: 200,
+      body: 'server served a response',
+    })
+    expect(scope.isDone()).to.be.false()
+  })",36,79,steel
 /tests/got/test_allow_unmocked.js,Duplicate Assert,"{'line': 32, 'column': 4, 'index': 912}","it('allow unmocked works after one interceptor is removed', async () => {
     const { origin } = await startHttpServer((request, response) => {
       response.write('live')
@@ -7973,120 +7822,135 @@ file,type,line,method,methodStart,methodEnd,source
     expect((await got(origin)).body).to.equal('Mocked')
     expect((await got(origin)).body).to.equal('live')
   })",24,34,steel
-/tests/got/test_allow_unmocked.js,Duplicate Assert,"{'line': 64, 'column': 4, 'index': 2027}","it('allow unmocked option allows traffic to server', async () => {
-    const serverRoutes = {
-      '/': { statusCode: 200, body: 'server served a response' },
-      '/abc': { statusCode: 200, body: 'server served a response' },
-      '/not/available': { statusCode: 404 },
-    };
-
+/tests/got/test_allow_unmocked.js,Duplicate Assert,"{'line': 67, 'column': 4, 'index': 1969}","it('allow unmocked option allows traffic to server', async () => {
     const { origin } = await startHttpServer((request, response) => {
-      const route = serverRoutes[request.url];
-      if (route) {
-        response.writeHead(route.statusCode);
-        if (route.body) {
-          response.write(route.body);
-        }
+      switch (request.url) {
+        case '/':
+          response.writeHead(200)
+          response.write('server served a response')
+          break
+        case '/not/available':
+          response.writeHead(404)
+          break
+        case '/abc':
+          response.writeHead(200)
+          response.write('server served a response')
+          break
       }
-      response.end();
-    });
+
+      response.end()
+    })
 
     const scope = nock(origin, { allowUnmocked: true })
       .get('/abc')
       .reply(307, 'served from our mock')
       .get('/wont/get/here')
-      .reply(307, 'served from our mock');
-    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false });
+      .reply(307, 'served from our mock')
+    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false })
 
-    const response1 = await client('abc');
-    expect(response1.statusCode).to.equal(307);
-    expect(response1.body).to.equal('served from our mock');
-    expect(scope.isDone()).to.equal(false);
+    const response1 = await client('abc')
+    expect(response1).to.include({
+      statusCode: 307,
+      body: 'served from our mock',
+    })
+    expect(scope.isDone()).to.be.false()
 
-    const response2 = await client('not/available');
-    expect(response2.statusCode).to.equal(404);
-    expect(scope.isDone()).to.equal(false);
+    const response2 = await client('not/available')
+    expect(response2).to.include({ statusCode: 404 })
+    expect(scope.isDone()).to.be.false()
 
-    const response3 = await client('');
-    expect(response3.statusCode).to.equal(200);
-    expect(response3.body).to.equal('server served a response');
-    expect(scope.isDone()).to.equal(false);
-  })",36,74,steel
-/tests/got/test_allow_unmocked.js,Duplicate Assert,"{'line': 68, 'column': 4, 'index': 2173}","it('allow unmocked option allows traffic to server', async () => {
-    const serverRoutes = {
-      '/': { statusCode: 200, body: 'server served a response' },
-      '/abc': { statusCode: 200, body: 'server served a response' },
-      '/not/available': { statusCode: 404 },
-    };
-
+    const response3 = await client('')
+    expect(response3).to.include({
+      statusCode: 200,
+      body: 'server served a response',
+    })
+    expect(scope.isDone()).to.be.false()
+  })",36,79,steel
+/tests/got/test_allow_unmocked.js,Duplicate Assert,"{'line': 71, 'column': 4, 'index': 2117}","it('allow unmocked option allows traffic to server', async () => {
     const { origin } = await startHttpServer((request, response) => {
-      const route = serverRoutes[request.url];
-      if (route) {
-        response.writeHead(route.statusCode);
-        if (route.body) {
-          response.write(route.body);
-        }
+      switch (request.url) {
+        case '/':
+          response.writeHead(200)
+          response.write('server served a response')
+          break
+        case '/not/available':
+          response.writeHead(404)
+          break
+        case '/abc':
+          response.writeHead(200)
+          response.write('server served a response')
+          break
       }
-      response.end();
-    });
+
+      response.end()
+    })
 
     const scope = nock(origin, { allowUnmocked: true })
       .get('/abc')
       .reply(307, 'served from our mock')
       .get('/wont/get/here')
-      .reply(307, 'served from our mock');
-    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false });
+      .reply(307, 'served from our mock')
+    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false })
 
-    const response1 = await client('abc');
-    expect(response1.statusCode).to.equal(307);
-    expect(response1.body).to.equal('served from our mock');
-    expect(scope.isDone()).to.equal(false);
+    const response1 = await client('abc')
+    expect(response1).to.include({
+      statusCode: 307,
+      body: 'served from our mock',
+    })
+    expect(scope.isDone()).to.be.false()
 
-    const response2 = await client('not/available');
-    expect(response2.statusCode).to.equal(404);
-    expect(scope.isDone()).to.equal(false);
+    const response2 = await client('not/available')
+    expect(response2).to.include({ statusCode: 404 })
+    expect(scope.isDone()).to.be.false()
 
-    const response3 = await client('');
-    expect(response3.statusCode).to.equal(200);
-    expect(response3.body).to.equal('server served a response');
-    expect(scope.isDone()).to.equal(false);
-  })",36,74,steel
-/tests/got/test_allow_unmocked.js,Duplicate Assert,"{'line': 73, 'column': 4, 'index': 2371}","it('allow unmocked option allows traffic to server', async () => {
-    const serverRoutes = {
-      '/': { statusCode: 200, body: 'server served a response' },
-      '/abc': { statusCode: 200, body: 'server served a response' },
-      '/not/available': { statusCode: 404 },
-    };
-
+    const response3 = await client('')
+    expect(response3).to.include({
+      statusCode: 200,
+      body: 'server served a response',
+    })
+    expect(scope.isDone()).to.be.false()
+  })",36,79,steel
+/tests/got/test_allow_unmocked.js,Duplicate Assert,"{'line': 78, 'column': 4, 'index': 2303}","it('allow unmocked option allows traffic to server', async () => {
     const { origin } = await startHttpServer((request, response) => {
-      const route = serverRoutes[request.url];
-      if (route) {
-        response.writeHead(route.statusCode);
-        if (route.body) {
-          response.write(route.body);
-        }
+      switch (request.url) {
+        case '/':
+          response.writeHead(200)
+          response.write('server served a response')
+          break
+        case '/not/available':
+          response.writeHead(404)
+          break
+        case '/abc':
+          response.writeHead(200)
+          response.write('server served a response')
+          break
       }
-      response.end();
-    });
+
+      response.end()
+    })
 
     const scope = nock(origin, { allowUnmocked: true })
       .get('/abc')
       .reply(307, 'served from our mock')
       .get('/wont/get/here')
-      .reply(307, 'served from our mock');
-    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false });
+      .reply(307, 'served from our mock')
+    const client = got.extend({ prefixUrl: origin, throwHttpErrors: false })
 
-    const response1 = await client('abc');
-    expect(response1.statusCode).to.equal(307);
-    expect(response1.body).to.equal('served from our mock');
-    expect(scope.isDone()).to.equal(false);
+    const response1 = await client('abc')
+    expect(response1).to.include({
+      statusCode: 307,
+      body: 'served from our mock',
+    })
+    expect(scope.isDone()).to.be.false()
 
-    const response2 = await client('not/available');
-    expect(response2.statusCode).to.equal(404);
-    expect(scope.isDone()).to.equal(false);
+    const response2 = await client('not/available')
+    expect(response2).to.include({ statusCode: 404 })
+    expect(scope.isDone()).to.be.false()
 
-    const response3 = await client('');
-    expect(response3.statusCode).to.equal(200);
-    expect(response3.body).to.equal('server served a response');
-    expect(scope.isDone()).to.equal(false);
-  })",36,74,steel
+    const response3 = await client('')
+    expect(response3).to.include({
+      statusCode: 200,
+      body: 'server served a response',
+    })
+    expect(scope.isDone()).to.be.false()
+  })",36,79,steel

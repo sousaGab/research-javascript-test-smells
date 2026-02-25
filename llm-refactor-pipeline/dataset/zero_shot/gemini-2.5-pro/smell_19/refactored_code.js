@@ -1,8 +1,6 @@
 it('with the default winston logger', async () => {
         const LOG_WRITE_DELAY_MS = 500;
-        const EXPECTED_EXIT_CODE = 1;
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
-
         winston.exceptions.handle([
           new winston.transports.File({
             filename: filePath,
@@ -14,7 +12,7 @@ it('with the default winston logger', async () => {
         await new Promise(resolve => setTimeout(resolve, LOG_WRITE_DELAY_MS));
 
         expect(processExitSpy).toHaveBeenCalledTimes(1);
-        expect(processExitSpy).toHaveBeenCalledWith(EXPECTED_EXIT_CODE);
+        expect(processExitSpy).toHaveBeenCalledWith(1);
 
         // Read the log file and verify its contents
         const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });

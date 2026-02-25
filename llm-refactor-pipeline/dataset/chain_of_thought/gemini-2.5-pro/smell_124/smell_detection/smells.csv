@@ -1017,45 +1017,41 @@ file,type,line,method,methodStart,methodEnd,source
     // differentiate a stored JSON string from a non-JSON body.
     // expect(recorded[0]).to.include({ body: JSON.stringify(exampleBody) })
   })",211,248,snuts
-/tests/got/test_recorder.js,OvercommentedTest,"{'startLine':290,'endLine':343}","it('records and replays correctly with filteringRequestBody', async () => {
-  // Helper to encapsulate the verbose recording process.
-  async function recordHttpInteraction(serverHandler, expectedBody) {
-    const { origin } = await servers.startHttpServer(serverHandler)
-
-    // 1. Record a real HTTP request.
+/tests/got/test_recorder.js,OvercommentedTest,"{'startLine':290,'endLine':339}","it('records and replays correctly with filteringRequestBody', async () => {
+  // Helper to encapsulate the recording logic.
+  const recordHttpInteraction = async origin => {
     nock.restore()
     nock.recorder.clear()
+
     nock.recorder.rec({
       dont_print: true,
       output_objects: true,
     })
 
-    const recordResponse = await got(origin)
-    expect(recordResponse.body).to.equal(expectedBody)
+    // Make the live request to record it.
+    await got(origin)
 
-    // 2. Retrieve the recorded definition.
     nock.restore()
-    const recorded = nock.recorder.play()
+    const recordedDefinitions = nock.recorder.play()
     nock.recorder.clear()
     nock.activate()
 
-    expect(recorded).to.have.lengthOf(1)
-    return { origin, definition: recorded[0] }
+    return recordedDefinitions
   }
 
-  // Arrange
+  // Arrange: Start a real server and record one interaction.
   const responseBody = '<html><body>example</body></html>'
-  const serverHandler = (request, response) => {
+  const { origin } = await servers.startHttpServer((request, response) => {
     response.write(responseBody)
     response.end()
-  }
+  })
 
-  const { origin, definition } = await recordHttpInteraction(
-    serverHandler,
-    responseBody
-  )
+  const recordedDefs = await recordHttpInteraction(origin)
+  expect(recordedDefs).to.have.lengthOf(1)
 
+  // Arrange: Modify the recorded definition to test the filtering function.
   const onFilteringRequestBody = sinon.spy()
+  const [definition] = recordedDefs
   definition.filteringRequestBody = (body, aRecodedBody) => {
     onFilteringRequestBody()
     expect(body).to.equal(aRecodedBody)
@@ -1063,14 +1059,14 @@ file,type,line,method,methodStart,methodEnd,source
   }
   const nocks = nock.define([definition])
 
-  // Act
-  const replayResponse = await got(origin)
+  // Act: Make the same request again, which should now be intercepted.
+  const response = await got(origin)
 
-  // Assert
-  expect(replayResponse.body).to.equal(responseBody)
+  // Assert: Verify the interception and the filtering function call.
+  expect(response.body).to.equal(responseBody)
   nocks.forEach(nock => nock.done())
   expect(onFilteringRequestBody).to.have.been.calledOnce()
-})",290,343,snuts
+})",290,339,snuts
 /tests/got/test_recorder.js,VerboseStatement,"{'startLine':250,'endLine':288}","it('records and replays objects correctly', async () => {
     const exampleText = '<html><body>example</body></html>'
 
@@ -1110,7 +1106,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(response2.body).to.equal(exampleText)
     nocks.forEach(nock => nock.done())
   })",250,288,snuts
-/tests/got/test_recorder.js,VerboseStatement,"{'startLine':689,'endLine':726}","it('records and replays gzipped nocks correctly', async () => {
+/tests/got/test_recorder.js,VerboseStatement,"{'startLine':685,'endLine':722}","it('records and replays gzipped nocks correctly', async () => {
     const exampleText = '<html><body>example</body></html>'
 
     const { origin } = await servers.startHttpServer((request, response) => {
@@ -1147,8 +1143,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(response2.headers).to.include({ 'content-encoding': 'gzip' })
 
     nocks.forEach(nock => nock.done())
-  })",689,726,snuts
-/tests/got/test_recorder.js,VerboseStatement,"{'startLine':728,'endLine':767}","it('records and replays the response body', async () => {
+  })",685,722,snuts
+/tests/got/test_recorder.js,VerboseStatement,"{'startLine':724,'endLine':763}","it('records and replays the response body', async () => {
     const exampleBody = '<html><body>example</body></html>'
 
     const { origin } = await servers.startHttpServer((request, response) => {
@@ -1187,7 +1183,7 @@ file,type,line,method,methodStart,methodEnd,source
     const response2 = await got(origin)
     expect(response2.body).to.equal(exampleBody)
     nocks.forEach(nock => nock.done())
-  })",728,767,snuts
+  })",724,763,snuts
 /tests/got/test_query_complex.js,OvercommentedTest,"{'startLine':7,'endLine':25}","it('query with array', async () => {
     // In Node 10.x this can be updated:
     // const exampleQuery = new URLSearchParams([
@@ -5045,7 +5041,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(response2.body).to.equal(exampleText)
     nocks.forEach(nock => nock.done())
   })",250,288,steel
-/tests/got/test_recorder.js,Conditional Test Logic,"{'line': 732, 'column': 6, 'index': 19606}","it('records and replays the response body', async () => {
+/tests/got/test_recorder.js,Conditional Test Logic,"{'line': 728, 'column': 6, 'index': 19644}","it('records and replays the response body', async () => {
     const exampleBody = '<html><body>example</body></html>'
 
     const { origin } = await servers.startHttpServer((request, response) => {
@@ -5084,8 +5080,8 @@ file,type,line,method,methodStart,methodEnd,source
     const response2 = await got(origin)
     expect(response2.body).to.equal(exampleBody)
     nocks.forEach(nock => nock.done())
-  })",728,767,steel
-/tests/got/test_recorder.js,Conditional Test Logic,"{'line': 1043, 'column': 14, 'index': 27665}","it('works with clients listening for readable', done => {
+  })",724,763,steel
+/tests/got/test_recorder.js,Conditional Test Logic,"{'line': 1039, 'column': 14, 'index': 27703}","it('works with clients listening for readable', done => {
     nock.restore()
     nock.recorder.clear()
     expect(nock.recorder.play()).to.be.empty()
@@ -5140,7 +5136,7 @@ file,type,line,method,methodStart,methodEnd,source
         )
         .end(requestBody)
     })
-  })",1013,1068,steel
+  })",1009,1064,steel
 /tests/got/test_recorder.js,Duplicate Assert,"{'line': 77, 'column': 4, 'index': 2318}","it('recording turns off nock interception (backward compatibility behavior)', () => {
     //  We ensure that there are no overrides.
     nock.restore()
@@ -5180,7 +5176,7 @@ file,type,line,method,methodStart,methodEnd,source
     //  and mocking has been deactivated.
     expect(nock.isActive()).to.be.false()
   })",74,86,steel
-/tests/got/test_recorder.js,Duplicate Assert,"{'line': 1251, 'column': 10, 'index': 33109}","it('records and replays binary response correctly', done => {
+/tests/got/test_recorder.js,Duplicate Assert,"{'line': 1247, 'column': 10, 'index': 33147}","it('records and replays binary response correctly', done => {
     nock.restore()
     nock.recorder.clear()
     expect(nock.recorder.play()).to.be.empty()
@@ -5262,8 +5258,8 @@ file,type,line,method,methodStart,methodEnd,source
       postRequest1.write(transparentGifBuffer)
       postRequest1.end()
     })
-  })",1208,1290,steel
-/tests/got/test_recorder.js,Duplicate Assert,"{'line': 1274, 'column': 16, 'index': 33770}","it('records and replays binary response correctly', done => {
+  })",1204,1286,steel
+/tests/got/test_recorder.js,Duplicate Assert,"{'line': 1270, 'column': 16, 'index': 33808}","it('records and replays binary response correctly', done => {
     nock.restore()
     nock.recorder.clear()
     expect(nock.recorder.play()).to.be.empty()
@@ -5345,7 +5341,7 @@ file,type,line,method,methodStart,methodEnd,source
       postRequest1.write(transparentGifBuffer)
       postRequest1.end()
     })
-  })",1208,1290,steel
+  })",1204,1286,steel
 /tests/got/test_recorder.js,Ignored Test,"{'line': 29, 'column': 5, 'index': 885}","it.skip('does not record requests from previous sessions', async () => {
     const { origin } = await servers.startHttpServer()
 
@@ -5374,7 +5370,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(outputs).to.have.lengthOf(1)
     expect(outputs[0]).to.match(/\.post\('\/bar'\)/)
   })",29,56,steel
-/tests/got/test_recorder.js,Sleepy Test,"{'line': 1167, 'column': 6, 'index': 31026}","it('respects http.request() consumers', done => {
+/tests/got/test_recorder.js,Sleepy Test,"{'line': 1163, 'column': 6, 'index': 31064}","it('respects http.request() consumers', done => {
     const requestListener = (req, res) => {
       res.write('foo')
       setTimeout(() => {
@@ -5416,8 +5412,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       req.end()
     })
-  })",1164,1206,steel
-/tests/got/test_recorder.js,Sleepy Test,"{'line': 1189, 'column': 10, 'index': 31481}","it('respects http.request() consumers', done => {
+  })",1160,1202,steel
+/tests/got/test_recorder.js,Sleepy Test,"{'line': 1185, 'column': 10, 'index': 31519}","it('respects http.request() consumers', done => {
     const requestListener = (req, res) => {
       res.write('foo')
       setTimeout(() => {
@@ -5459,8 +5455,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       req.end()
     })
-  })",1164,1206,steel
-/tests/got/test_recorder.js,Unknown Test,"{'column': 2, 'line': 1293}","it('should not resume the response stream', done => {
+  })",1160,1202,steel
+/tests/got/test_recorder.js,Unknown Test,"{'column': 2, 'line': 1289}","it('should not resume the response stream', done => {
     nock.recorder.rec(true)
 
     servers.startHttpServer().then(({ origin }) => {
@@ -5478,7 +5474,7 @@ file,type,line,method,methodStart,methodEnd,source
 
       req.end()
     })
-  })",1293,1311,steel
+  })",1289,1307,steel
 /tests/got/test_query_complex.js,Unknown Test,"{'column': 2, 'line': 7}","it('query with array', async () => {
     // In Node 10.x this can be updated:
     // const exampleQuery = new URLSearchParams([

@@ -6679,7 +6679,7 @@
                       <td>
                         <pre><code>  43 |   it(&quot;should return the value itself when it is within the specified range&quot;, () &#x3D;&gt; {
   44 |     const valueWithinRange &#x3D; 5;
-&gt; 45 |     expect(clampValue(valueWithinRange, MIN_VALUE, MAX_VALUE)).toBe(valueWithinRange);
+&gt; 45 |     expect(clampValue(valueWithinRange, MIN_CLAMP_VALUE, MAX_CLAMP_VALUE)).toBe(valueWithinRange);
      |           ^ Lazy Test
   46 |   });
   47 |
@@ -6690,7 +6690,7 @@
                       <td>
                         <pre><code>  48 |   it(&quot;should return the minimum value when the given value is below the range&quot;, () &#x3D;&gt; {
   49 |     const valueBelowMin &#x3D; 0;
-&gt; 50 |     expect(clampValue(valueBelowMin, MIN_VALUE, MAX_VALUE)).toBe(MIN_VALUE);
+&gt; 50 |     expect(clampValue(valueBelowMin, MIN_CLAMP_VALUE, MAX_CLAMP_VALUE)).toBe(MIN_CLAMP_VALUE);
      |           ^ Lazy Test
   51 |   });
   52 |
@@ -6701,40 +6701,40 @@
                       <td>
                         <pre><code>  53 |   it(&quot;should return the maximum value when the given value is above the range&quot;, () &#x3D;&gt; {
   54 |     const valueAboveMax &#x3D; 15;
-&gt; 55 |     expect(clampValue(valueAboveMax, MIN_VALUE, MAX_VALUE)).toBe(MAX_VALUE);
+&gt; 55 |     expect(clampValue(valueAboveMax, MIN_CLAMP_VALUE, MAX_CLAMP_VALUE)).toBe(MAX_CLAMP_VALUE);
      |           ^ Lazy Test
   56 |   });
   57 |
-  58 |   it(&quot;should correctly coerce and clamp numeric string inputs&quot;, () &#x3D;&gt; {</code></pre><br>
+  58 |   describe(&quot;when handling non-standard number inputs&quot;, () &#x3D;&gt; {</code></pre><br>
                       </td>
                     </tr>
                     <tr>
                       <td>
-                        <pre><code>  60 |     const expectedCoercedValue &#x3D; 7;
-  61 |     &#x2F;&#x2F; @ts-ignore
-&gt; 62 |     expect(clampValue(numericString, MIN_VALUE, MAX_VALUE)).toBe(expectedCoercedValue);
-     |           ^ Lazy Test
-  63 |   });
-  64 |
-  65 |   describe(&quot;when handling non-numeric inputs&quot;, () &#x3D;&gt; {</code></pre><br>
+                        <pre><code>  61 |       const expectedValue &#x3D; 7;
+  62 |       &#x2F;&#x2F; @ts-ignore
+&gt; 63 |       expect(clampValue(numericString, MIN_CLAMP_VALUE, MAX_CLAMP_VALUE)).toBe(expectedValue);
+     |             ^ Lazy Test
+  64 |     });
+  65 |
+  66 |     it(&quot;should fall back to the minimum value for non-numeric string inputs&quot;, () &#x3D;&gt; {</code></pre><br>
                       </td>
                     </tr>
                     <tr>
                       <td>
                         <pre><code>  67 |       const nonNumericString &#x3D; &quot;abc&quot;;
   68 |       &#x2F;&#x2F; @ts-ignore
-&gt; 69 |       expect(clampValue(nonNumericString, MIN_VALUE, MAX_VALUE)).toBe(MIN_VALUE);
+&gt; 69 |       expect(clampValue(nonNumericString, MIN_CLAMP_VALUE, MAX_CLAMP_VALUE)).toBe(MIN_CLAMP_VALUE);
      |             ^ Lazy Test
   70 |     });
   71 |
-  72 |     it(&quot;should fall back to the minimum value for NaN&quot;, () &#x3D;&gt; {</code></pre><br>
+  72 |     it(&quot;should fall back to the minimum value for NaN inputs&quot;, () &#x3D;&gt; {</code></pre><br>
                       </td>
                     </tr>
                     <tr>
                       <td>
-                        <pre><code>  73 |       const anotherMin &#x3D; 2;
-  74 |       const anotherMax &#x3D; 5;
-&gt; 75 |       expect(clampValue(NaN, anotherMin, anotherMax)).toBe(anotherMin);
+                        <pre><code>  73 |       const min &#x3D; 2;
+  74 |       const max &#x3D; 5;
+&gt; 75 |       expect(clampValue(NaN, min, max)).toBe(min);
      |             ^ Lazy Test
   76 |     });
   77 |   });

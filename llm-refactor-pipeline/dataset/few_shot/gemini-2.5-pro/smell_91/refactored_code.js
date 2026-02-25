@@ -33,6 +33,7 @@ it("does not cause Maximum update depth exceeded when dragging in then out (#221
       clientY: 100
     });
   });
+
   act(() => {
     TestUtils.Simulate.dragOver(grid, {
       currentTarget: {
@@ -49,10 +50,12 @@ it("does not cause Maximum update depth exceeded when dragging in then out (#221
   expect(
     container.querySelectorAll(".react-grid-item").length
   ).toBeGreaterThanOrEqual(2);
-  const layoutChangesAfterDragIn = onLayoutChange.mock.calls.flat(2);
-  expect(
-    layoutChangesAfterDragIn.some(item => item.i === "__dropping-elem__")
-  ).toBe(false);
+
+  let layoutCalls = onLayoutChange.mock.calls;
+  let hasDroppedItemInPublicLayout = layoutCalls.some(call =>
+    call[0].some(item => item.i === "__dropping-elem__")
+  );
+  expect(hasDroppedItemInPublicLayout).toBe(false);
 
   for (let i = 0; i < 5; i++) {
     act(() => {
@@ -78,10 +81,12 @@ it("does not cause Maximum update depth exceeded when dragging in then out (#221
 
   expect(container.querySelectorAll(".react-grid-item").length).toBe(1);
 
-  const finalLayout = onLayoutChange.mock.calls.pop()?.[0] || [];
-  expect(finalLayout.some(item => item.i === "__dropping-elem__")).toBe(
-    false
+  layoutCalls = onLayoutChange.mock.calls;
+  const lastLayout = layoutCalls[layoutCalls.length - 1]?.[0] || [];
+  hasDroppedItemInPublicLayout = lastLayout.some(
+    item => item.i === "__dropping-elem__"
   );
+  expect(hasDroppedItemInPublicLayout).toBe(false);
 
   const totalDragCalls = onDrag.mock.calls.length;
   expect(totalDragCalls).toBeLessThan(50);

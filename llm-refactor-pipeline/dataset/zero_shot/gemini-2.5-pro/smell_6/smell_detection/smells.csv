@@ -712,61 +712,6 @@ file,type,line,method,methodStart,methodEnd,source
 /test/Model.spec.js,SubOptimalAssert,"{'startLine':68,'endLine':68}","it(""should construct a new Model when calling the falcor module function"", () => {
         expect(falcor() instanceof falcor.Model).toBe(true);
     })",67,69,snuts
-/test/set/edge-cases.spec.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","it(""set blows away the cache."", function() {
-        var model = new Model({});
-        var get = [[""genreList"", 1, 0, ""summary""]];
-
-        // this mimicks the server setting cycle from the router.
-        var set = [
-            {
-                jsonGraph: {""genreList"": {
-                    ""0"": { ""$type"": $path, ""value"": [""lists"", ""abcd""] },
-                    ""1"": { ""$type"": $path, ""value"": [""lists"", ""my-list""] }
-                }},
-                paths: [['genreList', {to:1}, 0, 'summary']]
-            },
-            {
-                jsonGraph: {""lists"": {
-                    ""abcd"": { ""0"": { ""$type"": $path, ""value"": [""videos"", 1234] } },
-                    ""my-list"": { ""$type"": $path, ""value"": [""lists"", ""1x5x""] }
-                }},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            },
-            {
-                jsonGraph: {""lists"": {""1x5x"": {
-                    ""0"": { ""$type"": $path, ""value"": [""videos"", 553] }
-                }}},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            },
-            {
-                jsonGraph: {""videos"": {""553"": {""summary"": {
-                    ""$size"": 10,
-                    ""$type"": $atom,
-                    ""value"": {
-                        ""title"": ""Running Man"",
-                        ""url"": ""/movies/553""
-                    }
-                }}}},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            }
-        ];
-
-        set.forEach(function(s, i) {
-            model._setJSONGs(model, [s]);
-            if (i === 2) {
-                expect(model._root.cache.lists).toBeDefined();
-            }
-        });
-
-        model._getPathValuesAsPathMap(model, get, function(x) {
-            expect(x).toEqual({ json: { genreList: { 1: { 0: { summary: {
-                    ""title"": ""Running Man"",
-                    ""url"": ""/movies/553""
-                } } } } }
-            });
-        });
-    })",57,110,snuts
-/test/set/edge-cases.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':68,'endLine':68}","it(
         ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
         function() {
@@ -1039,318 +984,61 @@ file,type,line,method,methodStart,methodEnd,source
             expect(onCompletedValues[0]).toBe(undefined);
         }
     )",165,182,snuts
-/test/lru/lru.splice.overwrite.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
-/test/lru/lru.splice.expired.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
-/test/lru/lru.promote.set.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
-/test/lru/lru.promote.set.spec.js,VerboseStatement,"{'startLine':182,'endLine':229}","it('should promote references on a set.', function() {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
+/test/set/edge-cases.spec.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","it(""set blows away the cache."", function() {
+        var model = new Model({});
+        var get = [[""genreList"", 1, 0, ""summary""]];
+
+        // this mimicks the server setting cycle from the router.
+        var set = [
+            {
+                jsonGraph: {""genreList"": {
+                    ""0"": { ""$type"": $path, ""value"": [""lists"", ""abcd""] },
+                    ""1"": { ""$type"": $path, ""value"": [""lists"", ""my-list""] }
+                }},
+                paths: [['genreList', {to:1}, 0, 'summary']]
+            },
+            {
+                jsonGraph: {""lists"": {
+                    ""abcd"": { ""0"": { ""$type"": $path, ""value"": [""videos"", 1234] } },
+                    ""my-list"": { ""$type"": $path, ""value"": [""lists"", ""1x5x""] }
+                }},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            },
+            {
+                jsonGraph: {""lists"": {""1x5x"": {
+                    ""0"": { ""$type"": $path, ""value"": [""videos"", 553] }
+                }}},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            },
+            {
+                jsonGraph: {""videos"": {""553"": {""summary"": {
+                    ""$size"": 10,
+                    ""$type"": $atom,
+                    ""value"": {
+                        ""title"": ""Running Man"",
+                        ""url"": ""/movies/553""
+                    }
+                }}}},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            }
+        ];
+
+        set.forEach(function(s, i) {
+            model._setJSONGs(model, [s]);
+            if (i === 2) {
+                expect(model._root.cache.lists).toBeDefined();
+            }
         });
 
-        var root = model._root;
-        var curr = root[__head];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
-        expect(curr[__next]).toBeUndefined();
-
-        model.
-            set({
-                path: ['lolomo', '0'],
-                value: 'foo'
-            }).
-            subscribe();
-
-        // new order to the list
-        curr = root[__head];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual('foo');
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
-        expect(curr[__next]).toBeUndefined();
-    })",182,229,snuts
-/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':81,'endLine':104}","it('should promote the get item to the head toJSON.', function() {
-        var model = new Model();
-        model.set({json: {1: 'I am 1'}}).subscribe();
-        model.set({json: {2: 'I am 2'}}).subscribe();
-        model.set({json: {3: 'I am 3'}}).subscribe();
-
-        expect(model._root[__head].value).toBe('I am 3');
-        expect(model._root[__head][__next].value).toBe('I am 2');
-        expect(model._root[__head][__next][__next].value).toBe('I am 1');
-        getWithPathsAsPathMap(model, [['2']], [{}]);
-        getWithPathsAsPathMap(model, [['1']], [{}]);
-        var current = model._root[__head];
-        expect(current.value).toBe('I am 1');
-        current = current[__next];
-        expect(current.value).toBe('I am 2');
-        current = current[__next];
-        expect(current.value).toBe('I am 3');
-        expect(current[__next]).toBe(undefined);
-        current = current[__prev];
-        expect(current.value).toBe('I am 2');
-        current = current[__prev];
-        expect(current.value).toBe('I am 1');
-        expect(current[__prev]).toBe(undefined);
-    })",81,104,snuts
-/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':105,'endLine':140}","it('should promote the get item to the head _toJSONG.', function() {
-    var model = new Model();
-    model.set({json: {1: 'I am 1'}}).subscribe();
-    model.set({json: {2: 'I am 2'}}).subscribe();
-    model.set({json: {3: 'I am 3'}}).subscribe();
-
-    const getOrderedValues = (startNode, direction) => {
-        const values = [];
-        let current = startNode;
-        while (current) {
-            values.push(current.value);
-            current = current[direction];
-        }
-        return values;
-    };
-
-    expect(getOrderedValues(model._root[__head], __next)).toEqual([
-        'I am 3', 'I am 2', 'I am 1'
-    ]);
-
-    getWithPathsAsJSONGraph(model, [['2']], [{}]);
-    getWithPathsAsJSONGraph(model, [['1']], [{}]);
-
-    const head = model._root[__head];
-    expect(getOrderedValues(head, __next)).toEqual([
-        'I am 1', 'I am 2', 'I am 3'
-    ]);
-
-    let tail = head;
-    while (tail && tail[__next]) {
-        tail = tail[__next];
-    }
-    expect(getOrderedValues(tail, __prev)).toEqual([
-        'I am 3', 'I am 2', 'I am 1'
-    ]);
-})",105,140,snuts
-/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':142,'endLine':184}","it('should promote references on a get.', function() {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
+        model._getPathValuesAsPathMap(model, get, function(x) {
+            expect(x).toEqual({ json: { genreList: { 1: { 0: { summary: {
+                    ""title"": ""Running Man"",
+                    ""url"": ""/movies/553""
+                } } } } }
+            });
         });
-
-        var root = model._root;
-        var curr = root[__head];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
-        expect(curr[__next]).toBeUndefined();
-
-        model.get(['lolomo', 0]).subscribe();
-
-        // new order to the list
-        curr = root[__head];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
-        expect(curr[__next]).toBeUndefined();
-    })",142,184,snuts
-/test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':98,'endLine':98}","it('should promote the get item to the head toJSON.', function() {
-        var model = new Model();
-        model.set({json: {1: 'I am 1'}}).subscribe();
-        model.set({json: {2: 'I am 2'}}).subscribe();
-        model.set({json: {3: 'I am 3'}}).subscribe();
-
-        expect(model._root[__head].value).toBe('I am 3');
-        expect(model._root[__head][__next].value).toBe('I am 2');
-        expect(model._root[__head][__next][__next].value).toBe('I am 1');
-        getWithPathsAsPathMap(model, [['2']], [{}]);
-        getWithPathsAsPathMap(model, [['1']], [{}]);
-        var current = model._root[__head];
-        expect(current.value).toBe('I am 1');
-        current = current[__next];
-        expect(current.value).toBe('I am 2');
-        current = current[__next];
-        expect(current.value).toBe('I am 3');
-        expect(current[__next]).toBe(undefined);
-        current = current[__prev];
-        expect(current.value).toBe('I am 2');
-        current = current[__prev];
-        expect(current.value).toBe('I am 1');
-        expect(current[__prev]).toBe(undefined);
-    })",81,104,snuts
-/test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':103,'endLine':103}","it('should promote the get item to the head toJSON.', function() {
-        var model = new Model();
-        model.set({json: {1: 'I am 1'}}).subscribe();
-        model.set({json: {2: 'I am 2'}}).subscribe();
-        model.set({json: {3: 'I am 3'}}).subscribe();
-
-        expect(model._root[__head].value).toBe('I am 3');
-        expect(model._root[__head][__next].value).toBe('I am 2');
-        expect(model._root[__head][__next][__next].value).toBe('I am 1');
-        getWithPathsAsPathMap(model, [['2']], [{}]);
-        getWithPathsAsPathMap(model, [['1']], [{}]);
-        var current = model._root[__head];
-        expect(current.value).toBe('I am 1');
-        current = current[__next];
-        expect(current.value).toBe('I am 2');
-        current = current[__next];
-        expect(current.value).toBe('I am 3');
-        expect(current[__next]).toBe(undefined);
-        current = current[__prev];
-        expect(current.value).toBe('I am 2');
-        current = current[__prev];
-        expect(current.value).toBe('I am 1');
-        expect(current[__prev]).toBe(undefined);
-    })",81,104,snuts
-/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':36,'endLine':78}","it('should promote references on a get.', function() {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
-        });
-
-        var root = model._root;
-        var curr = root[__head];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
-        expect(curr[__next]).toBeUndefined();
-
-        model.get(['lolomo', 0]).subscribe();
-
-        // new order to the list
-        curr = root[__head];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
-        expect(curr[__next]).toBeUndefined();
-    })",36,78,snuts
-/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':81,'endLine':104}","it('should promote the get item to the head toJSON.', function() {
-        var model = new Model();
-        model.set({json: {1: 'I am 1'}}).subscribe();
-        model.set({json: {2: 'I am 2'}}).subscribe();
-        model.set({json: {3: 'I am 3'}}).subscribe();
-
-        expect(model._root[__head].value).toBe('I am 3');
-        expect(model._root[__head][__next].value).toBe('I am 2');
-        expect(model._root[__head][__next][__next].value).toBe('I am 1');
-        getWithPathsAsPathMap(model, [['2']], [{}]);
-        getWithPathsAsPathMap(model, [['1']], [{}]);
-        var current = model._root[__head];
-        expect(current.value).toBe('I am 1');
-        current = current[__next];
-        expect(current.value).toBe('I am 2');
-        current = current[__next];
-        expect(current.value).toBe('I am 3');
-        expect(current[__next]).toBe(undefined);
-        current = current[__prev];
-        expect(current.value).toBe('I am 2');
-        current = current[__prev];
-        expect(current.value).toBe('I am 1');
-        expect(current[__prev]).toBe(undefined);
-    })",81,104,snuts
-/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':142,'endLine':184}","it('should promote references on a get.', function() {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
-        });
-
-        var root = model._root;
-        var curr = root[__head];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
-        expect(curr[__next]).toBeUndefined();
-
-        model.get(['lolomo', 0]).subscribe();
-
-        // new order to the list
-        curr = root[__head];
-        expect(curr[__key]).toBe('0');
-        expect(curr.value).toEqual(['lists', 'A']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('lolomo');
-        expect(curr.value).toEqual(['lolomos', '1234']);
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('title');
-        expect(curr.value).toEqual('Video 0');
-
-        curr = curr[__next];
-        expect(curr[__key]).toBe('item');
-        expect(curr.value).toEqual(['videos', '0']);
-        expect(curr[__next]).toBeUndefined();
-    })",142,184,snuts
+    })",57,110,snuts
+/test/set/edge-cases.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/invalidate/pathSets.spec.js,AnonymousTest,"{'startLine':13,'endLine':30}","it(""directly"", function() {
 
         var lru = new Object();
@@ -1790,6 +1478,354 @@ file,type,line,method,methodStart,methodEnd,source
                 expect(strip(cache)).toEqual(strip({}));
             })",146,165,snuts
 /test/invalidate/invalidate.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
+/test/lru/lru.splice.overwrite.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
+/test/lru/lru.splice.expired.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/lru/lru.promote.set.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
+/test/lru/lru.promote.set.spec.js,VerboseStatement,"{'startLine':182,'endLine':229}","it('should promote references on a set.', function() {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
+        });
+
+        var root = model._root;
+        var curr = root[__head];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+        expect(curr[__next]).toBeUndefined();
+
+        model.
+            set({
+                path: ['lolomo', '0'],
+                value: 'foo'
+            }).
+            subscribe();
+
+        // new order to the list
+        curr = root[__head];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual('foo');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+        expect(curr[__next]).toBeUndefined();
+    })",182,229,snuts
+/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':81,'endLine':104}","it('should promote the get item to the head toJSON.', function() {
+        var model = new Model();
+        model.set({json: {1: 'I am 1'}}).subscribe();
+        model.set({json: {2: 'I am 2'}}).subscribe();
+        model.set({json: {3: 'I am 3'}}).subscribe();
+
+        expect(model._root[__head].value).toBe('I am 3');
+        expect(model._root[__head][__next].value).toBe('I am 2');
+        expect(model._root[__head][__next][__next].value).toBe('I am 1');
+        getWithPathsAsPathMap(model, [['2']], [{}]);
+        getWithPathsAsPathMap(model, [['1']], [{}]);
+        var current = model._root[__head];
+        expect(current.value).toBe('I am 1');
+        current = current[__next];
+        expect(current.value).toBe('I am 2');
+        current = current[__next];
+        expect(current.value).toBe('I am 3');
+        expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
+    })",81,104,snuts
+/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':105,'endLine':140}","it('should promote the get item to the head _toJSONG.', function() {
+    const assertListOrder = (model, expectedOrder) => {
+        const forwardValues = [];
+        let current = model._root[__head];
+        let tail;
+
+        while (current) {
+            forwardValues.push(current.value);
+            if (!current[__next]) {
+                tail = current;
+            }
+            current = current[__next];
+        }
+        expect(forwardValues).toEqual(expectedOrder);
+
+        const backwardValues = [];
+        current = tail;
+        while (current) {
+            backwardValues.push(current.value);
+            current = current[__prev];
+        }
+        expect(backwardValues).toEqual([...expectedOrder].reverse());
+    };
+
+    var model = new Model();
+    model.set({json: {1: 'I am 1'}}).subscribe();
+    model.set({json: {2: 'I am 2'}}).subscribe();
+    model.set({json: {3: 'I am 3'}}).subscribe();
+
+    assertListOrder(model, ['I am 3', 'I am 2', 'I am 1']);
+
+    getWithPathsAsJSONGraph(model, [['2']], [{}]);
+    getWithPathsAsJSONGraph(model, [['1']], [{}]);
+
+    assertListOrder(model, ['I am 1', 'I am 2', 'I am 3']);
+})",105,140,snuts
+/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':142,'endLine':184}","it('should promote references on a get.', function() {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
+        });
+
+        var root = model._root;
+        var curr = root[__head];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+        expect(curr[__next]).toBeUndefined();
+
+        model.get(['lolomo', 0]).subscribe();
+
+        // new order to the list
+        curr = root[__head];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+        expect(curr[__next]).toBeUndefined();
+    })",142,184,snuts
+/test/lru/lru.promote.get.spec.js,ConditionalTestLogic,"{'startLine':113,'endLine':115}","it('should promote the get item to the head _toJSONG.', function() {
+    const assertListOrder = (model, expectedOrder) => {
+        const forwardValues = [];
+        let current = model._root[__head];
+        let tail;
+
+        while (current) {
+            forwardValues.push(current.value);
+            if (!current[__next]) {
+                tail = current;
+            }
+            current = current[__next];
+        }
+        expect(forwardValues).toEqual(expectedOrder);
+
+        const backwardValues = [];
+        current = tail;
+        while (current) {
+            backwardValues.push(current.value);
+            current = current[__prev];
+        }
+        expect(backwardValues).toEqual([...expectedOrder].reverse());
+    };
+
+    var model = new Model();
+    model.set({json: {1: 'I am 1'}}).subscribe();
+    model.set({json: {2: 'I am 2'}}).subscribe();
+    model.set({json: {3: 'I am 3'}}).subscribe();
+
+    assertListOrder(model, ['I am 3', 'I am 2', 'I am 1']);
+
+    getWithPathsAsJSONGraph(model, [['2']], [{}]);
+    getWithPathsAsJSONGraph(model, [['1']], [{}]);
+
+    assertListOrder(model, ['I am 1', 'I am 2', 'I am 3']);
+})",105,140,snuts
+/test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':98,'endLine':98}","it('should promote the get item to the head toJSON.', function() {
+        var model = new Model();
+        model.set({json: {1: 'I am 1'}}).subscribe();
+        model.set({json: {2: 'I am 2'}}).subscribe();
+        model.set({json: {3: 'I am 3'}}).subscribe();
+
+        expect(model._root[__head].value).toBe('I am 3');
+        expect(model._root[__head][__next].value).toBe('I am 2');
+        expect(model._root[__head][__next][__next].value).toBe('I am 1');
+        getWithPathsAsPathMap(model, [['2']], [{}]);
+        getWithPathsAsPathMap(model, [['1']], [{}]);
+        var current = model._root[__head];
+        expect(current.value).toBe('I am 1');
+        current = current[__next];
+        expect(current.value).toBe('I am 2');
+        current = current[__next];
+        expect(current.value).toBe('I am 3');
+        expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
+    })",81,104,snuts
+/test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':103,'endLine':103}","it('should promote the get item to the head toJSON.', function() {
+        var model = new Model();
+        model.set({json: {1: 'I am 1'}}).subscribe();
+        model.set({json: {2: 'I am 2'}}).subscribe();
+        model.set({json: {3: 'I am 3'}}).subscribe();
+
+        expect(model._root[__head].value).toBe('I am 3');
+        expect(model._root[__head][__next].value).toBe('I am 2');
+        expect(model._root[__head][__next][__next].value).toBe('I am 1');
+        getWithPathsAsPathMap(model, [['2']], [{}]);
+        getWithPathsAsPathMap(model, [['1']], [{}]);
+        var current = model._root[__head];
+        expect(current.value).toBe('I am 1');
+        current = current[__next];
+        expect(current.value).toBe('I am 2');
+        current = current[__next];
+        expect(current.value).toBe('I am 3');
+        expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
+    })",81,104,snuts
+/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':36,'endLine':78}","it('should promote references on a get.', function() {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
+        });
+
+        var root = model._root;
+        var curr = root[__head];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+        expect(curr[__next]).toBeUndefined();
+
+        model.get(['lolomo', 0]).subscribe();
+
+        // new order to the list
+        curr = root[__head];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+        expect(curr[__next]).toBeUndefined();
+    })",36,78,snuts
+/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':81,'endLine':104}","it('should promote the get item to the head toJSON.', function() {
+        var model = new Model();
+        model.set({json: {1: 'I am 1'}}).subscribe();
+        model.set({json: {2: 'I am 2'}}).subscribe();
+        model.set({json: {3: 'I am 3'}}).subscribe();
+
+        expect(model._root[__head].value).toBe('I am 3');
+        expect(model._root[__head][__next].value).toBe('I am 2');
+        expect(model._root[__head][__next][__next].value).toBe('I am 1');
+        getWithPathsAsPathMap(model, [['2']], [{}]);
+        getWithPathsAsPathMap(model, [['1']], [{}]);
+        var current = model._root[__head];
+        expect(current.value).toBe('I am 1');
+        current = current[__next];
+        expect(current.value).toBe('I am 2');
+        current = current[__next];
+        expect(current.value).toBe('I am 3');
+        expect(current[__next]).toBe(undefined);
+        current = current[__prev];
+        expect(current.value).toBe('I am 2');
+        current = current[__prev];
+        expect(current.value).toBe('I am 1');
+        expect(current[__prev]).toBe(undefined);
+    })",81,104,snuts
+/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':142,'endLine':184}","it('should promote references on a get.', function() {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
+        });
+
+        var root = model._root;
+        var curr = root[__head];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+        expect(curr[__next]).toBeUndefined();
+
+        model.get(['lolomo', 0]).subscribe();
+
+        // new order to the list
+        curr = root[__head];
+        expect(curr[__key]).toBe('0');
+        expect(curr.value).toEqual(['lists', 'A']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('lolomo');
+        expect(curr.value).toEqual(['lolomos', '1234']);
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('title');
+        expect(curr.value).toEqual('Video 0');
+
+        curr = curr[__next];
+        expect(curr[__key]).toBe('item');
+        expect(curr.value).toEqual(['videos', '0']);
+        expect(curr[__next]).toBeUndefined();
+    })",142,184,snuts
 /test/integration/get.spec.js,GeneralFixture,"{'startLine':15,'endLine':15}","beforeEach(function(done) {
         app = express();
         server = app.listen(60002, done);
@@ -38998,77 +39034,113 @@ file,type,line,method,methodStart,methodEnd,source
 
         tripleItem(model);
     })",148,180,steel
-/test/lru/lru.promote.get.spec.js,Conditional Test Logic,"{'line': 114, 'column': 8, 'index': 4333}","it('should promote the get item to the head _toJSONG.', function() {
+/test/lru/lru.promote.get.spec.js,Conditional Test Logic,"{'line': 111, 'column': 8, 'index': 4188}","it('should promote the get item to the head _toJSONG.', function() {
+    const assertListOrder = (model, expectedOrder) => {
+        const forwardValues = [];
+        let current = model._root[__head];
+        let tail;
+
+        while (current) {
+            forwardValues.push(current.value);
+            if (!current[__next]) {
+                tail = current;
+            }
+            current = current[__next];
+        }
+        expect(forwardValues).toEqual(expectedOrder);
+
+        const backwardValues = [];
+        current = tail;
+        while (current) {
+            backwardValues.push(current.value);
+            current = current[__prev];
+        }
+        expect(backwardValues).toEqual([...expectedOrder].reverse());
+    };
+
     var model = new Model();
     model.set({json: {1: 'I am 1'}}).subscribe();
     model.set({json: {2: 'I am 2'}}).subscribe();
     model.set({json: {3: 'I am 3'}}).subscribe();
 
-    const getOrderedValues = (startNode, direction) => {
-        const values = [];
-        let current = startNode;
-        while (current) {
-            values.push(current.value);
-            current = current[direction];
-        }
-        return values;
-    };
-
-    expect(getOrderedValues(model._root[__head], __next)).toEqual([
-        'I am 3', 'I am 2', 'I am 1'
-    ]);
+    assertListOrder(model, ['I am 3', 'I am 2', 'I am 1']);
 
     getWithPathsAsJSONGraph(model, [['2']], [{}]);
     getWithPathsAsJSONGraph(model, [['1']], [{}]);
 
-    const head = model._root[__head];
-    expect(getOrderedValues(head, __next)).toEqual([
-        'I am 1', 'I am 2', 'I am 3'
-    ]);
-
-    let tail = head;
-    while (tail && tail[__next]) {
-        tail = tail[__next];
-    }
-    expect(getOrderedValues(tail, __prev)).toEqual([
-        'I am 3', 'I am 2', 'I am 1'
-    ]);
+    assertListOrder(model, ['I am 1', 'I am 2', 'I am 3']);
 })",105,140,steel
-/test/lru/lru.promote.get.spec.js,Conditional Test Logic,"{'line': 134, 'column': 4, 'index': 4853}","it('should promote the get item to the head _toJSONG.', function() {
+/test/lru/lru.promote.get.spec.js,Conditional Test Logic,"{'line': 113, 'column': 12, 'index': 4265}","it('should promote the get item to the head _toJSONG.', function() {
+    const assertListOrder = (model, expectedOrder) => {
+        const forwardValues = [];
+        let current = model._root[__head];
+        let tail;
+
+        while (current) {
+            forwardValues.push(current.value);
+            if (!current[__next]) {
+                tail = current;
+            }
+            current = current[__next];
+        }
+        expect(forwardValues).toEqual(expectedOrder);
+
+        const backwardValues = [];
+        current = tail;
+        while (current) {
+            backwardValues.push(current.value);
+            current = current[__prev];
+        }
+        expect(backwardValues).toEqual([...expectedOrder].reverse());
+    };
+
     var model = new Model();
     model.set({json: {1: 'I am 1'}}).subscribe();
     model.set({json: {2: 'I am 2'}}).subscribe();
     model.set({json: {3: 'I am 3'}}).subscribe();
 
-    const getOrderedValues = (startNode, direction) => {
-        const values = [];
-        let current = startNode;
-        while (current) {
-            values.push(current.value);
-            current = current[direction];
-        }
-        return values;
-    };
-
-    expect(getOrderedValues(model._root[__head], __next)).toEqual([
-        'I am 3', 'I am 2', 'I am 1'
-    ]);
+    assertListOrder(model, ['I am 3', 'I am 2', 'I am 1']);
 
     getWithPathsAsJSONGraph(model, [['2']], [{}]);
     getWithPathsAsJSONGraph(model, [['1']], [{}]);
 
-    const head = model._root[__head];
-    expect(getOrderedValues(head, __next)).toEqual([
-        'I am 1', 'I am 2', 'I am 3'
-    ]);
+    assertListOrder(model, ['I am 1', 'I am 2', 'I am 3']);
+})",105,140,steel
+/test/lru/lru.promote.get.spec.js,Conditional Test Logic,"{'line': 122, 'column': 8, 'index': 4506}","it('should promote the get item to the head _toJSONG.', function() {
+    const assertListOrder = (model, expectedOrder) => {
+        const forwardValues = [];
+        let current = model._root[__head];
+        let tail;
 
-    let tail = head;
-    while (tail && tail[__next]) {
-        tail = tail[__next];
-    }
-    expect(getOrderedValues(tail, __prev)).toEqual([
-        'I am 3', 'I am 2', 'I am 1'
-    ]);
+        while (current) {
+            forwardValues.push(current.value);
+            if (!current[__next]) {
+                tail = current;
+            }
+            current = current[__next];
+        }
+        expect(forwardValues).toEqual(expectedOrder);
+
+        const backwardValues = [];
+        current = tail;
+        while (current) {
+            backwardValues.push(current.value);
+            current = current[__prev];
+        }
+        expect(backwardValues).toEqual([...expectedOrder].reverse());
+    };
+
+    var model = new Model();
+    model.set({json: {1: 'I am 1'}}).subscribe();
+    model.set({json: {2: 'I am 2'}}).subscribe();
+    model.set({json: {3: 'I am 3'}}).subscribe();
+
+    assertListOrder(model, ['I am 3', 'I am 2', 'I am 1']);
+
+    getWithPathsAsJSONGraph(model, [['2']], [{}]);
+    getWithPathsAsJSONGraph(model, [['1']], [{}]);
+
+    assertListOrder(model, ['I am 1', 'I am 2', 'I am 3']);
 })",105,140,steel
 /test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 43, 'column': 8, 'index': 1685}","it('should promote references on a get.', function() {
         var model = new Model({
@@ -40834,7 +40906,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(current.value).toBe('I am 1');
         expect(current[__prev]).toBe(undefined);
     })",81,104,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 149, 'column': 8, 'index': 5240}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 149, 'column': 8, 'index': 5326}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -40877,7 +40949,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 149, 'column': 8, 'index': 5240}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 149, 'column': 8, 'index': 5326}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -40920,7 +40992,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 150, 'column': 8, 'index': 5283}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 150, 'column': 8, 'index': 5369}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -40963,7 +41035,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 150, 'column': 8, 'index': 5283}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 150, 'column': 8, 'index': 5369}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41006,7 +41078,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 153, 'column': 8, 'index': 5360}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 153, 'column': 8, 'index': 5446}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41049,7 +41121,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 153, 'column': 8, 'index': 5360}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 153, 'column': 8, 'index': 5446}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41092,7 +41164,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 154, 'column': 8, 'index': 5402}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 154, 'column': 8, 'index': 5488}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41135,7 +41207,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 154, 'column': 8, 'index': 5402}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 154, 'column': 8, 'index': 5488}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41178,7 +41250,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 157, 'column': 8, 'index': 5485}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 157, 'column': 8, 'index': 5571}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41221,7 +41293,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 157, 'column': 8, 'index': 5485}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 157, 'column': 8, 'index': 5571}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41264,7 +41336,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 158, 'column': 8, 'index': 5524}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 158, 'column': 8, 'index': 5610}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41307,7 +41379,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 158, 'column': 8, 'index': 5524}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 158, 'column': 8, 'index': 5610}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41350,7 +41422,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 161, 'column': 8, 'index': 5606}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 161, 'column': 8, 'index': 5692}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41393,7 +41465,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 161, 'column': 8, 'index': 5606}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 161, 'column': 8, 'index': 5692}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41436,7 +41508,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 162, 'column': 8, 'index': 5650}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 162, 'column': 8, 'index': 5736}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41479,7 +41551,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 162, 'column': 8, 'index': 5650}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 162, 'column': 8, 'index': 5736}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41522,7 +41594,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 163, 'column': 8, 'index': 5707}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 163, 'column': 8, 'index': 5793}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41565,7 +41637,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 163, 'column': 8, 'index': 5707}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 163, 'column': 8, 'index': 5793}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41608,7 +41680,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 169, 'column': 8, 'index': 5863}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 169, 'column': 8, 'index': 5949}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41651,7 +41723,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 169, 'column': 8, 'index': 5863}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 169, 'column': 8, 'index': 5949}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41694,7 +41766,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 170, 'column': 8, 'index': 5902}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 170, 'column': 8, 'index': 5988}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41737,7 +41809,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 170, 'column': 8, 'index': 5902}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 170, 'column': 8, 'index': 5988}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41780,7 +41852,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 173, 'column': 8, 'index': 5984}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 173, 'column': 8, 'index': 6070}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41823,7 +41895,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 173, 'column': 8, 'index': 5984}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 173, 'column': 8, 'index': 6070}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41866,7 +41938,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 174, 'column': 8, 'index': 6028}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 174, 'column': 8, 'index': 6114}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41909,7 +41981,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 174, 'column': 8, 'index': 6028}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 174, 'column': 8, 'index': 6114}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41952,7 +42024,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 177, 'column': 8, 'index': 6115}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 177, 'column': 8, 'index': 6201}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -41995,7 +42067,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 177, 'column': 8, 'index': 6115}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 177, 'column': 8, 'index': 6201}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -42038,7 +42110,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 178, 'column': 8, 'index': 6158}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 178, 'column': 8, 'index': 6244}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -42081,7 +42153,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 178, 'column': 8, 'index': 6158}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 178, 'column': 8, 'index': 6244}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -42124,7 +42196,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 181, 'column': 8, 'index': 6235}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 181, 'column': 8, 'index': 6321}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -42167,7 +42239,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 181, 'column': 8, 'index': 6235}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 181, 'column': 8, 'index': 6321}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -42210,7 +42282,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 182, 'column': 8, 'index': 6277}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 182, 'column': 8, 'index': 6363}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -42253,7 +42325,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 182, 'column': 8, 'index': 6277}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 182, 'column': 8, 'index': 6363}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -42296,7 +42368,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 183, 'column': 8, 'index': 6330}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 183, 'column': 8, 'index': 6416}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -42339,7 +42411,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 183, 'column': 8, 'index': 6330}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 183, 'column': 8, 'index': 6416}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -42580,43 +42652,43 @@ file,type,line,method,methodStart,methodEnd,source
         expect(current.value).toBe('I am 1');
         expect(current[__prev]).toBe(undefined);
     })",81,104,steel
-/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 106, 'column': 4, 'index': 4032}","it('should promote the get item to the head _toJSONG.', function() {
+/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 129, 'column': 4, 'index': 4703}","it('should promote the get item to the head _toJSONG.', function() {
+    const assertListOrder = (model, expectedOrder) => {
+        const forwardValues = [];
+        let current = model._root[__head];
+        let tail;
+
+        while (current) {
+            forwardValues.push(current.value);
+            if (!current[__next]) {
+                tail = current;
+            }
+            current = current[__next];
+        }
+        expect(forwardValues).toEqual(expectedOrder);
+
+        const backwardValues = [];
+        current = tail;
+        while (current) {
+            backwardValues.push(current.value);
+            current = current[__prev];
+        }
+        expect(backwardValues).toEqual([...expectedOrder].reverse());
+    };
+
     var model = new Model();
     model.set({json: {1: 'I am 1'}}).subscribe();
     model.set({json: {2: 'I am 2'}}).subscribe();
     model.set({json: {3: 'I am 3'}}).subscribe();
 
-    const getOrderedValues = (startNode, direction) => {
-        const values = [];
-        let current = startNode;
-        while (current) {
-            values.push(current.value);
-            current = current[direction];
-        }
-        return values;
-    };
-
-    expect(getOrderedValues(model._root[__head], __next)).toEqual([
-        'I am 3', 'I am 2', 'I am 1'
-    ]);
+    assertListOrder(model, ['I am 3', 'I am 2', 'I am 1']);
 
     getWithPathsAsJSONGraph(model, [['2']], [{}]);
     getWithPathsAsJSONGraph(model, [['1']], [{}]);
 
-    const head = model._root[__head];
-    expect(getOrderedValues(head, __next)).toEqual([
-        'I am 1', 'I am 2', 'I am 3'
-    ]);
-
-    let tail = head;
-    while (tail && tail[__next]) {
-        tail = tail[__next];
-    }
-    expect(getOrderedValues(tail, __prev)).toEqual([
-        'I am 3', 'I am 2', 'I am 1'
-    ]);
+    assertListOrder(model, ['I am 1', 'I am 2', 'I am 3']);
 })",105,140,steel
-/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 143, 'column': 8, 'index': 5090}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 143, 'column': 8, 'index': 5176}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -42659,7 +42731,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 147, 'column': 8, 'index': 5175}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 147, 'column': 8, 'index': 5261}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -42702,7 +42774,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",142,184,steel
-/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 148, 'column': 8, 'index': 5207}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 148, 'column': 8, 'index': 5293}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });
@@ -42788,7 +42860,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",36,78,steel
-/test/lru/lru.promote.get.spec.js,Lazy Test,"{'line': 144, 'column': 19, 'index': 5133}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Lazy Test,"{'line': 144, 'column': 19, 'index': 5219}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
         });

@@ -4,16 +4,12 @@ it('Emits the expected event sequence when `flushHeaders` is called on an aborte
     const req = http.request('http://example.test')
     const emitSpy = sinon.spy(req, 'emit')
 
-    req.on('close', () => {
-      // The 'abort' event is emitted on the next tick, so we listen for 'close'
-      // and then check the spy calls on the next tick.
-      process.nextTick(() => {
-        expect(emitSpy).to.have.been.calledTwice()
-        expect(emitSpy.firstCall).to.have.been.calledWith('close')
-        expect(emitSpy.secondCall).to.have.been.calledWith('abort')
-        expect(scope.isDone()).to.be.false()
-        done()
-      })
+    req.on('abort', () => {
+      expect(emitSpy).to.have.been.calledTwice()
+      expect(emitSpy.firstCall).to.have.been.calledWith('close')
+      expect(emitSpy.secondCall).to.have.been.calledWith('abort')
+      expect(scope.isDone()).to.be.false()
+      done()
     })
 
     req.abort()

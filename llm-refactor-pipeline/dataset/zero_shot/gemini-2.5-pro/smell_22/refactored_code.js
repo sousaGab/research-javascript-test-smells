@@ -4,8 +4,7 @@ it("produces similar or better compaction height", () => {
   const NUMBER_OF_RUNS = 50;
   const LAYOUT_ITEMS = 30;
   const LAYOUT_COLUMNS = 12;
-  const MAX_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-  const maxAllowedWorseCases = NUMBER_OF_RUNS * MAX_WORSE_CASE_PERCENTAGE;
+  const WORSE_CASE_TOLERANCE = 0.8; // Allow fast compactor to be worse up to 80% of the time
 
   let fastBetter = 0;
   let stdBetter = 0;
@@ -15,10 +14,7 @@ it("produces similar or better compaction height", () => {
     const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
 
     const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-    const fastCompacted = fastVerticalCompactor.compact(
-      layout,
-      LAYOUT_COLUMNS
-    );
+    const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
 
     const stdHeight = layoutHeight(stdCompacted);
     const fastHeight = layoutHeight(fastCompacted);
@@ -40,5 +36,6 @@ it("produces similar or better compaction height", () => {
 
   // Fast compactor should not be significantly worse
   // Allow some tolerance since algorithms may differ
-  expect(stdBetter).toBeLessThan(maxAllowedWorseCases);
+  const maxStdBetterCount = NUMBER_OF_RUNS * WORSE_CASE_TOLERANCE;
+  expect(stdBetter).toBeLessThan(maxStdBetterCount);
 });

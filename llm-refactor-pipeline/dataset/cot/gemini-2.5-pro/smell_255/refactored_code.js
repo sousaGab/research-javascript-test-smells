@@ -1,14 +1,12 @@
 it('should be triggered before and after sort', function (done) {
-      var sortStartFired = false;
-
+      const eventsFired = [];
       list.on('sortStart', function () {
-        sortStartFired = true;
+        eventsFired.push('sortStart');
       });
-
       list.on('sortComplete', function () {
-        expect(sortStartFired).toBe(true);
+        eventsFired.push('sortComplete');
+        expect(eventsFired).toEqual(['sortStart', 'sortComplete']);
         done();
       });
-
       list.sort('name');
     });

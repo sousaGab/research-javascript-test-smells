@@ -1,6 +1,8 @@
 it('should have default settings', function () {
-      const expectedPageLinks = ['1', '2', '...', '9'];
-      const actualPageLinks = pagination.find('a').map((index, element) => element.innerHTML).get();
+  const expectedPageLinks = ['1', '2', '...', '9'];
+  const pageLinks = pagination.find('a');
+  const actualPageLinkTexts = pageLinks.map((i, el) => el.innerHTML).get();
 
-      expect(actualPageLinks).toEqual(expectedPageLinks);
-    })
+  expect(pageLinks.length).toEqual(expectedPageLinks.length);
+  expect(actualPageLinkTexts).toEqual(expectedPageLinks);
+});

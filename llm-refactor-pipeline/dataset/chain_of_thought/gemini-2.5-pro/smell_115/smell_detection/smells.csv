@@ -105,7 +105,7 @@ file,type,line,method,methodStart,methodEnd,source
           .add(filterLevelTransport('ok'))
           .log(expected);
     })",331,366,snuts
-/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':407,'endLine':434}","it('default levels', function () {
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':407,'endLine':431}","it('default levels', function () {
   const logger = winston.createLogger({
     level: 'verbose',
     levels: winston.config.npm.levels,
@@ -116,24 +116,21 @@ file,type,line,method,methodStart,methodEnd,source
   assume(logger.getHighestLogLevel()).equals(4);
   assume(logger.isLevelEnabled).is.a('function');
 
-  const levelStates = {
-    error: true,
-    warn: true,
-    info: true,
-    verbose: true,
-    debug: false,
-    silly: false
+  const enabledLevels = ['error', 'warn', 'info', 'verbose'];
+  const disabledLevels = ['debug', 'silly'];
+
+  const assertLevel = (level, shouldBeEnabled) => {
+    const helperMethodName = `is${level.charAt(0).toUpperCase() + level.slice(1)}Enabled`;
+
+    assume(logger[helperMethodName]).is.a('function');
+    assume(logger.isLevelEnabled(level)).equals(shouldBeEnabled);
+    assume(logger[helperMethodName]()).equals(shouldBeEnabled);
   };
 
-  Object.entries(levelStates).forEach(([level, shouldBeEnabled]) => {
-    const helperName = `is${level.charAt(0).toUpperCase() + level.slice(1)}Enabled`;
-
-    assume(logger[helperName]).is.a('function');
-    assume(logger.isLevelEnabled(level)).equals(shouldBeEnabled);
-    assume(logger[helperName]()).equals(shouldBeEnabled);
-  });
-})",407,434,snuts
-/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':507,'endLine':534}","it('custom levels', function () {
+  enabledLevels.forEach(level => assertLevel(level, true));
+  disabledLevels.forEach(level => assertLevel(level, false));
+})",407,431,snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':504,'endLine':531}","it('custom levels', function () {
         let logger = winston.createLogger({
           level: 'test',
           levels: {
@@ -160,8 +157,8 @@ file,type,line,method,methodStart,methodEnd,source
         assume(logger.isBadEnabled()).true();
         assume(logger.isTestEnabled()).true();
         assume(logger.isOkEnabled()).false();
-      })",507,534,snuts
-/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':640,'endLine':652}","it('error', (done) => {
+      })",504,531,snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':637,'endLine':649}","it('error', (done) => {
       const consoleTransport = new winston.transports.Console();
       const logger = winston.createLogger({
         transports: [consoleTransport]
@@ -173,8 +170,8 @@ file,type,line,method,methodStart,methodEnd,source
         done();
       });
       consoleTransport.emit('error', new Error());
-    })",640,652,snuts
-/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':654,'endLine':666}","it('warn', (done) => {
+    })",637,649,snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':651,'endLine':663}","it('warn', (done) => {
       const consoleTransport = new winston.transports.Console();
       const logger = winston.createLogger({
         transports: [consoleTransport]
@@ -186,8 +183,8 @@ file,type,line,method,methodStart,methodEnd,source
         done();
       });
       consoleTransport.emit('warn', new Error());
-    })",654,666,snuts
-/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':998,'endLine':1008}","it('.log(level, message)', function (done) {
+    })",651,663,snuts
+/test/unit/winston/logger.test.js,AnonymousTest,"{'startLine':995,'endLine':1005}","it('.log(level, message)', function (done) {
         let logger = helpers.createLogger(function (info) {
           assume(info).is.an('object');
           assume(info.level).equals('info');
@@ -197,8 +194,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
 
         logger.log('info', 'Some super awesome log message')
-      })",998,1008,snuts
-/test/unit/winston/logger.test.js,IdenticalTestDescription,"{'startLine':407,'endLine':434}","it('default levels', function () {
+      })",995,1005,snuts
+/test/unit/winston/logger.test.js,IdenticalTestDescription,"{'startLine':407,'endLine':431}","it('default levels', function () {
   const logger = winston.createLogger({
     level: 'verbose',
     levels: winston.config.npm.levels,
@@ -209,24 +206,21 @@ file,type,line,method,methodStart,methodEnd,source
   assume(logger.getHighestLogLevel()).equals(4);
   assume(logger.isLevelEnabled).is.a('function');
 
-  const levelStates = {
-    error: true,
-    warn: true,
-    info: true,
-    verbose: true,
-    debug: false,
-    silly: false
+  const enabledLevels = ['error', 'warn', 'info', 'verbose'];
+  const disabledLevels = ['debug', 'silly'];
+
+  const assertLevel = (level, shouldBeEnabled) => {
+    const helperMethodName = `is${level.charAt(0).toUpperCase() + level.slice(1)}Enabled`;
+
+    assume(logger[helperMethodName]).is.a('function');
+    assume(logger.isLevelEnabled(level)).equals(shouldBeEnabled);
+    assume(logger[helperMethodName]()).equals(shouldBeEnabled);
   };
 
-  Object.entries(levelStates).forEach(([level, shouldBeEnabled]) => {
-    const helperName = `is${level.charAt(0).toUpperCase() + level.slice(1)}Enabled`;
-
-    assume(logger[helperName]).is.a('function');
-    assume(logger.isLevelEnabled(level)).equals(shouldBeEnabled);
-    assume(logger[helperName]()).equals(shouldBeEnabled);
-  });
-})",407,434,snuts
-/test/unit/winston/logger.test.js,IdenticalTestDescription,"{'startLine':507,'endLine':534}","it('custom levels', function () {
+  enabledLevels.forEach(level => assertLevel(level, true));
+  disabledLevels.forEach(level => assertLevel(level, false));
+})",407,431,snuts
+/test/unit/winston/logger.test.js,IdenticalTestDescription,"{'startLine':504,'endLine':531}","it('custom levels', function () {
         let logger = winston.createLogger({
           level: 'test',
           levels: {
@@ -253,7 +247,7 @@ file,type,line,method,methodStart,methodEnd,source
         assume(logger.isBadEnabled()).true();
         assume(logger.isTestEnabled()).true();
         assume(logger.isOkEnabled()).false();
-      })",507,534,snuts
+      })",504,531,snuts
 /test/unit/winston/logger.test.js,ConditionalTestLogic,"{'startLine':310,'endLine':312}","it('default levels', function (done) {
       let logger = winston.createLogger();
       let expected = {message: 'foo', level: 'debug'};
@@ -355,7 +349,7 @@ file,type,line,method,methodStart,methodEnd,source
         transports: [transport]
       });
     })",368,404,snuts
-/test/unit/winston/logger.test.js,NonFunctionalStatement,"{'startLine':603,'endLine':604}","it(`'finish' event awaits transports to emit 'finish'`, function (done) {
+/test/unit/winston/logger.test.js,NonFunctionalStatement,"{'startLine':600,'endLine':601}","it(`'finish' event awaits transports to emit 'finish'`, function (done) {
       const transports = [
         new TransportStream({
           log: function () {
@@ -393,8 +387,8 @@ file,type,line,method,methodStart,methodEnd,source
       });
 
       setImmediate(() => logger.end());
-    })",600,638,snuts
-/test/unit/winston/logger.test.js,NonFunctionalStatement,"{'startLine':607,'endLine':608}","it(`'finish' event awaits transports to emit 'finish'`, function (done) {
+    })",597,635,snuts
+/test/unit/winston/logger.test.js,NonFunctionalStatement,"{'startLine':604,'endLine':605}","it(`'finish' event awaits transports to emit 'finish'`, function (done) {
       const transports = [
         new TransportStream({
           log: function () {
@@ -432,8 +426,8 @@ file,type,line,method,methodStart,methodEnd,source
       });
 
       setImmediate(() => logger.end());
-    })",600,638,snuts
-/test/unit/winston/logger.test.js,NonFunctionalStatement,"{'startLine':611,'endLine':612}","it(`'finish' event awaits transports to emit 'finish'`, function (done) {
+    })",597,635,snuts
+/test/unit/winston/logger.test.js,NonFunctionalStatement,"{'startLine':608,'endLine':609}","it(`'finish' event awaits transports to emit 'finish'`, function (done) {
       const transports = [
         new TransportStream({
           log: function () {
@@ -471,8 +465,8 @@ file,type,line,method,methodStart,methodEnd,source
       });
 
       setImmediate(() => logger.end());
-    })",600,638,snuts
-/test/unit/winston/logger.test.js,VerboseStatement,"{'startLine':436,'endLine':471}","it('default levels, transport override', function () {
+    })",597,635,snuts
+/test/unit/winston/logger.test.js,VerboseStatement,"{'startLine':433,'endLine':468}","it('default levels, transport override', function () {
         let transport = new winston.transports.Console();
         transport.level = 'debug';
 
@@ -507,8 +501,8 @@ file,type,line,method,methodStart,methodEnd,source
         assume(logger.isVerboseEnabled()).true();
         assume(logger.isDebugEnabled()).true();
         assume(logger.isSillyEnabled()).false();
-      })",436,471,snuts
-/test/unit/winston/logger.test.js,VerboseStatement,"{'startLine':473,'endLine':505}","it('default levels, no transports', function () {
+      })",433,468,snuts
+/test/unit/winston/logger.test.js,VerboseStatement,"{'startLine':470,'endLine':502}","it('default levels, no transports', function () {
         let logger = winston.createLogger({
           level: 'verbose',
           levels: winston.config.npm.levels,
@@ -540,8 +534,8 @@ file,type,line,method,methodStart,methodEnd,source
         assume(logger.isVerboseEnabled()).true();
         assume(logger.isDebugEnabled()).false();
         assume(logger.isSillyEnabled()).false();
-      })",473,505,snuts
-/test/unit/winston/logger.test.js,VerboseStatement,"{'startLine':565,'endLine':595}","it('custom levels, transport override', function () {
+      })",470,502,snuts
+/test/unit/winston/logger.test.js,VerboseStatement,"{'startLine':562,'endLine':592}","it('custom levels, transport override', function () {
         let transport = new winston.transports.Console();
         transport.level = 'ok';
 
@@ -571,7 +565,7 @@ file,type,line,method,methodStart,methodEnd,source
         assume(logger.isBadEnabled()).true();
         assume(logger.isTestEnabled()).true();
         assume(logger.isOkEnabled()).true();
-      })",565,595,snuts
+      })",562,592,snuts
 /test/unit/winston/logger-legacy.test.js,GeneralFixture,"{'startLine':66,'endLine':66}","beforeEach(() => {
         consoleErrorSpy = jest.spyOn(console, 'error');
       })",65,67,snuts
@@ -1351,7 +1345,7 @@ file,type,line,method,methodStart,methodEnd,source
         transports: [transport]
       });
     })",368,404,steel
-/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 676, 'column': 10, 'index': 21543}","it(`rethrows errors from user-defined formats`, function () {
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 673, 'column': 10, 'index': 21640}","it(`rethrows errors from user-defined formats`, function () {
       stdMocks.use();
       const logger = winston.createLogger({
         transports: [new winston.transports.Console()],
@@ -1384,8 +1378,8 @@ file,type,line,method,methodStart,methodEnd,source
       const actual = stdMocks.flush();
       assume(actual.stdout).deep.equals(expected.map(msg => `${msg}${EOL}`));
       assume(actual.stderr).deep.equals([]);
-    })",670,703,steel
-/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 796, 'column': 10, 'index': 25246}","it(`.info('Hello') preserve meta without splat format`, function (done) {
+    })",667,700,steel
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 793, 'column': 10, 'index': 25343}","it(`.info('Hello') preserve meta without splat format`, function (done) {
         const logged = [];
         const logger = helpers.createLogger(function (info, enc, next) {
           logged.push(info);
@@ -1396,8 +1390,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
 
         logger.info('Hello', {label: 'world'});
-      })",789,800,steel
-/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 809, 'column': 10, 'index': 25668}","it(`.info('Hello %d') does not mutate unnecessarily with string interpolation tokens`, function (done) {
+      })",786,797,steel
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 806, 'column': 10, 'index': 25765}","it(`.info('Hello %d') does not mutate unnecessarily with string interpolation tokens`, function (done) {
         const logged = [];
         const logger = helpers.createLogger(function (info, enc, next) {
           logged.push(info);
@@ -1408,8 +1402,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
 
         logger.info('Hello %j', {label: 'world'}, {extra: true});
-      })",802,813,steel
-/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 822, 'column': 10, 'index': 26094}","it(`.info('Hello') and .info('Hello %d') preserve meta with splat format`, function (done) {
+      })",799,810,steel
+/test/unit/winston/logger.test.js,Conditional Test Logic,"{'line': 819, 'column': 10, 'index': 26191}","it(`.info('Hello') and .info('Hello %d') preserve meta with splat format`, function (done) {
         const logged = [];
         const logger = helpers.createLogger(function (info, enc, next) {
           logged.push(info);
@@ -1421,8 +1415,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         logger.info('Hello', {label: 'world'});
         logger.info('Hello %d', 100, {label: 'world'});
-      })",815,827,steel
-/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 719, 'column': 6, 'index': 22921}","it('ending profiler with object argument should be included in output', function (done) {
+      })",812,824,steel
+/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 716, 'column': 6, 'index': 23018}","it('ending profiler with object argument should be included in output', function (done) {
       let logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
@@ -1440,8 +1434,8 @@ file,type,line,method,methodStart,methodEnd,source
           level: 'info'
         })
       }, 100);
-    })",707,725,steel
-/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 743, 'column': 6, 'index': 23686}","it('calling profile with a callback function should not make a difference', function (done) {
+    })",704,722,steel
+/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 740, 'column': 6, 'index': 23783}","it('calling profile with a callback function should not make a difference', function (done) {
       let logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
@@ -1462,8 +1456,8 @@ file,type,line,method,methodStart,methodEnd,source
           level: 'info'
         })
       }, 100);
-    })",728,749,steel
-/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 763, 'column': 6, 'index': 24309}","it('should stop a timer when `done` is called on it', function (done) {
+    })",725,746,steel
+/test/unit/winston/logger.test.js,Sleepy Test,"{'line': 760, 'column': 6, 'index': 24406}","it('should stop a timer when `done` is called on it', function (done) {
       let logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
@@ -1482,7 +1476,7 @@ file,type,line,method,methodStart,methodEnd,source
           level: 'info'
         });
       }, 100);
-    })",751,770,steel
+    })",748,767,steel
 /test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 26}","it('.configure()', function () {
       let logger = winston.createLogger({
         transports: [new winston.transports.Console()]
@@ -1793,24 +1787,21 @@ file,type,line,method,methodStart,methodEnd,source
   assume(logger.getHighestLogLevel()).equals(4);
   assume(logger.isLevelEnabled).is.a('function');
 
-  const levelStates = {
-    error: true,
-    warn: true,
-    info: true,
-    verbose: true,
-    debug: false,
-    silly: false
+  const enabledLevels = ['error', 'warn', 'info', 'verbose'];
+  const disabledLevels = ['debug', 'silly'];
+
+  const assertLevel = (level, shouldBeEnabled) => {
+    const helperMethodName = `is${level.charAt(0).toUpperCase() + level.slice(1)}Enabled`;
+
+    assume(logger[helperMethodName]).is.a('function');
+    assume(logger.isLevelEnabled(level)).equals(shouldBeEnabled);
+    assume(logger[helperMethodName]()).equals(shouldBeEnabled);
   };
 
-  Object.entries(levelStates).forEach(([level, shouldBeEnabled]) => {
-    const helperName = `is${level.charAt(0).toUpperCase() + level.slice(1)}Enabled`;
-
-    assume(logger[helperName]).is.a('function');
-    assume(logger.isLevelEnabled(level)).equals(shouldBeEnabled);
-    assume(logger[helperName]()).equals(shouldBeEnabled);
-  });
-})",407,434,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 436}","it('default levels, transport override', function () {
+  enabledLevels.forEach(level => assertLevel(level, true));
+  disabledLevels.forEach(level => assertLevel(level, false));
+})",407,431,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 433}","it('default levels, transport override', function () {
         let transport = new winston.transports.Console();
         transport.level = 'debug';
 
@@ -1845,8 +1836,8 @@ file,type,line,method,methodStart,methodEnd,source
         assume(logger.isVerboseEnabled()).true();
         assume(logger.isDebugEnabled()).true();
         assume(logger.isSillyEnabled()).false();
-      })",436,471,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 473}","it('default levels, no transports', function () {
+      })",433,468,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 470}","it('default levels, no transports', function () {
         let logger = winston.createLogger({
           level: 'verbose',
           levels: winston.config.npm.levels,
@@ -1878,8 +1869,8 @@ file,type,line,method,methodStart,methodEnd,source
         assume(logger.isVerboseEnabled()).true();
         assume(logger.isDebugEnabled()).false();
         assume(logger.isSillyEnabled()).false();
-      })",473,505,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 507}","it('custom levels', function () {
+      })",470,502,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 504}","it('custom levels', function () {
         let logger = winston.createLogger({
           level: 'test',
           levels: {
@@ -1906,8 +1897,8 @@ file,type,line,method,methodStart,methodEnd,source
         assume(logger.isBadEnabled()).true();
         assume(logger.isTestEnabled()).true();
         assume(logger.isOkEnabled()).false();
-      })",507,534,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 536}","it('custom levels, no transports', function () {
+      })",504,531,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 533}","it('custom levels, no transports', function () {
         let logger = winston.createLogger({
           level: 'test',
           levels: {
@@ -1934,8 +1925,8 @@ file,type,line,method,methodStart,methodEnd,source
         assume(logger.isBadEnabled()).true();
         assume(logger.isTestEnabled()).true();
         assume(logger.isOkEnabled()).false();
-      })",536,563,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 565}","it('custom levels, transport override', function () {
+      })",533,560,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 562}","it('custom levels, transport override', function () {
         let transport = new winston.transports.Console();
         transport.level = 'ok';
 
@@ -1965,8 +1956,8 @@ file,type,line,method,methodStart,methodEnd,source
         assume(logger.isBadEnabled()).true();
         assume(logger.isTestEnabled()).true();
         assume(logger.isOkEnabled()).true();
-      })",565,595,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 640}","it('error', (done) => {
+      })",562,592,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 637}","it('error', (done) => {
       const consoleTransport = new winston.transports.Console();
       const logger = winston.createLogger({
         transports: [consoleTransport]
@@ -1978,8 +1969,8 @@ file,type,line,method,methodStart,methodEnd,source
         done();
       });
       consoleTransport.emit('error', new Error());
-    })",640,652,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 654}","it('warn', (done) => {
+    })",637,649,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 651}","it('warn', (done) => {
       const consoleTransport = new winston.transports.Console();
       const logger = winston.createLogger({
         transports: [consoleTransport]
@@ -1991,8 +1982,8 @@ file,type,line,method,methodStart,methodEnd,source
         done();
       });
       consoleTransport.emit('warn', new Error());
-    })",654,666,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 707}","it('ending profiler with object argument should be included in output', function (done) {
+    })",651,663,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 704}","it('ending profiler with object argument should be included in output', function (done) {
       let logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
@@ -2010,8 +2001,8 @@ file,type,line,method,methodStart,methodEnd,source
           level: 'info'
         })
       }, 100);
-    })",707,725,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 728}","it('calling profile with a callback function should not make a difference', function (done) {
+    })",704,722,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 725}","it('calling profile with a callback function should not make a difference', function (done) {
       let logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
@@ -2032,8 +2023,8 @@ file,type,line,method,methodStart,methodEnd,source
           level: 'info'
         })
       }, 100);
-    })",728,749,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 751}","it('should stop a timer when `done` is called on it', function (done) {
+    })",725,746,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 4, 'line': 748}","it('should stop a timer when `done` is called on it', function (done) {
       let logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
@@ -2052,24 +2043,24 @@ file,type,line,method,methodStart,methodEnd,source
           level: 'info'
         });
       }, 100);
-    })",751,770,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 831}","it('.info(undefined) creates info with { message: undefined }', function (done) {
+    })",748,767,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 828}","it('.info(undefined) creates info with { message: undefined }', function (done) {
         const logger = helpers.createLogger(function (info) {
           assume(info.message).equals(undefined);
           done();
         });
 
         logger.info(undefined);
-      })",831,838,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 840}","it('.info(null) creates info with { message: null }', function (done) {
+      })",828,835,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 837}","it('.info(null) creates info with { message: null }', function (done) {
         const logger = helpers.createLogger(function (info) {
           assume(info.message).equals(null);
           done();
         });
 
         logger.info(null);
-      })",840,847,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 849}","it('.info(new Error()) uses Error instance as info', function (done) {
+      })",837,844,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 846}","it('.info(new Error()) uses Error instance as info', function (done) {
         const err = new Error('test');
         const logger = helpers.createLogger(function (info) {
           assume(info).instanceOf(Error);
@@ -2078,8 +2069,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
 
         logger.info(err);
-      })",849,858,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 866}","it('sets child meta for text messages correctly', (done) => {
+      })",846,855,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 863}","it('sets child meta for text messages correctly', (done) => {
         const assertFn = ((msg) => {
           assume(msg.level).equals('info');
           assume(msg.message).equals('dummy message');
@@ -2095,8 +2086,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         const childLogger = logger.child({requestId: '451'});
         childLogger.info('dummy message');
-      })",866,882,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 884}","it('sets child meta for json messages correctly', (done) => {
+      })",863,879,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 881}","it('sets child meta for json messages correctly', (done) => {
         const assertFn = ((msg) => {
           assume(msg.level).equals('info');
           assume(msg.message.text).equals('dummy');
@@ -2112,8 +2103,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         const childLogger = logger.child({requestId: '451'});
         childLogger.info({text: 'dummy'});
-      })",884,900,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 902}","it('merges child and provided meta correctly', (done) => {
+      })",881,897,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 899}","it('merges child and provided meta correctly', (done) => {
         const assertFn = ((msg) => {
           assume(msg.level).equals('info');
           assume(msg.message).equals('dummy message');
@@ -2130,8 +2121,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         const childLogger = logger.child({service: 'user-service'});
         childLogger.info('dummy message', {requestId: '451'});
-      })",902,919,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 921}","it('provided meta take precedence over defaultMeta', (done) => {
+      })",899,916,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 918}","it('provided meta take precedence over defaultMeta', (done) => {
         const assertFn = ((msg) => {
           assume(msg.level).equals('info');
           assume(msg.message).equals('dummy message');
@@ -2151,8 +2142,8 @@ file,type,line,method,methodStart,methodEnd,source
           requestId: '451',
           service: 'audit-service'
         });
-      })",921,941,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 943}","it('provided meta take precedence over child meta', (done) => {
+      })",918,938,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 940}","it('provided meta take precedence over child meta', (done) => {
         const assertFn = ((msg) => {
           assume(msg.level).equals('info');
           assume(msg.message).equals('dummy message');
@@ -2172,8 +2163,8 @@ file,type,line,method,methodStart,methodEnd,source
           requestId: '451',
           service: 'audit-service'
         });
-      })",943,963,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 965}","it('handles error stack traces in child loggers correctly', (done) => {
+      })",940,960,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 962}","it('handles error stack traces in child loggers correctly', (done) => {
         const assertFn = ((msg) => {
           assume(msg.level).equals('error');
           assume(msg.message).equals('dummy error');
@@ -2190,8 +2181,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         const childLogger = logger.child({service: 'user-service'});
         childLogger.error(Error('dummy error'));
-      })",965,982,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 984}","it('defaultMeta() autobinds correctly', (done) => {
+      })",962,979,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 981}","it('defaultMeta() autobinds correctly', (done) => {
         const logger = helpers.createLogger(info => {
           assume(info.message).equals('test');
           done();
@@ -2199,8 +2190,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         const log = logger.info;
         log('test');
-      })",984,992,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 998}","it('.log(level, message)', function (done) {
+      })",981,989,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 995}","it('.log(level, message)', function (done) {
         let logger = helpers.createLogger(function (info) {
           assume(info).is.an('object');
           assume(info.level).equals('info');
@@ -2210,8 +2201,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
 
         logger.log('info', 'Some super awesome log message')
-      })",998,1008,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 1039}","it('.log(level, message, meta)', function (done) {
+      })",995,1005,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 1036}","it('.log(level, message, meta)', function (done) {
         let meta = {one: 2};
         let logger = helpers.createLogger(function (info) {
           assume(info).is.an('object');
@@ -2223,8 +2214,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
 
         logger.log('info', 'Some super awesome log message', meta);
-      })",1039,1051,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 1053}","it('.log(level, formatStr, ...splat)', function (done) {
+      })",1036,1048,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 1050}","it('.log(level, formatStr, ...splat)', function (done) {
         const format = winston.format.combine(
             winston.format.splat(),
             winston.format.printf(info => `${info.level}: ${info.message}`)
@@ -2240,8 +2231,8 @@ file,type,line,method,methodStart,methodEnd,source
         }, format);
 
         logger.log('info', '%d%% such %s %j', 100, 'wow', {much: 'javascript'});
-      })",1053,1069,steel
-/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 1071}","it('.log(level, formatStr, ...splat, meta)', function (done) {
+      })",1050,1066,steel
+/test/unit/winston/logger.test.js,Unknown Test,"{'column': 6, 'line': 1068}","it('.log(level, formatStr, ...splat, meta)', function (done) {
         const format = winston.format.combine(
             winston.format.splat(),
             winston.format.printf(info => `${info.level}: ${info.message} ${JSON.stringify({thisIsMeta: info.thisIsMeta})}`)
@@ -2258,7 +2249,7 @@ file,type,line,method,methodStart,methodEnd,source
         }, format);
 
         logger.log('info', '%d%% such %s %j', 100, 'wow', {much: 'javascript'}, {thisIsMeta: true});
-      })",1071,1088,steel
+      })",1068,1085,steel
 /test/unit/winston/logger-legacy.test.js,Unknown Test,"{'column': 6, 'line': 97}","it('.remove() is successful', function () {
         const consoleTransport = new winston.transports.Console();
         const legacyTransport = new TransportClass();

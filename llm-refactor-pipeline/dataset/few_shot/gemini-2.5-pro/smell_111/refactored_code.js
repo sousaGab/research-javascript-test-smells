@@ -1,13 +1,13 @@
 describe("weekdays", () => {
-  test("should return narrow weekdays when format is 'narrow'", () => {
+  it("should return narrow weekdays when the format is 'narrow'", () => {
     expect(weekdays("narrow")).toStrictEqual(["M", "T", "W", "T", "F", "S", "S"]);
   });
 
-  test("should return short weekdays when format is 'short'", () => {
+  it("should return short weekdays when the format is 'short'", () => {
     expect(weekdays("short")).toStrictEqual(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
   });
 
-  test("should return long weekdays when format is 'long'", () => {
+  it("should return long weekdays when the format is 'long'", () => {
     expect(weekdays("long")).toStrictEqual([
       "Monday",
       "Tuesday",
@@ -19,11 +19,11 @@ describe("weekdays", () => {
     ]);
   });
 
-  test("should return numeric weekdays when format is 'numeric'", () => {
+  it("should return numeric weekdays when the format is 'numeric'", () => {
     expect(weekdays("numeric")).toStrictEqual(["1", "2", "3", "4", "5", "6", "7"]);
   });
 
-  test("should return null when format is null", () => {
+  it("should return null when the format is null", () => {
     expect(weekdays(null)).toStrictEqual(null);
   });
 });

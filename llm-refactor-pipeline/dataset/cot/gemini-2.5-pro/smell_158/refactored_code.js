@@ -1,7 +1,7 @@
 describe('event options parsing', () => {
   if (HAS_PASSIVE_EVENT_SUPPORT) {
     describe('with passive event support', () => {
-      it('converts boolean and undefined values to a capture object', () => {
+      it('converts boolean to a capture object', () => {
         expect(parseEventOptions(true)).toEqual({
           capture: true
         });
@@ -30,48 +30,48 @@ describe('event options parsing', () => {
           foobar: true
         })).toEqual({
           capture: false,
-          foobar: true
+          foobar: true,
         });
         expect(parseEventOptions({
           capture: true,
           foobar: false
         })).toEqual({
           capture: true,
-          foobar: false
+          foobar: false,
         });
       });
     });
   } else {
     describe('without passive event support', () => {
-      it('converts non-object values to a boolean', () => {
-        expect(parseEventOptions(true)).toEqual(true);
-        expect(parseEventOptions(false)).toEqual(false);
-        expect(parseEventOptions()).toEqual(false);
-        expect(parseEventOptions(null)).toEqual(false);
+      it('converts non-object values to a capture boolean', () => {
+        expect(parseEventOptions(true)).toBe(true);
+        expect(parseEventOptions(false)).toBe(false);
+        expect(parseEventOptions()).toBe(false);
+        expect(parseEventOptions(null)).toBe(false);
       });
 
-      it('converts an object to a boolean based on its capture property', () => {
+      it('converts object options to a capture boolean', () => {
         expect(parseEventOptions({
           capture: false
-        })).toEqual(false);
+        })).toBe(false);
         expect(parseEventOptions({
           capture: true
-        })).toEqual(true);
-        expect(parseEventOptions({})).toEqual(false);
+        })).toBe(true);
+        expect(parseEventOptions({})).toBe(false);
         expect(parseEventOptions({
           capture: false,
           foobar: true
-        })).toEqual(false);
+        })).toBe(false);
         expect(parseEventOptions({
           capture: true,
           foobar: true
-        })).toEqual(true);
+        })).toBe(true);
         expect(parseEventOptions({
           foobar: true
-        })).toEqual(false);
+        })).toBe(false);
         expect(parseEventOptions({
           foobar: false
-        })).toEqual(false);
+        })).toBe(false);
       });
     });
   }

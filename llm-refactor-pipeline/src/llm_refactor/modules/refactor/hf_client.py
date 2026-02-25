@@ -162,7 +162,7 @@ class OpenAICompatibleClient(BaseLLMClient):
         user_prompt: str,
         temperature: float,
         top_p: float,
-        max_tokens: int
+        max_tokens: Optional[int] = None
     ) -> Dict:
 
         client = OpenAI(
@@ -224,13 +224,18 @@ class OpenAICompatibleClient(BaseLLMClient):
             {"role": "user", "content": user_prompt},
         ]
 
-        response = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=temperature,
-            top_p=top_p,
-            max_tokens=max_tokens,
-        )
+        # Build API parameters
+        api_params = {
+            "model": model,
+            "messages": messages,
+            "temperature": temperature,
+            "top_p": top_p,
+        }
+        # Only add max_tokens if specified (let API auto-calculate otherwise)
+        if max_tokens is not None:
+            api_params["max_tokens"] = max_tokens
+
+        response = client.chat.completions.create(**api_params)
 
         latency = time.time() - start_time
 
@@ -359,11 +364,7 @@ class GoogleClient(BaseLLMClient):
                     config=genai_types.GenerateContentConfig(
                         system_instruction=system_prompt,
                         temperature=temperature,
-                        top_p=top_p,
-                        thinking_config=genai_types.ThinkingConfig(
-                            include_thoughts=True,
-                            thinking_budget=max_tokens 
-                        )
+                        top_p=top_p
                     )
                 )
 
@@ -552,6 +553,16 @@ class HuggingFaceModels:
             "provider": LLMProvider.OPENAI,
             "api_key_env": "GPT_TOKEN"
         },
+        {
+            "id": 8,
+            "name": "CodeLlama-70b",
+            "model_id": "codellama/CodeLlama-70b-Instruct-hf",
+            "description": "CodeLlama 70B model via vLLM Engine (OpenAI-compatible)",
+            "endpoint_url": "https://gz8jg96kxwjwh0eh.us-east-1.aws.endpoints.huggingface.cloud/v1",
+            "provider": LLMProvider.HUGGINGFACE,
+            "api_key_env": "HF_TOKEN",
+            "skip_max_tokens": True  # Let API auto-calculate based on available context
+        }
     ]
     
     DEFAULT_MODEL_ID = "Qwen/Qwen2.5-Coder-32B-Instruct"
@@ -1084,6 +1095,9 @@ class HuggingFaceRefactorClient:
         # Determine model parameter to send to API
         model_param = model_info.get("model_id", model) if model_info else model
         
+        # Check if model wants to skip max_tokens (for dynamic context calculation)
+        tokens_to_use = None if (model_info and model_info.get("skip_max_tokens", False)) else max_tokens
+        
         import time
         max_retries = 3
         retry_delay = 2  # seconds (default for most providers)
@@ -1103,7 +1117,7 @@ class HuggingFaceRefactorClient:
                     user_prompt=prompt_dict["user"],
                     temperature=temperature,
                     top_p=top_p,
-                    max_tokens=max_tokens
+                    max_tokens=tokens_to_use
                 )
                 # Extract code from response (remove markdown formatting and explanations)
                 try:

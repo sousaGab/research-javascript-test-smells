@@ -1,4 +1,4 @@
-describe('BToaster structure', () => {
+describe('BToaster', () => {
   let wrapper
 
   beforeEach(async () => {
@@ -16,7 +16,7 @@ describe('BToaster structure', () => {
     wrapper.destroy()
   })
 
-  it('has expected root and slot structure', () => {
+  it('has expected structure and attributes', () => {
     expect(wrapper.vm).toBeDefined()
     expect(wrapper.element.tagName).toBe('DIV')
     expect(wrapper.attributes('id')).toBe('foo')
@@ -37,7 +37,7 @@ describe('BToaster structure', () => {
   })
 
   if (!isVue3) {
-    it('renders PortalTarget component for Vue 2', () => {
+    it('renders PortalTarget component in Vue 2', () => {
       const $slot = wrapper.find('.b-toaster-slot')
       expect($slot.findComponent(PortalTarget).exists()).toBe(true)
     })

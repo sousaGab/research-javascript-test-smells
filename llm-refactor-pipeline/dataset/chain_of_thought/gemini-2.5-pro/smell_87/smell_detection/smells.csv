@@ -2856,18 +2856,18 @@ file,type,line,method,methodStart,methodEnd,source
       // Should be compacted to left
       expect(compacted[0].x).toBe(0);
     })",377,387,snuts
-/test/spec/fast-horizontal-compactor-test.js,SubOptimalAssert,"{'startLine':417,'endLine':417}","it(""handles pathological layouts that exceed max row limit gracefully"", () => {
+/test/spec/fast-horizontal-compactor-test.js,SubOptimalAssert,"{'startLine':417,'endLine':417}","it(""should handle an unfittable item by logging a max row limit warning"", () => {
   const consoleWarn = jest.spyOn(console, ""warn"").mockImplementation();
+  const gridWidth = 12;
 
-  const pathologicalLayout = [
-    { i: ""static"", x: 0, y: 0, w: 12, h: 1, static: true },
-    { i: ""a"", x: 0, y: 0, w: 13, h: 1 }, // Item wider than grid
+  const layoutWithUnfittableItem = [
+    { i: ""static-blocker"", x: 0, y: 0, w: gridWidth, h: 1, static: true },
+    { i: ""too-wide-item"", x: 0, y: 0, w: gridWidth + 1, h: 1 },
   ];
-  const gridCols = 12;
 
   const compactedLayout = fastHorizontalCompactor.compact(
-    pathologicalLayout,
-    gridCols
+    layoutWithUnfittableItem,
+    gridWidth
   );
 
   expect(compactedLayout).toBeDefined();
@@ -7347,7 +7347,7 @@ file,type,line,method,methodStart,methodEnd,source
 
       console.log(lines.join(""\n""));
     })",250,285,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 429, 'column': 6, 'index': 13823}","describe(""Correctness vs Standard Compactor"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 429, 'column': 6, 'index': 13853}","describe(""Correctness vs Standard Compactor"", () => {
     // Helper to check if layouts have same items at same positions
     function layoutsMatch(layout1, layout2) {
       if (layout1.length !== layout2.length) return false;
@@ -7592,7 +7592,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(fastCompacted.find(l => l.i === ""b"").x).toBe(2);
     });
   })",426,670,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 430, 'column': 6, 'index': 13882}","describe(""Correctness vs Standard Compactor"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 430, 'column': 6, 'index': 13912}","describe(""Correctness vs Standard Compactor"", () => {
     // Helper to check if layouts have same items at same positions
     function layoutsMatch(layout1, layout2) {
       if (layout1.length !== layout2.length) return false;
@@ -7837,7 +7837,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(fastCompacted.find(l => l.i === ""b"").x).toBe(2);
     });
   })",426,670,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 432, 'column': 8, 'index': 13979}","describe(""Correctness vs Standard Compactor"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 432, 'column': 8, 'index': 14009}","describe(""Correctness vs Standard Compactor"", () => {
     // Helper to check if layouts have same items at same positions
     function layoutsMatch(layout1, layout2) {
       if (layout1.length !== layout2.length) return false;
@@ -8082,7 +8082,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(fastCompacted.find(l => l.i === ""b"").x).toBe(2);
     });
   })",426,670,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 433, 'column': 8, 'index': 14013}","describe(""Correctness vs Standard Compactor"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 433, 'column': 8, 'index': 14043}","describe(""Correctness vs Standard Compactor"", () => {
     // Helper to check if layouts have same items at same positions
     function layoutsMatch(layout1, layout2) {
       if (layout1.length !== layout2.length) return false;
@@ -8327,7 +8327,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(fastCompacted.find(l => l.i === ""b"").x).toBe(2);
     });
   })",426,670,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 479, 'column': 6, 'index': 15811}","it(""produces valid (no overlaps) result even when different from standard"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 479, 'column': 6, 'index': 15841}","it(""produces valid (no overlaps) result even when different from standard"", () => {
       // For messy random layouts, the algorithms may produce different
       // but equally valid results. Both should have no overlaps.
       for (let run = 0; run < 20; run++) {
@@ -8344,7 +8344,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(fastCompacted.length).toBe(stdCompacted.length);
       }
     })",476,492,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 501, 'column': 6, 'index': 16626}","it(""produces similar or better compaction width"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 501, 'column': 6, 'index': 16656}","it(""produces similar or better compaction width"", () => {
       // The fast compactor should produce layouts with similar total width
       // (within a small tolerance, since algorithms may differ slightly)
       let fastBetter = 0;
@@ -8379,7 +8379,7 @@ file,type,line,method,methodStart,methodEnd,source
       // Allow some tolerance since algorithms may differ
       expect(stdBetter).toBeLessThan(40); // At most 80% worse
     })",494,528,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 510, 'column': 8, 'index': 16977}","it(""produces similar or better compaction width"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 510, 'column': 8, 'index': 17007}","it(""produces similar or better compaction width"", () => {
       // The fast compactor should produce layouts with similar total width
       // (within a small tolerance, since algorithms may differ slightly)
       let fastBetter = 0;
@@ -8414,7 +8414,7 @@ file,type,line,method,methodStart,methodEnd,source
       // Allow some tolerance since algorithms may differ
       expect(stdBetter).toBeLessThan(40); // At most 80% worse
     })",494,528,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 511, 'column': 13, 'index': 17030}","it(""produces similar or better compaction width"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 511, 'column': 13, 'index': 17060}","it(""produces similar or better compaction width"", () => {
       // The fast compactor should produce layouts with similar total width
       // (within a small tolerance, since algorithms may differ slightly)
       let fastBetter = 0;
@@ -8449,7 +8449,7 @@ file,type,line,method,methodStart,methodEnd,source
       // Allow some tolerance since algorithms may differ
       expect(stdBetter).toBeLessThan(40); // At most 80% worse
     })",494,528,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 546, 'column': 6, 'index': 18266}","it(""handles complex static item configurations identically"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 546, 'column': 6, 'index': 18296}","it(""handles complex static item configurations identically"", () => {
       // Multiple static items at various positions
       const layout = [
         { i: ""s1"", x: 0, y: 0, w: 2, h: 4, static: true },
@@ -8476,7 +8476,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(hasOverlaps(stdCompacted)).toBe(false);
       expect(hasOverlaps(fastCompacted)).toBe(false);
     })",530,556,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 564, 'column': 6, 'index': 18930}","it(""preserves item dimensions"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 564, 'column': 6, 'index': 18960}","it(""preserves item dimensions"", () => {
       const layout = generateRandomLayout(30, 12, 5);
 
       const fastCompacted = fastHorizontalCompactor.compact(layout, 12);
@@ -8490,7 +8490,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(compacted.static).toBe(original.static);
       }
     })",558,571,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 576, 'column': 6, 'index': 19422}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 576, 'column': 6, 'index': 19452}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
       // Use the same deterministic layout from benchmark-test.js
       const layout = [];
       for (let i = 0; i < 100; i++) {
@@ -8527,7 +8527,7 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(widthDiff).toBeLessThan(0.3); // Within 30%
     })",573,609,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 632, 'column': 6, 'index': 21366}","it(""handles narrow grids (1-3 columns)"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 632, 'column': 6, 'index': 21396}","it(""handles narrow grids (1-3 columns)"", () => {
       for (let cols = 1; cols <= 3; cols++) {
         const layout = [];
         for (let i = 0; i < 10; i++) {
@@ -8547,7 +8547,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(hasOverlaps(fastCompacted)).toBe(false);
       }
     })",631,650,steel
-/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 634, 'column': 8, 'index': 21441}","it(""handles narrow grids (1-3 columns)"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 634, 'column': 8, 'index': 21471}","it(""handles narrow grids (1-3 columns)"", () => {
       for (let cols = 1; cols <= 3; cols++) {
         const layout = [];
         for (let i = 0; i < 10; i++) {
@@ -9004,18 +9004,18 @@ file,type,line,method,methodStart,methodEnd,source
       expect(compacted.find(l => l.i === ""b"").x).toBe(0);
       expect(compacted.find(l => l.i === ""b"").y).toBe(100); // Y preserved
     })",389,400,steel
-/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 417, 'column': 38, 'index': 13498}","it(""handles pathological layouts that exceed max row limit gracefully"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 417, 'column': 38, 'index': 13528}","it(""should handle an unfittable item by logging a max row limit warning"", () => {
   const consoleWarn = jest.spyOn(console, ""warn"").mockImplementation();
+  const gridWidth = 12;
 
-  const pathologicalLayout = [
-    { i: ""static"", x: 0, y: 0, w: 12, h: 1, static: true },
-    { i: ""a"", x: 0, y: 0, w: 13, h: 1 }, // Item wider than grid
+  const layoutWithUnfittableItem = [
+    { i: ""static-blocker"", x: 0, y: 0, w: gridWidth, h: 1, static: true },
+    { i: ""too-wide-item"", x: 0, y: 0, w: gridWidth + 1, h: 1 },
   ];
-  const gridCols = 12;
 
   const compactedLayout = fastHorizontalCompactor.compact(
-    pathologicalLayout,
-    gridCols
+    layoutWithUnfittableItem,
+    gridWidth
   );
 
   expect(compactedLayout).toBeDefined();
@@ -9026,7 +9026,7 @@ file,type,line,method,methodStart,methodEnd,source
 
   consoleWarn.mockRestore();
 })",402,423,steel
-/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 527, 'column': 37, 'index': 17514}","it(""produces similar or better compaction width"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 527, 'column': 37, 'index': 17544}","it(""produces similar or better compaction width"", () => {
       // The fast compactor should produce layouts with similar total width
       // (within a small tolerance, since algorithms may differ slightly)
       let fastBetter = 0;
@@ -9061,7 +9061,7 @@ file,type,line,method,methodStart,methodEnd,source
       // Allow some tolerance since algorithms may differ
       expect(stdBetter).toBeLessThan(40); // At most 80% worse
     })",494,528,steel
-/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 608, 'column': 37, 'index': 20442}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 608, 'column': 37, 'index': 20472}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
       // Use the same deterministic layout from benchmark-test.js
       const layout = [];
       for (let i = 0; i < 100; i++) {
@@ -9098,7 +9098,7 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(widthDiff).toBeLessThan(0.3); // Within 30%
     })",573,609,steel
-/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 627, 'column': 45, 'index': 21244}","it(""handles edge case: items that could stack in different orders"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 627, 'column': 45, 'index': 21274}","it(""handles edge case: items that could stack in different orders"", () => {
       // Items that could be stacked in different valid configurations
       const layout = [
         { i: ""a"", x: 0, y: 0, w: 2, h: 6 },
@@ -9117,7 +9117,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(layoutWidth(stdCompacted)).toBe(6);
       expect(layoutWidth(fastCompacted)).toBe(6);
     })",611,629,steel
-/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 628, 'column': 46, 'index': 21294}","it(""handles edge case: items that could stack in different orders"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 628, 'column': 46, 'index': 21324}","it(""handles edge case: items that could stack in different orders"", () => {
       // Items that could be stacked in different valid configurations
       const layout = [
         { i: ""a"", x: 0, y: 0, w: 2, h: 6 },
@@ -9136,7 +9136,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(layoutWidth(stdCompacted)).toBe(6);
       expect(layoutWidth(fastCompacted)).toBe(6);
     })",611,629,steel
-/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 666, 'column': 58, 'index': 22470}","it(""handles tall items spanning multiple rows"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 666, 'column': 58, 'index': 22500}","it(""handles tall items spanning multiple rows"", () => {
       const layout = [
         { i: ""a"", x: 5, y: 0, w: 2, h: 5 },
         { i: ""b"", x: 8, y: 2, w: 3, h: 3 }
@@ -9154,7 +9154,7 @@ file,type,line,method,methodStart,methodEnd,source
       // Item b should be at x=2 (right after a, overlapping rows)
       expect(fastCompacted.find(l => l.i === ""b"").x).toBe(2);
     })",652,669,steel
-/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 668, 'column': 58, 'index': 22599}","it(""handles tall items spanning multiple rows"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Magic Number,"{'line': 668, 'column': 58, 'index': 22629}","it(""handles tall items spanning multiple rows"", () => {
       const layout = [
         { i: ""a"", x: 5, y: 0, w: 2, h: 5 },
         { i: ""b"", x: 8, y: 2, w: 3, h: 3 }
@@ -9195,7 +9195,7 @@ file,type,line,method,methodStart,methodEnd,source
         ].join(""\n"")
       );
     })",315,337,steel
-/test/spec/fast-horizontal-compactor-test.js,Redundant Print,"{'line': 515, 'column': 6, 'index': 17106}","it(""produces similar or better compaction width"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Redundant Print,"{'line': 515, 'column': 6, 'index': 17136}","it(""produces similar or better compaction width"", () => {
       // The fast compactor should produce layouts with similar total width
       // (within a small tolerance, since algorithms may differ slightly)
       let fastBetter = 0;
@@ -9230,7 +9230,7 @@ file,type,line,method,methodStart,methodEnd,source
       // Allow some tolerance since algorithms may differ
       expect(stdBetter).toBeLessThan(40); // At most 80% worse
     })",494,528,steel
-/test/spec/fast-horizontal-compactor-test.js,Redundant Print,"{'line': 598, 'column': 6, 'index': 20143}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
+/test/spec/fast-horizontal-compactor-test.js,Redundant Print,"{'line': 598, 'column': 6, 'index': 20173}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
       // Use the same deterministic layout from benchmark-test.js
       const layout = [];
       for (let i = 0; i < 100; i++) {

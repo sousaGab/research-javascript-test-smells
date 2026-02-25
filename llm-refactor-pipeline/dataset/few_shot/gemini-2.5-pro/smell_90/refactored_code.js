@@ -15,33 +15,39 @@ it("uses default threshold of 3px when not specified (v2 API)", function () {
   );
 
   const gridItem = container.querySelector(".react-grid-item");
+  const startX = 50;
+  const startY = 50;
+  const defaultDragThreshold = 3;
 
   act(() => {
     dispatchMouseEvent(gridItem, "mousedown", {
-      clientX: 50,
-      clientY: 50
+      clientX: startX,
+      clientY: startY
     });
   });
 
   act(() => {
-    mouseMove(52, 50, gridItem);
+    const moveDistance = defaultDragThreshold - 1;
+    mouseMove(startX + moveDistance, startY, gridItem);
   });
 
   expect(onDragStart).not.toHaveBeenCalled();
 
   act(() => {
-    mouseMove(54, 50, gridItem);
+    const moveDistance = defaultDragThreshold + 1;
+    mouseMove(startX + moveDistance, startY, gridItem);
   });
 
   expect(onDragStart).toHaveBeenCalled();
 
   act(() => {
+    const finalX = startX + defaultDragThreshold + 1;
     const mouseUpEvent = new MouseEvent("mouseup", {
       bubbles: true,
       cancelable: true,
       view: window,
-      clientX: 54,
-      clientY: 50,
+      clientX: finalX,
+      clientY: startY,
       button: 0
     });
     document.dispatchEvent(mouseUpEvent);

@@ -1,20 +1,23 @@
 test('handles custom d3 scales', () => {
-  const getXAxisTickLabels = (el) =>
-    Array.from(el.querySelectorAll('.x_ticks_d3 text')).map(t => t.textContent);
-
-  const getYAxisTickTransforms = (el) =>
-    Array.from(el.querySelectorAll('.y_ticks g')).map(g => g.getAttribute('transform'));
-
   const element = document.createElement('div');
   document.body.appendChild(element);
+
+  const getXAxisTickLabels = (el) =>
+    Array.from(el.querySelectorAll('.x_ticks_d3 text')).map(tick => tick.innerHTML);
+
+  const getYAxisTickTransforms = (el) =>
+    Array.from(el.querySelectorAll('.y_ticks g')).map(tick => tick.getAttribute('transform'));
 
   const times = [1380000000000, 1390000000000];
   const series = [{
     color: 'steelblue',
-    data: [
-      { x: times[0], y: 40 },
-      { x: times[1], y: 49 }
-    ]
+    data: [{
+      x: times[0],
+      y: 40
+    }, {
+      x: times[1],
+      y: 49
+    }]
   }];
 
   const scale = d3.time.scale();
@@ -49,13 +52,15 @@ test('handles custom d3 scales', () => {
 
   // Check y-axis ticks
   const yTickTransforms = getYAxisTickTransforms(element);
-  expect(yTickTransforms[0]).toBe('translate(0,500)');
-  expect(yTickTransforms[1]).toBe('translate(0,275.24400874015976)');
-  expect(yTickTransforms[2]).toBe('translate(0,182.14702893572516)');
+  expect(yTickTransforms.slice(0, 3)).toEqual([
+    'translate(0,500)',
+    'translate(0,275.24400874015976)',
+    'translate(0,182.14702893572516)'
+  ]);
 
   // Check scale independence
   scale.range([0, 960]);
   expect(scale.range()).toEqual(graph.x.range());
   scale.range([0, 1]);
   expect(scale.range()).not.toEqual(graph.x.range());
-})
+});

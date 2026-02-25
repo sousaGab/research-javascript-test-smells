@@ -5,10 +5,10 @@ it('prevents the request from completing', done => {
 
       const req = http.get('http://example.test', onRequest)
 
-      req.on('abort', () => {
+      req.on('error', err => {
         expect(onRequest).not.to.have.been.called()
         done()
       })
 
-      nock.abortPendingRequests()
+      setImmediate(nock.abortPendingRequests)
     })

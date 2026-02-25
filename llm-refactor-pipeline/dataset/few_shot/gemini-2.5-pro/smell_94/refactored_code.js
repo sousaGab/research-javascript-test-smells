@@ -1,4 +1,4 @@
-it('allowUnmocked: true allows HTTPS request to pass when interceptor path matches but query does not', async () => {
+it('allowUnmocked: true allows real https request when interceptor path matches but query does not', async () => {
   const { origin } = await servers.startHttpsServer((request, response) => {
     response.writeHead(201)
     response.write('foo')

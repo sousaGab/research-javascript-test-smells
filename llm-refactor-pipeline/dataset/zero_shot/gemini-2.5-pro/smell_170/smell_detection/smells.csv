@@ -3262,29 +3262,35 @@ file,type,line,method,methodStart,methodEnd,source
     expect(mockAction).not.toHaveBeenCalled();
   })",41,48,snuts
 /tests/command.asterisk.test.js,NonFunctionalStatement,"{'startLine':81,'endLine':81}","test('when non-command argument and unknown option then error for unknown option', () => {
-    // This is a change in behaviour from v2 which did not error, but is consistent with modern better detection of invalid options
-    const mockAction = jest.fn();
-    const program = new commander.Command();
-    program
-      .exitOverride()
-      .configureOutput({
-        writeErr: () => {},
-      })
-      .command('install');
-    program.command('*').argument('[args...]').action(mockAction);
-    
-    expect(() => {
-      program.parse(['node', 'test', 'some-argument', '--unknown']);
-    }).toThrow({ code: 'commander.unknownOption' });
-  })",74,89,snuts
-/tests/command.asterisk.test.js,NonFunctionalStatement,"{'startLine':113,'endLine':113}","test('when recognised command then listener not called', () => {
+  // This is a change in behaviour from v2 which did not error, but is consistent with modern better detection of invalid options
+  const mockAction = jest.fn();
+  const program = new commander.Command();
+  program
+    .exitOverride()
+    .configureOutput({
+      writeErr: () => {},
+    })
+    .command('install');
+  program.command('*').argument('[args...]').action(mockAction);
+
+  const action = () => {
+    program.parse(['node', 'test', 'some-argument', '--unknown']);
+  };
+
+  expect(action).toThrow(
+    expect.objectContaining({
+      code: 'commander.unknownOption'
+    }),
+  );
+})",74,95,snuts
+/tests/command.asterisk.test.js,NonFunctionalStatement,"{'startLine':119,'endLine':119}","test('when recognised command then listener not called', () => {
     const mockAction = jest.fn();
     const program = new commander.Command();
     program.command('install').action(() => {});
     program.on('command:*', mockAction);
     program.parse(['node', 'test', 'install']);
     expect(mockAction).not.toHaveBeenCalled();
-  })",110,117,snuts
+  })",116,123,snuts
 /tests/command.allowUnknownOption.test.js,GeneralFixture,"{'startLine':10,'endLine':12}","beforeAll(() => {
     writeErrorSpy = jest
       .spyOn(process.stderr, 'write')

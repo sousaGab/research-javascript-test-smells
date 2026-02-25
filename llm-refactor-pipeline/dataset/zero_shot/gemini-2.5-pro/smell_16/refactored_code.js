@@ -10,23 +10,23 @@ describe('with a custom comparator function', () => {
     });
   });
 
-  it('should handle equality correctly', () => {
+  it('should compare elements based on their length', () => {
     expect(comparator.equal('a', 'b')).toBe(true);
     expect(comparator.equal('a', '')).toBe(false);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
-  });
-
-  it('should compare correctly in default order', () => {
     expect(comparator.lessThan('b', 'aa')).toBe(true);
     expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(false);
     expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(true);
+    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
   });
 
-  it('should compare correctly after reversing', () => {
+  it('should reverse the comparison logic', () => {
     comparator.reverse();
 
+    expect(comparator.equal('a', 'b')).toBe(true);
+    expect(comparator.equal('a', '')).toBe(false);
     expect(comparator.lessThan('b', 'aa')).toBe(false);
     expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(true);
     expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
+    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
   });
 });

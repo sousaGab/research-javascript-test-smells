@@ -5,8 +5,8 @@ it('prevents the request from completing', done => {
 
       const req = http.get('http://example.test', onRequest)
 
-      req.on('error', error => {
-        expect(error.code).to.equal('ECONNRESET')
+      req.on('error', err => {
+        expect(err.code).to.equal('ECONNRESET')
         expect(onRequest).not.to.have.been.called()
         done()
       })

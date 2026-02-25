@@ -400,63 +400,14 @@ file,type,line,method,methodStart,methodEnd,source
       const { container } = render(<BasicLayout />);
       expect(container.querySelector("".react-grid-layout"")).toBeInTheDocument();
     })",261,264,snuts
-/test/spec/lifecycle-test.js,AnonymousTest,"{'startLine':2085,'endLine':2088}","it(""Basic Render"", async function () {
+/test/spec/lifecycle-test.js,AnonymousTest,"{'startLine':2080,'endLine':2083}","it(""Basic Render"", async function () {
       const { container } = render(<ShowcaseLayout />);
       expect(container.querySelector("".react-grid-layout"")).toBeInTheDocument();
-    })",2085,2088,snuts
+    })",2080,2083,snuts
 /test/spec/lifecycle-test.js,GeneralFixture,"{'startLine':80,'endLine':80}","beforeEach(() => {
     randIdx = 0;
   })",79,81,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':390,'endLine':438}","it(""measureBeforeMount re-observes element after switching from placeholder to composed component"", async function () {
-  const originalOffsetWidth = Object.getOwnPropertyDescriptor(
-    HTMLElement.prototype,
-    ""offsetWidth""
-  );
-
-  try {
-    // Arrange
-    global.__resizeObservers__ = [];
-    Object.defineProperty(HTMLElement.prototype, ""offsetWidth"", {
-      configurable: true,
-      get: () => 800
-    });
-
-    // Act
-    const { container } = render(<BasicLayout measureBeforeMount={true} />);
-
-    // Assert: The final component is rendered and observed by the ResizeObserver
-    const gridLayout = container.querySelector("".react-grid-layout"");
-    expect(gridLayout).toBeInTheDocument();
-
-    const activeObservers = global.__resizeObservers__.filter(
-      obs => obs.observedElements.length > 0
-    );
-    expect(activeObservers.length).toBeGreaterThan(0);
-
-    const observedElement = activeObservers[0].observedElements[0];
-    expect(document.body.contains(observedElement)).toBe(true);
-
-    // Act: Trigger a resize to ensure the observer is functional
-    act(() => {
-      global.triggerResize(1000);
-    });
-
-    // Assert: The component remains stable after the resize
-    expect(
-      container.querySelector("".react-grid-layout"")
-    ).toBeInTheDocument();
-  } finally {
-    // Cleanup
-    if (originalOffsetWidth) {
-      Object.defineProperty(
-        HTMLElement.prototype,
-        ""offsetWidth"",
-        originalOffsetWidth
-      );
-    }
-  }
-})",390,438,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':463,'endLine':521}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':458,'endLine':516}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
         // Mock offsetWidth to return initial value
         const originalOffsetWidth = Object.getOwnPropertyDescriptor(
           HTMLElement.prototype,
@@ -514,8 +465,8 @@ file,type,line,method,methodStart,methodEnd,source
             originalOffsetWidth
           );
         }
-      })",463,521,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':800,'endLine':845}","it(""calls dropConfig.onDragOver when provided (v2 API) (#2212)"", function () {
+      })",458,516,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':795,'endLine':840}","it(""calls dropConfig.onDragOver when provided (v2 API) (#2212)"", function () {
         const onDragOver = jest.fn(() => ({ w: 3, h: 3 }));
         const onLayoutChange = jest.fn();
 
@@ -560,8 +511,8 @@ file,type,line,method,methodStart,methodEnd,source
           .flatMap(call => call[0])
           .find(item => item.i === ""__dropping-elem__"");
         expect(droppingItemInLayoutChange).toBeUndefined();
-      })",800,845,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':847,'endLine':904}","it(""does not cause Maximum update depth exceeded on drag over (#2204)"", function () {
+      })",795,840,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':842,'endLine':899}","it(""does not cause Maximum update depth exceeded on drag over (#2204)"", function () {
         // This test verifies the fix for issue #2204 where dragOver would cause
         // an infinite update loop because the sync useEffect would remove the
         // dropping item from layout, which would trigger another render.
@@ -618,8 +569,8 @@ file,type,line,method,methodStart,methodEnd,source
           call[0].some(item => item.i === ""__dropping-elem__"")
         );
         expect(hasDroppedItemInPublicLayout).toBe(false);
-      })",847,904,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':906,'endLine':1031}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",842,899,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':901,'endLine':1026}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -744,8 +695,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1197,'endLine':1302}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
+      })",901,1026,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1192,'endLine':1297}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
         // This test replicates the exact scenario from the bug report:
         // - User has controlled state where onLayoutChange updates their layout state
         // - Children are memoized and derived from that state
@@ -850,8 +801,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1197,1302,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1305,'endLine':1373}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
+      })",1192,1297,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1300,'endLine':1368}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
         // This test verifies that repeatedly dragging an item INTO and then OUT OF
         // the grid (without releasing) doesn't cause infinite loops.
         const consoleError = jest
@@ -919,8 +870,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1305,1373,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1834,'endLine':1893}","it(""does not produce NaN values in position during resize"", () => {
+      })",1300,1368,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1829,'endLine':1888}","it(""does not produce NaN values in position during resize"", () => {
         // Regression test: when node is falsy in onResizeHandler,
         // updatedSize must still have valid top/left values
         const onResize = jest.fn();
@@ -979,8 +930,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(finalStyle).not.toContain(""NaN"");
 
         expect(onResizeStop).toHaveBeenCalled();
-      })",1834,1893,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2024,'endLine':2080}","it(""constrains movement when isBounded is true"", function () {
+      })",1829,1888,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2019,'endLine':2075}","it(""constrains movement when isBounded is true"", function () {
         const onDragStart = jest.fn();
         const onDragStop = jest.fn();
         const { container } = render(
@@ -1036,8 +987,8 @@ file,type,line,method,methodStart,methodEnd,source
           expect(newItem.x).toBeGreaterThanOrEqual(0);
           expect(newItem.y).toBeGreaterThanOrEqual(0);
         }
-      })",2024,2080,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2462,'endLine':2516}","it(""does not start drag until mouse moves threshold pixels (v2 API)"", function () {
+      })",2019,2075,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2457,'endLine':2511}","it(""does not start drag until mouse moves threshold pixels (v2 API)"", function () {
       const onDragStart = jest.fn();
 
       const { container } = render(
@@ -1091,8 +1042,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2462,2516,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2518,'endLine':2572}","it(""uses default threshold of 3px when not specified (v2 API)"", function () {
+    })",2457,2511,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2513,'endLine':2567}","it(""uses default threshold of 3px when not specified (v2 API)"", function () {
       const onDragStart = jest.fn();
 
       const { container } = render(
@@ -1146,8 +1097,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2518,2572,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2579,'endLine':2681}","it(""does not cause item to jump on drag start with default positionStrategy"", function () {
+    })",2513,2567,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2574,'endLine':2676}","it(""does not cause item to jump on drag start with default positionStrategy"", function () {
       const onDrag = jest.fn();
       const onDragStart = jest.fn();
 
@@ -1249,7 +1200,7 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2579,2681,snuts
+    })",2574,2676,snuts
 /test/spec/lifecycle-test.js,IdenticalTestDescription,"{'startLine':166,'endLine':170}","it(""2x when string, not number"", () => {
           // $FlowIgnore
           render(<GridItem {...mockProps} minH={""apple""} />);
@@ -1264,28 +1215,26 @@ file,type,line,method,methodStart,methodEnd,source
       const { container } = render(<BasicLayout />);
       expect(container.querySelector("".react-grid-layout"")).toBeInTheDocument();
     })",261,264,snuts
-/test/spec/lifecycle-test.js,IdenticalTestDescription,"{'startLine':2085,'endLine':2088}","it(""Basic Render"", async function () {
+/test/spec/lifecycle-test.js,IdenticalTestDescription,"{'startLine':2080,'endLine':2083}","it(""Basic Render"", async function () {
       const { container } = render(<ShowcaseLayout />);
       expect(container.querySelector("".react-grid-layout"")).toBeInTheDocument();
-    })",2085,2088,snuts
-/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':430,'endLine':436}","it(""measureBeforeMount re-observes element after switching from placeholder to composed component"", async function () {
+    })",2080,2083,snuts
+/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':425,'endLine':431}","it(""should re-observe the component element after replacing the measurement placeholder"", async function () {
   const originalOffsetWidth = Object.getOwnPropertyDescriptor(
     HTMLElement.prototype,
     ""offsetWidth""
   );
 
   try {
-    // Arrange
     global.__resizeObservers__ = [];
+
     Object.defineProperty(HTMLElement.prototype, ""offsetWidth"", {
       configurable: true,
       get: () => 800
     });
 
-    // Act
     const { container } = render(<BasicLayout measureBeforeMount={true} />);
 
-    // Assert: The final component is rendered and observed by the ResizeObserver
     const gridLayout = container.querySelector("".react-grid-layout"");
     expect(gridLayout).toBeInTheDocument();
 
@@ -1297,17 +1246,14 @@ file,type,line,method,methodStart,methodEnd,source
     const observedElement = activeObservers[0].observedElements[0];
     expect(document.body.contains(observedElement)).toBe(true);
 
-    // Act: Trigger a resize to ensure the observer is functional
     act(() => {
       global.triggerResize(1000);
     });
 
-    // Assert: The component remains stable after the resize
     expect(
       container.querySelector("".react-grid-layout"")
     ).toBeInTheDocument();
   } finally {
-    // Cleanup
     if (originalOffsetWidth) {
       Object.defineProperty(
         HTMLElement.prototype,
@@ -1316,8 +1262,8 @@ file,type,line,method,methodStart,methodEnd,source
       );
     }
   }
-})",390,438,snuts
-/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':514,'endLine':520}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
+})",390,433,snuts
+/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':509,'endLine':515}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
         // Mock offsetWidth to return initial value
         const originalOffsetWidth = Object.getOwnPropertyDescriptor(
           HTMLElement.prototype,
@@ -1375,8 +1321,8 @@ file,type,line,method,methodStart,methodEnd,source
             originalOffsetWidth
           );
         }
-      })",463,521,snuts
-/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':1940,'endLine':1950}","it(""Does not allow elements to move when resizing with no free space"", () => {
+      })",458,516,snuts
+/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':1935,'endLine':1945}","it(""Does not allow elements to move when resizing with no free space"", () => {
           const onLayoutChange = jest.fn();
           const { container } = render(
             <PreventCollisionContainer
@@ -1407,8 +1353,8 @@ file,type,line,method,methodStart,methodEnd,source
               expect(item0.w).toBeLessThanOrEqual(1);
             }
           }
-        })",1920,1951,snuts
-/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':1947,'endLine':1949}","it(""Does not allow elements to move when resizing with no free space"", () => {
+        })",1915,1946,snuts
+/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':1942,'endLine':1944}","it(""Does not allow elements to move when resizing with no free space"", () => {
           const onLayoutChange = jest.fn();
           const { container } = render(
             <PreventCollisionContainer
@@ -1439,8 +1385,8 @@ file,type,line,method,methodStart,methodEnd,source
               expect(item0.w).toBeLessThanOrEqual(1);
             }
           }
-        })",1920,1951,snuts
-/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':2076,'endLine':2079}","it(""constrains movement when isBounded is true"", function () {
+        })",1915,1946,snuts
+/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':2071,'endLine':2074}","it(""constrains movement when isBounded is true"", function () {
         const onDragStart = jest.fn();
         const onDragStop = jest.fn();
         const { container } = render(
@@ -1496,7 +1442,7 @@ file,type,line,method,methodStart,methodEnd,source
           expect(newItem.x).toBeGreaterThanOrEqual(0);
           expect(newItem.y).toBeGreaterThanOrEqual(0);
         }
-      })",2024,2080,snuts
+      })",2019,2075,snuts
 /test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':120,'endLine':120}","beforeEach(() => {
           mockError = jest.spyOn(console, ""error"").mockImplementation(() => {});
         })",119,121,snuts
@@ -1509,7 +1455,7 @@ file,type,line,method,methodStart,methodEnd,source
 /test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':180,'endLine':180}","beforeEach(() => {
           mockError = jest.spyOn(console, ""error"").mockImplementation(() => {});
         })",179,181,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':918,'endLine':918}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':913,'endLine':913}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -1634,8 +1580,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1037,'endLine':1037}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
+      })",901,1026,snuts
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1032,'endLine':1032}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -1713,8 +1659,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1034,1112,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1118,'endLine':1118}","it(""does not cause Maximum update depth exceeded with ResponsiveReactGridLayout (#2210)"", function () {
+      })",1029,1107,snuts
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1113,'endLine':1113}","it(""does not cause Maximum update depth exceeded with ResponsiveReactGridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -1793,8 +1739,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1115,1194,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1205,'endLine':1205}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
+      })",1110,1189,snuts
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1200,'endLine':1200}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
         // This test replicates the exact scenario from the bug report:
         // - User has controlled state where onLayoutChange updates their layout state
         // - Children are memoized and derived from that state
@@ -1899,8 +1845,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1197,1302,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1310,'endLine':1310}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
+      })",1192,1297,snuts
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1305,'endLine':1305}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
         // This test verifies that repeatedly dragging an item INTO and then OUT OF
         // the grid (without releasing) doesn't cause infinite loops.
         const consoleError = jest
@@ -1968,8 +1914,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1305,1373,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':2141,'endLine':2141}","it(""renders without errors in StrictMode"", function () {
+      })",1300,1368,snuts
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':2136,'endLine':2136}","it(""renders without errors in StrictMode"", function () {
       const consoleError = jest
         .spyOn(console, ""error"")
         .mockImplementation(() => {});
@@ -2005,8 +1951,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(criticalErrors).toHaveLength(0);
 
       consoleError.mockRestore();
-    })",2138,2174,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':2179,'endLine':2179}","it(""handles concurrent updates without warnings"", function () {
+    })",2133,2169,snuts
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':2174,'endLine':2174}","it(""handles concurrent updates without warnings"", function () {
       const consoleError = jest
         .spyOn(console, ""error"")
         .mockImplementation(() => {});
@@ -2052,8 +1998,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(flushSyncWarnings).toHaveLength(0);
 
       consoleError.mockRestore();
-    })",2176,2222,snuts
-/test/spec/lifecycle-test.js,SubOptimalAssert,"{'startLine':837,'endLine':837}","it(""calls dropConfig.onDragOver when provided (v2 API) (#2212)"", function () {
+    })",2171,2217,snuts
+/test/spec/lifecycle-test.js,SubOptimalAssert,"{'startLine':832,'endLine':832}","it(""calls dropConfig.onDragOver when provided (v2 API) (#2212)"", function () {
         const onDragOver = jest.fn(() => ({ w: 3, h: 3 }));
         const onLayoutChange = jest.fn();
 
@@ -2098,8 +2044,8 @@ file,type,line,method,methodStart,methodEnd,source
           .flatMap(call => call[0])
           .find(item => item.i === ""__dropping-elem__"");
         expect(droppingItemInLayoutChange).toBeUndefined();
-      })",800,845,snuts
-/test/spec/lifecycle-test.js,SubOptimalAssert,"{'startLine':1009,'endLine':1009}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",795,840,snuts
+/test/spec/lifecycle-test.js,SubOptimalAssert,"{'startLine':1004,'endLine':1004}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -2224,8 +2170,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,snuts
-/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':463,'endLine':521}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
+      })",901,1026,snuts
+/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':458,'endLine':516}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
         // Mock offsetWidth to return initial value
         const originalOffsetWidth = Object.getOwnPropertyDescriptor(
           HTMLElement.prototype,
@@ -2283,8 +2229,8 @@ file,type,line,method,methodStart,methodEnd,source
             originalOffsetWidth
           );
         }
-      })",463,521,snuts
-/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':906,'endLine':1031}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",458,516,snuts
+/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':901,'endLine':1026}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -2409,8 +2355,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,snuts
-/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':1034,'endLine':1112}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
+      })",901,1026,snuts
+/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':1029,'endLine':1107}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -2488,8 +2434,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1034,1112,snuts
-/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':2579,'endLine':2681}","it(""does not cause item to jump on drag start with default positionStrategy"", function () {
+      })",1029,1107,snuts
+/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':2574,'endLine':2676}","it(""does not cause item to jump on drag start with default positionStrategy"", function () {
       const onDrag = jest.fn();
       const onDragStart = jest.fn();
 
@@ -2591,7 +2537,7 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2579,2681,snuts
+    })",2574,2676,snuts
 /test/spec/fast-horizontal-compactor-test.js,TranscriptingTest,"{'startLine':315,'endLine':337}","it(""compares with static items (200 items, 20 static)"", () => {
       const layout = generateRandomLayout(200, 12, 20);
 
@@ -3602,24 +3548,22 @@ file,type,line,method,methodStart,methodEnd,source
       { i: ""2"", x: 1, y: 2, w: 1, h: 1 }
     ]);
   })",148,153,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 430, 'column': 4, 'index': 13597}","it(""measureBeforeMount re-observes element after switching from placeholder to composed component"", async function () {
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 425, 'column': 4, 'index': 13338}","it(""should re-observe the component element after replacing the measurement placeholder"", async function () {
   const originalOffsetWidth = Object.getOwnPropertyDescriptor(
     HTMLElement.prototype,
     ""offsetWidth""
   );
 
   try {
-    // Arrange
     global.__resizeObservers__ = [];
+
     Object.defineProperty(HTMLElement.prototype, ""offsetWidth"", {
       configurable: true,
       get: () => 800
     });
 
-    // Act
     const { container } = render(<BasicLayout measureBeforeMount={true} />);
 
-    // Assert: The final component is rendered and observed by the ResizeObserver
     const gridLayout = container.querySelector("".react-grid-layout"");
     expect(gridLayout).toBeInTheDocument();
 
@@ -3631,17 +3575,14 @@ file,type,line,method,methodStart,methodEnd,source
     const observedElement = activeObservers[0].observedElements[0];
     expect(document.body.contains(observedElement)).toBe(true);
 
-    // Act: Trigger a resize to ensure the observer is functional
     act(() => {
       global.triggerResize(1000);
     });
 
-    // Assert: The component remains stable after the resize
     expect(
       container.querySelector("".react-grid-layout"")
     ).toBeInTheDocument();
   } finally {
-    // Cleanup
     if (originalOffsetWidth) {
       Object.defineProperty(
         HTMLElement.prototype,
@@ -3650,8 +3591,8 @@ file,type,line,method,methodStart,methodEnd,source
       );
     }
   }
-})",390,438,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 514, 'column': 8, 'index': 16493}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
+})",390,433,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 509, 'column': 8, 'index': 16234}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
         // Mock offsetWidth to return initial value
         const originalOffsetWidth = Object.getOwnPropertyDescriptor(
           HTMLElement.prototype,
@@ -3709,8 +3650,8 @@ file,type,line,method,methodStart,methodEnd,source
             originalOffsetWidth
           );
         }
-      })",463,521,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 983, 'column': 8, 'index': 32594}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",458,516,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 978, 'column': 8, 'index': 32335}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -3835,8 +3776,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1082, 'column': 8, 'index': 36082}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
+      })",901,1026,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1077, 'column': 8, 'index': 35823}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -3914,8 +3855,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1034,1112,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1164, 'column': 8, 'index': 38642}","it(""does not cause Maximum update depth exceeded with ResponsiveReactGridLayout (#2210)"", function () {
+      })",1029,1107,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1159, 'column': 8, 'index': 38383}","it(""does not cause Maximum update depth exceeded with ResponsiveReactGridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -3994,8 +3935,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1115,1194,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1271, 'column': 8, 'index': 42214}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
+      })",1110,1189,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1266, 'column': 8, 'index': 41955}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
         // This test replicates the exact scenario from the bug report:
         // - User has controlled state where onLayoutChange updates their layout state
         // - Children are memoized and derived from that state
@@ -4100,8 +4041,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1197,1302,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1333, 'column': 8, 'index': 44344}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
+      })",1192,1297,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1328, 'column': 8, 'index': 44085}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
         // This test verifies that repeatedly dragging an item INTO and then OUT OF
         // the grid (without releasing) doesn't cause infinite loops.
         const consoleError = jest
@@ -4169,8 +4110,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1305,1373,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1541, 'column': 53, 'index': 50209}","it(""sets up resizable handles"", () => {
+      })",1300,1368,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1536, 'column': 53, 'index': 49950}","it(""sets up resizable handles"", () => {
         const { container } = render(<ResizableLayout />);
 
         // Ensure every handle is present on the target element
@@ -4180,8 +4121,8 @@ file,type,line,method,methodStart,methodEnd,source
           );
           expect(handles.length).toBeGreaterThan(0);
         });
-      })",1537,1547,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1940, 'column': 10, 'index': 61784}","it(""Does not allow elements to move when resizing with no free space"", () => {
+      })",1532,1542,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1935, 'column': 10, 'index': 61525}","it(""Does not allow elements to move when resizing with no free space"", () => {
           const onLayoutChange = jest.fn();
           const { container } = render(
             <PreventCollisionContainer
@@ -4212,8 +4153,8 @@ file,type,line,method,methodStart,methodEnd,source
               expect(item0.w).toBeLessThanOrEqual(1);
             }
           }
-        })",1920,1951,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1947, 'column': 12, 'index': 62106}","it(""Does not allow elements to move when resizing with no free space"", () => {
+        })",1915,1946,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1942, 'column': 12, 'index': 61847}","it(""Does not allow elements to move when resizing with no free space"", () => {
           const onLayoutChange = jest.fn();
           const { container } = render(
             <PreventCollisionContainer
@@ -4244,8 +4185,8 @@ file,type,line,method,methodStart,methodEnd,source
               expect(item0.w).toBeLessThanOrEqual(1);
             }
           }
-        })",1920,1951,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 2076, 'column': 8, 'index': 66125}","it(""constrains movement when isBounded is true"", function () {
+        })",1915,1946,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 2071, 'column': 8, 'index': 65866}","it(""constrains movement when isBounded is true"", function () {
         const onDragStart = jest.fn();
         const onDragStop = jest.fn();
         const { container } = render(
@@ -4301,8 +4242,8 @@ file,type,line,method,methodStart,methodEnd,source
           expect(newItem.x).toBeGreaterThanOrEqual(0);
           expect(newItem.y).toBeGreaterThanOrEqual(0);
         }
-      })",2024,2080,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 2196, 'column': 8, 'index': 69453}","it(""handles concurrent updates without warnings"", function () {
+      })",2019,2075,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 2191, 'column': 8, 'index': 69194}","it(""handles concurrent updates without warnings"", function () {
       const consoleError = jest
         .spyOn(console, ""error"")
         .mockImplementation(() => {});
@@ -4348,8 +4289,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(flushSyncWarnings).toHaveLength(0);
 
       consoleError.mockRestore();
-    })",2176,2222,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 482, 'column': 8, 'index': 15218}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
+    })",2171,2217,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 477, 'column': 8, 'index': 14959}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
         // Mock offsetWidth to return initial value
         const originalOffsetWidth = Object.getOwnPropertyDescriptor(
           HTMLElement.prototype,
@@ -4407,8 +4348,8 @@ file,type,line,method,methodStart,methodEnd,source
             originalOffsetWidth
           );
         }
-      })",463,521,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 503, 'column': 8, 'index': 15944}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
+      })",458,516,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 498, 'column': 8, 'index': 15685}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
         // Mock offsetWidth to return initial value
         const originalOffsetWidth = Object.getOwnPropertyDescriptor(
           HTMLElement.prototype,
@@ -4466,8 +4407,8 @@ file,type,line,method,methodStart,methodEnd,source
             originalOffsetWidth
           );
         }
-      })",463,521,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 967, 'column': 8, 'index': 31868}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",458,516,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 962, 'column': 8, 'index': 31609}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -4592,8 +4533,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 977, 'column': 8, 'index': 32351}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",901,1026,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 972, 'column': 8, 'index': 32092}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -4718,8 +4659,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 977, 'column': 8, 'index': 32351}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",901,1026,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 972, 'column': 8, 'index': 32092}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -4844,8 +4785,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 1009, 'column': 8, 'index': 33478}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",901,1026,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 1004, 'column': 8, 'index': 33219}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -4970,8 +4911,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 1017, 'column': 8, 'index': 33850}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",901,1026,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 1012, 'column': 8, 'index': 33591}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -5096,8 +5037,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 1017, 'column': 8, 'index': 33850}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",901,1026,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 1012, 'column': 8, 'index': 33591}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -5222,8 +5163,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2494, 'column': 6, 'index': 78106}","it(""does not start drag until mouse moves threshold pixels (v2 API)"", function () {
+      })",901,1026,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2489, 'column': 6, 'index': 77847}","it(""does not start drag until mouse moves threshold pixels (v2 API)"", function () {
       const onDragStart = jest.fn();
 
       const { container } = render(
@@ -5277,8 +5218,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2462,2516,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2502, 'column': 6, 'index': 78330}","it(""does not start drag until mouse moves threshold pixels (v2 API)"", function () {
+    })",2457,2511,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2497, 'column': 6, 'index': 78071}","it(""does not start drag until mouse moves threshold pixels (v2 API)"", function () {
       const onDragStart = jest.fn();
 
       const { container } = render(
@@ -5332,8 +5273,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2462,2516,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2550, 'column': 6, 'index': 79630}","it(""uses default threshold of 3px when not specified (v2 API)"", function () {
+    })",2457,2511,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2545, 'column': 6, 'index': 79371}","it(""uses default threshold of 3px when not specified (v2 API)"", function () {
       const onDragStart = jest.fn();
 
       const { container } = render(
@@ -5387,8 +5328,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2518,2572,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2558, 'column': 6, 'index': 79866}","it(""uses default threshold of 3px when not specified (v2 API)"", function () {
+    })",2513,2567,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2553, 'column': 6, 'index': 79607}","it(""uses default threshold of 3px when not specified (v2 API)"", function () {
       const onDragStart = jest.fn();
 
       const { container } = render(
@@ -5442,25 +5383,23 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2518,2572,steel
-/test/spec/lifecycle-test.js,Exception Handling,"{'line': 396, 'column': 2, 'index': 12517}","it(""measureBeforeMount re-observes element after switching from placeholder to composed component"", async function () {
+    })",2513,2567,steel
+/test/spec/lifecycle-test.js,Exception Handling,"{'line': 396, 'column': 2, 'index': 12507}","it(""should re-observe the component element after replacing the measurement placeholder"", async function () {
   const originalOffsetWidth = Object.getOwnPropertyDescriptor(
     HTMLElement.prototype,
     ""offsetWidth""
   );
 
   try {
-    // Arrange
     global.__resizeObservers__ = [];
+
     Object.defineProperty(HTMLElement.prototype, ""offsetWidth"", {
       configurable: true,
       get: () => 800
     });
 
-    // Act
     const { container } = render(<BasicLayout measureBeforeMount={true} />);
 
-    // Assert: The final component is rendered and observed by the ResizeObserver
     const gridLayout = container.querySelector("".react-grid-layout"");
     expect(gridLayout).toBeInTheDocument();
 
@@ -5472,17 +5411,14 @@ file,type,line,method,methodStart,methodEnd,source
     const observedElement = activeObservers[0].observedElements[0];
     expect(document.body.contains(observedElement)).toBe(true);
 
-    // Act: Trigger a resize to ensure the observer is functional
     act(() => {
       global.triggerResize(1000);
     });
 
-    // Assert: The component remains stable after the resize
     expect(
       container.querySelector("".react-grid-layout"")
     ).toBeInTheDocument();
   } finally {
-    // Cleanup
     if (originalOffsetWidth) {
       Object.defineProperty(
         HTMLElement.prototype,
@@ -5491,7 +5427,7 @@ file,type,line,method,methodStart,methodEnd,source
       );
     }
   }
-})",390,438,steel
+})",390,433,steel
 /test/spec/lifecycle-test.js,Ignored Test,"{'line': 116, 'column': 13, 'index': 3535}","describe.skip(""optional min/max dimension props log err"", () => {
       describe(""minW"", () => {
         let mockError;
@@ -5739,24 +5675,22 @@ file,type,line,method,methodStart,methodEnd,source
           expect(style).toContain(""transform"");
         });
       })",361,380,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 414, 'column': 51, 'index': 13149}","it(""measureBeforeMount re-observes element after switching from placeholder to composed component"", async function () {
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 412, 'column': 51, 'index': 13032}","it(""should re-observe the component element after replacing the measurement placeholder"", async function () {
   const originalOffsetWidth = Object.getOwnPropertyDescriptor(
     HTMLElement.prototype,
     ""offsetWidth""
   );
 
   try {
-    // Arrange
     global.__resizeObservers__ = [];
+
     Object.defineProperty(HTMLElement.prototype, ""offsetWidth"", {
       configurable: true,
       get: () => 800
     });
 
-    // Act
     const { container } = render(<BasicLayout measureBeforeMount={true} />);
 
-    // Assert: The final component is rendered and observed by the ResizeObserver
     const gridLayout = container.querySelector("".react-grid-layout"");
     expect(gridLayout).toBeInTheDocument();
 
@@ -5768,17 +5702,14 @@ file,type,line,method,methodStart,methodEnd,source
     const observedElement = activeObservers[0].observedElements[0];
     expect(document.body.contains(observedElement)).toBe(true);
 
-    // Act: Trigger a resize to ensure the observer is functional
     act(() => {
       global.triggerResize(1000);
     });
 
-    // Assert: The component remains stable after the resize
     expect(
       container.querySelector("".react-grid-layout"")
     ).toBeInTheDocument();
   } finally {
-    // Cleanup
     if (originalOffsetWidth) {
       Object.defineProperty(
         HTMLElement.prototype,
@@ -5787,8 +5718,8 @@ file,type,line,method,methodStart,methodEnd,source
       );
     }
   }
-})",390,438,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 837, 'column': 75, 'index': 26822}","it(""calls dropConfig.onDragOver when provided (v2 API) (#2212)"", function () {
+})",390,433,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 832, 'column': 75, 'index': 26563}","it(""calls dropConfig.onDragOver when provided (v2 API) (#2212)"", function () {
         const onDragOver = jest.fn(() => ({ w: 3, h: 3 }));
         const onLayoutChange = jest.fn();
 
@@ -5833,8 +5764,8 @@ file,type,line,method,methodStart,methodEnd,source
           .flatMap(call => call[0])
           .find(item => item.i === ""__dropping-elem__"");
         expect(droppingItemInLayoutChange).toBeUndefined();
-      })",800,845,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 895, 'column': 33, 'index': 29139}","it(""does not cause Maximum update depth exceeded on drag over (#2204)"", function () {
+      })",795,840,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 890, 'column': 33, 'index': 28880}","it(""does not cause Maximum update depth exceeded on drag over (#2204)"", function () {
         // This test verifies the fix for issue #2204 where dragOver would cause
         // an infinite update loop because the sync useEffect would remove the
         // dropping item from layout, which would trigger another render.
@@ -5891,8 +5822,8 @@ file,type,line,method,methodStart,methodEnd,source
           call[0].some(item => item.i === ""__dropping-elem__"")
         );
         expect(hasDroppedItemInPublicLayout).toBe(false);
-      })",847,904,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 969, 'column': 33, 'index': 31973}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",842,899,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 964, 'column': 33, 'index': 31714}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -6017,8 +5948,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1009, 'column': 75, 'index': 33545}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",901,1026,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1004, 'column': 75, 'index': 33286}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -6143,8 +6074,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1022, 'column': 44, 'index': 34166}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",901,1026,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1017, 'column': 44, 'index': 33907}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -6269,8 +6200,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1028, 'column': 44, 'index': 34420}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+      })",901,1026,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1023, 'column': 44, 'index': 34161}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
         // This test verifies the fix for issue #2210 where dragging an item INTO
         // the grid and then moving it OUTSIDE without releasing the mouse button
         // would cause an infinite update loop.
@@ -6395,8 +6326,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",906,1031,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1109, 'column': 44, 'index': 36934}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
+      })",901,1026,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1104, 'column': 44, 'index': 36675}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -6474,8 +6405,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1034,1112,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1191, 'column': 44, 'index': 39494}","it(""does not cause Maximum update depth exceeded with ResponsiveReactGridLayout (#2210)"", function () {
+      })",1029,1107,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1186, 'column': 44, 'index': 39235}","it(""does not cause Maximum update depth exceeded with ResponsiveReactGridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -6554,8 +6485,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1115,1194,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1299, 'column': 44, 'index': 43191}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
+      })",1110,1189,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1294, 'column': 44, 'index': 42932}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
         // This test replicates the exact scenario from the bug report:
         // - User has controlled state where onLayoutChange updates their layout state
         // - Children are memoized and derived from that state
@@ -6660,8 +6591,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1197,1302,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1370, 'column': 44, 'index': 45529}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
+      })",1192,1297,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1365, 'column': 44, 'index': 45270}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
         // This test verifies that repeatedly dragging an item INTO and then OUT OF
         // the grid (without releasing) doesn't cause infinite loops.
         const consoleError = jest
@@ -6729,8 +6660,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1305,1373,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1545, 'column': 49, 'index': 50393}","it(""sets up resizable handles"", () => {
+      })",1300,1368,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1540, 'column': 49, 'index': 50134}","it(""sets up resizable handles"", () => {
         const { container } = render(<ResizableLayout />);
 
         // Ensure every handle is present on the target element
@@ -6740,8 +6671,8 @@ file,type,line,method,methodStart,methodEnd,source
           );
           expect(handles.length).toBeGreaterThan(0);
         });
-      })",1537,1547,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1948, 'column': 50, 'index': 62169}","it(""Does not allow elements to move when resizing with no free space"", () => {
+      })",1532,1542,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1943, 'column': 50, 'index': 61910}","it(""Does not allow elements to move when resizing with no free space"", () => {
           const onLayoutChange = jest.fn();
           const { container } = render(
             <PreventCollisionContainer
@@ -6772,8 +6703,8 @@ file,type,line,method,methodStart,methodEnd,source
               expect(item0.w).toBeLessThanOrEqual(1);
             }
           }
-        })",1920,1951,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2077, 'column': 51, 'index': 66191}","it(""constrains movement when isBounded is true"", function () {
+        })",1915,1946,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2072, 'column': 51, 'index': 65932}","it(""constrains movement when isBounded is true"", function () {
         const onDragStart = jest.fn();
         const onDragStop = jest.fn();
         const { container } = render(
@@ -6829,8 +6760,8 @@ file,type,line,method,methodStart,methodEnd,source
           expect(newItem.x).toBeGreaterThanOrEqual(0);
           expect(newItem.y).toBeGreaterThanOrEqual(0);
         }
-      })",2024,2080,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2078, 'column': 51, 'index': 66246}","it(""constrains movement when isBounded is true"", function () {
+      })",2019,2075,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2073, 'column': 51, 'index': 65987}","it(""constrains movement when isBounded is true"", function () {
         const onDragStart = jest.fn();
         const onDragStop = jest.fn();
         const { container } = render(
@@ -6886,8 +6817,8 @@ file,type,line,method,methodStart,methodEnd,source
           expect(newItem.x).toBeGreaterThanOrEqual(0);
           expect(newItem.y).toBeGreaterThanOrEqual(0);
         }
-      })",2024,2080,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2171, 'column': 42, 'index': 68836}","it(""renders without errors in StrictMode"", function () {
+      })",2019,2075,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2166, 'column': 42, 'index': 68577}","it(""renders without errors in StrictMode"", function () {
       const consoleError = jest
         .spyOn(console, ""error"")
         .mockImplementation(() => {});
@@ -6923,8 +6854,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(criticalErrors).toHaveLength(0);
 
       consoleError.mockRestore();
-    })",2138,2174,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2219, 'column': 45, 'index': 70137}","it(""handles concurrent updates without warnings"", function () {
+    })",2133,2169,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2214, 'column': 45, 'index': 69878}","it(""handles concurrent updates without warnings"", function () {
       const consoleError = jest
         .spyOn(console, ""error"")
         .mockImplementation(() => {});
@@ -6970,8 +6901,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(flushSyncWarnings).toHaveLength(0);
 
       consoleError.mockRestore();
-    })",2176,2222,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2247, 'column': 37, 'index': 70925}","it(""works with multiple grid items in StrictMode"", function () {
+    })",2171,2217,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2242, 'column': 37, 'index': 70666}","it(""works with multiple grid items in StrictMode"", function () {
       const { container } = render(
         <StrictMode>
           <ReactGridLayout
@@ -6995,8 +6926,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       const gridItems = container.querySelectorAll("".react-grid-item"");
       expect(gridItems).toHaveLength(3);
-    })",2224,2248,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2272, 'column': 37, 'index': 71638}","it(""positions items correctly based on data-grid"", function () {
+    })",2219,2243,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2267, 'column': 37, 'index': 71379}","it(""positions items correctly based on data-grid"", function () {
       const { container } = render(
         <ReactGridLayout
           className=""layout""
@@ -7023,8 +6954,8 @@ file,type,line,method,methodStart,methodEnd,source
         const style = item.getAttribute(""style"");
         expect(style).toContain(""transform"");
       });
-    })",2252,2279,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2667, 'column': 37, 'index': 84016}","it(""does not cause item to jump on drag start with default positionStrategy"", function () {
+    })",2247,2274,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2662, 'column': 37, 'index': 83757}","it(""does not cause item to jump on drag start with default positionStrategy"", function () {
       const onDrag = jest.fn();
       const onDragStart = jest.fn();
 
@@ -7126,7 +7057,7 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2579,2681,steel
+    })",2574,2676,steel
 /test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 23, 'column': 2, 'index': 615}",Unknown,,,steel
 /test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 40, 'column': 2, 'index': 1069}",Unknown,,,steel
 /test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 55, 'column': 2, 'index': 1370}",Unknown,,,steel

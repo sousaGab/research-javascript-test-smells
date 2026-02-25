@@ -37,7 +37,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(series[0].data.length).toBe(maxPoints + 2);
       expect(series.currentSize).toBe(maxPoints);
     })",60,81,snuts
-/tests/Rickshaw.Graph.test.js,VerboseStatement,"{'startLine':97,'endLine':153}","test('handles custom d3 scales', () => {
+/tests/Rickshaw.Graph.test.js,VerboseStatement,"{'startLine':97,'endLine':158}","test('handles custom d3 scales', () => {
   const element = document.createElement('div');
   document.body.appendChild(element);
 
@@ -53,47 +53,52 @@ file,type,line,method,methodStart,methodEnd,source
     }]
   }];
 
-  const customXScale = d3.time.scale();
+  const scale = d3.time.scale();
   const graph = new Rickshaw.Graph({
     element: element,
     width: 960,
     height: 500,
-    xScale: customXScale,
+    xScale: scale,
     yScale: d3.scale.sqrt(),
     series: series
   });
 
   graph.render();
 
-  new Rickshaw.Graph.Axis.X({
+  const xAxis = new Rickshaw.Graph.Axis.X({
     graph: graph,
     tickFormat: graph.x.tickFormat()
-  }).render();
+  });
+  xAxis.render();
 
-  new Rickshaw.Graph.Axis.Y({
+  const yAxis = new Rickshaw.Graph.Axis.Y({
     graph: graph
-  }).render();
+  });
+  yAxis.render();
 
+  // Check x-axis ticks
   expect(graph.x.ticks()[0]).toBeInstanceOf(Date);
+  const xTicks = element.querySelectorAll('.x_ticks_d3 text');
+  expect(xTicks[0].innerHTML).toBe('Sep 29');
+  expect(xTicks[1].innerHTML).toBe('Oct 06');
+  expect(xTicks[8].innerHTML).toBe('Nov 24');
 
-  const xTickElements = element.querySelectorAll('.x_ticks_d3 text');
-  expect(xTickElements[0].innerHTML).toBe('Sep 29');
-  expect(xTickElements[1].innerHTML).toBe('Oct 06');
-  expect(xTickElements[8].innerHTML).toBe('Nov 24');
-
-  const yTickElements = element.querySelectorAll('.y_ticks g');
-  const yTickTransforms = Array.from(yTickElements, el => el.getAttribute('transform'));
+  // Check y-axis ticks
+  const yTicks = element.querySelectorAll('.y_ticks g');
+  const yTickTransforms = Array.from(yTicks).map(el => el.getAttribute('transform'));
   expect(yTickTransforms.slice(0, 3)).toEqual([
     'translate(0,500)',
     'translate(0,275.24400874015976)',
     'translate(0,182.14702893572516)'
   ]);
 
-  customXScale.range([0, 960]);
-  expect(customXScale.range()).toEqual(graph.x.range());
-  customXScale.range([0, 1]);
-  expect(customXScale.range()).not.toEqual(graph.x.range());
-})",97,153,snuts
+
+  // Check scale independence
+  scale.range([0, 960]);
+  expect(scale.range()).toEqual(graph.x.range());
+  scale.range([0, 1]);
+  expect(scale.range()).not.toEqual(graph.x.range());
+})",97,158,snuts
 /tests/Rickshaw.Graph.Renderer.Scatterplot.test.js,OvercommentedTest,"{'startLine':41,'endLine':85}","test('should set series opacity correctly', () => {
     const element = document.createElement('div');
     
@@ -1777,7 +1782,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(series.length).toBeGreaterThan(0);
       expect(series[0]).toBeDefined();
     })",40,56,steel
-/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 150, 'column': 2, 'index': 3615}","test('handles custom d3 scales', () => {
+/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 155, 'column': 2, 'index': 3680}","test('handles custom d3 scales', () => {
   const element = document.createElement('div');
   document.body.appendChild(element);
 
@@ -1793,48 +1798,53 @@ file,type,line,method,methodStart,methodEnd,source
     }]
   }];
 
-  const customXScale = d3.time.scale();
+  const scale = d3.time.scale();
   const graph = new Rickshaw.Graph({
     element: element,
     width: 960,
     height: 500,
-    xScale: customXScale,
+    xScale: scale,
     yScale: d3.scale.sqrt(),
     series: series
   });
 
   graph.render();
 
-  new Rickshaw.Graph.Axis.X({
+  const xAxis = new Rickshaw.Graph.Axis.X({
     graph: graph,
     tickFormat: graph.x.tickFormat()
-  }).render();
+  });
+  xAxis.render();
 
-  new Rickshaw.Graph.Axis.Y({
+  const yAxis = new Rickshaw.Graph.Axis.Y({
     graph: graph
-  }).render();
+  });
+  yAxis.render();
 
+  // Check x-axis ticks
   expect(graph.x.ticks()[0]).toBeInstanceOf(Date);
+  const xTicks = element.querySelectorAll('.x_ticks_d3 text');
+  expect(xTicks[0].innerHTML).toBe('Sep 29');
+  expect(xTicks[1].innerHTML).toBe('Oct 06');
+  expect(xTicks[8].innerHTML).toBe('Nov 24');
 
-  const xTickElements = element.querySelectorAll('.x_ticks_d3 text');
-  expect(xTickElements[0].innerHTML).toBe('Sep 29');
-  expect(xTickElements[1].innerHTML).toBe('Oct 06');
-  expect(xTickElements[8].innerHTML).toBe('Nov 24');
-
-  const yTickElements = element.querySelectorAll('.y_ticks g');
-  const yTickTransforms = Array.from(yTickElements, el => el.getAttribute('transform'));
+  // Check y-axis ticks
+  const yTicks = element.querySelectorAll('.y_ticks g');
+  const yTickTransforms = Array.from(yTicks).map(el => el.getAttribute('transform'));
   expect(yTickTransforms.slice(0, 3)).toEqual([
     'translate(0,500)',
     'translate(0,275.24400874015976)',
     'translate(0,182.14702893572516)'
   ]);
 
-  customXScale.range([0, 960]);
-  expect(customXScale.range()).toEqual(graph.x.range());
-  customXScale.range([0, 1]);
-  expect(customXScale.range()).not.toEqual(graph.x.range());
-})",97,153,steel
-/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 152, 'column': 2, 'index': 3702}","test('handles custom d3 scales', () => {
+
+  // Check scale independence
+  scale.range([0, 960]);
+  expect(scale.range()).toEqual(graph.x.range());
+  scale.range([0, 1]);
+  expect(scale.range()).not.toEqual(graph.x.range());
+})",97,158,steel
+/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 157, 'column': 2, 'index': 3753}","test('handles custom d3 scales', () => {
   const element = document.createElement('div');
   document.body.appendChild(element);
 
@@ -1850,48 +1860,53 @@ file,type,line,method,methodStart,methodEnd,source
     }]
   }];
 
-  const customXScale = d3.time.scale();
+  const scale = d3.time.scale();
   const graph = new Rickshaw.Graph({
     element: element,
     width: 960,
     height: 500,
-    xScale: customXScale,
+    xScale: scale,
     yScale: d3.scale.sqrt(),
     series: series
   });
 
   graph.render();
 
-  new Rickshaw.Graph.Axis.X({
+  const xAxis = new Rickshaw.Graph.Axis.X({
     graph: graph,
     tickFormat: graph.x.tickFormat()
-  }).render();
+  });
+  xAxis.render();
 
-  new Rickshaw.Graph.Axis.Y({
+  const yAxis = new Rickshaw.Graph.Axis.Y({
     graph: graph
-  }).render();
+  });
+  yAxis.render();
 
+  // Check x-axis ticks
   expect(graph.x.ticks()[0]).toBeInstanceOf(Date);
+  const xTicks = element.querySelectorAll('.x_ticks_d3 text');
+  expect(xTicks[0].innerHTML).toBe('Sep 29');
+  expect(xTicks[1].innerHTML).toBe('Oct 06');
+  expect(xTicks[8].innerHTML).toBe('Nov 24');
 
-  const xTickElements = element.querySelectorAll('.x_ticks_d3 text');
-  expect(xTickElements[0].innerHTML).toBe('Sep 29');
-  expect(xTickElements[1].innerHTML).toBe('Oct 06');
-  expect(xTickElements[8].innerHTML).toBe('Nov 24');
-
-  const yTickElements = element.querySelectorAll('.y_ticks g');
-  const yTickTransforms = Array.from(yTickElements, el => el.getAttribute('transform'));
+  // Check y-axis ticks
+  const yTicks = element.querySelectorAll('.y_ticks g');
+  const yTickTransforms = Array.from(yTicks).map(el => el.getAttribute('transform'));
   expect(yTickTransforms.slice(0, 3)).toEqual([
     'translate(0,500)',
     'translate(0,275.24400874015976)',
     'translate(0,182.14702893572516)'
   ]);
 
-  customXScale.range([0, 960]);
-  expect(customXScale.range()).toEqual(graph.x.range());
-  customXScale.range([0, 1]);
-  expect(customXScale.range()).not.toEqual(graph.x.range());
-})",97,153,steel
-/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 261, 'column': 6, 'index': 6165}","test('handles padding configuration', () => {
+
+  // Check scale independence
+  scale.range([0, 960]);
+  expect(scale.range()).toEqual(graph.x.range());
+  scale.range([0, 1]);
+  expect(scale.range()).not.toEqual(graph.x.range());
+})",97,158,steel
+/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 266, 'column': 6, 'index': 6209}","test('handles padding configuration', () => {
       const element = document.createElement('div');
       document.body.appendChild(element);
 
@@ -1921,8 +1936,8 @@ file,type,line,method,methodStart,methodEnd,source
         top: 0.25
       });
       expect(graph.padding).toBeUndefined();
-    })",248,278,steel
-/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 267, 'column': 6, 'index': 6296}","test('handles padding configuration', () => {
+    })",253,283,steel
+/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 272, 'column': 6, 'index': 6340}","test('handles padding configuration', () => {
       const element = document.createElement('div');
       document.body.appendChild(element);
 
@@ -1952,8 +1967,8 @@ file,type,line,method,methodStart,methodEnd,source
         top: 0.25
       });
       expect(graph.padding).toBeUndefined();
-    })",248,278,steel
-/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 267, 'column': 6, 'index': 6296}","test('handles padding configuration', () => {
+    })",253,283,steel
+/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 272, 'column': 6, 'index': 6340}","test('handles padding configuration', () => {
       const element = document.createElement('div');
       document.body.appendChild(element);
 
@@ -1983,8 +1998,8 @@ file,type,line,method,methodStart,methodEnd,source
         top: 0.25
       });
       expect(graph.padding).toBeUndefined();
-    })",248,278,steel
-/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 271, 'column': 6, 'index': 6433}","test('handles padding configuration', () => {
+    })",253,283,steel
+/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 276, 'column': 6, 'index': 6477}","test('handles padding configuration', () => {
       const element = document.createElement('div');
       document.body.appendChild(element);
 
@@ -2014,8 +2029,8 @@ file,type,line,method,methodStart,methodEnd,source
         top: 0.25
       });
       expect(graph.padding).toBeUndefined();
-    })",248,278,steel
-/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 277, 'column': 6, 'index': 6571}","test('handles padding configuration', () => {
+    })",253,283,steel
+/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 282, 'column': 6, 'index': 6615}","test('handles padding configuration', () => {
       const element = document.createElement('div');
       document.body.appendChild(element);
 
@@ -2045,8 +2060,8 @@ file,type,line,method,methodStart,methodEnd,source
         top: 0.25
       });
       expect(graph.padding).toBeUndefined();
-    })",248,278,steel
-/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 277, 'column': 6, 'index': 6571}","test('handles padding configuration', () => {
+    })",253,283,steel
+/tests/Rickshaw.Graph.test.js,Duplicate Assert,"{'line': 282, 'column': 6, 'index': 6615}","test('handles padding configuration', () => {
       const element = document.createElement('div');
       document.body.appendChild(element);
 
@@ -2076,8 +2091,8 @@ file,type,line,method,methodStart,methodEnd,source
         top: 0.25
       });
       expect(graph.padding).toBeUndefined();
-    })",248,278,steel
-/tests/Rickshaw.Graph.test.js,Magic Number,"{'line': 317, 'column': 31, 'index': 7762}","test('handles dimension changes', () => {
+    })",253,283,steel
+/tests/Rickshaw.Graph.test.js,Magic Number,"{'line': 322, 'column': 31, 'index': 7806}","test('handles dimension changes', () => {
       const element = document.createElement('div');
       document.body.appendChild(element);
 
@@ -2096,8 +2111,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(graph.height).toBe(100);
       expect(graph.vis[0][0].getAttribute('width')).toBe('900');
       expect(graph.vis[0][0].getAttribute('height')).toBe('100');
-    })",302,321,steel
-/tests/Rickshaw.Graph.test.js,Magic Number,"{'line': 318, 'column': 32, 'index': 7800}","test('handles dimension changes', () => {
+    })",307,326,steel
+/tests/Rickshaw.Graph.test.js,Magic Number,"{'line': 323, 'column': 32, 'index': 7844}","test('handles dimension changes', () => {
       const element = document.createElement('div');
       document.body.appendChild(element);
 
@@ -2116,8 +2131,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(graph.height).toBe(100);
       expect(graph.vis[0][0].getAttribute('width')).toBe('900');
       expect(graph.vis[0][0].getAttribute('height')).toBe('100');
-    })",302,321,steel
-/tests/Rickshaw.Graph.test.js,Magic Number,"{'line': 338, 'column': 45, 'index': 8388}","test('updates series data', () => {
+    })",307,326,steel
+/tests/Rickshaw.Graph.test.js,Magic Number,"{'line': 343, 'column': 45, 'index': 8432}","test('updates series data', () => {
       const element = document.createElement('div');
       document.body.appendChild(element);
 
@@ -2140,8 +2155,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(graph.series[0].data[0]).toBeUndefined();
       expect(graph.series[1].data[0].x).toBe(2);
-    })",325,348,steel
-/tests/Rickshaw.Graph.test.js,Magic Number,"{'line': 347, 'column': 45, 'index': 8590}","test('updates series data', () => {
+    })",330,353,steel
+/tests/Rickshaw.Graph.test.js,Magic Number,"{'line': 352, 'column': 45, 'index': 8634}","test('updates series data', () => {
       const element = document.createElement('div');
       document.body.appendChild(element);
 
@@ -2164,7 +2179,7 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(graph.series[0].data[0]).toBeUndefined();
       expect(graph.series[1].data[0].x).toBe(2);
-    })",325,348,steel
+    })",330,353,steel
 /tests/Rickshaw.Graph.test.js,Mystery Guest,"{'column': 23, 'line': 40}","test('renders SVG matching reference', () => {
     const element = document.createElement('div');
     document.body.appendChild(element);

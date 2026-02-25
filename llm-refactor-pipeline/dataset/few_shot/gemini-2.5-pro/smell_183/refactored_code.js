@@ -5,9 +5,7 @@ test('when specify unknown option with program and action handler then error', (
       .argument('[file]')
       .action(() => {});
 
-    expect(() => {
-      program.parse(['node', 'test', '--NONSENSE']);
-    }).toThrow(expect.objectContaining({
+    expect(() => program.parse(['node', 'test', '--NONSENSE'])).toThrow({
       code: 'commander.unknownOption'
-    }));
+    });
   })

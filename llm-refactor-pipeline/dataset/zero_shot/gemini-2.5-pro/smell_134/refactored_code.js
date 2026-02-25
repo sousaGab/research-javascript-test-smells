@@ -13,14 +13,17 @@ it('should handle a high volume of writes with lazy option enabled', function (d
     read: 0
   };
 
-  // Wait for the 'finish' event, which is emitted when the stream has been
-  // fully flushed to the underlying transport. This provides a deterministic
-  // way to know when it's safe to read the file.
+  const numWrites = 5000;
+
+  // The 'finish' event is emitted when all logs have been written and the
+  // underlying stream has been closed. This is the deterministic way to
+  // know when to start reading the file.
   logger.on('finish', () => {
     helpers
       .tryRead(fileStressLogFile)
       .on('error', function (err) {
         assume(err).false();
+        logger.close();
         done();
       })
       .pipe(split())
@@ -31,19 +34,17 @@ it('should handle a high volume of writes with lazy option enabled', function (d
       })
       .on('end', function () {
         assume(counters.write).equal(counters.read);
+        logger.close();
         done();
       });
   });
 
-  // Instead of an interval with a fixed timeout, write a large, fixed number
-  // of logs in a tight loop to simulate high volume.
-  const numWrites = 5000;
-  for (let i = 1; i <= numWrites; i++) {
-    logger.info(i);
+  // Write a large number of log entries in a tight loop.
+  for (let i = 0; i < numWrites; i++) {
+    logger.info(++counters.write);
   }
-  counters.write = numWrites;
 
-  // Calling end() on the logger flushes all transports and triggers the
-  // 'finish' event when complete, removing the need for a non-deterministic sleep.
+  // Signal to the logger that we are done writing. This will trigger the
+  // stream to flush and eventually emit the 'finish' event.
   logger.end();
 });

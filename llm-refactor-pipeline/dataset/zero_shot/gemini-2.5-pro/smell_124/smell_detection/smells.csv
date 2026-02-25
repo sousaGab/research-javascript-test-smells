@@ -1017,6 +1017,49 @@ file,type,line,method,methodStart,methodEnd,source
     // differentiate a stored JSON string from a non-JSON body.
     // expect(recorded[0]).to.include({ body: JSON.stringify(exampleBody) })
   })",211,248,snuts
+/tests/got/test_recorder.js,OvercommentedTest,"{'startLine':290,'endLine':332}","it('records and replays correctly with filteringRequestBody', async () => {
+  // Arrange: Start a real server and prepare for recording.
+  const responseBody = '<html><body>example</body></html>'
+  const { origin } = await servers.startHttpServer((request, response) => {
+    response.write(responseBody)
+    response.end()
+  })
+
+  nock.restore()
+  nock.recorder.clear()
+  expect(nock.recorder.play()).to.be.empty()
+
+  // Act: Record a real HTTP request.
+  nock.recorder.rec({
+    dont_print: true,
+    output_objects: true,
+  })
+  const realResponse = await got(origin)
+  nock.restore() // Stop recording.
+
+  // Assert: The real request was successful.
+  expect(realResponse.body).to.equal(responseBody)
+  expect(realResponse.headers).to.be.ok()
+
+  // Arrange: Define a mock from the recording with a spy as the filter.
+  const recorded = nock.recorder.play()
+  nock.recorder.clear()
+  expect(recorded).to.have.lengthOf(1)
+
+  const filteringSpy = sinon.spy((body, recordedBody) => body)
+  const [definition] = recorded
+  definition.filteringRequestBody = filteringSpy
+
+  const scopes = nock.define([definition])
+
+  // Act: Replay the request to trigger the mock and the filter.
+  const mockedResponse = await got(origin)
+
+  // Assert: The mocked response is correct and the filter was called.
+  expect(mockedResponse.body).to.equal(responseBody)
+  expect(filteringSpy).to.have.been.calledOnce()
+  scopes.forEach(scope => scope.done())
+})",290,332,snuts
 /tests/got/test_recorder.js,VerboseStatement,"{'startLine':250,'endLine':288}","it('records and replays objects correctly', async () => {
     const exampleText = '<html><body>example</body></html>'
 
@@ -1056,7 +1099,50 @@ file,type,line,method,methodStart,methodEnd,source
     expect(response2.body).to.equal(exampleText)
     nocks.forEach(nock => nock.done())
   })",250,288,snuts
-/tests/got/test_recorder.js,VerboseStatement,"{'startLine':662,'endLine':699}","it('records and replays gzipped nocks correctly', async () => {
+/tests/got/test_recorder.js,VerboseStatement,"{'startLine':290,'endLine':332}","it('records and replays correctly with filteringRequestBody', async () => {
+  // Arrange: Start a real server and prepare for recording.
+  const responseBody = '<html><body>example</body></html>'
+  const { origin } = await servers.startHttpServer((request, response) => {
+    response.write(responseBody)
+    response.end()
+  })
+
+  nock.restore()
+  nock.recorder.clear()
+  expect(nock.recorder.play()).to.be.empty()
+
+  // Act: Record a real HTTP request.
+  nock.recorder.rec({
+    dont_print: true,
+    output_objects: true,
+  })
+  const realResponse = await got(origin)
+  nock.restore() // Stop recording.
+
+  // Assert: The real request was successful.
+  expect(realResponse.body).to.equal(responseBody)
+  expect(realResponse.headers).to.be.ok()
+
+  // Arrange: Define a mock from the recording with a spy as the filter.
+  const recorded = nock.recorder.play()
+  nock.recorder.clear()
+  expect(recorded).to.have.lengthOf(1)
+
+  const filteringSpy = sinon.spy((body, recordedBody) => body)
+  const [definition] = recorded
+  definition.filteringRequestBody = filteringSpy
+
+  const scopes = nock.define([definition])
+
+  // Act: Replay the request to trigger the mock and the filter.
+  const mockedResponse = await got(origin)
+
+  // Assert: The mocked response is correct and the filter was called.
+  expect(mockedResponse.body).to.equal(responseBody)
+  expect(filteringSpy).to.have.been.calledOnce()
+  scopes.forEach(scope => scope.done())
+})",290,332,snuts
+/tests/got/test_recorder.js,VerboseStatement,"{'startLine':678,'endLine':715}","it('records and replays gzipped nocks correctly', async () => {
     const exampleText = '<html><body>example</body></html>'
 
     const { origin } = await servers.startHttpServer((request, response) => {
@@ -1093,8 +1179,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(response2.headers).to.include({ 'content-encoding': 'gzip' })
 
     nocks.forEach(nock => nock.done())
-  })",662,699,snuts
-/tests/got/test_recorder.js,VerboseStatement,"{'startLine':701,'endLine':740}","it('records and replays the response body', async () => {
+  })",678,715,snuts
+/tests/got/test_recorder.js,VerboseStatement,"{'startLine':717,'endLine':756}","it('records and replays the response body', async () => {
     const exampleBody = '<html><body>example</body></html>'
 
     const { origin } = await servers.startHttpServer((request, response) => {
@@ -1133,7 +1219,7 @@ file,type,line,method,methodStart,methodEnd,source
     const response2 = await got(origin)
     expect(response2.body).to.equal(exampleBody)
     nocks.forEach(nock => nock.done())
-  })",701,740,snuts
+  })",717,756,snuts
 /tests/got/test_query_complex.js,OvercommentedTest,"{'startLine':7,'endLine':25}","it('query with array', async () => {
     // In Node 10.x this can be updated:
     // const exampleQuery = new URLSearchParams([
@@ -4991,7 +5077,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(response2.body).to.equal(exampleText)
     nocks.forEach(nock => nock.done())
   })",250,288,steel
-/tests/got/test_recorder.js,Conditional Test Logic,"{'line': 705, 'column': 6, 'index': 18853}","it('records and replays the response body', async () => {
+/tests/got/test_recorder.js,Conditional Test Logic,"{'line': 721, 'column': 6, 'index': 19522}","it('records and replays the response body', async () => {
     const exampleBody = '<html><body>example</body></html>'
 
     const { origin } = await servers.startHttpServer((request, response) => {
@@ -5030,8 +5116,8 @@ file,type,line,method,methodStart,methodEnd,source
     const response2 = await got(origin)
     expect(response2.body).to.equal(exampleBody)
     nocks.forEach(nock => nock.done())
-  })",701,740,steel
-/tests/got/test_recorder.js,Conditional Test Logic,"{'line': 1016, 'column': 14, 'index': 26912}","it('works with clients listening for readable', done => {
+  })",717,756,steel
+/tests/got/test_recorder.js,Conditional Test Logic,"{'line': 1032, 'column': 14, 'index': 27581}","it('works with clients listening for readable', done => {
     nock.restore()
     nock.recorder.clear()
     expect(nock.recorder.play()).to.be.empty()
@@ -5086,7 +5172,7 @@ file,type,line,method,methodStart,methodEnd,source
         )
         .end(requestBody)
     })
-  })",986,1041,steel
+  })",1002,1057,steel
 /tests/got/test_recorder.js,Duplicate Assert,"{'line': 77, 'column': 4, 'index': 2318}","it('recording turns off nock interception (backward compatibility behavior)', () => {
     //  We ensure that there are no overrides.
     nock.restore()
@@ -5126,7 +5212,7 @@ file,type,line,method,methodStart,methodEnd,source
     //  and mocking has been deactivated.
     expect(nock.isActive()).to.be.false()
   })",74,86,steel
-/tests/got/test_recorder.js,Duplicate Assert,"{'line': 1224, 'column': 10, 'index': 32356}","it('records and replays binary response correctly', done => {
+/tests/got/test_recorder.js,Duplicate Assert,"{'line': 1240, 'column': 10, 'index': 33025}","it('records and replays binary response correctly', done => {
     nock.restore()
     nock.recorder.clear()
     expect(nock.recorder.play()).to.be.empty()
@@ -5208,8 +5294,8 @@ file,type,line,method,methodStart,methodEnd,source
       postRequest1.write(transparentGifBuffer)
       postRequest1.end()
     })
-  })",1181,1263,steel
-/tests/got/test_recorder.js,Duplicate Assert,"{'line': 1247, 'column': 16, 'index': 33017}","it('records and replays binary response correctly', done => {
+  })",1197,1279,steel
+/tests/got/test_recorder.js,Duplicate Assert,"{'line': 1263, 'column': 16, 'index': 33686}","it('records and replays binary response correctly', done => {
     nock.restore()
     nock.recorder.clear()
     expect(nock.recorder.play()).to.be.empty()
@@ -5291,7 +5377,7 @@ file,type,line,method,methodStart,methodEnd,source
       postRequest1.write(transparentGifBuffer)
       postRequest1.end()
     })
-  })",1181,1263,steel
+  })",1197,1279,steel
 /tests/got/test_recorder.js,Ignored Test,"{'line': 29, 'column': 5, 'index': 885}","it.skip('does not record requests from previous sessions', async () => {
     const { origin } = await servers.startHttpServer()
 
@@ -5320,7 +5406,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(outputs).to.have.lengthOf(1)
     expect(outputs[0]).to.match(/\.post\('\/bar'\)/)
   })",29,56,steel
-/tests/got/test_recorder.js,Sleepy Test,"{'line': 1140, 'column': 6, 'index': 30273}","it('respects http.request() consumers', done => {
+/tests/got/test_recorder.js,Sleepy Test,"{'line': 1156, 'column': 6, 'index': 30942}","it('respects http.request() consumers', done => {
     const requestListener = (req, res) => {
       res.write('foo')
       setTimeout(() => {
@@ -5362,8 +5448,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       req.end()
     })
-  })",1137,1179,steel
-/tests/got/test_recorder.js,Sleepy Test,"{'line': 1162, 'column': 10, 'index': 30728}","it('respects http.request() consumers', done => {
+  })",1153,1195,steel
+/tests/got/test_recorder.js,Sleepy Test,"{'line': 1178, 'column': 10, 'index': 31397}","it('respects http.request() consumers', done => {
     const requestListener = (req, res) => {
       res.write('foo')
       setTimeout(() => {
@@ -5405,8 +5491,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       req.end()
     })
-  })",1137,1179,steel
-/tests/got/test_recorder.js,Unknown Test,"{'column': 2, 'line': 1266}","it('should not resume the response stream', done => {
+  })",1153,1195,steel
+/tests/got/test_recorder.js,Unknown Test,"{'column': 2, 'line': 1282}","it('should not resume the response stream', done => {
     nock.recorder.rec(true)
 
     servers.startHttpServer().then(({ origin }) => {
@@ -5424,7 +5510,7 @@ file,type,line,method,methodStart,methodEnd,source
 
       req.end()
     })
-  })",1266,1284,steel
+  })",1282,1300,steel
 /tests/got/test_query_complex.js,Unknown Test,"{'column': 2, 'line': 7}","it('query with array', async () => {
     // In Node 10.x this can be updated:
     // const exampleQuery = new URLSearchParams([

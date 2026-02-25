@@ -6,34 +6,40 @@ it('renders with correct basic inner structure', async () => {
       value: 1
     }
   })
-  expect(wrapper.element.tagName).toBe('UL')
 
+  expect(wrapper.element.tagName).toBe('UL')
   const lis = wrapper.findAll('li')
   expect(lis.length).toBe(5)
 
-  // Destructure the list items for clarity
-  const [firstBtn, prevBtn, pageBtn, nextBtn, lastBtn] = lis.wrappers
+  const first = lis.at(0)
+  const prev = lis.at(1)
+  const page = lis.at(2)
+  const next = lis.at(3)
+  const last = lis.at(4)
 
-  // Assertions for the "First" button (disabled)
-  expect(firstBtn.classes()).toEqual(['page-item', 'disabled'])
-  const firstLink = firstBtn.find('.page-link')
-  expect(firstLink.exists()).toBe(true)
-  expect(firstLink.element.tagName).toBe('SPAN')
-  expect(firstLink.text()).toEqual('«')
-
-  // Assertions for the "Previous" button (disabled)
-  expect(prevBtn.classes()).toEqual(['page-item', 'disabled'])
-  const prevLink = prevBtn.find('.page-link')
-  expect(prevLink.exists()).toBe(true)
-  expect(prevLink.element.tagName).toBe('SPAN')
-  expect(prevLink.text()).toEqual('‹')
-
-  // Assertions for the "Page" button (active)
-  expect(pageBtn.classes()).toEqual(['page-item', 'active'])
-  const pageLink = pageBtn.find('.page-link')
+  // Active page button (item at index 2)
+  expect(page.classes()).toEqual(['page-item', 'active'])
+  const pageLink = page.find('.page-link')
   expect(pageLink.exists()).toBe(true)
   expect(pageLink.element.tagName).toBe('BUTTON')
-  expect(pageLink.text()).toEqual('1')
+
+  // Disabled buttons
+  const disabledItems = [first, prev, next, last]
+  disabledItems.forEach(item => {
+    expect(item.classes()).toEqual(['page-item', 'disabled'])
+    const link = item.find('.page-link')
+    expect(link.exists()).toBe(true)
+    expect(link.element.tagName).toBe('SPAN')
+  })
+
+  // Button content
+  expect(first.find('.page-link').text()).toEqual('«')
+  expect(prev.find('.page-link').text()).toEqual('‹')
+  expect(page.find('.page-link').text()).toEqual('1')
+  expect(next.find('.page-link').text()).toEqual('›')
+  expect(last.find('.page-link').text()).toEqual('»')
+
+  // Active page button attributes
   expect(pageLink.attributes('type')).toEqual('button')
   expect(pageLink.attributes('role')).toEqual('menuitemradio')
   expect(pageLink.attributes('aria-checked')).toEqual('true')
@@ -41,20 +47,6 @@ it('renders with correct basic inner structure', async () => {
   expect(pageLink.attributes('aria-setsize')).toEqual('1')
   expect(pageLink.attributes('tabindex')).toEqual('0')
   expect(pageLink.attributes('aria-label')).toEqual('Go to page 1')
-
-  // Assertions for the "Next" button (disabled)
-  expect(nextBtn.classes()).toEqual(['page-item', 'disabled'])
-  const nextLink = nextBtn.find('.page-link')
-  expect(nextLink.exists()).toBe(true)
-  expect(nextLink.element.tagName).toBe('SPAN')
-  expect(nextLink.text()).toEqual('›')
-
-  // Assertions for the "Last" button (disabled)
-  expect(lastBtn.classes()).toEqual(['page-item', 'disabled'])
-  const lastLink = lastBtn.find('.page-link')
-  expect(lastLink.exists()).toBe(true)
-  expect(lastLink.element.tagName).toBe('SPAN')
-  expect(lastLink.text()).toEqual('»')
 
   wrapper.destroy()
 })

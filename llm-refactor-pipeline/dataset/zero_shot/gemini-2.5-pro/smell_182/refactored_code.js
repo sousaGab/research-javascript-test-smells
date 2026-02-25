@@ -1,12 +1,14 @@
 test('when specify unknown option with program argument and action handler then error', () => {
-    // Regression test from #965
-    const program = new commander.Command();
-    program
-      .exitOverride()
-      .argument('[file]')
-      .action(() => {});
+  // Regression test from #965
+  const program = new commander.Command();
+  program
+    .exitOverride()
+    .argument('[file]')
+    .action(() => {});
 
-    expect(() => {
-      program.parse(['node', 'test', 'info', 'a', '--NONSENSE']);
-    }).toThrow(expect.objectContaining({ code: 'commander.unknownOption' }));
-  })
+  expect(() => {
+    program.parse(['node', 'test', 'info', 'a', '--NONSENSE']);
+  }).toThrow({
+    code: 'commander.unknownOption'
+  });
+});

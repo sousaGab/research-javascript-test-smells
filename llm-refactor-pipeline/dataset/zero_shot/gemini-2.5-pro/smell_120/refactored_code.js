@@ -1,5 +1,12 @@
 it("does not cause item to jump on drag start with default positionStrategy", function () {
-  const GRID_TOP_OFFSET = 500;
+  const mockBoundingClientRect = (element, rect) => {
+    const originalGetBoundingClientRect = element.getBoundingClientRect.bind(element);
+    element.getBoundingClientRect = () => ({
+      ...originalGetBoundingClientRect(),
+      ...rect
+    });
+  };
+
   const onDrag = jest.fn();
   const onDragStart = jest.fn();
 
@@ -20,61 +27,35 @@ it("does not cause item to jump on drag start with default positionStrategy", fu
   const gridItem = container.querySelector(".react-grid-item");
   const gridLayout = container.querySelector(".react-grid-layout");
 
-  // Mock getBoundingClientRect to simulate the grid being offset on the page.
-  // This is crucial for testing that drag calculations use relative, not screen, coordinates.
-  jest.spyOn(gridLayout, "getBoundingClientRect").mockReturnValue({
-    top: GRID_TOP_OFFSET,
-    left: 0,
-    width: 1200,
-    height: 600,
-    right: 1200,
-    bottom: GRID_TOP_OFFSET + 600,
-    x: 0,
-    y: GRID_TOP_OFFSET
-  });
+  // Simulate the grid being scrolled 500px down the page. This is crucial
+  // to reproduce the bug where item position is miscalculated relative to the
+  // screen instead of the grid container.
+  const GRID_TOP_OFFSET = 500;
+  mockBoundingClientRect(gridLayout, { top: GRID_TOP_OFFSET });
+  mockBoundingClientRect(gridItem, { top: GRID_TOP_OFFSET + 10, left: 10 });
 
-  jest.spyOn(gridItem, "getBoundingClientRect").mockReturnValue({
-    top: GRID_TOP_OFFSET + 10, // Item is at y=10 relative to grid
-    left: 10,
-    width: 190,
-    height: 60,
-    right: 200,
-    bottom: GRID_TOP_OFFSET + 70,
-    x: 10,
-    y: GRID_TOP_OFFSET + 10
-  });
-
-  // Start drag - click at a screen position inside the item
+  // Simulate a drag operation starting inside the item
   const startY = GRID_TOP_OFFSET + 20;
   act(() => {
-    dispatchMouseEvent(gridItem, "mousedown", {
-      clientX: 20,
-      clientY: startY
-    });
+    dispatchMouseEvent(gridItem, "mousedown", { clientX: 20, clientY: startY });
   });
-
-  // Move a small amount to trigger drag start
   act(() => {
-    mouseMove(25, startY + 5, gridItem);
+    mouseMove(25, startY + 5, gridItem); // Move to trigger drag start
   });
   expect(onDragStart).toHaveBeenCalled();
 
-  // Move a bit more to trigger onDrag
   act(() => {
-    mouseMove(30, startY + 10, gridItem);
+    mouseMove(30, startY + 10, gridItem); // Move more to trigger onDrag
   });
   expect(onDrag).toHaveBeenCalled();
 
-  // The key test: verify the item hasn't jumped.
-  // With the bug, the new 'y' would be calculated from screen coordinates,
-  // resulting in a large grid 'y' value (e.g., ~12).
-  // Correct behavior uses parent-relative coordinates, keeping 'y' near 0.
-  const lastCallArgs = onDrag.mock.calls.at(-1);
-  const newItem = lastCallArgs[2]; // onDrag(layout, oldItem, newItem, ...)
+  // The bug would cause newItem.y to be calculated from screen coordinates,
+  // resulting in a large value (~12). Correct behavior uses parent-relative
+  // coordinates, keeping y close to its original value of 0.
+  const [, , newItem] = onDrag.mock.lastCall;
+  expect(newItem.y).toBeLessThan(5); // Should remain near the top, not jump
 
-  expect(newItem.y).toBeLessThan(5); // Should be near its original y=0, not jumped
-
-  // Clean up
+  // Cleanup
   act(() => {
     const mouseUpEvent = new MouseEvent("mouseup", {
       bubbles: true,

@@ -7,22 +7,27 @@ file,type,line,method,methodStart,methodEnd,source
       /Nock: No match for request/,
     )
   })",66,73,snuts
-/tests/test_fetch.js,IdenticalTestDescription,"{'startLine':155,'endLine':169}","it('should not mess the Headers object', async () => {
+/tests/test_fetch.js,IdenticalTestDescription,"{'startLine':155,'endLine':174}","it('should not mess the Headers object', async () => {
     const scope = nock('https://api.test.com', {
       reqheaders: { 'Content-Type': 'application/json' },
     })
       .get('/data')
       .times(2)
-      .reply(200);
+      .reply(200)
 
-    const headers = new Headers({ 'Content-Type': 'application/json' });
+    const headers = new Headers({ 'Content-Type': 'application/json' })
 
-    await fetch('https://api.test.com/data', { headers });
-    await fetch('https://api.test.com/data', { headers });
+    await fetch('https://api.test.com/data', { headers })
 
+    // Assert that the headers object is not mutated and is reusable
+    expect(headers.get('Content-Type')).toBe('application/json');
+
+    await fetch('https://api.test.com/data', { headers })
+
+    // Assert that both mocked requests were completed
     expect(scope.isDone()).toBe(true);
-  })",155,169,snuts
-/tests/test_fetch.js,VerboseStatement,"{'startLine':570,'endLine':606}","it('records and replays deflated nocks correctly', async () => {
+  })",155,174,snuts
+/tests/test_fetch.js,VerboseStatement,"{'startLine':575,'endLine':611}","it('records and replays deflated nocks correctly', async () => {
       const exampleText = '<html><body>example</body></html>'
 
       const { origin } = await startHttpServer((request, response) => {
@@ -58,7 +63,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(response1.headers.get('content-encoding')).to.equal('deflate')
 
       nocks.forEach(nock => nock.done())
-    })",570,606,snuts
+    })",575,611,snuts
 /tests/test_destroy.js,NonFunctionalStatement,"{'startLine':45,'endLine':45}","it('should not emit an response if destroyed first', done => {
     nock('http://example.test').get('/').reply()
 
@@ -2071,7 +2076,7 @@ file,type,line,method,methodStart,methodEnd,source
   req.write(compressedMessage)
   req.end()
 })",37,60,steel
-/tests/test_fetch.js,Conditional Test Logic,"{'line': 338, 'column': 8, 'index': 10482}","beforeEach(async () => {
+/tests/test_fetch.js,Conditional Test Logic,"{'line': 343, 'column': 8, 'index': 10669}","beforeEach(async () => {
       const server = await startHttpServer((request, response) => {
         if (request.url === '/redirected') {
           response.writeHead(200).end('redirected')
@@ -2081,8 +2086,8 @@ file,type,line,method,methodStart,methodEnd,source
       })
 
       origin = server.origin
-    })",336,346,steel
-/tests/test_fetch.js,Duplicate Assert,"{'line': 591, 'column': 6, 'index': 18650}","it('records and replays deflated nocks correctly', async () => {
+    })",341,351,steel
+/tests/test_fetch.js,Duplicate Assert,"{'line': 596, 'column': 6, 'index': 18837}","it('records and replays deflated nocks correctly', async () => {
       const exampleText = '<html><body>example</body></html>'
 
       const { origin } = await startHttpServer((request, response) => {
@@ -2118,8 +2123,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(response1.headers.get('content-encoding')).to.equal('deflate')
 
       nocks.forEach(nock => nock.done())
-    })",570,606,steel
-/tests/test_fetch.js,Duplicate Assert,"{'line': 603, 'column': 6, 'index': 19032}","it('records and replays deflated nocks correctly', async () => {
+    })",575,611,steel
+/tests/test_fetch.js,Duplicate Assert,"{'line': 608, 'column': 6, 'index': 19219}","it('records and replays deflated nocks correctly', async () => {
       const exampleText = '<html><body>example</body></html>'
 
       const { origin } = await startHttpServer((request, response) => {
@@ -2155,8 +2160,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(response1.headers.get('content-encoding')).to.equal('deflate')
 
       nocks.forEach(nock => nock.done())
-    })",570,606,steel
-/tests/test_fetch.js,Exception Handling,"{'line': 301, 'column': 10, 'index': 9357}","it('should throw error if wrong encoding is used', async () => {
+    })",575,611,steel
+/tests/test_fetch.js,Exception Handling,"{'line': 306, 'column': 10, 'index': 9544}","it('should throw error if wrong encoding is used', async () => {
       const message = 'Lorem ipsum dolor sit amet'
       const compressed = zlib.gzipSync(message)
 
@@ -2177,8 +2182,8 @@ file,type,line,method,methodStart,methodEnd,source
           expect(e.message).to.contain('Decompression failed')
           scope.done()
         })
-    })",286,307,steel
-/tests/test_fetch.js,Ignored Test,"{'line': 310, 'column': 7, 'index': 9628}","it.skip('should throw error if encoding is used with uncompressed body', async () => {
+    })",291,312,steel
+/tests/test_fetch.js,Ignored Test,"{'line': 315, 'column': 7, 'index': 9815}","it.skip('should throw error if encoding is used with uncompressed body', async () => {
       const message = 'Lorem ipsum dolor sit amet'
 
       const scope = nock('http://example.test')
@@ -2198,8 +2203,8 @@ file,type,line,method,methodStart,methodEnd,source
           expect(e.message).to.contain('Decompression failed')
           scope.done()
         })
-    })",310,330,steel
-/tests/test_fetch.js,Ignored Test,"{'line': 530, 'column': 7, 'index': 16658}","it.skip('records and replays gzipped nocks correctly', async () => {
+    })",315,335,steel
+/tests/test_fetch.js,Ignored Test,"{'line': 535, 'column': 7, 'index': 16845}","it.skip('records and replays gzipped nocks correctly', async () => {
       const exampleText = '<html><body>example</body></html>'
 
       const { origin } = await startHttpServer((request, response) => {
@@ -2237,7 +2242,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(response1.headers.get('content-encoding')).to.equal('gzip, br')
 
       nocks.forEach(nock => nock.done())
-    })",530,568,steel
+    })",535,573,steel
 /tests/test_fetch.js,Unknown Test,"{'column': 2, 'line': 66}","it('no match', async () => {
     nock('http://example.test').get('/').reply()
 
@@ -2278,7 +2283,7 @@ file,type,line,method,methodStart,methodEnd,source
     await fetch('https://api.test.com/data', { headers })
     await fetch('https://api.test.com/data', { headers })
   })",140,152,steel
-/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 395}","it('should throws a network error on a redirect for a request with ""error"" redirect mode', async () => {
+/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 400}","it('should throws a network error on a redirect for a request with ""error"" redirect mode', async () => {
       nock(origin)
         .get('/')
         .reply(302, '', { Location: `${origin}/redirected` })
@@ -2287,8 +2292,8 @@ file,type,line,method,methodStart,methodEnd,source
         fetch(origin, { redirect: 'error' }),
         /Failed to fetch/,
       )
-    })",395,404,steel
-/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 406}","it('should throws a network error on a non-303 redirect with a body', async () => {
+    })",400,409,steel
+/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 411}","it('should throws a network error on a non-303 redirect with a body', async () => {
       nock(origin)
         .post('/')
         .reply(302, '', { Location: `${origin}/redirected` })
@@ -2297,19 +2302,19 @@ file,type,line,method,methodStart,methodEnd,source
         fetch(origin, { method: 'POST', body: 'Hello' }),
         /Failed to fetch/,
       )
-    })",406,415,steel
-/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 417}","it('should throws a network error on redirects to a non-HTTP scheme', async () => {
+    })",411,420,steel
+/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 422}","it('should throws a network error on redirects to a non-HTTP scheme', async () => {
       nock(origin).get('/').reply(302, '', { Location: `wss://localhost` })
 
       await assertRejects(fetch(origin), /Failed to fetch/)
-    })",417,421,steel
-/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 423}","it('should throws on a redirect with credentials for a ""cors"" request', async () => {
+    })",422,426,steel
+/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 428}","it('should throws on a redirect with credentials for a ""cors"" request', async () => {
       nock(origin)
         .get('/')
         .reply(302, '', { Location: `http://user:password@localhost` })
 
       await assertRejects(fetch(origin, { mode: 'cors' }), /Failed to fetch/)
-    })",423,429,steel
+    })",428,434,steel
 /tests/test_destroy.js,Sleepy Test,"{'line': 51, 'column': 4, 'index': 1362}","it('should not emit an response if destroyed first', done => {
     nock('http://example.test').get('/').reply()
 

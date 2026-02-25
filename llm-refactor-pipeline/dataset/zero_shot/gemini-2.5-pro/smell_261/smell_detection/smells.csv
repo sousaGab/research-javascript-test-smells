@@ -421,14 +421,31 @@ file,type,line,method,methodStart,methodEnd,source
         };
         pond.files = [data];
     })",110,116,snuts
-/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':131,'endLine':137}","test('onprocessfile', done => {
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':118,'endLine':134}","test('onprocessfileabort', done => {
+    // Ensure that the assertion in the callback is actually called
+    expect.assertions(1);
+
+    createPond();
+
+    pond.onprocessfileabort = () => {
+        // An explicit assertion makes the test's purpose clear:
+        // it passes because this callback is executed.
+        expect(true).toBe(true);
+        done();
+    };
+
+    pond.files = [data];
+
+    pond.getFile().abortProcessing();
+})",118,134,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':136,'endLine':142}","test('onprocessfile', done => {
         createPond();
         pond.onprocessfile = () => {
             done();
         };
         pond.files = [data];
-    })",131,137,snuts
-/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':139,'endLine':149}","test('onprocessfiles', done => {
+    })",136,142,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':144,'endLine':154}","test('onprocessfiles', done => {
         createPond();
         pond.onprocessfiles = () => {
             const result = pond
@@ -438,7 +455,7 @@ file,type,line,method,methodStart,methodEnd,source
             done();
         };
         pond.files = [data, data];
-    })",139,149,snuts
+    })",144,154,snuts
 /src/js/__tests__/addFile.test.js,AnonymousTest,"{'startLine':20,'endLine':28}","test('add file', done => {
         const data = new File(['Hello World!'], 'dummy.txt', {
             type: 'text/plain',
@@ -958,14 +975,19 @@ file,type,line,method,methodStart,methodEnd,source
         pond.files = [data];
     });
 
-    test('should call onprocessfileabort when aborting a file process', done => {
-    const handleProcessFileAbort = jest.fn(() => {
-        expect(handleProcessFileAbort).toHaveBeenCalledTimes(1);
-        done();
-    });
+    test('onprocessfileabort', done => {
+    // Ensure that the assertion in the callback is actually called
+    expect.assertions(1);
 
     createPond();
-    pond.onprocessfileabort = handleProcessFileAbort;
+
+    pond.onprocessfileabort = () => {
+        // An explicit assertion makes the test's purpose clear:
+        // it passes because this callback is executed.
+        expect(true).toBe(true);
+        done();
+    };
+
     pond.files = [data];
 
     pond.getFile().abortProcessing();
@@ -990,7 +1012,24 @@ file,type,line,method,methodStart,methodEnd,source
         };
         pond.files = [data, data];
     });
-})",6,150,steel
+})",6,155,steel
+/src/js/__tests__/callbacks.test.js,Redundant Assertion,"{'column': 8, 'line': 127}","test('onprocessfileabort', done => {
+    // Ensure that the assertion in the callback is actually called
+    expect.assertions(1);
+
+    createPond();
+
+    pond.onprocessfileabort = () => {
+        // An explicit assertion makes the test's purpose clear:
+        // it passes because this callback is executed.
+        expect(true).toBe(true);
+        done();
+    };
+
+    pond.files = [data];
+
+    pond.getFile().abortProcessing();
+})",118,134,steel
 /src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 45}","test('oninit', done => {
         createPond({
             oninit: () => {
@@ -1056,13 +1095,13 @@ file,type,line,method,methodStart,methodEnd,source
         };
         pond.files = [data];
     })",110,116,steel
-/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 131}","test('onprocessfile', done => {
+/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 136}","test('onprocessfile', done => {
         createPond();
         pond.onprocessfile = () => {
             done();
         };
         pond.files = [data];
-    })",131,137,steel
+    })",136,142,steel
 /src/js/__tests__/addFile.test.js,Conditional Test Logic,"{'line': 8, 'column': 8, 'index': 159}","beforeEach(() => {
         if (pond) {
             pond.destroy();

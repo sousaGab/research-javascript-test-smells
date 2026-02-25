@@ -1,15 +1,15 @@
-it("handles pathological layouts that exceed max row limit gracefully", () => {
+it("should handle an unfittable item by logging a max row limit warning", () => {
   const consoleWarn = jest.spyOn(console, "warn").mockImplementation();
+  const gridWidth = 12;
 
-  const pathologicalLayout = [
-    { i: "static", x: 0, y: 0, w: 12, h: 1, static: true },
-    { i: "a", x: 0, y: 0, w: 13, h: 1 }, // Item wider than grid
+  const layoutWithUnfittableItem = [
+    { i: "static-blocker", x: 0, y: 0, w: gridWidth, h: 1, static: true },
+    { i: "too-wide-item", x: 0, y: 0, w: gridWidth + 1, h: 1 },
   ];
-  const gridCols = 12;
 
   const compactedLayout = fastHorizontalCompactor.compact(
-    pathologicalLayout,
-    gridCols
+    layoutWithUnfittableItem,
+    gridWidth
   );
 
   expect(compactedLayout).toBeDefined();

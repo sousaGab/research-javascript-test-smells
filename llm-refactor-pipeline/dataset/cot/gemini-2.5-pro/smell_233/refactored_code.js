@@ -1,50 +1,59 @@
 it('dismiss countdown handles when show value is changed', async () => {
-  jest.useFakeTimers()
+  jest.useFakeTimers();
+
   const wrapper = mount(BAlert, {
     propsData: {
       show: 2
     }
-  })
+  });
 
-  const assertLastCountdownEmit = (value) => {
-    const events = wrapper.emitted('dismiss-count-down')
-    expect(events).toBeDefined()
-    expect(events[events.length - 1]).toEqual([value])
-  }
+  const assertCountdownEvent = (index, value) => {
+    const events = wrapper.emitted('dismiss-count-down');
+    expect(events).toHaveLength(index + 1);
+    expect(events[index][0]).toBe(value);
+  };
 
-  await waitNT(wrapper.vm)
+  const advanceOneSecond = async () => {
+    jest.runTimersToTime(1000);
+    await waitNT(wrapper.vm);
+  };
+
+  expect(wrapper.vm).toBeDefined();
+  await waitNT(wrapper.vm);
 
   // Initial countdown from 2
-  expect(wrapper.emitted('dismissed')).toBeUndefined()
-  assertLastCountdownEmit(2)
+  expect(wrapper.emitted('dismissed')).toBeUndefined();
+  assertCountdownEvent(0, 2); // Initial emit
 
-  jest.runTimersToTime(1000)
-  await waitNT(wrapper.vm)
-  assertLastCountdownEmit(1)
+  await advanceOneSecond();
+  assertCountdownEvent(1, 1); // After 1 sec
 
   // Reset countdown to 3
   await wrapper.setProps({
     show: 3
-  })
-  await waitNT(wrapper.vm)
-  assertLastCountdownEmit(3)
+  });
+  assertCountdownEvent(2, 3); // Reset emit
 
-  // Loop through the new countdown
-  const newCountdown = 3
-  for (let i = newCountdown - 1; i >= 0; i--) {
-    jest.runTimersToTime(1000)
-    await waitNT(wrapper.vm)
-    assertLastCountdownEmit(i)
+  // Countdown from 3 down to 0
+  const initialEventCount = 3;
+  const countdownFrom = 3;
+  for (let i = 0; i < countdownFrom; i++) {
+    await advanceOneSecond();
+    const expectedEventIndex = initialEventCount + i;
+    const expectedValue = countdownFrom - 1 - i;
+    assertCountdownEvent(expectedEventIndex, expectedValue);
   }
 
-  // Verify total number of countdown events
-  // Initial(1) + Tick(1) + Reset(1) + Ticks(3) = 6
-  expect(wrapper.emitted('dismiss-count-down')).toHaveLength(6)
+  // Final checks
+  jest.runAllTimers();
+  await waitNT(wrapper.vm);
 
-  // Final state after countdown finishes
-  await waitRAF()
-  expect(wrapper.emitted('dismissed')).toHaveLength(1)
-  expect(wrapper.element.nodeType).toBe(Node.COMMENT_NODE)
+  // No more countdown events should be emitted
+  expect(wrapper.emitted('dismiss-count-down')).toHaveLength(6);
 
-  wrapper.destroy()
-})
+  await waitRAF();
+  expect(wrapper.emitted('dismissed')).toHaveLength(1);
+  expect(wrapper.element.nodeType).toBe(Node.COMMENT_NODE);
+
+  wrapper.destroy();
+});

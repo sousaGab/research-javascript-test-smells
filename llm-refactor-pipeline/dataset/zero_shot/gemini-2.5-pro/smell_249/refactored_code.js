@@ -10,14 +10,25 @@ it('can destroy the socket if stream is not finished', async () => {
     const req = http.get('http://example.test/somepath')
     const stream = await new Promise(resolve => req.on('response', resolve))
 
+    let didClose = false
+    let didEnd = false
+
     // close after first chunk of data
     stream.on('data', () => stream.destroy())
 
-    const closingEvent = await new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       stream.on('error', reject)
-      stream.on('close', () => resolve('close'))
-      stream.on('end', () => resolve('end'))
+      stream.on('close', () => {
+        didClose = true
+        resolve()
+      })
+      stream.on('end', () => {
+        didEnd = true
+        // This should not be called, but we resolve to let the assertion fail the test
+        resolve()
+      })
     })
 
-    assert.strictEqual(closingEvent, 'close')
+    expect(didClose).toBe(true)
+    expect(didEnd).toBe(false)
   })

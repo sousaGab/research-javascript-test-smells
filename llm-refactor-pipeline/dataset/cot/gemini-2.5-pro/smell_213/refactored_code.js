@@ -4,5 +4,5 @@ test('when copyInheritedSettings then copies helpOption(false)', () => {
 
     source.helpOption(false);
     cmd.copyInheritedSettings(source);
-    expect(cmd._getHelpOption()).toBeNull();
+    expect(cmd.optionFor('--help')).toBeUndefined();
   })

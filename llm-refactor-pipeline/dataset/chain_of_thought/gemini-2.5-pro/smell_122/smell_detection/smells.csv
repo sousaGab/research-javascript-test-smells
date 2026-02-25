@@ -1879,18 +1879,22 @@ file,type,line,method,methodStart,methodEnd,source
     expect(response3.body).to.equal('server response')
     expect(scope.isDone()).to.equal(false)
   })",30,68,snuts
-/tests/got/test_allow_unmocked.js,ConditionalTestLogic,"{'startLine':79,'endLine':81}","it('allow unmocked option allows traffic to server', async () => {
+/tests/got/test_allow_unmocked.js,ConditionalTestLogic,"{'startLine':76,'endLine':78}","it('allow unmocked option allows traffic to server', async () => {
     const { origin } = await startHttpServer((request, response) => {
       switch (request.url) {
         case '/':
-        case '/abc':
           response.writeHead(200)
           response.write('server served a response')
           break
         case '/not/available':
           response.writeHead(404)
           break
+        case '/abc':
+          response.writeHead(200)
+          response.write('server served a response')
+          break
       }
+
       response.end()
     })
 
@@ -1899,7 +1903,6 @@ file,type,line,method,methodStart,methodEnd,source
       .reply(307, 'served from our mock')
       .get('/wont/get/here')
       .reply(307, 'served from our mock')
-
     const client = got.extend({ prefixUrl: origin, throwHttpErrors: false })
 
     const testCases = [
@@ -1908,26 +1911,20 @@ file,type,line,method,methodStart,methodEnd,source
         expectedStatus: 307,
         expectedBody: 'served from our mock',
       },
-      {
-        path: 'not/available',
-        expectedStatus: 404,
-      },
-      {
-        path: '',
-        expectedStatus: 200,
-        expectedBody: 'server served a response',
-      },
+      { path: 'not/available', expectedStatus: 404 },
+      { path: '', expectedStatus: 200, expectedBody: 'server served a response' },
     ]
 
     for (const { path, expectedStatus, expectedBody } of testCases) {
       const response = await client(path)
+
       expect(response.statusCode).to.equal(expectedStatus)
       if (expectedBody !== undefined) {
         expect(response.body).to.equal(expectedBody)
       }
-      expect(scope.isDone()).to.be.false()
+      expect(scope.isDone()).to.equal(false)
     }
-  })",36,84,snuts
+  })",36,81,snuts
 /tests/test_unix_socket.js,Conditional Test Logic,"{'line': 14, 'column': 0, 'index': 309}",Failed to parse file: 'return' outside of function. (16:2),,,steel
 /tests/test_unix_socket.js,Conditional Test Logic,"{'line': 27, 'column': 8, 'index': 630}",Failed to parse file: 'return' outside of function. (16:2),,,steel
 /tests/test_unix_socket.js,Conditional Test Logic,"{'line': 36, 'column': 8, 'index': 799}",Failed to parse file: 'return' outside of function. (16:2),,,steel
@@ -7809,14 +7806,18 @@ file,type,line,method,methodStart,methodEnd,source
     const { origin } = await startHttpServer((request, response) => {
       switch (request.url) {
         case '/':
-        case '/abc':
           response.writeHead(200)
           response.write('server served a response')
           break
         case '/not/available':
           response.writeHead(404)
           break
+        case '/abc':
+          response.writeHead(200)
+          response.write('server served a response')
+          break
       }
+
       response.end()
     })
 
@@ -7825,7 +7826,6 @@ file,type,line,method,methodStart,methodEnd,source
       .reply(307, 'served from our mock')
       .get('/wont/get/here')
       .reply(307, 'served from our mock')
-
     const client = got.extend({ prefixUrl: origin, throwHttpErrors: false })
 
     const testCases = [
@@ -7834,38 +7834,36 @@ file,type,line,method,methodStart,methodEnd,source
         expectedStatus: 307,
         expectedBody: 'served from our mock',
       },
-      {
-        path: 'not/available',
-        expectedStatus: 404,
-      },
-      {
-        path: '',
-        expectedStatus: 200,
-        expectedBody: 'server served a response',
-      },
+      { path: 'not/available', expectedStatus: 404 },
+      { path: '', expectedStatus: 200, expectedBody: 'server served a response' },
     ]
 
     for (const { path, expectedStatus, expectedBody } of testCases) {
       const response = await client(path)
+
       expect(response.statusCode).to.equal(expectedStatus)
       if (expectedBody !== undefined) {
         expect(response.body).to.equal(expectedBody)
       }
-      expect(scope.isDone()).to.be.false()
+      expect(scope.isDone()).to.equal(false)
     }
-  })",36,84,steel
-/tests/got/test_allow_unmocked.js,Conditional Test Logic,"{'line': 76, 'column': 4, 'index': 2058}","it('allow unmocked option allows traffic to server', async () => {
+  })",36,81,steel
+/tests/got/test_allow_unmocked.js,Conditional Test Logic,"{'line': 72, 'column': 4, 'index': 2107}","it('allow unmocked option allows traffic to server', async () => {
     const { origin } = await startHttpServer((request, response) => {
       switch (request.url) {
         case '/':
-        case '/abc':
           response.writeHead(200)
           response.write('server served a response')
           break
         case '/not/available':
           response.writeHead(404)
           break
+        case '/abc':
+          response.writeHead(200)
+          response.write('server served a response')
+          break
       }
+
       response.end()
     })
 
@@ -7874,7 +7872,6 @@ file,type,line,method,methodStart,methodEnd,source
       .reply(307, 'served from our mock')
       .get('/wont/get/here')
       .reply(307, 'served from our mock')
-
     const client = got.extend({ prefixUrl: origin, throwHttpErrors: false })
 
     const testCases = [
@@ -7883,38 +7880,36 @@ file,type,line,method,methodStart,methodEnd,source
         expectedStatus: 307,
         expectedBody: 'served from our mock',
       },
-      {
-        path: 'not/available',
-        expectedStatus: 404,
-      },
-      {
-        path: '',
-        expectedStatus: 200,
-        expectedBody: 'server served a response',
-      },
+      { path: 'not/available', expectedStatus: 404 },
+      { path: '', expectedStatus: 200, expectedBody: 'server served a response' },
     ]
 
     for (const { path, expectedStatus, expectedBody } of testCases) {
       const response = await client(path)
+
       expect(response.statusCode).to.equal(expectedStatus)
       if (expectedBody !== undefined) {
         expect(response.body).to.equal(expectedBody)
       }
-      expect(scope.isDone()).to.be.false()
+      expect(scope.isDone()).to.equal(false)
     }
-  })",36,84,steel
-/tests/got/test_allow_unmocked.js,Conditional Test Logic,"{'line': 79, 'column': 6, 'index': 2231}","it('allow unmocked option allows traffic to server', async () => {
+  })",36,81,steel
+/tests/got/test_allow_unmocked.js,Conditional Test Logic,"{'line': 76, 'column': 6, 'index': 2281}","it('allow unmocked option allows traffic to server', async () => {
     const { origin } = await startHttpServer((request, response) => {
       switch (request.url) {
         case '/':
-        case '/abc':
           response.writeHead(200)
           response.write('server served a response')
           break
         case '/not/available':
           response.writeHead(404)
           break
+        case '/abc':
+          response.writeHead(200)
+          response.write('server served a response')
+          break
       }
+
       response.end()
     })
 
@@ -7923,7 +7918,6 @@ file,type,line,method,methodStart,methodEnd,source
       .reply(307, 'served from our mock')
       .get('/wont/get/here')
       .reply(307, 'served from our mock')
-
     const client = got.extend({ prefixUrl: origin, throwHttpErrors: false })
 
     const testCases = [
@@ -7932,26 +7926,20 @@ file,type,line,method,methodStart,methodEnd,source
         expectedStatus: 307,
         expectedBody: 'served from our mock',
       },
-      {
-        path: 'not/available',
-        expectedStatus: 404,
-      },
-      {
-        path: '',
-        expectedStatus: 200,
-        expectedBody: 'server served a response',
-      },
+      { path: 'not/available', expectedStatus: 404 },
+      { path: '', expectedStatus: 200, expectedBody: 'server served a response' },
     ]
 
     for (const { path, expectedStatus, expectedBody } of testCases) {
       const response = await client(path)
+
       expect(response.statusCode).to.equal(expectedStatus)
       if (expectedBody !== undefined) {
         expect(response.body).to.equal(expectedBody)
       }
-      expect(scope.isDone()).to.be.false()
+      expect(scope.isDone()).to.equal(false)
     }
-  })",36,84,steel
+  })",36,81,steel
 /tests/got/test_allow_unmocked.js,Duplicate Assert,"{'line': 32, 'column': 4, 'index': 912}","it('allow unmocked works after one interceptor is removed', async () => {
     const { origin } = await startHttpServer((request, response) => {
       response.write('live')

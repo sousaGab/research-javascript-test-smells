@@ -57,6 +57,272 @@ file,type,line,method,methodStart,methodEnd,source
     expect(trie.doesWordExist('car')).toEqual(false);
     expect(trie.doesWordExist('cart')).toBe(false);
   })",26,63,snuts
+/src/data-structures/tree/__test__/BinaryTreeNode.test.js,VerboseStatement,"{'startLine':76,'endLine':107}","it('should replace child node', () => {
+    const leftNode = new BinaryTreeNode(1);
+    const rightNode = new BinaryTreeNode(3);
+    const rootNode = new BinaryTreeNode(2);
+
+    rootNode
+      .setLeft(leftNode)
+      .setRight(rightNode);
+
+    expect(rootNode.traverseInOrder()).toEqual([1, 2, 3]);
+
+    const replacementNode = new BinaryTreeNode(5);
+    rightNode.setRight(replacementNode);
+
+    expect(rootNode.traverseInOrder()).toEqual([1, 2, 3, 5]);
+
+    expect(rootNode.replaceChild(rootNode.right, rootNode.right.right)).toBe(true);
+    expect(rootNode.right.value).toBe(5);
+    expect(rootNode.right.right).toBeNull();
+    expect(rootNode.traverseInOrder()).toEqual([1, 2, 5]);
+
+    expect(rootNode.replaceChild(rootNode.right, rootNode.right.right)).toBe(false);
+    expect(rootNode.traverseInOrder()).toEqual([1, 2, 5]);
+
+    expect(rootNode.replaceChild(rootNode.right, replacementNode)).toBe(true);
+    expect(rootNode.traverseInOrder()).toEqual([1, 2, 5]);
+
+    expect(rootNode.replaceChild(rootNode.left, replacementNode)).toBe(true);
+    expect(rootNode.traverseInOrder()).toEqual([5, 2, 5]);
+
+    expect(rootNode.replaceChild(new BinaryTreeNode(), new BinaryTreeNode())).toBe(false);
+  })",76,107,snuts
+/src/data-structures/tree/__test__/BinaryTreeNode.test.js,VerboseStatement,"{'startLine':109,'endLine':146}","it('should calculate node height', () => {
+    const root = new BinaryTreeNode(1);
+    const left = new BinaryTreeNode(3);
+    const right = new BinaryTreeNode(2);
+    const grandLeft = new BinaryTreeNode(5);
+    const grandRight = new BinaryTreeNode(6);
+    const grandGrandLeft = new BinaryTreeNode(7);
+
+    expect(root.height).toBe(0);
+    expect(root.balanceFactor).toBe(0);
+
+    root
+      .setLeft(left)
+      .setRight(right);
+
+    expect(root.height).toBe(1);
+    expect(left.height).toBe(0);
+    expect(root.balanceFactor).toBe(0);
+
+    left
+      .setLeft(grandLeft)
+      .setRight(grandRight);
+
+    expect(root.height).toBe(2);
+    expect(left.height).toBe(1);
+    expect(grandLeft.height).toBe(0);
+    expect(grandRight.height).toBe(0);
+    expect(root.balanceFactor).toBe(1);
+
+    grandLeft.setLeft(grandGrandLeft);
+
+    expect(root.height).toBe(3);
+    expect(left.height).toBe(2);
+    expect(grandLeft.height).toBe(1);
+    expect(grandRight.height).toBe(0);
+    expect(grandGrandLeft.height).toBe(0);
+    expect(root.balanceFactor).toBe(2);
+  })",109,146,snuts
+/src/data-structures/tree/__test__/BinaryTreeNode.test.js,VerboseStatement,"{'startLine':177,'endLine':198}","it('should be possible to create node with object as a value', () => {
+    const obj1 = { key: 'object_1', toString: () => 'object_1' };
+    const obj2 = { key: 'object_2' };
+
+    const node1 = new BinaryTreeNode(obj1);
+    const node2 = new BinaryTreeNode(obj2);
+
+    node1.setLeft(node2);
+
+    expect(node1.value).toEqual(obj1);
+    expect(node2.value).toEqual(obj2);
+    expect(node1.left.value).toEqual(obj2);
+
+    node1.removeChild(node2);
+
+    expect(node1.value).toEqual(obj1);
+    expect(node2.value).toEqual(obj2);
+    expect(node1.left).toBeNull();
+
+    expect(node1.toString()).toBe('object_1');
+    expect(node2.toString()).toBe('[object Object]');
+  })",177,198,snuts
+/src/data-structures/tree/__test__/BinaryTreeNode.test.js,VerboseStatement,"{'startLine':211,'endLine':234}","it('should detect right uncle', () => {
+    const grandParent = new BinaryTreeNode('grand-parent');
+    const parent = new BinaryTreeNode('parent');
+    const uncle = new BinaryTreeNode('uncle');
+    const child = new BinaryTreeNode('child');
+
+    expect(grandParent.uncle).not.toBeDefined();
+    expect(parent.uncle).not.toBeDefined();
+
+    grandParent.setLeft(parent);
+
+    expect(parent.uncle).not.toBeDefined();
+    expect(child.uncle).not.toBeDefined();
+
+    parent.setLeft(child);
+
+    expect(child.uncle).not.toBeDefined();
+
+    grandParent.setRight(uncle);
+
+    expect(parent.uncle).not.toBeDefined();
+    expect(child.uncle).toBeDefined();
+    expect(child.uncle).toEqual(uncle);
+  })",211,234,snuts
+/src/data-structures/tree/__test__/BinaryTreeNode.test.js,VerboseStatement,"{'startLine':236,'endLine':259}","it('should detect left uncle', () => {
+    const grandParent = new BinaryTreeNode('grand-parent');
+    const parent = new BinaryTreeNode('parent');
+    const uncle = new BinaryTreeNode('uncle');
+    const child = new BinaryTreeNode('child');
+
+    expect(grandParent.uncle).not.toBeDefined();
+    expect(parent.uncle).not.toBeDefined();
+
+    grandParent.setRight(parent);
+
+    expect(parent.uncle).not.toBeDefined();
+    expect(child.uncle).not.toBeDefined();
+
+    parent.setRight(child);
+
+    expect(child.uncle).not.toBeDefined();
+
+    grandParent.setLeft(uncle);
+
+    expect(parent.uncle).not.toBeDefined();
+    expect(child.uncle).toBeDefined();
+    expect(child.uncle).toEqual(uncle);
+  })",236,259,snuts
+/src/data-structures/linked-list/__test__/LinkedList.test.js,ConditionalTestLogic,"{'startLine':212,'endLine':214}","it('should find node by means of custom compare function', () => {
+    const comparatorFunction = (a, b) => {
+      if (a.customValue === b.customValue) {
+        return 0;
+      }
+
+      return a.customValue < b.customValue ? -1 : 1;
+    };
+
+    const linkedList = new LinkedList(comparatorFunction);
+
+    linkedList
+      .append({ value: 1, customValue: 'test1' })
+      .append({ value: 2, customValue: 'test2' })
+      .append({ value: 3, customValue: 'test3' });
+
+    const node = linkedList.find({
+      value: { value: 2, customValue: 'test2' },
+    });
+
+    expect(node).toBeDefined();
+    expect(node.value.value).toBe(2);
+    expect(node.value.customValue).toBe('test2');
+    expect(linkedList.find({ value: { value: 2, customValue: 'test5' } })).toBeNull();
+  })",210,234,snuts
+/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':50,'endLine':94}","it('should delete node by value from linked list', () => {
+    const linkedList = new LinkedList();
+
+    expect(linkedList.delete(5)).toBeNull();
+
+    linkedList.append(1);
+    linkedList.append(1);
+    linkedList.append(2);
+    linkedList.append(3);
+    linkedList.append(3);
+    linkedList.append(3);
+    linkedList.append(4);
+    linkedList.append(5);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('5');
+
+    const deletedNode = linkedList.delete(3);
+    expect(deletedNode.value).toBe(3);
+    expect(linkedList.toString()).toBe('1,1,2,4,5');
+
+    linkedList.delete(3);
+    expect(linkedList.toString()).toBe('1,1,2,4,5');
+
+    linkedList.delete(1);
+    expect(linkedList.toString()).toBe('2,4,5');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('5');
+
+    linkedList.delete(5);
+    expect(linkedList.toString()).toBe('2,4');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('4');
+
+    linkedList.delete(4);
+    expect(linkedList.toString()).toBe('2');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    linkedList.delete(2);
+    expect(linkedList.toString()).toBe('');
+  })",50,94,snuts
+/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':96,'endLine':126}","it('should delete linked list tail', () => {
+    const linkedList = new LinkedList();
+
+    linkedList.append(1);
+    linkedList.append(2);
+    linkedList.append(3);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('3');
+
+    const deletedNode1 = linkedList.deleteTail();
+
+    expect(deletedNode1.value).toBe(3);
+    expect(linkedList.toString()).toBe('1,2');
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode2 = linkedList.deleteTail();
+
+    expect(deletedNode2.value).toBe(2);
+    expect(linkedList.toString()).toBe('1');
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('1');
+
+    const deletedNode3 = linkedList.deleteTail();
+
+    expect(deletedNode3.value).toBe(1);
+    expect(linkedList.toString()).toBe('');
+    expect(linkedList.head).toBeNull();
+    expect(linkedList.tail).toBeNull();
+  })",96,126,snuts
+/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':128,'endLine':152}","it('should delete linked list head', () => {
+    const linkedList = new LinkedList();
+
+    expect(linkedList.deleteHead()).toBeNull();
+
+    linkedList.append(1);
+    linkedList.append(2);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode1 = linkedList.deleteHead();
+
+    expect(deletedNode1.value).toBe(1);
+    expect(linkedList.toString()).toBe('2');
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode2 = linkedList.deleteHead();
+
+    expect(deletedNode2.value).toBe(2);
+    expect(linkedList.toString()).toBe('');
+    expect(linkedList.head).toBeNull();
+    expect(linkedList.tail).toBeNull();
+  })",128,152,snuts
 /src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':4,'endLine':24}","it('should set and get values to and from the cache', () => {
     const cache = new LRUCache(100);
     expect(cache.get('key-1')).toBeUndefined();
@@ -287,132 +553,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(cache.get('key-5')).toBe(5);
     expect(cache.get('key-6')).toBe(6);
   })",123,149,snuts
-/src/data-structures/linked-list/__test__/LinkedList.test.js,ConditionalTestLogic,"{'startLine':212,'endLine':214}","it('should find node by means of custom compare function', () => {
-    const comparatorFunction = (a, b) => {
-      if (a.customValue === b.customValue) {
-        return 0;
-      }
-
-      return a.customValue < b.customValue ? -1 : 1;
-    };
-
-    const linkedList = new LinkedList(comparatorFunction);
-
-    linkedList
-      .append({ value: 1, customValue: 'test1' })
-      .append({ value: 2, customValue: 'test2' })
-      .append({ value: 3, customValue: 'test3' });
-
-    const node = linkedList.find({
-      value: { value: 2, customValue: 'test2' },
-    });
-
-    expect(node).toBeDefined();
-    expect(node.value.value).toBe(2);
-    expect(node.value.customValue).toBe('test2');
-    expect(linkedList.find({ value: { value: 2, customValue: 'test5' } })).toBeNull();
-  })",210,234,snuts
-/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':50,'endLine':94}","it('should delete node by value from linked list', () => {
-    const linkedList = new LinkedList();
-
-    expect(linkedList.delete(5)).toBeNull();
-
-    linkedList.append(1);
-    linkedList.append(1);
-    linkedList.append(2);
-    linkedList.append(3);
-    linkedList.append(3);
-    linkedList.append(3);
-    linkedList.append(4);
-    linkedList.append(5);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('5');
-
-    const deletedNode = linkedList.delete(3);
-    expect(deletedNode.value).toBe(3);
-    expect(linkedList.toString()).toBe('1,1,2,4,5');
-
-    linkedList.delete(3);
-    expect(linkedList.toString()).toBe('1,1,2,4,5');
-
-    linkedList.delete(1);
-    expect(linkedList.toString()).toBe('2,4,5');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('5');
-
-    linkedList.delete(5);
-    expect(linkedList.toString()).toBe('2,4');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('4');
-
-    linkedList.delete(4);
-    expect(linkedList.toString()).toBe('2');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    linkedList.delete(2);
-    expect(linkedList.toString()).toBe('');
-  })",50,94,snuts
-/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':96,'endLine':126}","it('should delete linked list tail', () => {
-    const linkedList = new LinkedList();
-
-    linkedList.append(1);
-    linkedList.append(2);
-    linkedList.append(3);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('3');
-
-    const deletedNode1 = linkedList.deleteTail();
-
-    expect(deletedNode1.value).toBe(3);
-    expect(linkedList.toString()).toBe('1,2');
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode2 = linkedList.deleteTail();
-
-    expect(deletedNode2.value).toBe(2);
-    expect(linkedList.toString()).toBe('1');
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('1');
-
-    const deletedNode3 = linkedList.deleteTail();
-
-    expect(deletedNode3.value).toBe(1);
-    expect(linkedList.toString()).toBe('');
-    expect(linkedList.head).toBeNull();
-    expect(linkedList.tail).toBeNull();
-  })",96,126,snuts
-/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':128,'endLine':152}","it('should delete linked list head', () => {
-    const linkedList = new LinkedList();
-
-    expect(linkedList.deleteHead()).toBeNull();
-
-    linkedList.append(1);
-    linkedList.append(2);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode1 = linkedList.deleteHead();
-
-    expect(deletedNode1.value).toBe(1);
-    expect(linkedList.toString()).toBe('2');
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode2 = linkedList.deleteHead();
-
-    expect(deletedNode2.value).toBe(2);
-    expect(linkedList.toString()).toBe('');
-    expect(linkedList.head).toBeNull();
-    expect(linkedList.tail).toBeNull();
-  })",128,152,snuts
 /src/data-structures/heap/__test__/MinHeapAdhoc.test.js,SubOptimalAssert,"{'startLine':8,'endLine':8}","it('should create an empty min heap', () => {
     const minHeap = new MinHeapAdhoc();
 
@@ -2762,146 +2902,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(bloomFilter.hash2(str2)).toBe(61);
     expect(bloomFilter.hash3(str2)).toBe(10);
   })",26,46,snuts
-/src/data-structures/tree/__test__/BinaryTreeNode.test.js,VerboseStatement,"{'startLine':76,'endLine':107}","it('should replace child node', () => {
-    const leftNode = new BinaryTreeNode(1);
-    const rightNode = new BinaryTreeNode(3);
-    const rootNode = new BinaryTreeNode(2);
-
-    rootNode
-      .setLeft(leftNode)
-      .setRight(rightNode);
-
-    expect(rootNode.traverseInOrder()).toEqual([1, 2, 3]);
-
-    const replacementNode = new BinaryTreeNode(5);
-    rightNode.setRight(replacementNode);
-
-    expect(rootNode.traverseInOrder()).toEqual([1, 2, 3, 5]);
-
-    expect(rootNode.replaceChild(rootNode.right, rootNode.right.right)).toBe(true);
-    expect(rootNode.right.value).toBe(5);
-    expect(rootNode.right.right).toBeNull();
-    expect(rootNode.traverseInOrder()).toEqual([1, 2, 5]);
-
-    expect(rootNode.replaceChild(rootNode.right, rootNode.right.right)).toBe(false);
-    expect(rootNode.traverseInOrder()).toEqual([1, 2, 5]);
-
-    expect(rootNode.replaceChild(rootNode.right, replacementNode)).toBe(true);
-    expect(rootNode.traverseInOrder()).toEqual([1, 2, 5]);
-
-    expect(rootNode.replaceChild(rootNode.left, replacementNode)).toBe(true);
-    expect(rootNode.traverseInOrder()).toEqual([5, 2, 5]);
-
-    expect(rootNode.replaceChild(new BinaryTreeNode(), new BinaryTreeNode())).toBe(false);
-  })",76,107,snuts
-/src/data-structures/tree/__test__/BinaryTreeNode.test.js,VerboseStatement,"{'startLine':109,'endLine':146}","it('should calculate node height', () => {
-    const root = new BinaryTreeNode(1);
-    const left = new BinaryTreeNode(3);
-    const right = new BinaryTreeNode(2);
-    const grandLeft = new BinaryTreeNode(5);
-    const grandRight = new BinaryTreeNode(6);
-    const grandGrandLeft = new BinaryTreeNode(7);
-
-    expect(root.height).toBe(0);
-    expect(root.balanceFactor).toBe(0);
-
-    root
-      .setLeft(left)
-      .setRight(right);
-
-    expect(root.height).toBe(1);
-    expect(left.height).toBe(0);
-    expect(root.balanceFactor).toBe(0);
-
-    left
-      .setLeft(grandLeft)
-      .setRight(grandRight);
-
-    expect(root.height).toBe(2);
-    expect(left.height).toBe(1);
-    expect(grandLeft.height).toBe(0);
-    expect(grandRight.height).toBe(0);
-    expect(root.balanceFactor).toBe(1);
-
-    grandLeft.setLeft(grandGrandLeft);
-
-    expect(root.height).toBe(3);
-    expect(left.height).toBe(2);
-    expect(grandLeft.height).toBe(1);
-    expect(grandRight.height).toBe(0);
-    expect(grandGrandLeft.height).toBe(0);
-    expect(root.balanceFactor).toBe(2);
-  })",109,146,snuts
-/src/data-structures/tree/__test__/BinaryTreeNode.test.js,VerboseStatement,"{'startLine':177,'endLine':198}","it('should be possible to create node with object as a value', () => {
-    const obj1 = { key: 'object_1', toString: () => 'object_1' };
-    const obj2 = { key: 'object_2' };
-
-    const node1 = new BinaryTreeNode(obj1);
-    const node2 = new BinaryTreeNode(obj2);
-
-    node1.setLeft(node2);
-
-    expect(node1.value).toEqual(obj1);
-    expect(node2.value).toEqual(obj2);
-    expect(node1.left.value).toEqual(obj2);
-
-    node1.removeChild(node2);
-
-    expect(node1.value).toEqual(obj1);
-    expect(node2.value).toEqual(obj2);
-    expect(node1.left).toBeNull();
-
-    expect(node1.toString()).toBe('object_1');
-    expect(node2.toString()).toBe('[object Object]');
-  })",177,198,snuts
-/src/data-structures/tree/__test__/BinaryTreeNode.test.js,VerboseStatement,"{'startLine':211,'endLine':234}","it('should detect right uncle', () => {
-    const grandParent = new BinaryTreeNode('grand-parent');
-    const parent = new BinaryTreeNode('parent');
-    const uncle = new BinaryTreeNode('uncle');
-    const child = new BinaryTreeNode('child');
-
-    expect(grandParent.uncle).not.toBeDefined();
-    expect(parent.uncle).not.toBeDefined();
-
-    grandParent.setLeft(parent);
-
-    expect(parent.uncle).not.toBeDefined();
-    expect(child.uncle).not.toBeDefined();
-
-    parent.setLeft(child);
-
-    expect(child.uncle).not.toBeDefined();
-
-    grandParent.setRight(uncle);
-
-    expect(parent.uncle).not.toBeDefined();
-    expect(child.uncle).toBeDefined();
-    expect(child.uncle).toEqual(uncle);
-  })",211,234,snuts
-/src/data-structures/tree/__test__/BinaryTreeNode.test.js,VerboseStatement,"{'startLine':236,'endLine':259}","it('should detect left uncle', () => {
-    const grandParent = new BinaryTreeNode('grand-parent');
-    const parent = new BinaryTreeNode('parent');
-    const uncle = new BinaryTreeNode('uncle');
-    const child = new BinaryTreeNode('child');
-
-    expect(grandParent.uncle).not.toBeDefined();
-    expect(parent.uncle).not.toBeDefined();
-
-    grandParent.setRight(parent);
-
-    expect(parent.uncle).not.toBeDefined();
-    expect(child.uncle).not.toBeDefined();
-
-    parent.setRight(child);
-
-    expect(child.uncle).not.toBeDefined();
-
-    grandParent.setLeft(uncle);
-
-    expect(parent.uncle).not.toBeDefined();
-    expect(child.uncle).toBeDefined();
-    expect(child.uncle).toEqual(uncle);
-  })",236,259,snuts
 /src/algorithms/uncategorized/rain-terraces/__test__/dpRainTerraces.test.js,VerboseStatement,"{'startLine':4,'endLine':20}","it('should find the amount of water collected after raining', () => {
     expect(dpRainTerraces([1])).toBe(0);
     expect(dpRainTerraces([1, 0])).toBe(0);
@@ -6663,115 +6663,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(eulerianPathSet[8].getKey()).toBe(vertexG.getKey());
     expect(eulerianPathSet[9].getKey()).toBe(vertexF.getKey());
   })",89,138,snuts
-/src/algorithms/graph/dijkstra/__test__/dijkstra.test.js,VerboseStatement,"{'startLine':7,'endLine':66}","it('should find minimum paths to all vertices for undirected graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-    const vertexH = new GraphVertex('H');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB, 4);
-    const edgeAE = new GraphEdge(vertexA, vertexE, 7);
-    const edgeAC = new GraphEdge(vertexA, vertexC, 3);
-    const edgeBC = new GraphEdge(vertexB, vertexC, 6);
-    const edgeBD = new GraphEdge(vertexB, vertexD, 5);
-    const edgeEC = new GraphEdge(vertexE, vertexC, 8);
-    const edgeED = new GraphEdge(vertexE, vertexD, 2);
-    const edgeDC = new GraphEdge(vertexD, vertexC, 11);
-    const edgeDG = new GraphEdge(vertexD, vertexG, 10);
-    const edgeDF = new GraphEdge(vertexD, vertexF, 2);
-    const edgeFG = new GraphEdge(vertexF, vertexG, 3);
-    const edgeEG = new GraphEdge(vertexE, vertexG, 5);
-
-    const graph = new Graph();
-    graph
-      .addVertex(vertexH)
-      .addEdge(edgeAB)
-      .addEdge(edgeAE)
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeBD)
-      .addEdge(edgeEC)
-      .addEdge(edgeED)
-      .addEdge(edgeDC)
-      .addEdge(edgeDG)
-      .addEdge(edgeDF)
-      .addEdge(edgeFG)
-      .addEdge(edgeEG);
-
-    const { distances, previousVertices } = dijkstra(graph, vertexA);
-
-    expect(distances).toEqual({
-      H: Infinity,
-      A: 0,
-      B: 4,
-      E: 7,
-      C: 3,
-      D: 9,
-      G: 12,
-      F: 11,
-    });
-
-    expect(previousVertices.F.getKey()).toBe('D');
-    expect(previousVertices.D.getKey()).toBe('B');
-    expect(previousVertices.B.getKey()).toBe('A');
-    expect(previousVertices.G.getKey()).toBe('E');
-    expect(previousVertices.C.getKey()).toBe('A');
-    expect(previousVertices.A).toBeNull();
-    expect(previousVertices.H).toBeNull();
-  })",7,66,snuts
-/src/algorithms/graph/dijkstra/__test__/dijkstra.test.js,VerboseStatement,"{'startLine':68,'endLine':116}","it('should find minimum paths to all vertices for directed graph with negative edge weights', () => {
-    const vertexS = new GraphVertex('S');
-    const vertexE = new GraphVertex('E');
-    const vertexA = new GraphVertex('A');
-    const vertexD = new GraphVertex('D');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexH = new GraphVertex('H');
-
-    const edgeSE = new GraphEdge(vertexS, vertexE, 8);
-    const edgeSA = new GraphEdge(vertexS, vertexA, 10);
-    const edgeED = new GraphEdge(vertexE, vertexD, 1);
-    const edgeDA = new GraphEdge(vertexD, vertexA, -4);
-    const edgeDC = new GraphEdge(vertexD, vertexC, -1);
-    const edgeAC = new GraphEdge(vertexA, vertexC, 2);
-    const edgeCB = new GraphEdge(vertexC, vertexB, -2);
-    const edgeBA = new GraphEdge(vertexB, vertexA, 1);
-
-    const graph = new Graph(true);
-    graph
-      .addVertex(vertexH)
-      .addEdge(edgeSE)
-      .addEdge(edgeSA)
-      .addEdge(edgeED)
-      .addEdge(edgeDA)
-      .addEdge(edgeDC)
-      .addEdge(edgeAC)
-      .addEdge(edgeCB)
-      .addEdge(edgeBA);
-
-    const { distances, previousVertices } = dijkstra(graph, vertexS);
-
-    expect(distances).toEqual({
-      H: Infinity,
-      S: 0,
-      A: 5,
-      B: 5,
-      C: 7,
-      D: 9,
-      E: 8,
-    });
-
-    expect(previousVertices.H).toBeNull();
-    expect(previousVertices.S).toBeNull();
-    expect(previousVertices.B.getKey()).toBe('C');
-    expect(previousVertices.C.getKey()).toBe('A');
-    expect(previousVertices.A.getKey()).toBe('D');
-    expect(previousVertices.D.getKey()).toBe('E');
-  })",68,116,snuts
 /src/algorithms/graph/detect-cycle/__test__/detectUndirectedCycleUsingDisjointSet.test.js,VerboseStatement,"{'startLine':7,'endLine':35}","it('should detect undirected cycle', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -8877,120 +8768,123 @@ file,type,line,method,methodStart,methodEnd,source
     expect(tree.root.height).toBe(2);
     expect(tree.root.balanceFactor).toBe(0);
   })",271,302,snuts
-/src/utils/comparator/__test__/Comparator.test.js,Conditional Test Logic,"{'line': 27, 'column': 4, 'index': 1177}","describe('Comparator with custom function', () => {
-  const createComparator = () => new Comparator((a, b) => {
-    if (a.length === b.length) {
-      return 0;
-    }
-    return a.length < b.length ? -1 : 1;
-  });
+/src/algorithms/graph/dijkstra/__test__/dijkstra.test.js,VerboseStatement,"{'startLine':7,'endLine':66}","it('should find minimum paths to all vertices for undirected graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+    const vertexH = new GraphVertex('H');
 
-  it('should handle equality correctly regardless of order', () => {
-    const comparator = createComparator();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.equal('a', '')).toBe(false);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+    const edgeAB = new GraphEdge(vertexA, vertexB, 4);
+    const edgeAE = new GraphEdge(vertexA, vertexE, 7);
+    const edgeAC = new GraphEdge(vertexA, vertexC, 3);
+    const edgeBC = new GraphEdge(vertexB, vertexC, 6);
+    const edgeBD = new GraphEdge(vertexB, vertexD, 5);
+    const edgeEC = new GraphEdge(vertexE, vertexC, 8);
+    const edgeED = new GraphEdge(vertexE, vertexD, 2);
+    const edgeDC = new GraphEdge(vertexD, vertexC, 11);
+    const edgeDG = new GraphEdge(vertexD, vertexG, 10);
+    const edgeDF = new GraphEdge(vertexD, vertexF, 2);
+    const edgeFG = new GraphEdge(vertexF, vertexG, 3);
+    const edgeEG = new GraphEdge(vertexE, vertexG, 5);
 
-    comparator.reverse();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
-  });
+    const graph = new Graph();
+    graph
+      .addVertex(vertexH)
+      .addEdge(edgeAB)
+      .addEdge(edgeAE)
+      .addEdge(edgeAC)
+      .addEdge(edgeBC)
+      .addEdge(edgeBD)
+      .addEdge(edgeEC)
+      .addEdge(edgeED)
+      .addEdge(edgeDC)
+      .addEdge(edgeDG)
+      .addEdge(edgeDF)
+      .addEdge(edgeFG)
+      .addEdge(edgeEG);
 
-  it('should handle inequalities with default order', () => {
-    const comparator = createComparator();
-    expect(comparator.lessThan('b', 'aa')).toBe(true);
-    expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(false);
-    expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(true);
-  });
+    const { distances, previousVertices } = dijkstra(graph, vertexA);
 
-  it('should handle inequalities with reversed order', () => {
-    const comparator = createComparator();
-    comparator.reverse();
-    expect(comparator.lessThan('b', 'aa')).toBe(false);
-    expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(true);
-    expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
-  });
-})",25,58,steel
-/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 35, 'column': 4, 'index': 1392}","it('should handle equality correctly regardless of order', () => {
-    const comparator = createComparator();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.equal('a', '')).toBe(false);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+    expect(distances).toEqual({
+      H: Infinity,
+      A: 0,
+      B: 4,
+      E: 7,
+      C: 3,
+      D: 9,
+      G: 12,
+      F: 11,
+    });
 
-    comparator.reverse();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
-  })",33,42,steel
-/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 35, 'column': 4, 'index': 1392}","it('should handle equality correctly regardless of order', () => {
-    const comparator = createComparator();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.equal('a', '')).toBe(false);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+    expect(previousVertices.F.getKey()).toBe('D');
+    expect(previousVertices.D.getKey()).toBe('B');
+    expect(previousVertices.B.getKey()).toBe('A');
+    expect(previousVertices.G.getKey()).toBe('E');
+    expect(previousVertices.C.getKey()).toBe('A');
+    expect(previousVertices.A).toBeNull();
+    expect(previousVertices.H).toBeNull();
+  })",7,66,snuts
+/src/algorithms/graph/dijkstra/__test__/dijkstra.test.js,VerboseStatement,"{'startLine':68,'endLine':116}","it('should find minimum paths to all vertices for directed graph with negative edge weights', () => {
+    const vertexS = new GraphVertex('S');
+    const vertexE = new GraphVertex('E');
+    const vertexA = new GraphVertex('A');
+    const vertexD = new GraphVertex('D');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexH = new GraphVertex('H');
 
-    comparator.reverse();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
-  })",33,42,steel
-/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 37, 'column': 4, 'index': 1494}","it('should handle equality correctly regardless of order', () => {
-    const comparator = createComparator();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.equal('a', '')).toBe(false);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+    const edgeSE = new GraphEdge(vertexS, vertexE, 8);
+    const edgeSA = new GraphEdge(vertexS, vertexA, 10);
+    const edgeED = new GraphEdge(vertexE, vertexD, 1);
+    const edgeDA = new GraphEdge(vertexD, vertexA, -4);
+    const edgeDC = new GraphEdge(vertexD, vertexC, -1);
+    const edgeAC = new GraphEdge(vertexA, vertexC, 2);
+    const edgeCB = new GraphEdge(vertexC, vertexB, -2);
+    const edgeBA = new GraphEdge(vertexB, vertexA, 1);
 
-    comparator.reverse();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
-  })",33,42,steel
-/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 37, 'column': 4, 'index': 1494}","it('should handle equality correctly regardless of order', () => {
-    const comparator = createComparator();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.equal('a', '')).toBe(false);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+    const graph = new Graph(true);
+    graph
+      .addVertex(vertexH)
+      .addEdge(edgeSE)
+      .addEdge(edgeSA)
+      .addEdge(edgeED)
+      .addEdge(edgeDA)
+      .addEdge(edgeDC)
+      .addEdge(edgeAC)
+      .addEdge(edgeCB)
+      .addEdge(edgeBA);
 
-    comparator.reverse();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
-  })",33,42,steel
-/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 40, 'column': 4, 'index': 1585}","it('should handle equality correctly regardless of order', () => {
-    const comparator = createComparator();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.equal('a', '')).toBe(false);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+    const { distances, previousVertices } = dijkstra(graph, vertexS);
 
-    comparator.reverse();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
-  })",33,42,steel
-/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 40, 'column': 4, 'index': 1585}","it('should handle equality correctly regardless of order', () => {
-    const comparator = createComparator();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.equal('a', '')).toBe(false);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+    expect(distances).toEqual({
+      H: Infinity,
+      S: 0,
+      A: 5,
+      B: 5,
+      C: 7,
+      D: 9,
+      E: 8,
+    });
 
-    comparator.reverse();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
-  })",33,42,steel
-/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 41, 'column': 4, 'index': 1636}","it('should handle equality correctly regardless of order', () => {
-    const comparator = createComparator();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.equal('a', '')).toBe(false);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
-
-    comparator.reverse();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
-  })",33,42,steel
-/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 41, 'column': 4, 'index': 1636}","it('should handle equality correctly regardless of order', () => {
-    const comparator = createComparator();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.equal('a', '')).toBe(false);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
-
-    comparator.reverse();
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
-  })",33,42,steel
+    expect(previousVertices.H).toBeNull();
+    expect(previousVertices.S).toBeNull();
+    expect(previousVertices.B.getKey()).toBe('C');
+    expect(previousVertices.C.getKey()).toBe('A');
+    expect(previousVertices.A.getKey()).toBe('D');
+    expect(previousVertices.D.getKey()).toBe('E');
+  })",68,116,snuts
+/src/utils/comparator/__test__/Comparator.test.js,Conditional Test Logic,"{'line': 30, 'column': 6, 'index': 1205}","beforeEach(() => {
+    comparator = new Comparator((a, b) => {
+      if (a.length === b.length) {
+        return 0;
+      }
+      return a.length < b.length ? -1 : 1;
+    });
+  })",28,35,steel
 /src/playground/__test__/playground.test.js,Magic Number,"{'line': 6, 'column': 30, 'index': 220}","it('should return correct results', () => {
     // Replace the next dummy test with your playground function tests.
     expect(playground()).toBe(120);

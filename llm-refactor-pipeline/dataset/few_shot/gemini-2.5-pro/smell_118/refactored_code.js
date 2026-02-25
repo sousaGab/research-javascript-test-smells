@@ -1,64 +1,92 @@
-test('renders hover details correctly', () => {
-  const element = document.createElement('div');
-  const graph = createTestGraph(element);
+describe('Rickshaw.Graph.HoverDetail', () => {
+  let element;
+  let graph;
+  let onShow;
+  let onHide;
+  let onRender;
+  let hoverDetail;
 
-  const onShow = jest.fn();
-  const onHide = jest.fn();
-  const onRender = jest.fn();
+  beforeEach(() => {
+    element = document.createElement('div');
+    graph = createTestGraph(element);
 
-  const hoverDetail = new Rickshaw.Graph.HoverDetail({
-    graph,
-    onShow,
-    onHide,
-    onRender,
+    onShow = jest.fn();
+    onHide = jest.fn();
+    onRender = jest.fn();
+
+    hoverDetail = new Rickshaw.Graph.HoverDetail({
+      graph,
+      onShow,
+      onHide,
+      onRender,
+    });
   });
 
-  // Test render with null value
-  hoverDetail.render({
-    points: [{
-      active: true,
-      series: graph.series[0],
-      value: {
-        y: null
-      },
-    }, ],
+  afterEach(() => {
+    element.remove();
   });
 
-  expect(element.querySelector('.item')).toBeNull();
-  expect(onRender).not.toHaveBeenCalled();
+  test('does not render or call onRender when value is null', () => {
+    hoverDetail.render({
+      points: [{
+        active: true,
+        series: graph.series[0],
+        value: {
+          y: null
+        },
+      }, ],
+    });
 
-  // Test render with multiple points
-  hoverDetail.render({
-    points: [{
-      active: true,
-      series: graph.series[0],
-      value: graph.series[0].data[0],
-      formattedXValue: '4 foo',
-      formattedYValue: '32 bar',
-    }, {
-      active: true,
-      series: graph.series[0],
-      value: graph.series[0].data[1],
-    }, {
-      active: true,
-      series: graph.series[0],
-      value: {
-        y: null
-      },
-    }, ],
+    const items = d3.select(element).selectAll('.item');
+    expect(items.empty()).toBe(true);
+    expect(onRender).not.toHaveBeenCalled();
   });
 
-  expect(onShow).toHaveBeenCalledTimes(1);
-  expect(onRender).toHaveBeenCalledTimes(1);
+  test('renders details correctly for the first active point', () => {
+    hoverDetail.render({
+      points: [{
+        active: true,
+        series: graph.series[0],
+        value: graph.series[0].data[0],
+        formattedXValue: '4 foo',
+        formattedYValue: '32 bar',
+      }, {
+        active: true,
+        series: graph.series[0],
+        value: graph.series[0].data[1],
+      }, {
+        active: true,
+        series: graph.series[0],
+        value: {
+          y: null
+        },
+      }, ],
+    });
 
-  expect(element.querySelector('.x_label').innerHTML).toBe('4 foo');
-  expect(element.querySelector('.item').innerHTML).toBe('testseries:&nbsp;32 bar');
-  expect(element.querySelector('.dot')).not.toBeNull();
+    expect(onShow).toHaveBeenCalledTimes(1);
+    expect(onRender).toHaveBeenCalledTimes(1);
 
-  // Test hide functionality
-  hoverDetail.hide();
-  expect(onHide).toHaveBeenCalledTimes(1);
+    const xLabel = d3.select(element).select('.x_label');
+    expect(xLabel.html()).toBe('4 foo');
 
-  // Clean up
-  element.remove();
+    const item = d3.select(element).select('.item');
+    expect(item.html()).toBe('testseries:&nbsp;32 bar');
+
+    const dots = d3.select(element).selectAll('.dot');
+    expect(dots.size()).toBe(1);
+  });
+
+  test('calls onHide when hide is invoked', () => {
+    hoverDetail.render({
+      points: [{
+        active: true,
+        series: graph.series[0],
+        value: graph.series[0].data[0],
+      }, ],
+    });
+
+    hoverDetail.hide();
+
+    expect(onHide).toHaveBeenCalledTimes(1);
+  });
 });

@@ -17,7 +17,7 @@ it("static:true in data-grid prevents item from being dragged", () => {
   const item = container.querySelector(".react-grid-item.static");
   expect(item).toBeInTheDocument();
 
-  // The previous assertion ensures 'item' is not null, so we can safely fire events.
+  // The assertion above ensures 'item' exists, making the conditional check redundant.
   fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
   fireEvent.mouseMove(document, { clientX: 200, clientY: 200 });
   fireEvent.mouseUp(document);

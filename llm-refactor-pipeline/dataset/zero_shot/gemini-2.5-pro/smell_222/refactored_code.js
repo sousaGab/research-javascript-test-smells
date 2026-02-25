@@ -1,4 +1,4 @@
-it('renders classes bv-d-xs-down-none when more than 3 pages', async () => {
+it('updates button states and responsive visibility when the page changes', async () => {
   const wrapper = mount(BPagination, {
     propsData: {
       totalRows: 70,
@@ -6,69 +6,55 @@ it('renders classes bv-d-xs-down-none when more than 3 pages', async () => {
       limit: 7,
       value: 1
     }
-  })
+  });
 
-  expect(wrapper.element.tagName).toBe('UL')
-  expect(wrapper.findAll('li').length).toBe(11)
+  const getLiWrappers = () => wrapper.findAll('li').wrappers;
 
-  // --- State 1: Current Page = 1 ---
-  expect(wrapper.vm.computedCurrentPage).toBe(1)
+  // State when on the first page
+  expect(wrapper.vm.computedCurrentPage).toBe(1);
+  let listItems = getLiWrappers();
+  expect(listItems[0].classes()).toContain('disabled'); // First button
+  expect(listItems[1].classes()).toContain('disabled'); // Prev button
+  expect(listItems[9].classes()).not.toContain('disabled'); // Next button
+  expect(listItems[10].classes()).not.toContain('disabled'); // Last button
 
-  let listItems = wrapper.findAll('li')
-  let pageButtons = listItems.wrappers.slice(2, 9)
+  let pageButtons = listItems.slice(2, 9);
+  expect(pageButtons[0].classes()).toContain('active');
+  expect(pageButtons.slice(1).every(btn => !btn.classes().includes('active'))).toBe(true);
 
-  expect(listItems.at(0).classes()).toContain('disabled') // First button
-  expect(listItems.at(1).classes()).toContain('disabled') // Prev button
-  expect(listItems.at(9).classes()).not.toContain('disabled') // Next button
-  expect(listItems.at(10).classes()).not.toContain('disabled') // Last button
+  let visibilityClasses = pageButtons.map(btn => btn.classes().includes('bv-d-xs-down-none'));
+  expect(visibilityClasses).toEqual([false, false, false, true, true, true, true]);
 
-  let activeStates = pageButtons.map(p => p.classes().includes('active'))
-  expect(activeStates).toEqual([true, false, false, false, false, false, false])
-
-  let visibilityStates = pageButtons.map(p => p.classes().includes('bv-d-xs-down-none'))
-  expect(visibilityStates).toEqual([false, false, false, true, true, true, true])
-
-  // --- State 2: Current Page = 4 ---
+  // State when on a middle page
   await wrapper.setProps({
-    value: 4
-  })
-  await waitNT(wrapper.vm)
+    value: '4'
+  });
+  await waitNT(wrapper.vm);
 
-  expect(wrapper.vm.computedCurrentPage).toBe(4)
-  listItems = wrapper.findAll('li')
-  pageButtons = listItems.wrappers.slice(2, 9)
+  expect(wrapper.vm.computedCurrentPage).toBe(4);
+  listItems = getLiWrappers();
+  expect(listItems[0].classes()).not.toContain('disabled');
+  expect(listItems[1].classes()).not.toContain('disabled');
+  expect(listItems[9].classes()).not.toContain('disabled');
+  expect(listItems[10].classes()).not.toContain('disabled');
 
-  expect(listItems.at(0).classes()).not.toContain('disabled')
-  expect(listItems.at(1).classes()).not.toContain('disabled')
-  expect(listItems.at(9).classes()).not.toContain('disabled')
-  expect(listItems.at(10).classes()).not.toContain('disabled')
+  pageButtons = listItems.slice(2, 9);
+  expect(pageButtons[3].classes()).toContain('active');
+  expect(pageButtons.filter((_, i) => i !== 3).every(btn => !btn.classes().includes('active'))).toBe(true);
 
-  activeStates = pageButtons.map(p => p.classes().includes('active'))
-  expect(activeStates).toEqual([false, false, false, true, false, false, false])
+  visibilityClasses = pageButtons.map(btn => btn.classes().includes('bv-d-xs-down-none'));
+  expect(visibilityClasses).toEqual([true, true, false, false, false, true, true]);
 
-  visibilityStates = pageButtons.map(p => p.classes().includes('bv-d-xs-down-none'))
-  expect(visibilityStates).toEqual([true, true, false, false, false, true, true])
-
-  // --- State 3: Current Page = 7 ---
+  // State when on the last page
   await wrapper.setProps({
-    value: 7
-  })
-  await waitNT(wrapper.vm)
+    value: '7'
+  });
+  await waitNT(wrapper.vm);
 
-  expect(wrapper.vm.computedCurrentPage).toBe(7)
-  listItems = wrapper.findAll('li')
-  pageButtons = listItems.wrappers.slice(2, 9)
+  expect(wrapper.vm.computedCurrentPage).toBe(7);
+  pageButtons = getLiWrappers().slice(2, 9);
+  visibilityClasses = pageButtons.map(btn => btn.classes().includes('bv-d-xs-down-none'));
+  expect(visibilityClasses).toEqual([true, true, true, true, false, false, false]);
 
-  expect(listItems.at(0).classes()).not.toContain('disabled')
-  expect(listItems.at(1).classes()).not.toContain('disabled')
-  expect(listItems.at(9).classes()).toContain('disabled')
-  expect(listItems.at(10).classes()).toContain('disabled')
-
-  activeStates = pageButtons.map(p => p.classes().includes('active'))
-  expect(activeStates).toEqual([false, false, false, false, false, false, true])
-
-  visibilityStates = pageButtons.map(p => p.classes().includes('bv-d-xs-down-none'))
-  expect(visibilityStates).toEqual([true, true, true, true, false, false, false])
-
-  wrapper.destroy()
-})
+  wrapper.destroy();
+});

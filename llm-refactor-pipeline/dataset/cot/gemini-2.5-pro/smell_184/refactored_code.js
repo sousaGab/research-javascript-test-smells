@@ -4,7 +4,7 @@ test('when program has required option not specified and --help then help', () =
 
     expect(() => {
       program.parse(['node', 'test', '--help']);
-    }).toThrow({
+    }).toThrow(expect.objectContaining({
       code: 'commander.helpDisplayed'
-    });
+    }));
   })

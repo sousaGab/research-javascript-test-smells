@@ -1,16 +1,23 @@
-describe('BToaster structure', () => {
-  it('has expected base structure', async () => {
-    const wrapper = mount(BToaster, {
+describe('has expected structure', () => {
+  let wrapper
+
+  beforeEach(async () => {
+    wrapper = mount(BToaster, {
       attachTo: document.body,
       propsData: {
         name: 'foo'
       }
     })
-
-    expect(wrapper.vm).toBeDefined()
     await waitNT(wrapper.vm)
     await waitRAF()
+  })
 
+  afterEach(() => {
+    wrapper.destroy()
+  })
+
+  it('with common elements and attributes', () => {
+    expect(wrapper.vm).toBeDefined()
     expect(wrapper.element.tagName).toBe('DIV')
     expect(wrapper.attributes('id')).toBe('foo')
     expect(wrapper.attributes('aria-live')).toBeUndefined()
@@ -27,27 +34,12 @@ describe('BToaster structure', () => {
     expect($slot.classes()).toContain('vue-portal-target')
     expect($slot.classes().length).toBe(2)
     expect($slot.text()).toEqual('')
-
-    wrapper.destroy()
   })
 
-  // This test is specific to the Vue 2 implementation which uses PortalVue
   if (!isVue3) {
-    it('renders PortalTarget component for Vue 2', async () => {
-      const wrapper = mount(BToaster, {
-        attachTo: document.body,
-        propsData: {
-          name: 'foo'
-        }
-      })
-
-      await waitNT(wrapper.vm)
-      await waitRAF()
-
+    it('renders a PortalTarget component on Vue 2', () => {
       const $slot = wrapper.find('.b-toaster-slot')
       expect($slot.findComponent(PortalTarget).exists()).toBe(true)
-
-      wrapper.destroy()
     })
   }
 })

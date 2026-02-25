@@ -1,18 +1,23 @@
 it('should promote references on a get.', function() {
-    const assertLinkedListState = (startNode, expectedNodes) => {
-        let currentNode = startNode;
-        for (const expectedNode of expectedNodes) {
+    const assertLinkedListState = (head, expectedNodes) => {
+        let currentNode = head;
+        for (const {
+                key,
+                value
+            } of expectedNodes) {
             expect(currentNode).toBeDefined();
-            expect(currentNode[__key]).toBe(expectedNode.key);
-            expect(currentNode.value).toEqual(expectedNode.value);
+            expect(currentNode[__key]).toBe(key);
+            expect(currentNode.value).toEqual(value);
             currentNode = currentNode[__next];
         }
         expect(currentNode).toBeUndefined();
     };
 
-    var model = new Model({
+    const model = new Model({
         cache: cacheGenerator(0, 1)
     });
+
+    const root = model._root;
 
     const initialState = [{
         key: 'title',
@@ -27,11 +32,12 @@ it('should promote references on a get.', function() {
         key: 'lolomo',
         value: ['lolomos', '1234']
     }, ];
-    assertLinkedListState(model._root[__head], initialState);
+
+    assertLinkedListState(root[__head], initialState);
 
     model.get(['lolomo', 0]).subscribe();
 
-    const finalState = [{
+    const promotedState = [{
         key: '0',
         value: ['lists', 'A']
     }, {
@@ -44,5 +50,6 @@ it('should promote references on a get.', function() {
         key: 'item',
         value: ['videos', '0']
     }, ];
-    assertLinkedListState(model._root[__head], finalState);
+
+    assertLinkedListState(root[__head], promotedState);
 });

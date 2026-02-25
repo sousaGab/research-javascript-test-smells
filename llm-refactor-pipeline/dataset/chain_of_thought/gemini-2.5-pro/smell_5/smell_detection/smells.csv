@@ -1138,39 +1138,59 @@ file,type,line,method,methodStart,methodEnd,source
         expect(current.value).toBe('I am 1');
         expect(current[__prev]).toBe(undefined);
     })",105,128,snuts
-/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':130,'endLine':162}","it('should promote references on a get.', function() {
-    const assertListOrder = (head, expectedNodes) => {
-        let currentNode = head;
-        expectedNodes.forEach(node => {
-            expect(currentNode[__key]).toBe(node.key);
-            expect(currentNode.value).toEqual(node.value);
-            currentNode = currentNode[__next];
-        });
-        expect(currentNode).toBeUndefined();
-    };
-
-    var model = new Model({
+/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':130,'endLine':182}","it('should promote references on a get.', function() {
+    const model = new Model({
         cache: cacheGenerator(0, 1)
     });
+    const root = model._root;
 
-    const initialOrder = [
-        { key: 'title', value: 'Video 0' },
-        { key: 'item', value: ['videos', '0'] },
-        { key: '0', value: ['lists', 'A'] },
-        { key: 'lolomo', value: ['lolomos', '1234'] }
-    ];
-    assertListOrder(model._root[__head], initialOrder);
+    const assertListOrder = (head, expectedOrder) => {
+        let curr = head;
+        for (const {
+                key,
+                value
+            } of expectedOrder) {
+            expect(curr[__key]).toBe(key);
+            expect(curr.value).toEqual(value);
+            curr = curr[__next];
+        }
+        expect(curr).toBeUndefined();
+    };
+
+    const initialOrder = [{
+        key: 'title',
+        value: 'Video 0'
+    }, {
+        key: 'item',
+        value: ['videos', '0']
+    }, {
+        key: '0',
+        value: ['lists', 'A']
+    }, {
+        key: 'lolomo',
+        value: ['lolomos', '1234']
+    }, ];
+
+    assertListOrder(root[__head], initialOrder);
 
     model.get(['lolomo', 0]).subscribe();
 
-    const finalOrder = [
-        { key: '0', value: ['lists', 'A'] },
-        { key: 'lolomo', value: ['lolomos', '1234'] },
-        { key: 'title', value: 'Video 0' },
-        { key: 'item', value: ['videos', '0'] }
-    ];
-    assertListOrder(model._root[__head], finalOrder);
-})",130,162,snuts
+    const promotedOrder = [{
+        key: '0',
+        value: ['lists', 'A']
+    }, {
+        key: 'lolomo',
+        value: ['lolomos', '1234']
+    }, {
+        key: 'title',
+        value: 'Video 0'
+    }, {
+        key: 'item',
+        value: ['videos', '0']
+    }, ];
+
+    assertListOrder(root[__head], promotedOrder);
+})",130,182,snuts
 /test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':98,'endLine':98}","it('should promote the get item to the head toJSON.', function() {
         var model = new Model();
         model.set({json: {1: 'I am 1'}}).subscribe();
@@ -6388,6 +6408,185 @@ file,type,line,method,methodStart,methodEnd,source
                 }, done);
         })",64,92,snuts
 /test/falcor/get/get.cache-only.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/falcor/deref/deref.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,OvercommentedTest,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
+        var cache = cacheGenerator(0, 30);
+        var model = new Model({
+            cache: cache,
+            maxSize: 3600,
+
+            // Only clean up 5% of the cache
+            collectRatio: 0.95
+        })._fromWhenceYouCame();
+
+        var lolomoModel;
+        var listModel;
+
+        // this is sync, no dataSource
+        // lolomo should be in the back of the cache again.
+        model.
+            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
+            subscribe(function(x) {
+                var lolomo = x.json.lolomo;
+                lolomoModel = model.deref(lolomo);
+                listModel = model.deref(lolomo[0]);
+            });
+
+        // Move the other references to the front of the LRU list.
+        // One of the problems in dealing with small amounts of data / size
+        // Is when things clean up, it causes side effects with references
+        // and what was cleaned up.  But that is only in these single request
+        // trivial tests
+        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
+
+        listModel.
+            set({
+                json: {
+                    10: {
+                        item: {
+                            title: 'Running man',
+                            rating: 5
+                        }
+                    },
+                    11: {
+                        item: {
+                            title: 'Commando',
+                            rating: 5
+                        }
+                    }
+                }
+            }).
+            subscribe();
+
+        var node = model._root[__head];
+        while (node) {
+            expect(node[__key]).not.toBe('lolomo');
+            node = node[__next];
+        }
+
+        var foundA, foundB, foundC;
+        var node = model._root[__head];
+        while (node) {
+            foundA = foundA || node.value[1] === 'A';
+            foundB = foundB || node.value[1] === 'B';
+            foundC = foundC || node.value[1] === 'C';
+            node = node[__next];
+        }
+        expect(foundA).toBe(true);
+        expect(foundB).toBe(true);
+        expect(foundC).toBe(true);
+
+        expect(lolomoModel._hasValidParentReference()).toBe(false);
+    })",115,183,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,VerboseStatement,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
+        var cache = cacheGenerator(0, 30);
+        var model = new Model({
+            cache: cache,
+            maxSize: 3600,
+
+            // Only clean up 5% of the cache
+            collectRatio: 0.95
+        })._fromWhenceYouCame();
+
+        var lolomoModel;
+        var listModel;
+
+        // this is sync, no dataSource
+        // lolomo should be in the back of the cache again.
+        model.
+            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
+            subscribe(function(x) {
+                var lolomo = x.json.lolomo;
+                lolomoModel = model.deref(lolomo);
+                listModel = model.deref(lolomo[0]);
+            });
+
+        // Move the other references to the front of the LRU list.
+        // One of the problems in dealing with small amounts of data / size
+        // Is when things clean up, it causes side effects with references
+        // and what was cleaned up.  But that is only in these single request
+        // trivial tests
+        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
+
+        listModel.
+            set({
+                json: {
+                    10: {
+                        item: {
+                            title: 'Running man',
+                            rating: 5
+                        }
+                    },
+                    11: {
+                        item: {
+                            title: 'Commando',
+                            rating: 5
+                        }
+                    }
+                }
+            }).
+            subscribe();
+
+        var node = model._root[__head];
+        while (node) {
+            expect(node[__key]).not.toBe('lolomo');
+            node = node[__next];
+        }
+
+        var foundA, foundB, foundC;
+        var node = model._root[__head];
+        while (node) {
+            foundA = foundA || node.value[1] === 'A';
+            foundB = foundB || node.value[1] === 'B';
+            foundC = foundC || node.value[1] === 'C';
+            node = node[__next];
+        }
+        expect(foundA).toBe(true);
+        expect(foundB).toBe(true);
+        expect(foundC).toBe(true);
+
+        expect(lolomoModel._hasValidParentReference()).toBe(false);
+    })",115,183,snuts
+/test/falcor/deref/deref.errors.spec.js,ConditionalTestLogic,"{'startLine':42,'endLine':44}","it('should error on a shorted deref path.', function(done) {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
+        });
+
+        var onNext = jest.fn();
+        model.
+            get(['lolomo', 0, 0, 'item', 'title']).
+            subscribe(onNext, noOp, function() {
+                expect(onNext).toHaveBeenCalledTimes(1);
+
+                var json = onNext.mock.calls[0][0].json;
+                var lolomoModel = model.deref(json.lolomo);
+                model.
+                    set({
+                        json: {
+                            lolomos: 'ohh no'
+                        }
+                    }).
+                    subscribe();
+
+                toObservable(lolomoModel.
+                    get([0, 0, 'item', 'title'])).
+                    doAction(onNext, function(err) {
+                        expect(onNext).toHaveBeenCalledTimes(1);
+                        expect(err.name).toBe(InvalidModelError.name);
+                    }).
+                    subscribe(
+                        noOp,
+                        function(err) {
+                            if (isAssertionError(err)) {
+                                return done(err);
+                            }
+                            done();
+                        },
+                        done.bind(null, new Error('onCompleted shouldnt be called')));
+            });
+    })",12,49,snuts
+/test/falcor/deref/deref.errors.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':65,'endLine':69}","it(""should get a hard error from the DataSource with _treatDataSourceErrorsAsJSONGraphErrors."", function(done) {
         var model = new Model({
             source: new ErrorDataSource(503, ""Timeout""),
@@ -6635,185 +6834,6 @@ file,type,line,method,methodStart,methodEnd,source
             }).
             subscribe(noOp, doneOnError(done), errorOnCompleted(done));
     })",107,144,snuts
-/test/falcor/deref/deref.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,OvercommentedTest,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
-        var cache = cacheGenerator(0, 30);
-        var model = new Model({
-            cache: cache,
-            maxSize: 3600,
-
-            // Only clean up 5% of the cache
-            collectRatio: 0.95
-        })._fromWhenceYouCame();
-
-        var lolomoModel;
-        var listModel;
-
-        // this is sync, no dataSource
-        // lolomo should be in the back of the cache again.
-        model.
-            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
-            subscribe(function(x) {
-                var lolomo = x.json.lolomo;
-                lolomoModel = model.deref(lolomo);
-                listModel = model.deref(lolomo[0]);
-            });
-
-        // Move the other references to the front of the LRU list.
-        // One of the problems in dealing with small amounts of data / size
-        // Is when things clean up, it causes side effects with references
-        // and what was cleaned up.  But that is only in these single request
-        // trivial tests
-        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
-
-        listModel.
-            set({
-                json: {
-                    10: {
-                        item: {
-                            title: 'Running man',
-                            rating: 5
-                        }
-                    },
-                    11: {
-                        item: {
-                            title: 'Commando',
-                            rating: 5
-                        }
-                    }
-                }
-            }).
-            subscribe();
-
-        var node = model._root[__head];
-        while (node) {
-            expect(node[__key]).not.toBe('lolomo');
-            node = node[__next];
-        }
-
-        var foundA, foundB, foundC;
-        var node = model._root[__head];
-        while (node) {
-            foundA = foundA || node.value[1] === 'A';
-            foundB = foundB || node.value[1] === 'B';
-            foundC = foundC || node.value[1] === 'C';
-            node = node[__next];
-        }
-        expect(foundA).toBe(true);
-        expect(foundB).toBe(true);
-        expect(foundC).toBe(true);
-
-        expect(lolomoModel._hasValidParentReference()).toBe(false);
-    })",115,183,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,VerboseStatement,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
-        var cache = cacheGenerator(0, 30);
-        var model = new Model({
-            cache: cache,
-            maxSize: 3600,
-
-            // Only clean up 5% of the cache
-            collectRatio: 0.95
-        })._fromWhenceYouCame();
-
-        var lolomoModel;
-        var listModel;
-
-        // this is sync, no dataSource
-        // lolomo should be in the back of the cache again.
-        model.
-            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
-            subscribe(function(x) {
-                var lolomo = x.json.lolomo;
-                lolomoModel = model.deref(lolomo);
-                listModel = model.deref(lolomo[0]);
-            });
-
-        // Move the other references to the front of the LRU list.
-        // One of the problems in dealing with small amounts of data / size
-        // Is when things clean up, it causes side effects with references
-        // and what was cleaned up.  But that is only in these single request
-        // trivial tests
-        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
-
-        listModel.
-            set({
-                json: {
-                    10: {
-                        item: {
-                            title: 'Running man',
-                            rating: 5
-                        }
-                    },
-                    11: {
-                        item: {
-                            title: 'Commando',
-                            rating: 5
-                        }
-                    }
-                }
-            }).
-            subscribe();
-
-        var node = model._root[__head];
-        while (node) {
-            expect(node[__key]).not.toBe('lolomo');
-            node = node[__next];
-        }
-
-        var foundA, foundB, foundC;
-        var node = model._root[__head];
-        while (node) {
-            foundA = foundA || node.value[1] === 'A';
-            foundB = foundB || node.value[1] === 'B';
-            foundC = foundC || node.value[1] === 'C';
-            node = node[__next];
-        }
-        expect(foundA).toBe(true);
-        expect(foundB).toBe(true);
-        expect(foundC).toBe(true);
-
-        expect(lolomoModel._hasValidParentReference()).toBe(false);
-    })",115,183,snuts
-/test/falcor/deref/deref.errors.spec.js,ConditionalTestLogic,"{'startLine':42,'endLine':44}","it('should error on a shorted deref path.', function(done) {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
-        });
-
-        var onNext = jest.fn();
-        model.
-            get(['lolomo', 0, 0, 'item', 'title']).
-            subscribe(onNext, noOp, function() {
-                expect(onNext).toHaveBeenCalledTimes(1);
-
-                var json = onNext.mock.calls[0][0].json;
-                var lolomoModel = model.deref(json.lolomo);
-                model.
-                    set({
-                        json: {
-                            lolomos: 'ohh no'
-                        }
-                    }).
-                    subscribe();
-
-                toObservable(lolomoModel.
-                    get([0, 0, 'item', 'title'])).
-                    doAction(onNext, function(err) {
-                        expect(onNext).toHaveBeenCalledTimes(1);
-                        expect(err.name).toBe(InvalidModelError.name);
-                    }).
-                    subscribe(
-                        noOp,
-                        function(err) {
-                            if (isAssertionError(err)) {
-                                return done(err);
-                            }
-                            done();
-                        },
-                        done.bind(null, new Error('onCompleted shouldnt be called')));
-            });
-    })",12,49,snuts
-/test/falcor/deref/deref.errors.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/call/call.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/getTestRunner.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/testRunner.js,NonFunctionalStatement,"{'startLine':7,'endLine':7}",Unknown,,,snuts
@@ -39005,6 +39025,59 @@ file,type,line,method,methodStart,methodEnd,source
 
         tripleItem(model);
     })",148,180,steel
+/test/lru/lru.promote.get.spec.js,Conditional Test Logic,"{'line': 138, 'column': 8, 'index': 5304}","it('should promote references on a get.', function() {
+    const model = new Model({
+        cache: cacheGenerator(0, 1)
+    });
+    const root = model._root;
+
+    const assertListOrder = (head, expectedOrder) => {
+        let curr = head;
+        for (const {
+                key,
+                value
+            } of expectedOrder) {
+            expect(curr[__key]).toBe(key);
+            expect(curr.value).toEqual(value);
+            curr = curr[__next];
+        }
+        expect(curr).toBeUndefined();
+    };
+
+    const initialOrder = [{
+        key: 'title',
+        value: 'Video 0'
+    }, {
+        key: 'item',
+        value: ['videos', '0']
+    }, {
+        key: '0',
+        value: ['lists', 'A']
+    }, {
+        key: 'lolomo',
+        value: ['lolomos', '1234']
+    }, ];
+
+    assertListOrder(root[__head], initialOrder);
+
+    model.get(['lolomo', 0]).subscribe();
+
+    const promotedOrder = [{
+        key: '0',
+        value: ['lists', 'A']
+    }, {
+        key: 'lolomo',
+        value: ['lolomos', '1234']
+    }, {
+        key: 'title',
+        value: 'Video 0'
+    }, {
+        key: 'item',
+        value: ['videos', '0']
+    }, ];
+
+    assertListOrder(root[__head], promotedOrder);
+})",130,182,steel
 /test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 43, 'column': 8, 'index': 1685}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
@@ -41231,39 +41304,6 @@ file,type,line,method,methodStart,methodEnd,source
         expect(current.value).toBe('I am 1');
         expect(current[__prev]).toBe(undefined);
     })",105,128,steel
-/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 141, 'column': 4, 'index': 5468}","it('should promote references on a get.', function() {
-    const assertListOrder = (head, expectedNodes) => {
-        let currentNode = head;
-        expectedNodes.forEach(node => {
-            expect(currentNode[__key]).toBe(node.key);
-            expect(currentNode.value).toEqual(node.value);
-            currentNode = currentNode[__next];
-        });
-        expect(currentNode).toBeUndefined();
-    };
-
-    var model = new Model({
-        cache: cacheGenerator(0, 1)
-    });
-
-    const initialOrder = [
-        { key: 'title', value: 'Video 0' },
-        { key: 'item', value: ['videos', '0'] },
-        { key: '0', value: ['lists', 'A'] },
-        { key: 'lolomo', value: ['lolomos', '1234'] }
-    ];
-    assertListOrder(model._root[__head], initialOrder);
-
-    model.get(['lolomo', 0]).subscribe();
-
-    const finalOrder = [
-        { key: '0', value: ['lists', 'A'] },
-        { key: 'lolomo', value: ['lolomos', '1234'] },
-        { key: 'title', value: 'Video 0' },
-        { key: 'item', value: ['videos', '0'] }
-    ];
-    assertListOrder(model._root[__head], finalOrder);
-})",130,162,steel
 /test/lru/lru.promote.get.spec.js,Lazy Test,"{'line': 38, 'column': 19, 'index': 1578}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
@@ -41307,39 +41347,59 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",36,78,steel
-/test/lru/lru.promote.get.spec.js,Lazy Test,"{'line': 142, 'column': 15, 'index': 5507}","it('should promote references on a get.', function() {
-    const assertListOrder = (head, expectedNodes) => {
-        let currentNode = head;
-        expectedNodes.forEach(node => {
-            expect(currentNode[__key]).toBe(node.key);
-            expect(currentNode.value).toEqual(node.value);
-            currentNode = currentNode[__next];
-        });
-        expect(currentNode).toBeUndefined();
-    };
-
-    var model = new Model({
+/test/lru/lru.promote.get.spec.js,Lazy Test,"{'line': 132, 'column': 15, 'index': 5156}","it('should promote references on a get.', function() {
+    const model = new Model({
         cache: cacheGenerator(0, 1)
     });
+    const root = model._root;
 
-    const initialOrder = [
-        { key: 'title', value: 'Video 0' },
-        { key: 'item', value: ['videos', '0'] },
-        { key: '0', value: ['lists', 'A'] },
-        { key: 'lolomo', value: ['lolomos', '1234'] }
-    ];
-    assertListOrder(model._root[__head], initialOrder);
+    const assertListOrder = (head, expectedOrder) => {
+        let curr = head;
+        for (const {
+                key,
+                value
+            } of expectedOrder) {
+            expect(curr[__key]).toBe(key);
+            expect(curr.value).toEqual(value);
+            curr = curr[__next];
+        }
+        expect(curr).toBeUndefined();
+    };
+
+    const initialOrder = [{
+        key: 'title',
+        value: 'Video 0'
+    }, {
+        key: 'item',
+        value: ['videos', '0']
+    }, {
+        key: '0',
+        value: ['lists', 'A']
+    }, {
+        key: 'lolomo',
+        value: ['lolomos', '1234']
+    }, ];
+
+    assertListOrder(root[__head], initialOrder);
 
     model.get(['lolomo', 0]).subscribe();
 
-    const finalOrder = [
-        { key: '0', value: ['lists', 'A'] },
-        { key: 'lolomo', value: ['lolomos', '1234'] },
-        { key: 'title', value: 'Video 0' },
-        { key: 'item', value: ['videos', '0'] }
-    ];
-    assertListOrder(model._root[__head], finalOrder);
-})",130,162,steel
+    const promotedOrder = [{
+        key: '0',
+        value: ['lists', 'A']
+    }, {
+        key: 'lolomo',
+        value: ['lolomos', '1234']
+    }, {
+        key: 'title',
+        value: 'Video 0'
+    }, {
+        key: 'item',
+        value: ['videos', '0']
+    }, ];
+
+    assertListOrder(root[__head], promotedOrder);
+})",130,182,steel
 /test/invalidate/pathSets.spec.js,Eager Test,"{'line': 19, 'column': 8, 'index': 604}","it(""directly"", function() {
 
         var lru = new Object();

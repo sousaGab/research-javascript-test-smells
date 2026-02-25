@@ -5,12 +5,12 @@ it('with the default winston logger', async () => {
           handleExceptions: true
         });
 
-        const logged = new Promise(resolve => transport.on('logged', resolve));
+        const loggedPromise = new Promise(resolve => transport.on('logged', resolve));
 
         winston.exceptions.handle([transport]);
 
         process.emit('uncaughtException', expectedMessage);
-        await logged;
+        await loggedPromise;
 
         expect(processExitSpy).toHaveBeenCalledTimes(1);
         expect(processExitSpy).toHaveBeenCalledWith(1);

@@ -1,5 +1,3 @@
 it('throws exception if no type given', () => {
-    expect(() => {
-      new BvModalEvent()
-    }).toThrow()
-  })
+  expect(() => new BvModalEvent()).toThrow()
+})

@@ -18,4 +18,4 @@ it('should delete the oldest file when maxfiles is met', async function () {
   assertFileDoesNotExist('testarchive.log');
   assertFileExists('testarchive1.log');
   assertFileExists('testarchive2.log');
-})
+});

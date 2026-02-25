@@ -1,5 +1,5 @@
 it('should stop a timer when `done` is called on it', function (done) {
-      const logger = helpers.createLogger(function (info) {
+      let logger = helpers.createLogger(function (info) {
         assume(info).is.an('object');
         assume(info.something).equals('ok');
         assume(info.level).equals('info');
@@ -9,10 +9,10 @@ it('should stop a timer when `done` is called on it', function (done) {
         done();
       });
 
-      const timer = logger.startTimer();
+      let timer = logger.startTimer();
       timer.done({
         message: 'testing1',
         something: 'ok',
         level: 'info'
       });
-    });
+    })

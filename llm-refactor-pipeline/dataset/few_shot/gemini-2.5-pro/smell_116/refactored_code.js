@@ -1,7 +1,6 @@
-test('custom levels', () => {
-  const ALL_LEVELS = ['error', 'warn', 'info', 'verbose', 'debug'];
-
-  const CONSOLE_MAPPING = {
+describe('custom levels', () => {
+  const HIERARCHY = ['error', 'warn', 'info', 'verbose', 'debug'];
+  const CONSOLE_MAP = {
     error: 'error',
     warn: 'warn',
     info: 'info',
@@ -9,52 +8,42 @@ test('custom levels', () => {
     debug: 'debug'
   };
 
-  const testCases = [{
-    level: 'error',
-    shouldLog: ['error']
-  }, {
-    level: 'warn',
-    shouldLog: ['error', 'warn']
-  }, {
-    level: 'info',
-    shouldLog: ['error', 'warn', 'info']
-  }, {
-    level: 'verbose',
-    shouldLog: ['error', 'warn', 'info', 'verbose']
-  }, {
-    level: 'debug',
-    shouldLog: ['error', 'warn', 'info', 'verbose', 'debug']
-  }, ];
+  const testCases = HIERARCHY.map((level, index) => ({
+    level,
+    activeMethods: HIERARCHY.slice(0, index + 1),
+    inactiveMethods: HIERARCHY.slice(index + 1)
+  }));
 
   test.each(testCases)(
-    'when level is "$level", it only logs messages at or above that level',
+    'when level is "$level", it should only log messages for active methods',
     ({
       level,
-      shouldLog
+      activeMethods,
+      inactiveMethods
     }) => {
+      // Arrange
       const logger = serverlessExpressLogger({
         level
       });
 
-      // Act: call all logger methods with a unique message
-      ALL_LEVELS.forEach(logLevel => {
-        logger[logLevel](`${logLevel} message`);
+      // Action
+      HIERARCHY.forEach(method => {
+        logger[method](`${method} message`);
       });
 
       // Assert
-      ALL_LEVELS.forEach(logLevel => {
-        const consoleMethod = CONSOLE_MAPPING[logLevel];
-        const expectedMessage = {
-          message: `${logLevel} message`
-        };
+      activeMethods.forEach(method => {
+        const consoleMethod = CONSOLE_MAP[method];
+        expect(global.console[consoleMethod]).toHaveBeenCalledWith({
+          message: `${method} message`
+        });
+      });
 
-        if (shouldLog.includes(logLevel)) {
-          // Assert it was called with the correct message
-          expect(global.console[consoleMethod]).toHaveBeenCalledWith(expectedMessage);
-        } else {
-          // Assert it was NOT called with this specific message
-          expect(global.console[consoleMethod]).not.toHaveBeenCalledWith(expectedMessage);
-        }
+      inactiveMethods.forEach(method => {
+        const consoleMethod = CONSOLE_MAP[method];
+        expect(global.console[consoleMethod]).not.toHaveBeenCalledWith({
+          message: `${method} message`
+        });
       });
     }
   );

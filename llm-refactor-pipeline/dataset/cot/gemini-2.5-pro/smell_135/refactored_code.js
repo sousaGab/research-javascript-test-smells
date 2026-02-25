@@ -19,6 +19,7 @@ it('should handle a high volume of large writes synchronous', function (done) {
       helpers.tryRead(fileStressLogFile)
         .on('error', function (err) {
           assume(err).false();
+          logger.close();
           done();
         })
         .pipe(split())
@@ -30,6 +31,7 @@ it('should handle a high volume of large writes synchronous', function (done) {
         })
         .on('end', function () {
           assume(counters.write).equal(counters.read);
+          logger.close();
           done();
         });
     });

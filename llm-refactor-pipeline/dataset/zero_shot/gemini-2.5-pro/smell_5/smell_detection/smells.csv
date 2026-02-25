@@ -1138,21 +1138,26 @@ file,type,line,method,methodStart,methodEnd,source
         expect(current.value).toBe('I am 1');
         expect(current[__prev]).toBe(undefined);
     })",105,128,snuts
-/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':130,'endLine':177}","it('should promote references on a get.', function() {
-    const assertLinkedListState = (startNode, expectedNodes) => {
-        let currentNode = startNode;
-        for (const expectedNode of expectedNodes) {
+/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':130,'endLine':184}","it('should promote references on a get.', function() {
+    const assertLinkedListState = (head, expectedNodes) => {
+        let currentNode = head;
+        for (const {
+                key,
+                value
+            } of expectedNodes) {
             expect(currentNode).toBeDefined();
-            expect(currentNode[__key]).toBe(expectedNode.key);
-            expect(currentNode.value).toEqual(expectedNode.value);
+            expect(currentNode[__key]).toBe(key);
+            expect(currentNode.value).toEqual(value);
             currentNode = currentNode[__next];
         }
         expect(currentNode).toBeUndefined();
     };
 
-    var model = new Model({
+    const model = new Model({
         cache: cacheGenerator(0, 1)
     });
+
+    const root = model._root;
 
     const initialState = [{
         key: 'title',
@@ -1167,11 +1172,12 @@ file,type,line,method,methodStart,methodEnd,source
         key: 'lolomo',
         value: ['lolomos', '1234']
     }, ];
-    assertLinkedListState(model._root[__head], initialState);
+
+    assertLinkedListState(root[__head], initialState);
 
     model.get(['lolomo', 0]).subscribe();
 
-    const finalState = [{
+    const promotedState = [{
         key: '0',
         value: ['lists', 'A']
     }, {
@@ -1184,8 +1190,9 @@ file,type,line,method,methodStart,methodEnd,source
         key: 'item',
         value: ['videos', '0']
     }, ];
-    assertLinkedListState(model._root[__head], finalState);
-})",130,177,snuts
+
+    assertLinkedListState(root[__head], promotedState);
+})",130,184,snuts
 /test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':98,'endLine':98}","it('should promote the get item to the head toJSON.', function() {
         var model = new Model();
         model.set({json: {1: 'I am 1'}}).subscribe();
@@ -3036,723 +3043,6 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",208,225,snuts
-/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':51,'endLine':70}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setJSONGraphs(
-            getModel({ cache: cache, version: version++ }), [
-            $jsonGraphEnvelope([
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-            ])]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: {
-                ""pulp-fiction"": {
-                    ""title"": $atom(""Pulp Fiction"")
-                }
-            }
-        }));
-    })",51,70,snuts
-/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':206,'endLine':225}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",206,225,snuts
-/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':261,'endLine':293}","it(""to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue(""grid[0][0..2].director"", ""Quentin Tarantino"")
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",261,293,snuts
-/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':294,'endLine':323}","it(""from:1, to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue(""grid[0][1..2].director"", ""Quentin Tarantino"")
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",294,323,snuts
-/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':324,'endLine':356}","it(""length:3"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue([""grid"", 0, {length: 3}, ""director""], ""Quentin Tarantino"")
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",324,356,snuts
-/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':357,'endLine':386}","it(""from:1, length:2"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue([""grid"", 0, {from: 1, length: 2}, ""director""], ""Quentin Tarantino"")
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",357,386,snuts
-/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':387,'endLine':419}","it(""[length:3]"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue([""grid"", 0, [{length: 3}], ""director""], ""Quentin Tarantino"")
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",387,419,snuts
-/test/set/jsonGraphs/primitive.spec.js,IdenticalTestDescription,"{'startLine':206,'endLine':225}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",206,225,snuts
-/test/set/jsonGraphs/expired.spec.js,NonFunctionalStatement,"{'startLine':121,'endLine':121}","it(""short-circuits writing past an expired reference"", function() {
-
-        var lru = new Object();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-        var startTime = Date.now();
-
-        setJSONGraphs(
-            getModel({ lru: lru, cache: cache, expired: expired, version: version++ }), [{
-                paths: [[""grid"", 0, 0, ""title""]],
-                jsonGraph: $jsonGraph([
-                    $pathValue(""grid"", $ref(""grids['id']"")),
-                    $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
-                        $expires: -5
-                    })),
-                    $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                    $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-                ])
-            }]
-        );
-
-        do {} while (Date.now() - startTime < 10);
-
-        var successfulPaths = setJSONGraphs(
-            getModel({ lru: lru, cache: cache, expired: expired, version: version++ }), [{
-                paths: [[""grid"", 0, 0, ""director""]],
-                jsonGraph: $jsonGraph([
-                    $pathValue(""movies['pulp-fiction'].director"", ""Quentin Tarantino"")
-                ])
-            }]
-        );
-
-        expect(successfulPaths[1].length).toBe(0);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } },
-            lists: { id: { 0: $ref(""movies['pulp-fiction']"") } },
-            movies: {
-                ""pulp-fiction"": {
-                    ""title"": $atom(""Pulp Fiction"")
-                }
-            }
-        }));
-    })",99,143,snuts
-/test/set/jsonGraphs/expired.spec.js,SubOptimalAssert,"{'startLine':31,'endLine':31}","it(""converts a negative $expires value to an absolute time"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setJSONGraphs(
-            getModel({ cache: cache, version: version++ }), [
-            $jsonGraphEnvelope([
-                $pathValue(""grid"", $ref(""grids['id']"")),
-                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: -1000
-                }))
-            ])]
-        );
-
-        var value = cache.grids.id[0];
-        var expires = value.$expires;
-
-        expect(expires > Date.now()).toBe(true);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } }
-        }));
-    })",13,36,snuts
-/test/set/jsonGraphs/expired.spec.js,SubOptimalAssert,"{'startLine':58,'endLine':58}","it(""sets through an immediately expired reference"", function() {
-
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setJSONGraphs(
-            getModel({ cache: cache, expired: expired, version: version++ }), [{
-                paths: [[""grid"", 0, 0, ""title""]],
-                jsonGraph: $jsonGraph([
-                    $pathValue(""grid"", $ref(""grids['id']"")),
-                    $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
-                        $expires: 0
-                    })),
-                    $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                    $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-                ])
-            }]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } },
-            lists: { id: { 0: $ref(""movies['pulp-fiction']"") } },
-            movies: {
-                ""pulp-fiction"": {
-                    ""title"": $atom(""Pulp Fiction"")
-                }
-            }
-        }));
-    })",38,69,snuts
-/test/set/jsonGraphs/expired.spec.js,SubOptimalAssert,"{'startLine':92,'endLine':92}","it(""short-circuits writing an already expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setJSONGraphs(
-            getModel({ cache: cache, expired: expired, version: version++ }), [{
-                paths: [[""grid"", 0, 0, ""title""]],
-                jsonGraph: $jsonGraph([
-                    $pathValue(""grid"", $ref(""grids['id']"")),
-                    $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
-                        $expires: startTime - 10
-                    })),
-                    $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                    $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-                ])
-            }]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } }
-        }));
-    })",71,97,snuts
-/test/set/jsonGraphs/expired.spec.js,SubOptimalAssert,"{'startLine':132,'endLine':132}","it(""short-circuits writing past an expired reference"", function() {
-
-        var lru = new Object();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-        var startTime = Date.now();
-
-        setJSONGraphs(
-            getModel({ lru: lru, cache: cache, expired: expired, version: version++ }), [{
-                paths: [[""grid"", 0, 0, ""title""]],
-                jsonGraph: $jsonGraph([
-                    $pathValue(""grid"", $ref(""grids['id']"")),
-                    $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
-                        $expires: -5
-                    })),
-                    $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                    $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-                ])
-            }]
-        );
-
-        do {} while (Date.now() - startTime < 10);
-
-        var successfulPaths = setJSONGraphs(
-            getModel({ lru: lru, cache: cache, expired: expired, version: version++ }), [{
-                paths: [[""grid"", 0, 0, ""director""]],
-                jsonGraph: $jsonGraph([
-                    $pathValue(""movies['pulp-fiction'].director"", ""Quentin Tarantino"")
-                ])
-            }]
-        );
-
-        expect(successfulPaths[1].length).toBe(0);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } },
-            lists: { id: { 0: $ref(""movies['pulp-fiction']"") } },
-            movies: {
-                ""pulp-fiction"": {
-                    ""title"": $atom(""Pulp Fiction"")
-                }
-            }
-        }));
-    })",99,143,snuts
-/test/set/jsonGraphs/branch.spec.js,AnonymousTest,"{'startLine':51,'endLine':73}","it(""directly"", function() {
-        var lru = {};
-        var cache = {};
-        var version = 0;
-
-        setJSONGraphs(
-            getModel({ lru: lru, cache: cache, version: version++ }), [
-            $jsonGraphEnvelope([
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-            ])]
-        );
-
-        setJSONGraphs(
-            getModel({ lru: lru, cache: cache, version: version++ }), [
-            $jsonGraphEnvelope([
-                $pathValue(""movies['pulp-fiction']"", ""Pulp Fiction"")
-            ])]
-        )
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $atom(""Pulp Fiction"") }
-        }));
-    })",51,73,snuts
-/test/set/jsonGraphs/branch.spec.js,AnonymousTest,"{'startLine':110,'endLine':132}","it(""directly"", function() {
-        var lru = {};
-        var cache = {};
-        var version = 0;
-
-        setJSONGraphs(
-            getModel({ cache: cache, version: version++ }), [
-            $jsonGraphEnvelope([
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-            ])]
-        );
-
-        setJSONGraphs(
-            getModel({ lru: lru, cache: cache, version: version++ }), [
-            $jsonGraphEnvelope([
-                $pathValue(""movies['pulp-fiction']"", $error(""oops""))
-            ])]
-        )
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",110,132,snuts
-/test/set/jsonGraphs/branch.spec.js,IdenticalTestDescription,"{'startLine':110,'endLine':132}","it(""directly"", function() {
-        var lru = {};
-        var cache = {};
-        var version = 0;
-
-        setJSONGraphs(
-            getModel({ cache: cache, version: version++ }), [
-            $jsonGraphEnvelope([
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-            ])]
-        );
-
-        setJSONGraphs(
-            getModel({ lru: lru, cache: cache, version: version++ }), [
-            $jsonGraphEnvelope([
-                $pathValue(""movies['pulp-fiction']"", $error(""oops""))
-            ])]
-        )
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",110,132,snuts
-/test/set/jsonGraphs/branch.spec.js,IdenticalTestDescription,"{'startLine':134,'endLine':164}","it(""through a reference with a null last key"", function() {
-        var lru = {};
-        var cache = {};
-        var version = 0;
-
-        setJSONGraphs(
-            getModel({ lru: lru, cache: cache, version: version++ }), [
-            $jsonGraphEnvelope([
-                $pathValue(""grid"", $ref(""grids['id']"")),
-                $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-            ])]
-        );
-
-        setJSONGraphs(
-            getModel({ lru: lru, cache: cache, version: version++ }), [{
-                paths: [[""grid"", 0, 0, null]],
-                jsonGraph: $jsonGraph([
-                    $pathValue(""movies['pulp-fiction']"", $error(""oops""))
-                ])
-            }]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } },
-            lists: { id: { 0: $ref(""movies['pulp-fiction']"") } },
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",134,164,snuts
-/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':13,'endLine':38}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setJSONGraphs(
-            getModel({ cache: cache, version: version++ }), [
-            $jsonGraphEnvelope([
-                $pathValue(""movies['pulp-fiction'].summary"", $atom({
-                    title: ""Pulp Fiction"",
-                    url: ""/movies/id/pulp-fiction""
-                }))
-            ])]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: {
-                ""pulp-fiction"": {
-                    ""summary"": $atom({
-                        title: ""Pulp Fiction"",
-                        url: ""/movies/id/pulp-fiction""
-                    })
-                }
-            }
-        }));
-    })",13,38,snuts
-/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':220,'endLine':239}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", [""Crime"", ""Drama"", ""Thriller""])
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",220,239,snuts
-/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':275,'endLine':307}","it(""to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue(""grid[0][0..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",275,307,snuts
-/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':308,'endLine':337}","it(""from:1, to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue(""grid[0][1..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",308,337,snuts
-/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':338,'endLine':370}","it(""length:3"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue([""grid"", 0, {length: 3}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",338,370,snuts
-/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':371,'endLine':400}","it(""from:1, length:2"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue([""grid"", 0, {from: 1, length: 2}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",371,400,snuts
-/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':401,'endLine':433}","it(""[length:3]"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue([""grid"", 0, [{length: 3}], ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",401,433,snuts
-/test/set/jsonGraphs/atom.spec.js,IdenticalTestDescription,"{'startLine':220,'endLine':239}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-
-                setJSONGraphs(
-                    getModel({ cache: cache, version: version++ }), [
-                    $jsonGraphEnvelope([
-                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", [""Crime"", ""Drama"", ""Thriller""])
-                    ])]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",220,239,snuts
 /test/internal/request/complement.spec.js,IdenticalTestDescription,"{'startLine':80,'endLine':92}","it(""returns the complement and intersection consisting of paths than can be partially deduped"", () => {
             const partialMatchingRequestedPath = [""videos"", 123, [""title"", ""boxart""]];
             const partialMatchingOptimizedPath = [""some"", ""weird"", ""long"", ""ref"", 456, [""title"", ""boxart""]];
@@ -5614,6 +4904,723 @@ file,type,line,method,methodStart,methodEnd,source
                         done();
                     });
         })",183,222,snuts
+/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':51,'endLine':70}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+
+        setJSONGraphs(
+            getModel({ cache: cache, version: version++ }), [
+            $jsonGraphEnvelope([
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+            ])]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: {
+                ""pulp-fiction"": {
+                    ""title"": $atom(""Pulp Fiction"")
+                }
+            }
+        }));
+    })",51,70,snuts
+/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':206,'endLine':225}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",206,225,snuts
+/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':261,'endLine':293}","it(""to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue(""grid[0][0..2].director"", ""Quentin Tarantino"")
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",261,293,snuts
+/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':294,'endLine':323}","it(""from:1, to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue(""grid[0][1..2].director"", ""Quentin Tarantino"")
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",294,323,snuts
+/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':324,'endLine':356}","it(""length:3"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue([""grid"", 0, {length: 3}, ""director""], ""Quentin Tarantino"")
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",324,356,snuts
+/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':357,'endLine':386}","it(""from:1, length:2"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue([""grid"", 0, {from: 1, length: 2}, ""director""], ""Quentin Tarantino"")
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",357,386,snuts
+/test/set/jsonGraphs/primitive.spec.js,AnonymousTest,"{'startLine':387,'endLine':419}","it(""[length:3]"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue([""grid"", 0, [{length: 3}], ""director""], ""Quentin Tarantino"")
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",387,419,snuts
+/test/set/jsonGraphs/primitive.spec.js,IdenticalTestDescription,"{'startLine':206,'endLine':225}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",206,225,snuts
+/test/set/jsonGraphs/expired.spec.js,NonFunctionalStatement,"{'startLine':121,'endLine':121}","it(""short-circuits writing past an expired reference"", function() {
+
+        var lru = new Object();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+        var startTime = Date.now();
+
+        setJSONGraphs(
+            getModel({ lru: lru, cache: cache, expired: expired, version: version++ }), [{
+                paths: [[""grid"", 0, 0, ""title""]],
+                jsonGraph: $jsonGraph([
+                    $pathValue(""grid"", $ref(""grids['id']"")),
+                    $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
+                        $expires: -5
+                    })),
+                    $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                    $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+                ])
+            }]
+        );
+
+        do {} while (Date.now() - startTime < 10);
+
+        var successfulPaths = setJSONGraphs(
+            getModel({ lru: lru, cache: cache, expired: expired, version: version++ }), [{
+                paths: [[""grid"", 0, 0, ""director""]],
+                jsonGraph: $jsonGraph([
+                    $pathValue(""movies['pulp-fiction'].director"", ""Quentin Tarantino"")
+                ])
+            }]
+        );
+
+        expect(successfulPaths[1].length).toBe(0);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } },
+            lists: { id: { 0: $ref(""movies['pulp-fiction']"") } },
+            movies: {
+                ""pulp-fiction"": {
+                    ""title"": $atom(""Pulp Fiction"")
+                }
+            }
+        }));
+    })",99,143,snuts
+/test/set/jsonGraphs/expired.spec.js,SubOptimalAssert,"{'startLine':31,'endLine':31}","it(""converts a negative $expires value to an absolute time"", function() {
+
+        var cache = {};
+        var version = 0;
+
+        setJSONGraphs(
+            getModel({ cache: cache, version: version++ }), [
+            $jsonGraphEnvelope([
+                $pathValue(""grid"", $ref(""grids['id']"")),
+                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: -1000
+                }))
+            ])]
+        );
+
+        var value = cache.grids.id[0];
+        var expires = value.$expires;
+
+        expect(expires > Date.now()).toBe(true);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } }
+        }));
+    })",13,36,snuts
+/test/set/jsonGraphs/expired.spec.js,SubOptimalAssert,"{'startLine':58,'endLine':58}","it(""sets through an immediately expired reference"", function() {
+
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setJSONGraphs(
+            getModel({ cache: cache, expired: expired, version: version++ }), [{
+                paths: [[""grid"", 0, 0, ""title""]],
+                jsonGraph: $jsonGraph([
+                    $pathValue(""grid"", $ref(""grids['id']"")),
+                    $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
+                        $expires: 0
+                    })),
+                    $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                    $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+                ])
+            }]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } },
+            lists: { id: { 0: $ref(""movies['pulp-fiction']"") } },
+            movies: {
+                ""pulp-fiction"": {
+                    ""title"": $atom(""Pulp Fiction"")
+                }
+            }
+        }));
+    })",38,69,snuts
+/test/set/jsonGraphs/expired.spec.js,SubOptimalAssert,"{'startLine':92,'endLine':92}","it(""short-circuits writing an already expired reference"", function() {
+
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setJSONGraphs(
+            getModel({ cache: cache, expired: expired, version: version++ }), [{
+                paths: [[""grid"", 0, 0, ""title""]],
+                jsonGraph: $jsonGraph([
+                    $pathValue(""grid"", $ref(""grids['id']"")),
+                    $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
+                        $expires: startTime - 10
+                    })),
+                    $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                    $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+                ])
+            }]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } }
+        }));
+    })",71,97,snuts
+/test/set/jsonGraphs/expired.spec.js,SubOptimalAssert,"{'startLine':132,'endLine':132}","it(""short-circuits writing past an expired reference"", function() {
+
+        var lru = new Object();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+        var startTime = Date.now();
+
+        setJSONGraphs(
+            getModel({ lru: lru, cache: cache, expired: expired, version: version++ }), [{
+                paths: [[""grid"", 0, 0, ""title""]],
+                jsonGraph: $jsonGraph([
+                    $pathValue(""grid"", $ref(""grids['id']"")),
+                    $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
+                        $expires: -5
+                    })),
+                    $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                    $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+                ])
+            }]
+        );
+
+        do {} while (Date.now() - startTime < 10);
+
+        var successfulPaths = setJSONGraphs(
+            getModel({ lru: lru, cache: cache, expired: expired, version: version++ }), [{
+                paths: [[""grid"", 0, 0, ""director""]],
+                jsonGraph: $jsonGraph([
+                    $pathValue(""movies['pulp-fiction'].director"", ""Quentin Tarantino"")
+                ])
+            }]
+        );
+
+        expect(successfulPaths[1].length).toBe(0);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } },
+            lists: { id: { 0: $ref(""movies['pulp-fiction']"") } },
+            movies: {
+                ""pulp-fiction"": {
+                    ""title"": $atom(""Pulp Fiction"")
+                }
+            }
+        }));
+    })",99,143,snuts
+/test/set/jsonGraphs/branch.spec.js,AnonymousTest,"{'startLine':51,'endLine':73}","it(""directly"", function() {
+        var lru = {};
+        var cache = {};
+        var version = 0;
+
+        setJSONGraphs(
+            getModel({ lru: lru, cache: cache, version: version++ }), [
+            $jsonGraphEnvelope([
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+            ])]
+        );
+
+        setJSONGraphs(
+            getModel({ lru: lru, cache: cache, version: version++ }), [
+            $jsonGraphEnvelope([
+                $pathValue(""movies['pulp-fiction']"", ""Pulp Fiction"")
+            ])]
+        )
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $atom(""Pulp Fiction"") }
+        }));
+    })",51,73,snuts
+/test/set/jsonGraphs/branch.spec.js,AnonymousTest,"{'startLine':110,'endLine':132}","it(""directly"", function() {
+        var lru = {};
+        var cache = {};
+        var version = 0;
+
+        setJSONGraphs(
+            getModel({ cache: cache, version: version++ }), [
+            $jsonGraphEnvelope([
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+            ])]
+        );
+
+        setJSONGraphs(
+            getModel({ lru: lru, cache: cache, version: version++ }), [
+            $jsonGraphEnvelope([
+                $pathValue(""movies['pulp-fiction']"", $error(""oops""))
+            ])]
+        )
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",110,132,snuts
+/test/set/jsonGraphs/branch.spec.js,IdenticalTestDescription,"{'startLine':110,'endLine':132}","it(""directly"", function() {
+        var lru = {};
+        var cache = {};
+        var version = 0;
+
+        setJSONGraphs(
+            getModel({ cache: cache, version: version++ }), [
+            $jsonGraphEnvelope([
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+            ])]
+        );
+
+        setJSONGraphs(
+            getModel({ lru: lru, cache: cache, version: version++ }), [
+            $jsonGraphEnvelope([
+                $pathValue(""movies['pulp-fiction']"", $error(""oops""))
+            ])]
+        )
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",110,132,snuts
+/test/set/jsonGraphs/branch.spec.js,IdenticalTestDescription,"{'startLine':134,'endLine':164}","it(""through a reference with a null last key"", function() {
+        var lru = {};
+        var cache = {};
+        var version = 0;
+
+        setJSONGraphs(
+            getModel({ lru: lru, cache: cache, version: version++ }), [
+            $jsonGraphEnvelope([
+                $pathValue(""grid"", $ref(""grids['id']"")),
+                $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+            ])]
+        );
+
+        setJSONGraphs(
+            getModel({ lru: lru, cache: cache, version: version++ }), [{
+                paths: [[""grid"", 0, 0, null]],
+                jsonGraph: $jsonGraph([
+                    $pathValue(""movies['pulp-fiction']"", $error(""oops""))
+                ])
+            }]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } },
+            lists: { id: { 0: $ref(""movies['pulp-fiction']"") } },
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",134,164,snuts
+/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':13,'endLine':38}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+
+        setJSONGraphs(
+            getModel({ cache: cache, version: version++ }), [
+            $jsonGraphEnvelope([
+                $pathValue(""movies['pulp-fiction'].summary"", $atom({
+                    title: ""Pulp Fiction"",
+                    url: ""/movies/id/pulp-fiction""
+                }))
+            ])]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: {
+                ""pulp-fiction"": {
+                    ""summary"": $atom({
+                        title: ""Pulp Fiction"",
+                        url: ""/movies/id/pulp-fiction""
+                    })
+                }
+            }
+        }));
+    })",13,38,snuts
+/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':220,'endLine':239}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", [""Crime"", ""Drama"", ""Thriller""])
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",220,239,snuts
+/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':275,'endLine':307}","it(""to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue(""grid[0][0..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",275,307,snuts
+/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':308,'endLine':337}","it(""from:1, to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue(""grid[0][1..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",308,337,snuts
+/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':338,'endLine':370}","it(""length:3"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue([""grid"", 0, {length: 3}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",338,370,snuts
+/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':371,'endLine':400}","it(""from:1, length:2"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue([""grid"", 0, {from: 1, length: 2}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",371,400,snuts
+/test/set/jsonGraphs/atom.spec.js,AnonymousTest,"{'startLine':401,'endLine':433}","it(""[length:3]"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue([""grid"", 0, [{length: 3}], ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",401,433,snuts
+/test/set/jsonGraphs/atom.spec.js,IdenticalTestDescription,"{'startLine':220,'endLine':239}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+
+                setJSONGraphs(
+                    getModel({ cache: cache, version: version++ }), [
+                    $jsonGraphEnvelope([
+                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", [""Crime"", ""Drama"", ""Thriller""])
+                    ])]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",220,239,snuts
 /test/falcor/invalidate/invalidate.cache-only.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/get/get.pathSyntax.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/falcor/get/get.model.adapter.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
@@ -6403,6 +6410,186 @@ file,type,line,method,methodStart,methodEnd,source
                 }, done);
         })",64,92,snuts
 /test/falcor/get/get.cache-only.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/falcor/deref/deref.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,OvercommentedTest,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
+        var cache = cacheGenerator(0, 30);
+        var model = new Model({
+            cache: cache,
+            maxSize: 3600,
+
+            // Only clean up 5% of the cache
+            collectRatio: 0.95
+        })._fromWhenceYouCame();
+
+        var lolomoModel;
+        var listModel;
+
+        // this is sync, no dataSource
+        // lolomo should be in the back of the cache again.
+        model.
+            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
+            subscribe(function(x) {
+                var lolomo = x.json.lolomo;
+                lolomoModel = model.deref(lolomo);
+                listModel = model.deref(lolomo[0]);
+            });
+
+        // Move the other references to the front of the LRU list.
+        // One of the problems in dealing with small amounts of data / size
+        // Is when things clean up, it causes side effects with references
+        // and what was cleaned up.  But that is only in these single request
+        // trivial tests
+        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
+
+        listModel.
+            set({
+                json: {
+                    10: {
+                        item: {
+                            title: 'Running man',
+                            rating: 5
+                        }
+                    },
+                    11: {
+                        item: {
+                            title: 'Commando',
+                            rating: 5
+                        }
+                    }
+                }
+            }).
+            subscribe();
+
+        var node = model._root[__head];
+        while (node) {
+            expect(node[__key]).not.toBe('lolomo');
+            node = node[__next];
+        }
+
+        var foundA, foundB, foundC;
+        var node = model._root[__head];
+        while (node) {
+            foundA = foundA || node.value[1] === 'A';
+            foundB = foundB || node.value[1] === 'B';
+            foundC = foundC || node.value[1] === 'C';
+            node = node[__next];
+        }
+        expect(foundA).toBe(true);
+        expect(foundB).toBe(true);
+        expect(foundC).toBe(true);
+
+        expect(lolomoModel._hasValidParentReference()).toBe(false);
+    })",115,183,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/falcor/deref/deref.hasValidParentReference.spec.js,VerboseStatement,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
+        var cache = cacheGenerator(0, 30);
+        var model = new Model({
+            cache: cache,
+            maxSize: 3600,
+
+            // Only clean up 5% of the cache
+            collectRatio: 0.95
+        })._fromWhenceYouCame();
+
+        var lolomoModel;
+        var listModel;
+
+        // this is sync, no dataSource
+        // lolomo should be in the back of the cache again.
+        model.
+            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
+            subscribe(function(x) {
+                var lolomo = x.json.lolomo;
+                lolomoModel = model.deref(lolomo);
+                listModel = model.deref(lolomo[0]);
+            });
+
+        // Move the other references to the front of the LRU list.
+        // One of the problems in dealing with small amounts of data / size
+        // Is when things clean up, it causes side effects with references
+        // and what was cleaned up.  But that is only in these single request
+        // trivial tests
+        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
+
+        listModel.
+            set({
+                json: {
+                    10: {
+                        item: {
+                            title: 'Running man',
+                            rating: 5
+                        }
+                    },
+                    11: {
+                        item: {
+                            title: 'Commando',
+                            rating: 5
+                        }
+                    }
+                }
+            }).
+            subscribe();
+
+        var node = model._root[__head];
+        while (node) {
+            expect(node[__key]).not.toBe('lolomo');
+            node = node[__next];
+        }
+
+        var foundA, foundB, foundC;
+        var node = model._root[__head];
+        while (node) {
+            foundA = foundA || node.value[1] === 'A';
+            foundB = foundB || node.value[1] === 'B';
+            foundC = foundC || node.value[1] === 'C';
+            node = node[__next];
+        }
+        expect(foundA).toBe(true);
+        expect(foundB).toBe(true);
+        expect(foundC).toBe(true);
+
+        expect(lolomoModel._hasValidParentReference()).toBe(false);
+    })",115,183,snuts
+/test/falcor/deref/deref.errors.spec.js,ConditionalTestLogic,"{'startLine':42,'endLine':44}","it('should error on a shorted deref path.', function(done) {
+        var model = new Model({
+            cache: cacheGenerator(0, 1)
+        });
+
+        var onNext = jest.fn();
+        model.
+            get(['lolomo', 0, 0, 'item', 'title']).
+            subscribe(onNext, noOp, function() {
+                expect(onNext).toHaveBeenCalledTimes(1);
+
+                var json = onNext.mock.calls[0][0].json;
+                var lolomoModel = model.deref(json.lolomo);
+                model.
+                    set({
+                        json: {
+                            lolomos: 'ohh no'
+                        }
+                    }).
+                    subscribe();
+
+                toObservable(lolomoModel.
+                    get([0, 0, 'item', 'title'])).
+                    doAction(onNext, function(err) {
+                        expect(onNext).toHaveBeenCalledTimes(1);
+                        expect(err.name).toBe(InvalidModelError.name);
+                    }).
+                    subscribe(
+                        noOp,
+                        function(err) {
+                            if (isAssertionError(err)) {
+                                return done(err);
+                            }
+                            done();
+                        },
+                        done.bind(null, new Error('onCompleted shouldnt be called')));
+            });
+    })",12,49,snuts
+/test/falcor/deref/deref.errors.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
+/test/falcor/call/call.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':65,'endLine':69}","it(""should get a hard error from the DataSource with _treatDataSourceErrorsAsJSONGraphErrors."", function(done) {
         var model = new Model({
             source: new ErrorDataSource(503, ""Timeout""),
@@ -6650,186 +6837,6 @@ file,type,line,method,methodStart,methodEnd,source
             }).
             subscribe(noOp, doneOnError(done), errorOnCompleted(done));
     })",107,144,snuts
-/test/falcor/deref/deref.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,OvercommentedTest,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
-        var cache = cacheGenerator(0, 30);
-        var model = new Model({
-            cache: cache,
-            maxSize: 3600,
-
-            // Only clean up 5% of the cache
-            collectRatio: 0.95
-        })._fromWhenceYouCame();
-
-        var lolomoModel;
-        var listModel;
-
-        // this is sync, no dataSource
-        // lolomo should be in the back of the cache again.
-        model.
-            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
-            subscribe(function(x) {
-                var lolomo = x.json.lolomo;
-                lolomoModel = model.deref(lolomo);
-                listModel = model.deref(lolomo[0]);
-            });
-
-        // Move the other references to the front of the LRU list.
-        // One of the problems in dealing with small amounts of data / size
-        // Is when things clean up, it causes side effects with references
-        // and what was cleaned up.  But that is only in these single request
-        // trivial tests
-        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
-
-        listModel.
-            set({
-                json: {
-                    10: {
-                        item: {
-                            title: 'Running man',
-                            rating: 5
-                        }
-                    },
-                    11: {
-                        item: {
-                            title: 'Commando',
-                            rating: 5
-                        }
-                    }
-                }
-            }).
-            subscribe();
-
-        var node = model._root[__head];
-        while (node) {
-            expect(node[__key]).not.toBe('lolomo');
-            node = node[__next];
-        }
-
-        var foundA, foundB, foundC;
-        var node = model._root[__head];
-        while (node) {
-            foundA = foundA || node.value[1] === 'A';
-            foundB = foundB || node.value[1] === 'B';
-            foundC = foundC || node.value[1] === 'C';
-            node = node[__next];
-        }
-        expect(foundA).toBe(true);
-        expect(foundB).toBe(true);
-        expect(foundC).toBe(true);
-
-        expect(lolomoModel._hasValidParentReference()).toBe(false);
-    })",115,183,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
-/test/falcor/deref/deref.hasValidParentReference.spec.js,VerboseStatement,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
-        var cache = cacheGenerator(0, 30);
-        var model = new Model({
-            cache: cache,
-            maxSize: 3600,
-
-            // Only clean up 5% of the cache
-            collectRatio: 0.95
-        })._fromWhenceYouCame();
-
-        var lolomoModel;
-        var listModel;
-
-        // this is sync, no dataSource
-        // lolomo should be in the back of the cache again.
-        model.
-            get(['lolomo', {to:2}, {to:9}, 'item', 'title']).
-            subscribe(function(x) {
-                var lolomo = x.json.lolomo;
-                lolomoModel = model.deref(lolomo);
-                listModel = model.deref(lolomo[0]);
-            });
-
-        // Move the other references to the front of the LRU list.
-        // One of the problems in dealing with small amounts of data / size
-        // Is when things clean up, it causes side effects with references
-        // and what was cleaned up.  But that is only in these single request
-        // trivial tests
-        lolomoModel.get([{to: 2}, 0, 'item']).subscribe();
-
-        listModel.
-            set({
-                json: {
-                    10: {
-                        item: {
-                            title: 'Running man',
-                            rating: 5
-                        }
-                    },
-                    11: {
-                        item: {
-                            title: 'Commando',
-                            rating: 5
-                        }
-                    }
-                }
-            }).
-            subscribe();
-
-        var node = model._root[__head];
-        while (node) {
-            expect(node[__key]).not.toBe('lolomo');
-            node = node[__next];
-        }
-
-        var foundA, foundB, foundC;
-        var node = model._root[__head];
-        while (node) {
-            foundA = foundA || node.value[1] === 'A';
-            foundB = foundB || node.value[1] === 'B';
-            foundC = foundC || node.value[1] === 'C';
-            node = node[__next];
-        }
-        expect(foundA).toBe(true);
-        expect(foundB).toBe(true);
-        expect(foundC).toBe(true);
-
-        expect(lolomoModel._hasValidParentReference()).toBe(false);
-    })",115,183,snuts
-/test/falcor/deref/deref.errors.spec.js,ConditionalTestLogic,"{'startLine':42,'endLine':44}","it('should error on a shorted deref path.', function(done) {
-        var model = new Model({
-            cache: cacheGenerator(0, 1)
-        });
-
-        var onNext = jest.fn();
-        model.
-            get(['lolomo', 0, 0, 'item', 'title']).
-            subscribe(onNext, noOp, function() {
-                expect(onNext).toHaveBeenCalledTimes(1);
-
-                var json = onNext.mock.calls[0][0].json;
-                var lolomoModel = model.deref(json.lolomo);
-                model.
-                    set({
-                        json: {
-                            lolomos: 'ohh no'
-                        }
-                    }).
-                    subscribe();
-
-                toObservable(lolomoModel.
-                    get([0, 0, 'item', 'title'])).
-                    doAction(onNext, function(err) {
-                        expect(onNext).toHaveBeenCalledTimes(1);
-                        expect(err.name).toBe(InvalidModelError.name);
-                    }).
-                    subscribe(
-                        noOp,
-                        function(err) {
-                            if (isAssertionError(err)) {
-                                return done(err);
-                            }
-                            done();
-                        },
-                        done.bind(null, new Error('onCompleted shouldnt be called')));
-            });
-    })",12,49,snuts
-/test/falcor/deref/deref.errors.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
-/test/falcor/call/call.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/getTestRunner.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/testRunner.js,NonFunctionalStatement,"{'startLine':7,'endLine':7}",Unknown,,,snuts
 /test/data/ErrorDataSource.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
@@ -39020,21 +39027,26 @@ file,type,line,method,methodStart,methodEnd,source
 
         tripleItem(model);
     })",148,180,steel
-/test/lru/lru.promote.get.spec.js,Conditional Test Logic,"{'line': 133, 'column': 8, 'index': 5222}","it('should promote references on a get.', function() {
-    const assertLinkedListState = (startNode, expectedNodes) => {
-        let currentNode = startNode;
-        for (const expectedNode of expectedNodes) {
+/test/lru/lru.promote.get.spec.js,Conditional Test Logic,"{'line': 133, 'column': 8, 'index': 5212}","it('should promote references on a get.', function() {
+    const assertLinkedListState = (head, expectedNodes) => {
+        let currentNode = head;
+        for (const {
+                key,
+                value
+            } of expectedNodes) {
             expect(currentNode).toBeDefined();
-            expect(currentNode[__key]).toBe(expectedNode.key);
-            expect(currentNode.value).toEqual(expectedNode.value);
+            expect(currentNode[__key]).toBe(key);
+            expect(currentNode.value).toEqual(value);
             currentNode = currentNode[__next];
         }
         expect(currentNode).toBeUndefined();
     };
 
-    var model = new Model({
+    const model = new Model({
         cache: cacheGenerator(0, 1)
     });
+
+    const root = model._root;
 
     const initialState = [{
         key: 'title',
@@ -39049,11 +39061,12 @@ file,type,line,method,methodStart,methodEnd,source
         key: 'lolomo',
         value: ['lolomos', '1234']
     }, ];
-    assertLinkedListState(model._root[__head], initialState);
+
+    assertLinkedListState(root[__head], initialState);
 
     model.get(['lolomo', 0]).subscribe();
 
-    const finalState = [{
+    const promotedState = [{
         key: '0',
         value: ['lists', 'A']
     }, {
@@ -39066,8 +39079,9 @@ file,type,line,method,methodStart,methodEnd,source
         key: 'item',
         value: ['videos', '0']
     }, ];
-    assertLinkedListState(model._root[__head], finalState);
-})",130,177,steel
+
+    assertLinkedListState(root[__head], promotedState);
+})",130,184,steel
 /test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 43, 'column': 8, 'index': 1685}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
@@ -41048,21 +41062,26 @@ file,type,line,method,methodStart,methodEnd,source
         expect(current.value).toBe('I am 1');
         expect(current[__prev]).toBe(undefined);
     })",105,128,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 134, 'column': 12, 'index': 5278}","it('should promote references on a get.', function() {
-    const assertLinkedListState = (startNode, expectedNodes) => {
-        let currentNode = startNode;
-        for (const expectedNode of expectedNodes) {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 137, 'column': 12, 'index': 5314}","it('should promote references on a get.', function() {
+    const assertLinkedListState = (head, expectedNodes) => {
+        let currentNode = head;
+        for (const {
+                key,
+                value
+            } of expectedNodes) {
             expect(currentNode).toBeDefined();
-            expect(currentNode[__key]).toBe(expectedNode.key);
-            expect(currentNode.value).toEqual(expectedNode.value);
+            expect(currentNode[__key]).toBe(key);
+            expect(currentNode.value).toEqual(value);
             currentNode = currentNode[__next];
         }
         expect(currentNode).toBeUndefined();
     };
 
-    var model = new Model({
+    const model = new Model({
         cache: cacheGenerator(0, 1)
     });
+
+    const root = model._root;
 
     const initialState = [{
         key: 'title',
@@ -41077,11 +41096,12 @@ file,type,line,method,methodStart,methodEnd,source
         key: 'lolomo',
         value: ['lolomos', '1234']
     }, ];
-    assertLinkedListState(model._root[__head], initialState);
+
+    assertLinkedListState(root[__head], initialState);
 
     model.get(['lolomo', 0]).subscribe();
 
-    const finalState = [{
+    const promotedState = [{
         key: '0',
         value: ['lists', 'A']
     }, {
@@ -41094,23 +41114,29 @@ file,type,line,method,methodStart,methodEnd,source
         key: 'item',
         value: ['videos', '0']
     }, ];
-    assertLinkedListState(model._root[__head], finalState);
-})",130,177,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 139, 'column': 8, 'index': 5508}","it('should promote references on a get.', function() {
-    const assertLinkedListState = (startNode, expectedNodes) => {
-        let currentNode = startNode;
-        for (const expectedNode of expectedNodes) {
+
+    assertLinkedListState(root[__head], promotedState);
+})",130,184,steel
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 142, 'column': 8, 'index': 5518}","it('should promote references on a get.', function() {
+    const assertLinkedListState = (head, expectedNodes) => {
+        let currentNode = head;
+        for (const {
+                key,
+                value
+            } of expectedNodes) {
             expect(currentNode).toBeDefined();
-            expect(currentNode[__key]).toBe(expectedNode.key);
-            expect(currentNode.value).toEqual(expectedNode.value);
+            expect(currentNode[__key]).toBe(key);
+            expect(currentNode.value).toEqual(value);
             currentNode = currentNode[__next];
         }
         expect(currentNode).toBeUndefined();
     };
 
-    var model = new Model({
+    const model = new Model({
         cache: cacheGenerator(0, 1)
     });
+
+    const root = model._root;
 
     const initialState = [{
         key: 'title',
@@ -41125,11 +41151,12 @@ file,type,line,method,methodStart,methodEnd,source
         key: 'lolomo',
         value: ['lolomos', '1234']
     }, ];
-    assertLinkedListState(model._root[__head], initialState);
+
+    assertLinkedListState(root[__head], initialState);
 
     model.get(['lolomo', 0]).subscribe();
 
-    const finalState = [{
+    const promotedState = [{
         key: '0',
         value: ['lists', 'A']
     }, {
@@ -41142,8 +41169,9 @@ file,type,line,method,methodStart,methodEnd,source
         key: 'item',
         value: ['videos', '0']
     }, ];
-    assertLinkedListState(model._root[__head], finalState);
-})",130,177,steel
+
+    assertLinkedListState(root[__head], promotedState);
+})",130,184,steel
 /test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 2, 'column': 0, 'index': 38}",Unknown,,,steel
 /test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 5, 'column': 0, 'index': 129}",Unknown,,,steel
 /test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 6, 'column': 0, 'index': 188}",Unknown,,,steel
@@ -41390,54 +41418,6 @@ file,type,line,method,methodStart,methodEnd,source
         expect(current.value).toBe('I am 1');
         expect(current[__prev]).toBe(undefined);
     })",105,128,steel
-/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 142, 'column': 4, 'index': 5557}","it('should promote references on a get.', function() {
-    const assertLinkedListState = (startNode, expectedNodes) => {
-        let currentNode = startNode;
-        for (const expectedNode of expectedNodes) {
-            expect(currentNode).toBeDefined();
-            expect(currentNode[__key]).toBe(expectedNode.key);
-            expect(currentNode.value).toEqual(expectedNode.value);
-            currentNode = currentNode[__next];
-        }
-        expect(currentNode).toBeUndefined();
-    };
-
-    var model = new Model({
-        cache: cacheGenerator(0, 1)
-    });
-
-    const initialState = [{
-        key: 'title',
-        value: 'Video 0'
-    }, {
-        key: 'item',
-        value: ['videos', '0']
-    }, {
-        key: '0',
-        value: ['lists', 'A']
-    }, {
-        key: 'lolomo',
-        value: ['lolomos', '1234']
-    }, ];
-    assertLinkedListState(model._root[__head], initialState);
-
-    model.get(['lolomo', 0]).subscribe();
-
-    const finalState = [{
-        key: '0',
-        value: ['lists', 'A']
-    }, {
-        key: 'lolomo',
-        value: ['lolomos', '1234']
-    }, {
-        key: 'title',
-        value: 'Video 0'
-    }, {
-        key: 'item',
-        value: ['videos', '0']
-    }, ];
-    assertLinkedListState(model._root[__head], finalState);
-})",130,177,steel
 /test/lru/lru.promote.get.spec.js,Lazy Test,"{'line': 38, 'column': 19, 'index': 1578}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
@@ -41481,21 +41461,26 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",36,78,steel
-/test/lru/lru.promote.get.spec.js,Lazy Test,"{'line': 143, 'column': 15, 'index': 5596}","it('should promote references on a get.', function() {
-    const assertLinkedListState = (startNode, expectedNodes) => {
-        let currentNode = startNode;
-        for (const expectedNode of expectedNodes) {
+/test/lru/lru.promote.get.spec.js,Lazy Test,"{'line': 146, 'column': 15, 'index': 5608}","it('should promote references on a get.', function() {
+    const assertLinkedListState = (head, expectedNodes) => {
+        let currentNode = head;
+        for (const {
+                key,
+                value
+            } of expectedNodes) {
             expect(currentNode).toBeDefined();
-            expect(currentNode[__key]).toBe(expectedNode.key);
-            expect(currentNode.value).toEqual(expectedNode.value);
+            expect(currentNode[__key]).toBe(key);
+            expect(currentNode.value).toEqual(value);
             currentNode = currentNode[__next];
         }
         expect(currentNode).toBeUndefined();
     };
 
-    var model = new Model({
+    const model = new Model({
         cache: cacheGenerator(0, 1)
     });
+
+    const root = model._root;
 
     const initialState = [{
         key: 'title',
@@ -41510,11 +41495,12 @@ file,type,line,method,methodStart,methodEnd,source
         key: 'lolomo',
         value: ['lolomos', '1234']
     }, ];
-    assertLinkedListState(model._root[__head], initialState);
+
+    assertLinkedListState(root[__head], initialState);
 
     model.get(['lolomo', 0]).subscribe();
 
-    const finalState = [{
+    const promotedState = [{
         key: '0',
         value: ['lists', 'A']
     }, {
@@ -41527,8 +41513,9 @@ file,type,line,method,methodStart,methodEnd,source
         key: 'item',
         value: ['videos', '0']
     }, ];
-    assertLinkedListState(model._root[__head], finalState);
-})",130,177,steel
+
+    assertLinkedListState(root[__head], promotedState);
+})",130,184,steel
 /test/invalidate/pathSets.spec.js,Eager Test,"{'line': 19, 'column': 8, 'index': 604}","it(""directly"", function() {
 
         var lru = new Object();

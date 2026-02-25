@@ -1,4 +1,4 @@
-test('when parse with different arguments then processedArgs change', () => {
+test('when parse is called again then processedArgs is updated', () => {
     // weak test, would work without store/reset!
     const program = new commander.Command().argument(
       '<first>',

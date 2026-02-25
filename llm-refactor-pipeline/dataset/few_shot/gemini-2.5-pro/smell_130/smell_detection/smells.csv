@@ -19296,7 +19296,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(stub.props.foo).toBe('bar');
       expect(stub.props.scooby).toBe('boo');
     })",1491,1560,snuts
-/packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':2002,'endLine':2006}","it('should not swallow errors when bailing out early', () => {
+/packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':1977,'endLine':1981}","it('should not swallow errors when bailing out early', () => {
       const store = createStore(stringBuilder);
       let renderCalls = 0;
       let mapStateCalls = 0;
@@ -19328,8 +19328,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(() => store.dispatch({ type: 'APPEND', payload: 'a' })).toThrow(
         new Error('Oops'),
       );
-    })",1995,2027,snuts
-/packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':2039,'endLine':2042}","it('should allow providing a factory function to mapStateToProps', () => {
+    })",1970,2002,snuts
+/packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':2014,'endLine':2017}","it('should allow providing a factory function to mapStateToProps', () => {
       let updateCount = 0;
       let memoizedReturnCount = 0;
       const store = createStore(() => ({ value: 1 }));
@@ -19377,8 +19377,8 @@ file,type,line,method,methodStart,methodEnd,source
       store.dispatch({ type: 'test' });
       expect(updateCount).toBe(0);
       expect(memoizedReturnCount).toBe(2);
-    })",2029,2077,snuts
-/packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':2128,'endLine':2131}","it('should allow providing a factory function to mapDispatchToProps', (done) => {
+    })",2004,2052,snuts
+/packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':2103,'endLine':2106}","it('should allow providing a factory function to mapDispatchToProps', (done) => {
       let updatedCount = 0;
       let memoizedReturnCount = 0;
       const store = createStore(() => ({ value: 1 }));
@@ -19454,8 +19454,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(memoizedReturnCount).toBe(2);
         done();
       }, 20);
-    })",2119,2195,snuts
-/packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':2375,'endLine':2377}","it('should throw a helpful error for invalid mapStateToProps arguments', () => {
+    })",2094,2170,snuts
+/packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':2350,'endLine':2352}","it('should throw a helpful error for invalid mapStateToProps arguments', () => {
       const InvalidMapState = connect('invalid')(
         class InvalidMapState extends Component {
           render() {
@@ -19470,8 +19470,8 @@ file,type,line,method,methodStart,methodEnd,source
       if (supportFnName) {
         expect(error).toContain('InvalidMapState');
       }
-    })",2363,2378,snuts
-/packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':2395,'endLine':2397}","it('should throw a helpful error for invalid mapDispatchToProps arguments', () => {
+    })",2338,2353,snuts
+/packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':2370,'endLine':2372}","it('should throw a helpful error for invalid mapDispatchToProps arguments', () => {
       const InvalidMapDispatch = connect(
         null,
         'invalid',
@@ -19489,7 +19489,7 @@ file,type,line,method,methodStart,methodEnd,source
       if (supportFnName) {
         expect(error).toContain('InvalidMapDispatch');
       }
-    })",2380,2398,snuts
+    })",2355,2373,snuts
 /packages/inferno-redux/__tests__/components/connect.spec.js,NonFunctionalStatement,"{'startLine':9,'endLine':9}","describe('Inferno', () => {
   // IE does not support function names so error messages are different
   const testFunction = function testFunction() {};
@@ -21410,71 +21410,46 @@ file,type,line,method,methodStart,methodEnd,source
 
     it('should bail out early if mapState does not depend on props', () => {
   const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
+  const mapStateSpy = jest.fn(state =>
+    state === 'aaa' ? { change: 1 } : {},
+  );
+  const renderSpy = jest.fn();
 
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
+  const Container = connect(mapStateSpy)(
     class Container extends Component {
       render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
+        renderSpy();
+        return <Passthrough {...this.props} />;
       }
     },
   );
 
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
+  const setStateSpy = jest.spyOn(Container.prototype, 'setState');
 
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
+  const vNode = (
+    <ProviderMock store={store}>
+      <Container />
+    </ProviderMock>
   );
 
   renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
 
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
+  expect(renderSpy).toHaveBeenCalledTimes(1);
+  expect(mapStateSpy).toHaveBeenCalledTimes(1);
 
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
+  const dispatchSteps = [
+    { mapStateCalls: 2, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 3, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 4, renderCalls: 2, setStateCalls: 1 },
+  ];
+
+  dispatchSteps.forEach(({ mapStateCalls, renderCalls, setStateCalls }) => {
+    store.dispatch({ type: 'APPEND', payload: 'a' });
     renderToContainer(vNode);
 
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
+    expect(mapStateSpy).toHaveBeenCalledTimes(mapStateCalls);
+    expect(renderSpy).toHaveBeenCalledTimes(renderCalls);
+    expect(setStateSpy).toHaveBeenCalledTimes(setStateCalls);
   });
 });;
 
@@ -22064,7 +22039,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
     });
   });
-})",7,2581,snuts
+})",7,2556,snuts
 /packages/inferno-redux/__tests__/components/connect.spec.js,NonFunctionalStatement,"{'startLine':375,'endLine':375}","it('should remove undefined props', () => {
       const store = createStore(() => {});
       let props = { x: true };
@@ -22375,7 +22350,7 @@ file,type,line,method,methodStart,methodEnd,source
         ).displayName,
       ).not.toEqual(undefined);
     })",1562,1572,snuts
-/packages/inferno-redux/__tests__/components/connect.spec.js,SubOptimalAssert,"{'startLine':2336,'endLine':2336}","it('should allow custom displayName', () => {
+/packages/inferno-redux/__tests__/components/connect.spec.js,SubOptimalAssert,"{'startLine':2311,'endLine':2311}","it('should allow custom displayName', () => {
       const MyComponent = connect(null, null, null, {
         getDisplayName: (name) => `Custom(${name})`,
       })(
@@ -22388,7 +22363,7 @@ file,type,line,method,methodStart,methodEnd,source
 
       // This depends on minification, browser support, etc
       expect(MyComponent.displayName).not.toBe(undefined);
-    })",2324,2337,snuts
+    })",2299,2312,snuts
 /packages/inferno-redux/__tests__/components/connect.spec.js,VerboseStatement,"{'startLine':721,'endLine':779}","it('should invoke mapState every time props are changed if it has a second argument', () => {
       const store = createStore(stringBuilder);
 
@@ -22957,76 +22932,7 @@ file,type,line,method,methodStart,methodEnd,source
       renderToContainer(vNode);
       expect(childMapStateInvokes).toBe(4);
     })",1820,1888,snuts
-/packages/inferno-redux/__tests__/components/connect.spec.js,VerboseStatement,"{'startLine':1925,'endLine':1993}","it('should bail out early if mapState does not depend on props', () => {
-  const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
-
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
-    class Container extends Component {
-      render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
-      }
-    },
-  );
-
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
-
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
-  );
-
-  renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
-
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
-
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
-    renderToContainer(vNode);
-
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
-  });
-})",1925,1993,snuts
-/packages/inferno-redux/__tests__/components/connect.spec.js,VerboseStatement,"{'startLine':2079,'endLine':2117}","it('should allow a mapStateToProps factory consuming just state to return a function that gets ownProps', () => {
+/packages/inferno-redux/__tests__/components/connect.spec.js,VerboseStatement,"{'startLine':2054,'endLine':2092}","it('should allow a mapStateToProps factory consuming just state to return a function that gets ownProps', () => {
       const store = createStore(() => ({ value: 1 }));
 
       let initialState;
@@ -23064,8 +22970,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(initialState).toBeDefined();
       expect(secondaryOwnProps).toBeDefined();
       expect(secondaryOwnProps.name).toBe('a');
-    })",2079,2117,snuts
-/packages/inferno-redux/__tests__/components/connect.spec.js,VerboseStatement,"{'startLine':2514,'endLine':2579}","it('should subscribe properly when a new store is provided via props', () => {
+    })",2054,2092,snuts
+/packages/inferno-redux/__tests__/components/connect.spec.js,VerboseStatement,"{'startLine':2489,'endLine':2554}","it('should subscribe properly when a new store is provided via props', () => {
       const store1 = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -23130,7 +23036,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsB).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsC).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
-    })",2514,2579,snuts
+    })",2489,2554,snuts
 /packages/inferno-redux/__tests__/components/Provider.spec.js,VerboseStatement,"{'startLine':64,'endLine':104}","it('should warn once when receiving a new store in props', () => {
       const store1 = createStore((state = 10) => state + 1);
       const store2 = createStore((state = 10) => state * 2);
@@ -25253,71 +25159,46 @@ file,type,line,method,methodStart,methodEnd,source
 
     it('should bail out early if mapState does not depend on props', () => {
   const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
+  const mapStateSpy = jest.fn(state =>
+    state === 'aaa' ? { change: 1 } : {},
+  );
+  const renderSpy = jest.fn();
 
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
+  const Container = connect(mapStateSpy)(
     class Container extends Component {
       render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
+        renderSpy();
+        return <Passthrough {...this.props} />;
       }
     },
   );
 
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
+  const setStateSpy = jest.spyOn(Container.prototype, 'setState');
 
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
+  const vNode = (
+    <ProviderMock store={store}>
+      <Container />
+    </ProviderMock>
   );
 
   renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
 
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
+  expect(renderSpy).toHaveBeenCalledTimes(1);
+  expect(mapStateSpy).toHaveBeenCalledTimes(1);
 
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
+  const dispatchSteps = [
+    { mapStateCalls: 2, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 3, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 4, renderCalls: 2, setStateCalls: 1 },
+  ];
+
+  dispatchSteps.forEach(({ mapStateCalls, renderCalls, setStateCalls }) => {
+    store.dispatch({ type: 'APPEND', payload: 'a' });
     renderToContainer(vNode);
 
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
+    expect(mapStateSpy).toHaveBeenCalledTimes(mapStateCalls);
+    expect(renderSpy).toHaveBeenCalledTimes(renderCalls);
+    expect(setStateSpy).toHaveBeenCalledTimes(setStateCalls);
   });
 });;
 
@@ -25907,7 +25788,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
     });
   });
-})",7,2581,steel
+})",7,2556,steel
 /packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 69, 'column': 10, 'index': 1690}","describe('redux', () => {
     class Passthrough extends Component {
       render() {
@@ -27798,71 +27679,46 @@ file,type,line,method,methodStart,methodEnd,source
 
     it('should bail out early if mapState does not depend on props', () => {
   const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
+  const mapStateSpy = jest.fn(state =>
+    state === 'aaa' ? { change: 1 } : {},
+  );
+  const renderSpy = jest.fn();
 
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
+  const Container = connect(mapStateSpy)(
     class Container extends Component {
       render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
+        renderSpy();
+        return <Passthrough {...this.props} />;
       }
     },
   );
 
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
+  const setStateSpy = jest.spyOn(Container.prototype, 'setState');
 
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
+  const vNode = (
+    <ProviderMock store={store}>
+      <Container />
+    </ProviderMock>
   );
 
   renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
 
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
+  expect(renderSpy).toHaveBeenCalledTimes(1);
+  expect(mapStateSpy).toHaveBeenCalledTimes(1);
 
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
+  const dispatchSteps = [
+    { mapStateCalls: 2, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 3, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 4, renderCalls: 2, setStateCalls: 1 },
+  ];
+
+  dispatchSteps.forEach(({ mapStateCalls, renderCalls, setStateCalls }) => {
+    store.dispatch({ type: 'APPEND', payload: 'a' });
     renderToContainer(vNode);
 
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
+    expect(mapStateSpy).toHaveBeenCalledTimes(mapStateCalls);
+    expect(renderSpy).toHaveBeenCalledTimes(renderCalls);
+    expect(setStateSpy).toHaveBeenCalledTimes(setStateCalls);
   });
 });;
 
@@ -28451,7 +28307,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsC).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
     });
-  })",37,2580,steel
+  })",37,2555,steel
 /packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 82, 'column': 8, 'index': 2015}","describe('redux', () => {
     class Passthrough extends Component {
       render() {
@@ -30342,71 +30198,46 @@ file,type,line,method,methodStart,methodEnd,source
 
     it('should bail out early if mapState does not depend on props', () => {
   const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
+  const mapStateSpy = jest.fn(state =>
+    state === 'aaa' ? { change: 1 } : {},
+  );
+  const renderSpy = jest.fn();
 
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
+  const Container = connect(mapStateSpy)(
     class Container extends Component {
       render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
+        renderSpy();
+        return <Passthrough {...this.props} />;
       }
     },
   );
 
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
+  const setStateSpy = jest.spyOn(Container.prototype, 'setState');
 
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
+  const vNode = (
+    <ProviderMock store={store}>
+      <Container />
+    </ProviderMock>
   );
 
   renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
 
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
+  expect(renderSpy).toHaveBeenCalledTimes(1);
+  expect(mapStateSpy).toHaveBeenCalledTimes(1);
 
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
+  const dispatchSteps = [
+    { mapStateCalls: 2, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 3, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 4, renderCalls: 2, setStateCalls: 1 },
+  ];
+
+  dispatchSteps.forEach(({ mapStateCalls, renderCalls, setStateCalls }) => {
+    store.dispatch({ type: 'APPEND', payload: 'a' });
     renderToContainer(vNode);
 
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
+    expect(mapStateSpy).toHaveBeenCalledTimes(mapStateCalls);
+    expect(renderSpy).toHaveBeenCalledTimes(renderCalls);
+    expect(setStateSpy).toHaveBeenCalledTimes(setStateCalls);
   });
 });;
 
@@ -30995,7 +30826,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsC).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
     });
-  })",37,2580,steel
+  })",37,2555,steel
 /packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 298, 'column': 10, 'index': 7927}","it('should handle additional prop changes in addition to slice', () => {
       const store = createStore(() => ({
         foo: 'bar',
@@ -31358,7 +31189,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(stub.props.foo).toBe('bar');
       expect(stub.props.scooby).toBe('boo');
     })",1491,1560,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 2002, 'column': 8, 'index': 54085}","it('should not swallow errors when bailing out early', () => {
+/packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 1977, 'column': 8, 'index': 53979}","it('should not swallow errors when bailing out early', () => {
       const store = createStore(stringBuilder);
       let renderCalls = 0;
       let mapStateCalls = 0;
@@ -31390,8 +31221,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(() => store.dispatch({ type: 'APPEND', payload: 'a' })).toThrow(
         new Error('Oops'),
       );
-    })",1995,2027,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 2039, 'column': 10, 'index': 55039}","it('should allow providing a factory function to mapStateToProps', () => {
+    })",1970,2002,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 2014, 'column': 10, 'index': 54933}","it('should allow providing a factory function to mapStateToProps', () => {
       let updateCount = 0;
       let memoizedReturnCount = 0;
       const store = createStore(() => ({ value: 1 }));
@@ -31439,8 +31270,8 @@ file,type,line,method,methodStart,methodEnd,source
       store.dispatch({ type: 'test' });
       expect(updateCount).toBe(0);
       expect(memoizedReturnCount).toBe(2);
-    })",2029,2077,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 2128, 'column': 10, 'index': 57513}","it('should allow providing a factory function to mapDispatchToProps', (done) => {
+    })",2004,2052,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 2103, 'column': 10, 'index': 57407}","it('should allow providing a factory function to mapDispatchToProps', (done) => {
       let updatedCount = 0;
       let memoizedReturnCount = 0;
       const store = createStore(() => ({ value: 1 }));
@@ -31516,8 +31347,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(memoizedReturnCount).toBe(2);
         done();
       }, 20);
-    })",2119,2195,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 2275, 'column': 8, 'index': 61034}","it('should allow to clean up child state in parent componentWillUnmount', () => {
+    })",2094,2170,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 2250, 'column': 8, 'index': 60928}","it('should allow to clean up child state in parent componentWillUnmount', () => {
       const reducer = (state = { data: null }, action) => {
         switch (action.type) {
           case 'fetch':
@@ -31566,8 +31397,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       unmountDOM(div);
       expect(store.getState().data).toEqual(null);
-    })",2273,2322,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 2375, 'column': 6, 'index': 63669}","it('should throw a helpful error for invalid mapStateToProps arguments', () => {
+    })",2248,2297,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 2350, 'column': 6, 'index': 63563}","it('should throw a helpful error for invalid mapStateToProps arguments', () => {
       const InvalidMapState = connect('invalid')(
         class InvalidMapState extends Component {
           render() {
@@ -31582,8 +31413,8 @@ file,type,line,method,methodStart,methodEnd,source
       if (supportFnName) {
         expect(error).toContain('InvalidMapState');
       }
-    })",2363,2378,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 2395, 'column': 6, 'index': 64228}","it('should throw a helpful error for invalid mapDispatchToProps arguments', () => {
+    })",2338,2353,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 2370, 'column': 6, 'index': 64122}","it('should throw a helpful error for invalid mapDispatchToProps arguments', () => {
       const InvalidMapDispatch = connect(
         null,
         'invalid',
@@ -31601,7 +31432,7 @@ file,type,line,method,methodStart,methodEnd,source
       if (supportFnName) {
         expect(error).toContain('InvalidMapDispatch');
       }
-    })",2380,2398,steel
+    })",2355,2373,steel
 /packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 177, 'column': 6, 'index': 4583}","it('should subscribe class components to the store changes', () => {
       const store = createStore(stringBuilder);
 
@@ -39569,421 +39400,183 @@ file,type,line,method,methodStart,methodEnd,source
       // But render is not because it did not make any actual changes
       expect(renderCalls).toBe(1);
     })",1890,1923,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 1964, 'column': 2, 'index': 53261}","it('should bail out early if mapState does not depend on props', () => {
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 1951, 'column': 2, 'index': 53068}","it('should bail out early if mapState does not depend on props', () => {
   const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
+  const mapStateSpy = jest.fn(state =>
+    state === 'aaa' ? { change: 1 } : {},
+  );
+  const renderSpy = jest.fn();
 
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
+  const Container = connect(mapStateSpy)(
     class Container extends Component {
       render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
+        renderSpy();
+        return <Passthrough {...this.props} />;
       }
     },
   );
 
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
+  const setStateSpy = jest.spyOn(Container.prototype, 'setState');
 
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
+  const vNode = (
+    <ProviderMock store={store}>
+      <Container />
+    </ProviderMock>
   );
 
   renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
 
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
+  expect(renderSpy).toHaveBeenCalledTimes(1);
+  expect(mapStateSpy).toHaveBeenCalledTimes(1);
 
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
+  const dispatchSteps = [
+    { mapStateCalls: 2, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 3, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 4, renderCalls: 2, setStateCalls: 1 },
+  ];
+
+  dispatchSteps.forEach(({ mapStateCalls, renderCalls, setStateCalls }) => {
+    store.dispatch({ type: 'APPEND', payload: 'a' });
     renderToContainer(vNode);
 
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
+    expect(mapStateSpy).toHaveBeenCalledTimes(mapStateCalls);
+    expect(renderSpy).toHaveBeenCalledTimes(renderCalls);
+    expect(setStateSpy).toHaveBeenCalledTimes(setStateCalls);
   });
-})",1925,1993,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 1965, 'column': 2, 'index': 53292}","it('should bail out early if mapState does not depend on props', () => {
+})",1925,1968,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 1952, 'column': 2, 'index': 53114}","it('should bail out early if mapState does not depend on props', () => {
   const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
+  const mapStateSpy = jest.fn(state =>
+    state === 'aaa' ? { change: 1 } : {},
+  );
+  const renderSpy = jest.fn();
 
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
+  const Container = connect(mapStateSpy)(
     class Container extends Component {
       render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
+        renderSpy();
+        return <Passthrough {...this.props} />;
       }
     },
   );
 
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
+  const setStateSpy = jest.spyOn(Container.prototype, 'setState');
 
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
+  const vNode = (
+    <ProviderMock store={store}>
+      <Container />
+    </ProviderMock>
   );
 
   renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
 
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
+  expect(renderSpy).toHaveBeenCalledTimes(1);
+  expect(mapStateSpy).toHaveBeenCalledTimes(1);
 
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
+  const dispatchSteps = [
+    { mapStateCalls: 2, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 3, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 4, renderCalls: 2, setStateCalls: 1 },
+  ];
+
+  dispatchSteps.forEach(({ mapStateCalls, renderCalls, setStateCalls }) => {
+    store.dispatch({ type: 'APPEND', payload: 'a' });
     renderToContainer(vNode);
 
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
+    expect(mapStateSpy).toHaveBeenCalledTimes(mapStateCalls);
+    expect(renderSpy).toHaveBeenCalledTimes(renderCalls);
+    expect(setStateSpy).toHaveBeenCalledTimes(setStateCalls);
   });
-})",1925,1993,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 1966, 'column': 2, 'index': 53325}","it('should bail out early if mapState does not depend on props', () => {
+})",1925,1968,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 1964, 'column': 4, 'index': 53539}","it('should bail out early if mapState does not depend on props', () => {
   const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
+  const mapStateSpy = jest.fn(state =>
+    state === 'aaa' ? { change: 1 } : {},
+  );
+  const renderSpy = jest.fn();
 
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
+  const Container = connect(mapStateSpy)(
     class Container extends Component {
       render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
+        renderSpy();
+        return <Passthrough {...this.props} />;
       }
     },
   );
 
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
+  const setStateSpy = jest.spyOn(Container.prototype, 'setState');
 
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
+  const vNode = (
+    <ProviderMock store={store}>
+      <Container />
+    </ProviderMock>
   );
 
   renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
 
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
+  expect(renderSpy).toHaveBeenCalledTimes(1);
+  expect(mapStateSpy).toHaveBeenCalledTimes(1);
 
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
+  const dispatchSteps = [
+    { mapStateCalls: 2, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 3, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 4, renderCalls: 2, setStateCalls: 1 },
+  ];
+
+  dispatchSteps.forEach(({ mapStateCalls, renderCalls, setStateCalls }) => {
+    store.dispatch({ type: 'APPEND', payload: 'a' });
     renderToContainer(vNode);
 
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
+    expect(mapStateSpy).toHaveBeenCalledTimes(mapStateCalls);
+    expect(renderSpy).toHaveBeenCalledTimes(renderCalls);
+    expect(setStateSpy).toHaveBeenCalledTimes(setStateCalls);
   });
-})",1925,1993,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 1989, 'column': 4, 'index': 53690}","it('should bail out early if mapState does not depend on props', () => {
+})",1925,1968,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 1965, 'column': 4, 'index': 53601}","it('should bail out early if mapState does not depend on props', () => {
   const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
+  const mapStateSpy = jest.fn(state =>
+    state === 'aaa' ? { change: 1 } : {},
+  );
+  const renderSpy = jest.fn();
 
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
+  const Container = connect(mapStateSpy)(
     class Container extends Component {
       render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
+        renderSpy();
+        return <Passthrough {...this.props} />;
       }
     },
   );
 
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
+  const setStateSpy = jest.spyOn(Container.prototype, 'setState');
 
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
+  const vNode = (
+    <ProviderMock store={store}>
+      <Container />
+    </ProviderMock>
   );
 
   renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
 
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
+  expect(renderSpy).toHaveBeenCalledTimes(1);
+  expect(mapStateSpy).toHaveBeenCalledTimes(1);
 
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
+  const dispatchSteps = [
+    { mapStateCalls: 2, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 3, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 4, renderCalls: 2, setStateCalls: 1 },
+  ];
+
+  dispatchSteps.forEach(({ mapStateCalls, renderCalls, setStateCalls }) => {
+    store.dispatch({ type: 'APPEND', payload: 'a' });
     renderToContainer(vNode);
 
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
+    expect(mapStateSpy).toHaveBeenCalledTimes(mapStateCalls);
+    expect(renderSpy).toHaveBeenCalledTimes(renderCalls);
+    expect(setStateSpy).toHaveBeenCalledTimes(setStateCalls);
   });
-})",1925,1993,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 1990, 'column': 4, 'index': 53737}","it('should bail out early if mapState does not depend on props', () => {
-  const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
-
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
-    class Container extends Component {
-      render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
-      }
-    },
-  );
-
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
-
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
-  );
-
-  renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
-
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
-
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
-    renderToContainer(vNode);
-
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
-  });
-})",1925,1993,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 1991, 'column': 4, 'index': 53780}","it('should bail out early if mapState does not depend on props', () => {
-  const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
-
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
-    class Container extends Component {
-      render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
-      }
-    },
-  );
-
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
-
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
-  );
-
-  renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
-
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
-
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
-    renderToContainer(vNode);
-
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
-  });
-})",1925,1993,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2224, 'column': 6, 'index': 59781}","it('should not call update if mergeProps return value has not changed', () => {
+})",1925,1968,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2199, 'column': 6, 'index': 59675}","it('should not call update if mergeProps return value has not changed', () => {
       let mapStateCalls = 0;
       let renderCalls = 0;
       const store = createStore(stringBuilder);
@@ -40018,8 +39611,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(mapStateCalls).toBe(2);
       expect(renderCalls).toBe(1);
-    })",2197,2232,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2225, 'column': 6, 'index': 59818}","it('should not call update if mergeProps return value has not changed', () => {
+    })",2172,2207,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2200, 'column': 6, 'index': 59712}","it('should not call update if mergeProps return value has not changed', () => {
       let mapStateCalls = 0;
       let renderCalls = 0;
       const store = createStore(stringBuilder);
@@ -40054,8 +39647,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(mapStateCalls).toBe(2);
       expect(renderCalls).toBe(1);
-    })",2197,2232,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2225, 'column': 6, 'index': 59818}","it('should not call update if mergeProps return value has not changed', () => {
+    })",2172,2207,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2200, 'column': 6, 'index': 59712}","it('should not call update if mergeProps return value has not changed', () => {
       let mapStateCalls = 0;
       let renderCalls = 0;
       const store = createStore(stringBuilder);
@@ -40090,8 +39683,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(mapStateCalls).toBe(2);
       expect(renderCalls).toBe(1);
-    })",2197,2232,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2230, 'column': 6, 'index': 59943}","it('should not call update if mergeProps return value has not changed', () => {
+    })",2172,2207,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2205, 'column': 6, 'index': 59837}","it('should not call update if mergeProps return value has not changed', () => {
       let mapStateCalls = 0;
       let renderCalls = 0;
       const store = createStore(stringBuilder);
@@ -40126,8 +39719,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(mapStateCalls).toBe(2);
       expect(renderCalls).toBe(1);
-    })",2197,2232,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2231, 'column': 6, 'index': 59980}","it('should not call update if mergeProps return value has not changed', () => {
+    })",2172,2207,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2206, 'column': 6, 'index': 59874}","it('should not call update if mergeProps return value has not changed', () => {
       let mapStateCalls = 0;
       let renderCalls = 0;
       const store = createStore(stringBuilder);
@@ -40162,8 +39755,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(mapStateCalls).toBe(2);
       expect(renderCalls).toBe(1);
-    })",2197,2232,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2231, 'column': 6, 'index': 59980}","it('should not call update if mergeProps return value has not changed', () => {
+    })",2172,2207,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2206, 'column': 6, 'index': 59874}","it('should not call update if mergeProps return value has not changed', () => {
       let mapStateCalls = 0;
       let renderCalls = 0;
       const store = createStore(stringBuilder);
@@ -40198,8 +39791,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(mapStateCalls).toBe(2);
       expect(renderCalls).toBe(1);
-    })",2197,2232,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2265, 'column': 6, 'index': 60749}","it('should update impure components with custom mergeProps', (done) => {
+    })",2172,2207,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2240, 'column': 6, 'index': 60643}","it('should update impure components with custom mergeProps', (done) => {
       const store = createStore(() => ({}));
       let renderCount = 0;
 
@@ -40236,8 +39829,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(renderCount).toBe(2);
         done();
       }, 20);
-    })",2234,2271,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2268, 'column': 8, 'index': 60812}","it('should update impure components with custom mergeProps', (done) => {
+    })",2209,2246,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2243, 'column': 8, 'index': 60706}","it('should update impure components with custom mergeProps', (done) => {
       const store = createStore(() => ({}));
       let renderCount = 0;
 
@@ -40274,8 +39867,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(renderCount).toBe(2);
         done();
       }, 20);
-    })",2234,2271,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2373, 'column': 6, 'index': 63578}","it('should throw a helpful error for invalid mapStateToProps arguments', () => {
+    })",2209,2246,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2348, 'column': 6, 'index': 63472}","it('should throw a helpful error for invalid mapStateToProps arguments', () => {
       const InvalidMapState = connect('invalid')(
         class InvalidMapState extends Component {
           render() {
@@ -40290,8 +39883,8 @@ file,type,line,method,methodStart,methodEnd,source
       if (supportFnName) {
         expect(error).toContain('InvalidMapState');
       }
-    })",2363,2378,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2374, 'column': 6, 'index': 63619}","it('should throw a helpful error for invalid mapStateToProps arguments', () => {
+    })",2338,2353,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2349, 'column': 6, 'index': 63513}","it('should throw a helpful error for invalid mapStateToProps arguments', () => {
       const InvalidMapState = connect('invalid')(
         class InvalidMapState extends Component {
           render() {
@@ -40306,8 +39899,8 @@ file,type,line,method,methodStart,methodEnd,source
       if (supportFnName) {
         expect(error).toContain('InvalidMapState');
       }
-    })",2363,2378,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2376, 'column': 8, 'index': 63698}","it('should throw a helpful error for invalid mapStateToProps arguments', () => {
+    })",2338,2353,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2351, 'column': 8, 'index': 63592}","it('should throw a helpful error for invalid mapStateToProps arguments', () => {
       const InvalidMapState = connect('invalid')(
         class InvalidMapState extends Component {
           render() {
@@ -40322,8 +39915,8 @@ file,type,line,method,methodStart,methodEnd,source
       if (supportFnName) {
         expect(error).toContain('InvalidMapState');
       }
-    })",2363,2378,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2393, 'column': 6, 'index': 64134}","it('should throw a helpful error for invalid mapDispatchToProps arguments', () => {
+    })",2338,2353,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2368, 'column': 6, 'index': 64028}","it('should throw a helpful error for invalid mapDispatchToProps arguments', () => {
       const InvalidMapDispatch = connect(
         null,
         'invalid',
@@ -40341,8 +39934,8 @@ file,type,line,method,methodStart,methodEnd,source
       if (supportFnName) {
         expect(error).toContain('InvalidMapDispatch');
       }
-    })",2380,2398,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2394, 'column': 6, 'index': 64175}","it('should throw a helpful error for invalid mapDispatchToProps arguments', () => {
+    })",2355,2373,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2369, 'column': 6, 'index': 64069}","it('should throw a helpful error for invalid mapDispatchToProps arguments', () => {
       const InvalidMapDispatch = connect(
         null,
         'invalid',
@@ -40360,8 +39953,8 @@ file,type,line,method,methodStart,methodEnd,source
       if (supportFnName) {
         expect(error).toContain('InvalidMapDispatch');
       }
-    })",2380,2398,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2396, 'column': 8, 'index': 64257}","it('should throw a helpful error for invalid mapDispatchToProps arguments', () => {
+    })",2355,2373,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2371, 'column': 8, 'index': 64151}","it('should throw a helpful error for invalid mapDispatchToProps arguments', () => {
       const InvalidMapDispatch = connect(
         null,
         'invalid',
@@ -40379,8 +39972,8 @@ file,type,line,method,methodStart,methodEnd,source
       if (supportFnName) {
         expect(error).toContain('InvalidMapDispatch');
       }
-    })",2380,2398,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2414, 'column': 6, 'index': 64684}","it('should throw a helpful error for invalid mergeProps arguments', () => {
+    })",2355,2373,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2389, 'column': 6, 'index': 64578}","it('should throw a helpful error for invalid mergeProps arguments', () => {
       const InvalidMerge = connect(
         null,
         null,
@@ -40396,8 +39989,8 @@ file,type,line,method,methodStart,methodEnd,source
       const error = renderWithBadConnect(InvalidMerge);
       expect(error).toContain('string');
       expect(error).toContain('mergeProps');
-    })",2400,2416,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2415, 'column': 6, 'index': 64725}","it('should throw a helpful error for invalid mergeProps arguments', () => {
+    })",2375,2391,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2390, 'column': 6, 'index': 64619}","it('should throw a helpful error for invalid mergeProps arguments', () => {
       const InvalidMerge = connect(
         null,
         null,
@@ -40413,8 +40006,8 @@ file,type,line,method,methodStart,methodEnd,source
       const error = renderWithBadConnect(InvalidMerge);
       expect(error).toContain('string');
       expect(error).toContain('mergeProps');
-    })",2400,2416,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2466, 'column': 6, 'index': 65917}","it('should notify nested components through a blocking component', () => {
+    })",2375,2391,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2441, 'column': 6, 'index': 65811}","it('should notify nested components through a blocking component', () => {
       const store = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -40466,8 +40059,8 @@ file,type,line,method,methodStart,methodEnd,source
       store.dispatch({ type: 'INC' });
       renderToContainer(vNode);
       expect(mapStateCalls).toBe(2);
-    })",2418,2470,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2469, 'column': 6, 'index': 66025}","it('should notify nested components through a blocking component', () => {
+    })",2393,2445,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2444, 'column': 6, 'index': 65919}","it('should notify nested components through a blocking component', () => {
       const store = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -40519,8 +40112,8 @@ file,type,line,method,methodStart,methodEnd,source
       store.dispatch({ type: 'INC' });
       renderToContainer(vNode);
       expect(mapStateCalls).toBe(2);
-    })",2418,2470,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2564, 'column': 6, 'index': 68566}","it('should subscribe properly when a new store is provided via props', () => {
+    })",2393,2445,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2539, 'column': 6, 'index': 68460}","it('should subscribe properly when a new store is provided via props', () => {
       const store1 = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -40585,8 +40178,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsB).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsC).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
-    })",2514,2579,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2565, 'column': 6, 'index': 68623}","it('should subscribe properly when a new store is provided via props', () => {
+    })",2489,2554,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2540, 'column': 6, 'index': 68517}","it('should subscribe properly when a new store is provided via props', () => {
       const store1 = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -40651,8 +40244,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsB).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsC).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
-    })",2514,2579,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2566, 'column': 6, 'index': 68680}","it('should subscribe properly when a new store is provided via props', () => {
+    })",2489,2554,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2541, 'column': 6, 'index': 68574}","it('should subscribe properly when a new store is provided via props', () => {
       const store1 = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -40717,8 +40310,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsB).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsC).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
-    })",2514,2579,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2570, 'column': 6, 'index': 68810}","it('should subscribe properly when a new store is provided via props', () => {
+    })",2489,2554,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2545, 'column': 6, 'index': 68704}","it('should subscribe properly when a new store is provided via props', () => {
       const store1 = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -40783,8 +40376,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsB).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsC).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
-    })",2514,2579,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2571, 'column': 6, 'index': 68867}","it('should subscribe properly when a new store is provided via props', () => {
+    })",2489,2554,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2546, 'column': 6, 'index': 68761}","it('should subscribe properly when a new store is provided via props', () => {
       const store1 = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -40849,8 +40442,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsB).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsC).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
-    })",2514,2579,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2572, 'column': 6, 'index': 68924}","it('should subscribe properly when a new store is provided via props', () => {
+    })",2489,2554,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2547, 'column': 6, 'index': 68818}","it('should subscribe properly when a new store is provided via props', () => {
       const store1 = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -40915,8 +40508,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsB).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsC).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
-    })",2514,2579,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2576, 'column': 6, 'index': 69054}","it('should subscribe properly when a new store is provided via props', () => {
+    })",2489,2554,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2551, 'column': 6, 'index': 68948}","it('should subscribe properly when a new store is provided via props', () => {
       const store1 = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -40981,8 +40574,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsB).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsC).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
-    })",2514,2579,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2577, 'column': 6, 'index': 69111}","it('should subscribe properly when a new store is provided via props', () => {
+    })",2489,2554,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2552, 'column': 6, 'index': 69005}","it('should subscribe properly when a new store is provided via props', () => {
       const store1 = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -41047,8 +40640,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsB).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsC).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
-    })",2514,2579,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2578, 'column': 6, 'index': 69168}","it('should subscribe properly when a new store is provided via props', () => {
+    })",2489,2554,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Duplicate Assert,"{'line': 2553, 'column': 6, 'index': 69062}","it('should subscribe properly when a new store is provided via props', () => {
       const store1 = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -41113,7 +40706,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(mapStateToPropsB).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsC).toHaveBeenCalledTimes(2);
       expect(mapStateToPropsD).toHaveBeenCalledTimes(2);
-    })",2514,2579,steel
+    })",2489,2554,steel
 /packages/inferno-redux/__tests__/components/connect.spec.js,Exception Handling,"{'line': 1108, 'column': 6, 'index': 28080}","it('should not attempt to notify unmounted child of state change', () => {
       class ProviderMockTest extends Component {
         getChildContext() {
@@ -41281,7 +40874,7 @@ file,type,line,method,methodStart,methodEnd,source
       document.body.removeChild(div);
       expect(mapStateToPropsCalls).toBe(3);
     })",1115,1224,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Exception Handling,"{'line': 2003, 'column': 10, 'index': 54116}","it('should not swallow errors when bailing out early', () => {
+/packages/inferno-redux/__tests__/components/connect.spec.js,Exception Handling,"{'line': 1978, 'column': 10, 'index': 54010}","it('should not swallow errors when bailing out early', () => {
       const store = createStore(stringBuilder);
       let renderCalls = 0;
       let mapStateCalls = 0;
@@ -41313,7 +40906,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(() => store.dispatch({ type: 'APPEND', payload: 'a' })).toThrow(
         new Error('Oops'),
       );
-    })",1995,2027,steel
+    })",1970,2002,steel
 /packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 153, 'column': 34, 'index': 3892}","it('should pass state and props to the given component', () => {
       const store = createStore(() => ({
         foo: 'bar',
@@ -44328,214 +43921,7 @@ file,type,line,method,methodStart,methodEnd,source
       // But render is not because it did not make any actual changes
       expect(renderCalls).toBe(1);
     })",1890,1923,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 1964, 'column': 27, 'index': 53286}","it('should bail out early if mapState does not depend on props', () => {
-  const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
-
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
-    class Container extends Component {
-      render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
-      }
-    },
-  );
-
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
-
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
-  );
-
-  renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
-
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
-
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
-    renderToContainer(vNode);
-
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
-  });
-})",1925,1993,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 1965, 'column': 29, 'index': 53319}","it('should bail out early if mapState does not depend on props', () => {
-  const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
-
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
-    class Container extends Component {
-      render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
-      }
-    },
-  );
-
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
-
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
-  );
-
-  renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
-
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
-
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
-    renderToContainer(vNode);
-
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
-  });
-})",1925,1993,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 1966, 'column': 29, 'index': 53352}","it('should bail out early if mapState does not depend on props', () => {
-  const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
-
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
-    class Container extends Component {
-      render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
-      }
-    },
-  );
-
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
-
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
-  );
-
-  renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
-
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
-
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
-    renderToContainer(vNode);
-
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
-  });
-})",1925,1993,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2022, 'column': 31, 'index': 54528}","it('should not swallow errors when bailing out early', () => {
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 1997, 'column': 31, 'index': 54422}","it('should not swallow errors when bailing out early', () => {
       const store = createStore(stringBuilder);
       let renderCalls = 0;
       let mapStateCalls = 0;
@@ -44567,8 +43953,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(() => store.dispatch({ type: 'APPEND', payload: 'a' })).toThrow(
         new Error('Oops'),
       );
-    })",1995,2027,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2023, 'column': 33, 'index': 54565}","it('should not swallow errors when bailing out early', () => {
+    })",1970,2002,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 1998, 'column': 33, 'index': 54459}","it('should not swallow errors when bailing out early', () => {
       const store = createStore(stringBuilder);
       let renderCalls = 0;
       let mapStateCalls = 0;
@@ -44600,8 +43986,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(() => store.dispatch({ type: 'APPEND', payload: 'a' })).toThrow(
         new Error('Oops'),
       );
-    })",1995,2027,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2075, 'column': 31, 'index': 55944}","it('should allow providing a factory function to mapStateToProps', () => {
+    })",1970,2002,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2050, 'column': 31, 'index': 55838}","it('should allow providing a factory function to mapStateToProps', () => {
       let updateCount = 0;
       let memoizedReturnCount = 0;
       const store = createStore(() => ({ value: 1 }));
@@ -44649,8 +44035,8 @@ file,type,line,method,methodStart,methodEnd,source
       store.dispatch({ type: 'test' });
       expect(updateCount).toBe(0);
       expect(memoizedReturnCount).toBe(2);
-    })",2029,2077,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2076, 'column': 39, 'index': 55987}","it('should allow providing a factory function to mapStateToProps', () => {
+    })",2004,2052,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2051, 'column': 39, 'index': 55881}","it('should allow providing a factory function to mapStateToProps', () => {
       let updateCount = 0;
       let memoizedReturnCount = 0;
       const store = createStore(() => ({ value: 1 }));
@@ -44698,8 +44084,8 @@ file,type,line,method,methodStart,methodEnd,source
       store.dispatch({ type: 'test' });
       expect(updateCount).toBe(0);
       expect(memoizedReturnCount).toBe(2);
-    })",2029,2077,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2191, 'column': 34, 'index': 59021}","it('should allow providing a factory function to mapDispatchToProps', (done) => {
+    })",2004,2052,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2166, 'column': 34, 'index': 58915}","it('should allow providing a factory function to mapDispatchToProps', (done) => {
       let updatedCount = 0;
       let memoizedReturnCount = 0;
       const store = createStore(() => ({ value: 1 }));
@@ -44775,8 +44161,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(memoizedReturnCount).toBe(2);
         done();
       }, 20);
-    })",2119,2195,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2192, 'column': 41, 'index': 59066}","it('should allow providing a factory function to mapDispatchToProps', (done) => {
+    })",2094,2170,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2167, 'column': 41, 'index': 58960}","it('should allow providing a factory function to mapDispatchToProps', (done) => {
       let updatedCount = 0;
       let memoizedReturnCount = 0;
       const store = createStore(() => ({ value: 1 }));
@@ -44852,8 +44238,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(memoizedReturnCount).toBe(2);
         done();
       }, 20);
-    })",2119,2195,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2224, 'column': 33, 'index': 59808}","it('should not call update if mergeProps return value has not changed', () => {
+    })",2094,2170,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2199, 'column': 33, 'index': 59702}","it('should not call update if mergeProps return value has not changed', () => {
       let mapStateCalls = 0;
       let renderCalls = 0;
       const store = createStore(stringBuilder);
@@ -44888,8 +44274,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(mapStateCalls).toBe(2);
       expect(renderCalls).toBe(1);
-    })",2197,2232,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2225, 'column': 31, 'index': 59843}","it('should not call update if mergeProps return value has not changed', () => {
+    })",2172,2207,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2200, 'column': 31, 'index': 59737}","it('should not call update if mergeProps return value has not changed', () => {
       let mapStateCalls = 0;
       let renderCalls = 0;
       const store = createStore(stringBuilder);
@@ -44924,8 +44310,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(mapStateCalls).toBe(2);
       expect(renderCalls).toBe(1);
-    })",2197,2232,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2230, 'column': 33, 'index': 59970}","it('should not call update if mergeProps return value has not changed', () => {
+    })",2172,2207,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2205, 'column': 33, 'index': 59864}","it('should not call update if mergeProps return value has not changed', () => {
       let mapStateCalls = 0;
       let renderCalls = 0;
       const store = createStore(stringBuilder);
@@ -44960,8 +44346,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(mapStateCalls).toBe(2);
       expect(renderCalls).toBe(1);
-    })",2197,2232,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2231, 'column': 31, 'index': 60005}","it('should not call update if mergeProps return value has not changed', () => {
+    })",2172,2207,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2206, 'column': 31, 'index': 59899}","it('should not call update if mergeProps return value has not changed', () => {
       let mapStateCalls = 0;
       let renderCalls = 0;
       const store = createStore(stringBuilder);
@@ -44996,8 +44382,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(mapStateCalls).toBe(2);
       expect(renderCalls).toBe(1);
-    })",2197,2232,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2265, 'column': 31, 'index': 60774}","it('should update impure components with custom mergeProps', (done) => {
+    })",2172,2207,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2240, 'column': 31, 'index': 60668}","it('should update impure components with custom mergeProps', (done) => {
       const store = createStore(() => ({}));
       let renderCount = 0;
 
@@ -45034,8 +44420,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(renderCount).toBe(2);
         done();
       }, 20);
-    })",2234,2271,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2268, 'column': 33, 'index': 60837}","it('should update impure components with custom mergeProps', (done) => {
+    })",2209,2246,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2243, 'column': 33, 'index': 60731}","it('should update impure components with custom mergeProps', (done) => {
       const store = createStore(() => ({}));
       let renderCount = 0;
 
@@ -45072,8 +44458,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(renderCount).toBe(2);
         done();
       }, 20);
-    })",2234,2271,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2466, 'column': 33, 'index': 65944}","it('should notify nested components through a blocking component', () => {
+    })",2209,2246,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2441, 'column': 33, 'index': 65838}","it('should notify nested components through a blocking component', () => {
       const store = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -45125,8 +44511,8 @@ file,type,line,method,methodStart,methodEnd,source
       store.dispatch({ type: 'INC' });
       renderToContainer(vNode);
       expect(mapStateCalls).toBe(2);
-    })",2418,2470,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2469, 'column': 33, 'index': 66052}","it('should notify nested components through a blocking component', () => {
+    })",2393,2445,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Magic Number,"{'line': 2444, 'column': 33, 'index': 65946}","it('should notify nested components through a blocking component', () => {
       const store = createStore((state = 0, action) =>
         action.type === 'INC' ? state + 1 : state,
       );
@@ -45178,7 +44564,7 @@ file,type,line,method,methodStart,methodEnd,source
       store.dispatch({ type: 'INC' });
       renderToContainer(vNode);
       expect(mapStateCalls).toBe(2);
-    })",2418,2470,steel
+    })",2393,2445,steel
 /packages/inferno-redux/__tests__/components/connect.spec.js,Sleepy Test,"{'line': 265, 'column': 6, 'index': 7096}","it('should handle dispatches before componentDidMount', (done) => {
       const store = createStore(stringBuilder);
 
@@ -45251,7 +44637,7 @@ file,type,line,method,methodStart,methodEnd,source
         done();
       }, 20);
     })",328,372,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Sleepy Test,"{'line': 2188, 'column': 6, 'index': 58892}","it('should allow providing a factory function to mapDispatchToProps', (done) => {
+/packages/inferno-redux/__tests__/components/connect.spec.js,Sleepy Test,"{'line': 2163, 'column': 6, 'index': 58786}","it('should allow providing a factory function to mapDispatchToProps', (done) => {
       let updatedCount = 0;
       let memoizedReturnCount = 0;
       const store = createStore(() => ({ value: 1 }));
@@ -45327,8 +44713,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(memoizedReturnCount).toBe(2);
         done();
       }, 20);
-    })",2119,2195,steel
-/packages/inferno-redux/__tests__/components/connect.spec.js,Sleepy Test,"{'line': 2267, 'column': 6, 'index': 60785}","it('should update impure components with custom mergeProps', (done) => {
+    })",2094,2170,steel
+/packages/inferno-redux/__tests__/components/connect.spec.js,Sleepy Test,"{'line': 2242, 'column': 6, 'index': 60679}","it('should update impure components with custom mergeProps', (done) => {
       const store = createStore(() => ({}));
       let renderCount = 0;
 
@@ -45365,7 +44751,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(renderCount).toBe(2);
         done();
       }, 20);
-    })",2234,2271,steel
+    })",2209,2246,steel
 /packages/inferno-redux/__tests__/components/connect.spec.js,Unknown Test,"{'column': 4, 'line': 1057}","it('should not attempt to notify unmounted child of state change', () => {
       class ProviderMockTest extends Component {
         getChildContext() {

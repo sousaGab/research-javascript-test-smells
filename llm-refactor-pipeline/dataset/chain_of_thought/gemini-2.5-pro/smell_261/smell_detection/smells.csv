@@ -421,26 +421,27 @@ file,type,line,method,methodStart,methodEnd,source
         };
         pond.files = [data];
     })",110,116,snuts
-/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':118,'endLine':129}","test('onprocessfileabort', () => {
-    createPond();
-    const abortHandler = jest.fn();
-    pond.onprocessfileabort = abortHandler;
-    pond.files = [data];
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':118,'endLine':130}","test('onprocessfileabort', done => {
+        expect.assertions(1);
 
-    const file = pond.getFile();
-    file.abortProcessing();
+        createPond();
+        pond.onprocessfileabort = (abortedFile) => {
+            // Verify that the event is called with the correct file object
+            expect(abortedFile.id).toBe(pond.getFile().id);
+            done();
+        };
+        pond.files = [data];
 
-    expect(abortHandler).toHaveBeenCalledTimes(1);
-    expect(abortHandler).toHaveBeenCalledWith(file);
-})",118,129,snuts
-/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':131,'endLine':137}","test('onprocessfile', done => {
+        pond.getFile().abortProcessing();
+    })",118,130,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':132,'endLine':138}","test('onprocessfile', done => {
         createPond();
         pond.onprocessfile = () => {
             done();
         };
         pond.files = [data];
-    })",131,137,snuts
-/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':139,'endLine':149}","test('onprocessfiles', done => {
+    })",132,138,snuts
+/src/js/__tests__/callbacks.test.js,AnonymousTest,"{'startLine':140,'endLine':150}","test('onprocessfiles', done => {
         createPond();
         pond.onprocessfiles = () => {
             const result = pond
@@ -450,7 +451,7 @@ file,type,line,method,methodStart,methodEnd,source
             done();
         };
         pond.files = [data, data];
-    })",139,149,snuts
+    })",140,150,snuts
 /src/js/__tests__/addFile.test.js,AnonymousTest,"{'startLine':20,'endLine':28}","test('add file', done => {
         const data = new File(['Hello World!'], 'dummy.txt', {
             type: 'text/plain',
@@ -970,18 +971,19 @@ file,type,line,method,methodStart,methodEnd,source
         pond.files = [data];
     });
 
-    test('onprocessfileabort', () => {
-    createPond();
-    const abortHandler = jest.fn();
-    pond.onprocessfileabort = abortHandler;
-    pond.files = [data];
+    test('onprocessfileabort', done => {
+        expect.assertions(1);
 
-    const file = pond.getFile();
-    file.abortProcessing();
+        createPond();
+        pond.onprocessfileabort = (abortedFile) => {
+            // Verify that the event is called with the correct file object
+            expect(abortedFile.id).toBe(pond.getFile().id);
+            done();
+        };
+        pond.files = [data];
 
-    expect(abortHandler).toHaveBeenCalledTimes(1);
-    expect(abortHandler).toHaveBeenCalledWith(file);
-});;
+        pond.getFile().abortProcessing();
+    });
 
     test('onprocessfile', done => {
         createPond();
@@ -1002,31 +1004,7 @@ file,type,line,method,methodStart,methodEnd,source
         };
         pond.files = [data, data];
     });
-})",6,150,steel
-/src/js/__tests__/callbacks.test.js,Duplicate Assert,"{'line': 127, 'column': 4, 'index': 3254}","test('onprocessfileabort', () => {
-    createPond();
-    const abortHandler = jest.fn();
-    pond.onprocessfileabort = abortHandler;
-    pond.files = [data];
-
-    const file = pond.getFile();
-    file.abortProcessing();
-
-    expect(abortHandler).toHaveBeenCalledTimes(1);
-    expect(abortHandler).toHaveBeenCalledWith(file);
-})",118,129,steel
-/src/js/__tests__/callbacks.test.js,Duplicate Assert,"{'line': 128, 'column': 4, 'index': 3305}","test('onprocessfileabort', () => {
-    createPond();
-    const abortHandler = jest.fn();
-    pond.onprocessfileabort = abortHandler;
-    pond.files = [data];
-
-    const file = pond.getFile();
-    file.abortProcessing();
-
-    expect(abortHandler).toHaveBeenCalledTimes(1);
-    expect(abortHandler).toHaveBeenCalledWith(file);
-})",118,129,steel
+})",6,151,steel
 /src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 45}","test('oninit', done => {
         createPond({
             oninit: () => {
@@ -1092,13 +1070,13 @@ file,type,line,method,methodStart,methodEnd,source
         };
         pond.files = [data];
     })",110,116,steel
-/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 131}","test('onprocessfile', done => {
+/src/js/__tests__/callbacks.test.js,Unknown Test,"{'column': 4, 'line': 132}","test('onprocessfile', done => {
         createPond();
         pond.onprocessfile = () => {
             done();
         };
         pond.files = [data];
-    })",131,137,steel
+    })",132,138,steel
 /src/js/__tests__/addFile.test.js,Conditional Test Logic,"{'line': 8, 'column': 8, 'index': 159}","beforeEach(() => {
         if (pond) {
             pond.destroy();

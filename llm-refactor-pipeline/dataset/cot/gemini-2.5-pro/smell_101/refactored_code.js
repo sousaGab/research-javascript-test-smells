@@ -1,4 +1,4 @@
-it('should display tooltip with HTML content when trigger element is clicked', async () => {
+it('displays tooltip and sets aria-describedby on click', async () => {
     jest.useFakeTimers()
 
     const App = {

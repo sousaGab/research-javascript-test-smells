@@ -1,4 +1,4 @@
-test('should style option term in help output when styleOptionTerm is configured', () => {
+test('should use styleOptionTerm function to format option terms in help output', () => {
     const program = makeProgram();
     program.configureHelp({ styleOptionTerm: (str) => red(str), displayWidth });
     const helpText = program.helpInformation();

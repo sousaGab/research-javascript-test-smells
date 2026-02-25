@@ -1,24 +1,17 @@
-it('should trigger both handlers', function (done) {
-    let callCount = 0;
+it('should be trigger both handlers', function (done) {
+      let callCount = 0;
+      const expectedCalls = 2;
 
-    const checkDone = () => {
-        // This function is called from both handlers.
-        // When the count reaches 2, we know both have executed.
-        if (callCount === 2) {
-            expect(callCount).toBe(2);
-            done();
+      const handler = function () {
+        callCount++;
+        if (callCount === expectedCalls) {
+          expect(callCount).toBe(expectedCalls);
+          done();
         }
-    };
+      };
 
-    list.on('updated', () => {
-        callCount++;
-        checkDone();
-    });
+      list.on('updated', handler);
+      list.on('updated', handler);
 
-    list.on('updated', () => {
-        callCount++;
-        checkDone();
-    });
-
-    list.search('jonny');
-});
+      list.search('jonny');
+    })

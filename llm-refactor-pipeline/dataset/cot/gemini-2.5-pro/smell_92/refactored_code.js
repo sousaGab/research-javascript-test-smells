@@ -1,58 +1,68 @@
-it('removes headers on the socket event before proxying a request', done => {
-  const upstreamScope = nock('http://example.test', {
-    badheaders: ['authorization'],
+it('succeeds when a proxy removes a forbidden header on the socket event', done => {
+  const UPSTREAM_HOST = 'example.test';
+  const UPSTREAM_URL = `http://${UPSTREAM_HOST}`;
+  const ENDPOINT_PATH = '/endpoint';
+  const FORBIDDEN_HEADER = 'authorization';
+
+  const scope = nock(UPSTREAM_URL, {
+    badheaders: [FORBIDDEN_HEADER],
   })
-    .get('/endpoint')
-    .reply()
+    .get(ENDPOINT_PATH)
+    .reply(200);
 
-  const proxyServer = http.createServer((clientRequest, clientResponse) => {
-    const upstreamRequest = http.request({
-      host: 'example.test',
-      path: clientRequest.url,
-      headers: clientRequest.headers,
-    })
+  const createProxyThatRemovesHeader = (headerName, targetHost) =>
+    http.createServer((incomingRequest, proxyResponse) => {
+      const proxyRequest = http.request({
+        host: targetHost,
+        path: incomingRequest.url,
+        headers: incomingRequest.headers,
+      });
 
-    upstreamRequest.on('socket', () => {
-      upstreamRequest.removeHeader('authorization')
-      upstreamRequest.end()
-    })
+      proxyRequest.on('socket', () => {
+        proxyRequest.removeHeader(headerName);
+        proxyRequest.end();
+      });
 
-    upstreamRequest.on('response', upstreamResponse => {
-      upstreamResponse.pipe(clientResponse)
-    })
+      proxyRequest.on('response', upstreamResponse => {
+        upstreamResponse.pipe(proxyResponse);
+      });
 
-    upstreamRequest.on('error', error => {
-      expect.fail(error)
-      done()
-    })
-  })
+      proxyRequest.on('error', error => {
+        expect.fail(error);
+        done();
+      });
+    });
+
+  const proxyServer = createProxyThatRemovesHeader(
+    FORBIDDEN_HEADER,
+    UPSTREAM_HOST
+  );
 
   proxyServer
     .listen(() => {
-      const requestToProxy = http.request(
-        {
-          hostname: 'localhost',
-          path: '/endpoint',
-          port: proxyServer.address().port,
-          method: 'GET',
-          headers: { authorization: 'some-token' },
-        },
-        res => {
-          expect(res.statusCode).to.equal(200)
-          upstreamScope.done()
-          proxyServer.close(done)
-        },
-      )
+      const requestOptions = {
+        hostname: 'localhost',
+        path: ENDPOINT_PATH,
+        port: proxyServer.address().port,
+        method: 'GET',
+        headers: { [FORBIDDEN_HEADER]: 'some-token' },
+      };
 
-      requestToProxy.on('error', error => {
-        expect.fail(error)
-        done()
-      })
+      const clientRequest = http.request(requestOptions, response => {
+        expect(response.statusCode).to.equal(200);
+        scope.done();
+        proxyServer.close(done);
+      });
 
-      requestToProxy.end()
+      clientRequest.on('error', error => {
+        expect.fail(error);
+        done();
+      });
+
+      clientRequest.end();
     })
     .on('error', error => {
-      expect.fail(error)
-      done()
-    })
-})
+      expect.fail(error);
+      done();
+    });
+});

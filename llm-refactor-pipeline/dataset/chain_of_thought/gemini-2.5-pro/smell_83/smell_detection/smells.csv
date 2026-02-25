@@ -861,7 +861,7 @@ file,type,line,method,methodStart,methodEnd,source
       assertFileExists('testarchive1.log');
       assertFileExists('testarchive2.log');
     })",274,298,snuts
-/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':331,'endLine':360}","it('should write to the newest file and older files will be in descending order', async function () {
+/test/unit/winston/transports/file.test.js,OvercommentedTest,"{'startLine':354,'endLine':383}","it('should write to the newest file and older files will be in descending order', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         tailable: false
@@ -890,34 +890,35 @@ file,type,line,method,methodStart,methodEnd,source
       //   file testarchive3.log - empty
       // assertFileContentsStartWith('testarchive1.log', 'A');
       // assertFileContentsStartWith('testarchive2.log', 'B');
-    })",331,360,snuts
-/test/unit/winston/transports/file.test.js,VerboseStatement,"{'startLine':303,'endLine':329}","it('should write to original file and older files will be in ascending order', async function () {
-      const transport = new winston.transports.File({
-        ...defaultTransportOptions,
-        maxFiles: 4,
-        tailable: true
-      });
+    })",354,383,snuts
+/test/unit/winston/transports/file.test.js,VerboseStatement,"{'startLine':303,'endLine':330}","it('should write to the current file and rotate recent files correctly', async function () {
+  const transport = new winston.transports.File({
+    ...defaultTransportOptions,
+    maxFiles: 4,
+    tailable: true
+  });
 
-      await logToTransport(transport, { kbytes: 4, char: 'A' });
-      await waitForFile('testarchive.log');
-      await logToTransport(transport, { kbytes: 4, char: 'B' });
-      await waitForFile('testarchive1.log');
-      await logToTransport(transport, { kbytes: 4, char: 'C' });
-      await waitForFile('testarchive2.log');
-      await logToTransport(transport, { kbytes: 1, char: 'D' });
-      await waitForFile('testarchive3.log');
+  // Log enough data to trigger multiple file rotations
+  await logToTransport(transport, { kbytes: 4, char: 'A' });
+  await waitForFile('testarchive.log');
+  await logToTransport(transport, { kbytes: 4, char: 'B' });
+  await waitForFile('testarchive1.log');
+  await logToTransport(transport, { kbytes: 4, char: 'C' });
+  await waitForFile('testarchive2.log');
+  await logToTransport(transport, { kbytes: 1, char: 'D' });
+  await waitForFile('testarchive3.log');
 
-      assertFileExists('testarchive.log');
-      assertFileExists('testarchive1.log');
-      assertFileExists('testarchive2.log');
-      assertFileExists('testarchive3.log');
+  // Verify the expected files exist
+  assertFileExists('testarchive.log');
+  assertFileExists('testarchive1.log');
+  assertFileExists('testarchive2.log');
+  assertFileExists('testarchive3.log');
 
-      assertFileContentsStartWith('testarchive.log', 'D');
-      assertFileContentsStartWith('testarchive1.log', 'C');
-      assertFileContentsStartWith('testarchive2.log', 'B');
-      // The oldest file ('A') is not asserted due to a known issue.
-      // assertFileContentsStartWith('testarchive3.log', 'A');
-    })",303,329,snuts
+  // Verify the contents of the files are in the expected tailable order
+  assertFileContentsStartWith('testarchive.log', 'D');
+  assertFileContentsStartWith('testarchive1.log', 'C');
+  assertFileContentsStartWith('testarchive2.log', 'B');
+})",303,330,snuts
 /test/unit/winston/transports/error.test.js,AnonymousTest,"{'startLine':57,'endLine':59}","it(""error didn't"", () => {
       assume(logError).not.exists();
     })",57,59,snuts
@@ -3205,6 +3206,27 @@ file,type,line,method,methodStart,methodEnd,source
     })",167,180,steel
 /test/unit/winston/transports/file.test.js,Conditional Test Logic,"{'line': 31, 'column': 2, 'index': 1456}",Unknown,,,steel
 /test/unit/winston/transports/file.test.js,Conditional Test Logic,"{'line': 53, 'column': 2, 'index': 2357}",Unknown,,,steel
+/test/unit/winston/transports/file.test.js,Ignored Test,"{'line': 332, 'column': 3, 'index': 11700}","it.skip('should preserve the content of the oldest rotated file', async function () {
+  const transport = new winston.transports.File({
+    ...defaultTransportOptions,
+    maxFiles: 4,
+    tailable: true
+  });
+
+  // Log enough data to trigger multiple file rotations
+  await logToTransport(transport, { kbytes: 4, char: 'A' });
+  await waitForFile('testarchive.log');
+  await logToTransport(transport, { kbytes: 4, char: 'B' });
+  await waitForFile('testarchive1.log');
+  await logToTransport(transport, { kbytes: 4, char: 'C' });
+  await waitForFile('testarchive2.log');
+  await logToTransport(transport, { kbytes: 1, char: 'D' });
+  await waitForFile('testarchive3.log');
+
+  // This documents a known issue: the first file that was rolled ('A')
+  // is expected to be in 'testarchive3.log', but the file is empty.
+  assertFileContentsStartWith('testarchive3.log', 'A');
+})",332,352,steel
 /test/unit/winston/transports/file.test.js,Sleepy Test,"{'line': 266, 'column': 35, 'index': 9201}","it('should not exceed the max files', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
@@ -3384,34 +3406,35 @@ file,type,line,method,methodStart,methodEnd,source
       assertFileExists('testarchive1.log');
       assertFileExists('testarchive2.log');
     })",274,298,steel
-/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 303}","it('should write to original file and older files will be in ascending order', async function () {
-      const transport = new winston.transports.File({
-        ...defaultTransportOptions,
-        maxFiles: 4,
-        tailable: true
-      });
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 303}","it('should write to the current file and rotate recent files correctly', async function () {
+  const transport = new winston.transports.File({
+    ...defaultTransportOptions,
+    maxFiles: 4,
+    tailable: true
+  });
 
-      await logToTransport(transport, { kbytes: 4, char: 'A' });
-      await waitForFile('testarchive.log');
-      await logToTransport(transport, { kbytes: 4, char: 'B' });
-      await waitForFile('testarchive1.log');
-      await logToTransport(transport, { kbytes: 4, char: 'C' });
-      await waitForFile('testarchive2.log');
-      await logToTransport(transport, { kbytes: 1, char: 'D' });
-      await waitForFile('testarchive3.log');
+  // Log enough data to trigger multiple file rotations
+  await logToTransport(transport, { kbytes: 4, char: 'A' });
+  await waitForFile('testarchive.log');
+  await logToTransport(transport, { kbytes: 4, char: 'B' });
+  await waitForFile('testarchive1.log');
+  await logToTransport(transport, { kbytes: 4, char: 'C' });
+  await waitForFile('testarchive2.log');
+  await logToTransport(transport, { kbytes: 1, char: 'D' });
+  await waitForFile('testarchive3.log');
 
-      assertFileExists('testarchive.log');
-      assertFileExists('testarchive1.log');
-      assertFileExists('testarchive2.log');
-      assertFileExists('testarchive3.log');
+  // Verify the expected files exist
+  assertFileExists('testarchive.log');
+  assertFileExists('testarchive1.log');
+  assertFileExists('testarchive2.log');
+  assertFileExists('testarchive3.log');
 
-      assertFileContentsStartWith('testarchive.log', 'D');
-      assertFileContentsStartWith('testarchive1.log', 'C');
-      assertFileContentsStartWith('testarchive2.log', 'B');
-      // The oldest file ('A') is not asserted due to a known issue.
-      // assertFileContentsStartWith('testarchive3.log', 'A');
-    })",303,329,steel
-/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 331}","it('should write to the newest file and older files will be in descending order', async function () {
+  // Verify the contents of the files are in the expected tailable order
+  assertFileContentsStartWith('testarchive.log', 'D');
+  assertFileContentsStartWith('testarchive1.log', 'C');
+  assertFileContentsStartWith('testarchive2.log', 'B');
+})",303,330,steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 354}","it('should write to the newest file and older files will be in descending order', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         tailable: false
@@ -3440,8 +3463,8 @@ file,type,line,method,methodStart,methodEnd,source
       //   file testarchive3.log - empty
       // assertFileContentsStartWith('testarchive1.log', 'A');
       // assertFileContentsStartWith('testarchive2.log', 'B');
-    })",331,360,steel
-/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 364}","it('should not create log file until needed when lazy is enabled', async function () {
+    })",354,383,steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 387}","it('should not create log file until needed when lazy is enabled', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         lazy: true
@@ -3452,8 +3475,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       assertFileExists('testarchive.log');
       assertFileDoesNotExist('testarchive1.log');
-    })",364,375,steel
-/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 377}","it('should create log files on initializaiton when lazy is enabled', async function () {
+    })",387,398,steel
+/test/unit/winston/transports/file.test.js,Unknown Test,"{'column': 4, 'line': 400}","it('should create log files on initializaiton when lazy is enabled', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         lazy: false
@@ -3465,7 +3488,7 @@ file,type,line,method,methodStart,methodEnd,source
       assertFileExists('testarchive.log');
       assertFileExists('testarchive1.log');
       assertFileDoesNotExist('testarchive2.log');
-    })",377,389,steel
+    })",400,412,steel
 /test/unit/winston/transports/file-create-dir.test.js,Conditional Test Logic,"{'line': 16, 'column': 6, 'index': 437}","beforeEach(function () {
     return rimraf(logDir).catch(err => {
       if (err){

@@ -1,11 +1,11 @@
-test('should apply custom style to command text in help output', () => {
-  const program = makeProgram();
-  program.configureHelp({
-    styleCommandText: (str) => red(str),
-    displayWidth,
+test('should apply styleCommandText to command name in help output', () => {
+    const program = makeProgram();
+    program.configureHelp({
+      styleCommandText: (str) => red(str),
+      displayWidth,
+    });
+    const helpText = program.helpInformation();
+    expect(helpText).toEqual(
+      plainHelpInformation.replace('program', red('program')),
+    );
   });
-  const helpText = program.helpInformation();
-  expect(helpText).toEqual(
-    plainHelpInformation.replace('program', red('program')),
-  );
-});

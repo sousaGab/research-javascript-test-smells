@@ -1,12 +1,16 @@
 it('should not exceed the max files', async function () {
+  const smallSizeToTriggerRotation = 2024;
+  const maxAllowedFiles = 3;
+
   const transport = new winston.transports.File({
     ...defaultTransportOptions,
-    maxsize: 2024,
-    maxFiles: 3,
+    maxsize: smallSizeToTriggerRotation,
+    maxFiles: maxAllowedFiles,
     lazy: true
   });
 
-  for (let i = 0; i < 7; i++) {
+  const logCountToExceedMaxFiles = maxAllowedFiles * 2 + 1;
+  for (let i = 0; i < logCountToExceedMaxFiles; i++) {
     await logToTransport(transport);
   }
 

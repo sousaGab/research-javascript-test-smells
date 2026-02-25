@@ -1,23 +1,24 @@
-describe('basic click events', () => {
+describe('click events', () => {
   const template = (val) =>
     createElement('div', {
       id: 'test',
       onclick: val,
     });
 
-  it('should attach and trigger an initial click event', () => {
+  it('should attach an initial click event', () => {
     let wasClicked = false;
     const handleClick = () => {
       wasClicked = true;
     };
 
     render(template(handleClick), container);
+
     container.querySelector('div').click();
 
     expect(wasClicked).toBe(true);
   });
 
-  it('should update an existing click event handler on re-render', () => {
+  it('should update the click event handler on re-render', () => {
     let firstHandlerCalled = false;
     const firstHandler = () => {
       firstHandlerCalled = true;
@@ -29,7 +30,7 @@ describe('basic click events', () => {
     };
 
     render(template(firstHandler), container);
-    render(template(secondHandler), container); // Update by re-rendering
+    render(template(secondHandler), container); // Re-render with the new handler
 
     container.querySelector('div').click();
 
@@ -44,9 +45,12 @@ describe('basic click events', () => {
     };
 
     render(template(handleClick), container);
-    render(null, container); // Unmount
+    const div = container.querySelector('div'); // Get a reference to the element
 
-    // Assert that the handler was not called during or after unmounting.
-    expect(wasClicked).toBe(false);
+    render(null, container); // Unmount the element
+
+    div.click(); // Click the now-detached element
+
+    expect(wasClicked).toBe(false); // The handler should have been cleaned up
   });
 });

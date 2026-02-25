@@ -3,7 +3,9 @@ test('when invalid option choice then shows help', () => {
     program.addOption(new commander.Option('--color').choices(['red', 'blue']));
 
     expect(() => program.parse(['--color', 'pink'], { from: 'user' }))
-      .toThrow(expect.objectContaining({ code: 'commander.invalidArgument' }));
-
-    expect(writeMock).toHaveBeenLastCalledWith(`${customHelpMessage}\n`);
+      .toThrow((err) => {
+        expect(err.code).toBe('commander.invalidArgument');
+        expect(writeMock).toHaveBeenLastCalledWith(`${customHelpMessage}\n`);
+        return true; // Indicates the error is the one we expected
+      });
   })

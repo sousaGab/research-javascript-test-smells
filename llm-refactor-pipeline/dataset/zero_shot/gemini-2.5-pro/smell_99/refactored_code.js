@@ -1,4 +1,4 @@
-it('renders a divider with the correct structure, classes, and attributes', async () => {
+it('renders a list item containing a horizontal rule with correct class and role', async () => {
   const wrapper = mount(BDropdownDivider)
 
   expect(wrapper.element.tagName).toBe('LI')

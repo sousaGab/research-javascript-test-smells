@@ -1,4 +1,4 @@
-it('updates currentPage based on router path when use-router is enabled', async () => {
+it('works with $router to detect path and use-router set and linkGen returns string', async () => {
   const App = {
     compatConfig: {
       MODE: 3,
@@ -10,14 +10,14 @@ it('updates currentPage based on router path when use-router is enabled', async 
     methods: {
       linkGen(page) {
         return page === 2 ? '/' : `/${page}`
-      }
+      },
     },
     template: `
           <div>
             <b-pagination-nav :number-of-pages="3" :link-gen="linkGen" use-router></b-pagination-nav>
             <router-view></router-view>
           </div>
-        `
+        `,
   }
 
   const FooRoute = {
@@ -29,7 +29,7 @@ it('updates currentPage based on router path when use-router is enabled', async 
       return h('div', {
         class: 'foo-content'
       }, ['stub'])
-    }
+    },
   }
 
   const router = new VueRouter({
@@ -39,16 +39,16 @@ it('updates currentPage based on router path when use-router is enabled', async 
     }, {
       path: '/:page',
       component: FooRoute
-    }]
+    }, ],
   })
-
   const wrapper = mount(App, {
     router
   })
 
   expect(wrapper).toBeDefined()
 
-  await new Promise(resolve => router.onReady(resolve))
+  await new Promise((resolve) => router.onReady(resolve))
+
   await waitNT(wrapper.vm)
   await waitRAF()
   await waitNT(wrapper.vm)

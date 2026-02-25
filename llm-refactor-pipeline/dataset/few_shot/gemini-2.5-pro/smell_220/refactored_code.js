@@ -1,4 +1,5 @@
-it('if focus leaves modal it returns to modal', async () => {
+describe('Modal focus trapping', () => {
+  let wrapper
   const App = {
     render(h) {
       return h('div', [
@@ -18,65 +19,63 @@ it('if focus leaves modal it returns to modal', async () => {
       ])
     }
   }
-  const wrapper = mount(App, {
-    attachTo: document.body
+
+  beforeEach(async () => {
+    wrapper = mount(App, {
+      attachTo: document.body
+    })
+    // Wait for modal to be shown and focus to be applied
+    await waitNT(wrapper.vm)
+    await waitRAF()
+    await waitNT(wrapper.vm)
+    await waitRAF()
+    await waitNT(wrapper.vm)
+    await waitRAF()
+    await waitNT(wrapper.vm)
+    await waitRAF()
   })
 
-  expect(wrapper.vm).toBeDefined()
+  afterEach(() => {
+    wrapper.destroy()
+  })
 
-  await waitNT(wrapper.vm)
-  await waitRAF()
-  await waitNT(wrapper.vm)
-  await waitRAF()
-  await waitNT(wrapper.vm)
-  await waitRAF()
-  await waitNT(wrapper.vm)
-  await waitRAF()
+  it('should focus the modal content on mount', () => {
+    const $modal = wrapper.find('div.modal')
+    const $content = $modal.find('div.modal-content')
 
-  const $button = wrapper.find('#button')
-  expect($button.exists()).toBe(true)
-  expect($button.element.tagName).toBe('BUTTON')
+    expect($modal.element.style.display).toEqual('block')
+    expect(document.activeElement).toBe($content.element)
+  })
 
-  const $modal = wrapper.find('div.modal')
-  expect($modal.exists()).toBe(true)
-  const $content = $modal.find('div.modal-content')
-  expect($content.exists()).toBe(true)
+  it('should return focus to the modal when an external element is focused', async () => {
+    const $button = wrapper.find('#button')
+    const $content = wrapper.find('div.modal-content')
 
-  expect($modal.element.style.display).toEqual('block')
-  expect(document.activeElement).not.toBe(document.body)
-  expect(document.activeElement).toBe($content.element)
+    $button.element.focus()
+    await $button.trigger('focusin')
 
-  $button.element.focus()
-  await $button.trigger('focusin')
-  expect(document.activeElement).not.toBe($button.element)
-  expect(document.activeElement).toBe($content.element)
+    expect(document.activeElement).toBe($content.element)
+  })
 
-  const $bottomTrap = createWrapper(wrapper.findComponent(BModal).vm.$refs['bottom-trap'])
-  expect($bottomTrap.exists()).toBe(true)
-  expect($bottomTrap.element.tagName).toBe('SPAN')
-  const $closeButton = $modal.find('button.close')
-  expect($closeButton.exists()).toBe(true)
-  expect($closeButton.element.tagName).toBe('BUTTON')
+  it('should focus the first tabbable element when the bottom trap is focused', async () => {
+    const $modal = wrapper.find('div.modal')
+    const $bottomTrap = createWrapper(wrapper.findComponent(BModal).vm.$refs['bottom-trap'])
+    const $closeButton = $modal.find('button.close')
 
-  $bottomTrap.element.focus()
-  await $bottomTrap.trigger('focusin')
-  expect(document.activeElement).not.toBe($bottomTrap.element)
-  expect(document.activeElement).not.toBe($content.element)
-  expect(document.activeElement).toBe($closeButton.element)
+    $bottomTrap.element.focus()
+    await $bottomTrap.trigger('focusin')
 
-  const $topTrap = createWrapper(wrapper.findComponent(BModal).vm.$refs['top-trap'])
-  expect($topTrap.exists()).toBe(true)
-  expect($topTrap.element.tagName).toBe('SPAN')
-  const $okButton = $modal.find('button.btn.btn-primary')
-  expect($okButton.exists()).toBe(true)
-  expect($okButton.element.tagName).toBe('BUTTON')
+    expect(document.activeElement).toBe($closeButton.element)
+  })
 
-  $topTrap.element.focus()
-  await $topTrap.trigger('focusin')
-  expect(document.activeElement).not.toBe($topTrap.element)
-  expect(document.activeElement).not.toBe($bottomTrap.element)
-  expect(document.activeElement).not.toBe($content.element)
-  expect(document.activeElement).toBe($okButton.element)
+  it('should focus the last tabbable element when the top trap is focused', async () => {
+    const $modal = wrapper.find('div.modal')
+    const $topTrap = createWrapper(wrapper.findComponent(BModal).vm.$refs['top-trap'])
+    const $okButton = $modal.find('button.btn.btn-primary')
 
-  wrapper.destroy()
+    $topTrap.element.focus()
+    await $topTrap.trigger('focusin')
+
+    expect(document.activeElement).toBe($okButton.element)
+  })
 })

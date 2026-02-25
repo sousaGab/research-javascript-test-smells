@@ -1,109 +1,79 @@
-describe('BPagination class rendering', () => {
-  const mountPagination = (props = {}) => {
-    const defaultProps = {
+it('renders classes bv-d-xs-down-none when more than 3 pages', async () => {
+  const wrapper = mount(BPagination, {
+    propsData: {
       totalRows: 70,
       perPage: 10,
       limit: 7,
       value: 1
-    };
-    return mount(BPagination, {
-      propsData: { ...defaultProps,
-        ...props
-      }
-    });
-  };
+    }
+  })
 
-  it('renders classes correctly when on the first page', async () => {
-    const wrapper = mountPagination({
-      value: 1
-    });
+  const getLiClasses = (w) => w.findAll('li').wrappers.map(li => li.classes().sort());
+  const sortAll = (classes) => classes.map(c => c.sort());
 
-    expect(wrapper.element.tagName).toBe('UL');
-    const lis = wrapper.findAll('li');
-    expect(lis.length).toBe(11);
-    expect(wrapper.vm.computedCurrentPage).toBe(1);
+  // --- State 1: Current Page = 1 ---
+  expect(wrapper.element.tagName).toBe('UL')
+  expect(wrapper.findAll('li').length).toBe(11)
+  expect(wrapper.vm.computedCurrentPage).toBe(1)
 
-    // Bookend button states
-    expect(lis.at(0).classes()).toContain('disabled'); // First
-    expect(lis.at(1).classes()).toContain('disabled'); // Prev
-    expect(lis.at(9).classes()).not.toContain('disabled'); // Next
-    expect(lis.at(10).classes()).not.toContain('disabled'); // Last
+  let expectedClasses = [
+    ['page-item', 'disabled'], // First
+    ['page-item', 'disabled'], // Prev
+    ['page-item', 'active'], // Page 1
+    ['page-item'], // Page 2
+    ['page-item'], // Page 3
+    ['page-item', 'bv-d-xs-down-none'], // Page 4
+    ['page-item', 'bv-d-xs-down-none'], // Page 5
+    ['page-item', 'bv-d-xs-down-none'], // Page 6
+    ['page-item', 'bv-d-xs-down-none'], // Page 7
+    ['page-item'], // Next
+    ['page-item'] // Last
+  ];
+  expect(getLiClasses(wrapper)).toEqual(sortAll(expectedClasses));
 
-    // Active page states
-    expect(lis.at(2).classes()).toContain('active'); // Page 1
-    expect(lis.at(3).classes()).not.toContain('active');
-    expect(lis.at(4).classes()).not.toContain('active');
-    expect(lis.at(5).classes()).not.toContain('active');
-    expect(lis.at(6).classes()).not.toContain('active');
-    expect(lis.at(7).classes()).not.toContain('active');
-    expect(lis.at(8).classes()).not.toContain('active');
+  // --- State 2: Current Page = 4 ---
+  await wrapper.setProps({
+    value: '4'
+  })
+  await waitNT(wrapper.vm)
+  expect(wrapper.vm.computedCurrentPage).toBe(4)
 
-    // Visibility classes
-    expect(lis.at(2).classes()).not.toContain('bv-d-xs-down-none'); // Page 1
-    expect(lis.at(3).classes()).not.toContain('bv-d-xs-down-none'); // Page 2
-    expect(lis.at(4).classes()).not.toContain('bv-d-xs-down-none'); // Page 3
-    expect(lis.at(5).classes()).toContain('bv-d-xs-down-none'); // Page 4
-    expect(lis.at(6).classes()).toContain('bv-d-xs-down-none'); // Page 5
-    expect(lis.at(7).classes()).toContain('bv-d-xs-down-none'); // Page 6
-    expect(lis.at(8).classes()).toContain('bv-d-xs-down-none'); // Page 7
+  expectedClasses = [
+    ['page-item'], // First
+    ['page-item'], // Prev
+    ['page-item', 'bv-d-xs-down-none'], // Page 1
+    ['page-item', 'bv-d-xs-down-none'], // Page 2
+    ['page-item'], // Page 3
+    ['page-item', 'active'], // Page 4
+    ['page-item'], // Page 5
+    ['page-item', 'bv-d-xs-down-none'], // Page 6
+    ['page-item', 'bv-d-xs-down-none'], // Page 7
+    ['page-item'], // Next
+    ['page-item'] // Last
+  ];
+  expect(getLiClasses(wrapper)).toEqual(sortAll(expectedClasses));
 
-    wrapper.destroy();
-  });
+  // --- State 3: Current Page = 7 ---
+  await wrapper.setProps({
+    value: '7'
+  })
+  await waitNT(wrapper.vm)
+  expect(wrapper.vm.computedCurrentPage).toBe(7)
 
-  it('renders classes correctly when on a middle page', async () => {
-    const wrapper = mountPagination({
-      value: 4
-    });
-    await waitNT(wrapper.vm);
+  expectedClasses = [
+    ['page-item'], // First
+    ['page-item'], // Prev
+    ['page-item', 'bv-d-xs-down-none'], // Page 1
+    ['page-item', 'bv-d-xs-down-none'], // Page 2
+    ['page-item', 'bv-d-xs-down-none'], // Page 3
+    ['page-item', 'bv-d-xs-down-none'], // Page 4
+    ['page-item'], // Page 5
+    ['page-item'], // Page 6
+    ['page-item', 'active'], // Page 7
+    ['page-item', 'disabled'], // Next
+    ['page-item', 'disabled'] // Last
+  ];
+  expect(getLiClasses(wrapper)).toEqual(sortAll(expectedClasses));
 
-    const lis = wrapper.findAll('li');
-    expect(wrapper.vm.computedCurrentPage).toBe(4);
-
-    // Bookend button states
-    expect(lis.at(0).classes()).not.toContain('disabled'); // First
-    expect(lis.at(1).classes()).not.toContain('disabled'); // Prev
-    expect(lis.at(9).classes()).not.toContain('disabled'); // Next
-    expect(lis.at(10).classes()).not.toContain('disabled'); // Last
-
-    // Active page states
-    expect(lis.at(2).classes()).not.toContain('active');
-    expect(lis.at(3).classes()).not.toContain('active');
-    expect(lis.at(4).classes()).not.toContain('active');
-    expect(lis.at(5).classes()).toContain('active'); // Page 4
-    expect(lis.at(6).classes()).not.toContain('active');
-    expect(lis.at(7).classes()).not.toContain('active');
-    expect(lis.at(8).classes()).not.toContain('active');
-
-    // Visibility classes
-    expect(lis.at(2).classes()).toContain('bv-d-xs-down-none'); // Page 1
-    expect(lis.at(3).classes()).toContain('bv-d-xs-down-none'); // Page 2
-    expect(lis.at(4).classes()).not.toContain('bv-d-xs-down-none'); // Page 3
-    expect(lis.at(5).classes()).not.toContain('bv-d-xs-down-none'); // Page 4
-    expect(lis.at(6).classes()).not.toContain('bv-d-xs-down-none'); // Page 5
-    expect(lis.at(7).classes()).toContain('bv-d-xs-down-none'); // Page 6
-    expect(lis.at(8).classes()).toContain('bv-d-xs-down-none'); // Page 7
-
-    wrapper.destroy();
-  });
-
-  it('renders classes correctly when on the last page', async () => {
-    const wrapper = mountPagination({
-      value: 7
-    });
-    await waitNT(wrapper.vm);
-
-    const lis = wrapper.findAll('li');
-    expect(wrapper.vm.computedCurrentPage).toBe(7);
-
-    // Visibility classes
-    expect(lis.at(2).classes()).toContain('bv-d-xs-down-none'); // Page 1
-    expect(lis.at(3).classes()).toContain('bv-d-xs-down-none'); // Page 2
-    expect(lis.at(4).classes()).toContain('bv-d-xs-down-none'); // Page 3
-    expect(lis.at(5).classes()).toContain('bv-d-xs-down-none'); // Page 4
-    expect(lis.at(6).classes()).not.toContain('bv-d-xs-down-none'); // Page 5
-    expect(lis.at(7).classes()).not.toContain('bv-d-xs-down-none'); // Page 6
-    expect(lis.at(8).classes()).not.toContain('bv-d-xs-down-none'); // Page 7
-
-    wrapper.destroy();
-  });
-});
+  wrapper.destroy()
+})

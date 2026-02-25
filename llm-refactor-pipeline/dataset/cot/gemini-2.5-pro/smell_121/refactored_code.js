@@ -24,14 +24,13 @@ it("does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"
 
   const grid = container.querySelector(".react-grid-layout");
 
-  const simulateDragOver = (element, { clientX, clientY }) => {
+  const simulateDragOver = (element, coords) => {
     act(() => {
       TestUtils.Simulate.dragOver(element, {
         currentTarget: {
           getBoundingClientRect: () => ({ left: 0, top: 0 })
         },
-        clientX,
-        clientY,
+        ...coords,
         nativeEvent: {
           target: document.createElement("div")
         }

@@ -46,23 +46,23 @@ it('works with $router to detect path and use-router set and linkGen returns str
     router
   })
 
-  const waitForPageUpdate = async () => {
-    await waitNT(wrapper.vm)
-    await waitRAF()
-    await waitNT(wrapper.vm)
-  }
-
   expect(wrapper).toBeDefined()
 
   await new Promise(resolve => router.onReady(resolve))
-  await waitForPageUpdate()
+
+  await waitNT(wrapper.vm)
+  await waitRAF()
+  await waitNT(wrapper.vm)
 
   const paginationNav = wrapper.findComponent(BPaginationNav)
   expect(paginationNav.exists()).toBe(true)
   expect(paginationNav.vm.currentPage).toBe(2)
 
   wrapper.vm.$router.push('/3')
-  await waitForPageUpdate()
+
+  await waitNT(wrapper.vm)
+  await waitRAF()
+  await waitNT(wrapper.vm)
 
   expect(paginationNav.exists()).toBe(true)
   expect(paginationNav.vm.currentPage).toBe(3)

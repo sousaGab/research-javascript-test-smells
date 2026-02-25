@@ -1,215 +1,218 @@
-describe('parent child component re-rendering', () => {
-  let input1RenderCount = 0
-  let input2RenderCount = 0
-
-  const Input1 = {
-    compatConfig: {
-      MODE: 3,
-      RENDER_FUNCTION: 'suppress-warning',
-      INSTANCE_LISTENERS: 'suppress-warning'
-    },
-    props: ['value'],
-    render(h) {
-      input1RenderCount++
-      return h('input', {
-        attrs: {
-          value: this.value
-        },
-        domProps: {
-          value: this.value
-        },
-        on: { ...this.$listeners,
-          input: e => this.$emit('input', e.target.value)
-        }
-      })
+describe('does not re-render parent child components', () => {
+  describe('with standard listeners', () => {
+    let input1RenderCount
+    const Input1 = {
+      compatConfig: {
+        MODE: 3,
+        RENDER_FUNCTION: 'suppress-warning',
+        INSTANCE_LISTENERS: 'suppress-warning'
+      },
+      props: ['value'],
+      render(h) {
+        input1RenderCount++
+        return h('input', {
+          attrs: {
+            value: this.value
+          },
+          domProps: {
+            value: this.value
+          },
+          on: { ...this.$listeners,
+            input: e => this.$emit('input', e.target.value)
+          }
+        })
+      }
     }
-  }
-
-  const Input2 = {
-    compatConfig: {
-      MODE: 3,
-      RENDER_FUNCTION: 'suppress-warning',
-      INSTANCE_LISTENERS: 'suppress-warning'
-    },
-    props: ['value'],
-    mixins: [listenersMixin],
-    render(h) {
-      input2RenderCount++
-      return h('input', {
-        attrs: {
-          value: this.value
+    const App1 = {
+      components: {
+        Input1
+      },
+      props: ['listenFocus1', 'listenFocus2'],
+      methods: {
+        emit1($event) {
+          if (this.listenFocus1) {
+            this.$emit('focus1', $event)
+          }
         },
-        domProps: {
-          value: this.value
-        },
-        on: { ...this.bvListeners,
-          input: e => this.$emit('input', e.target.value)
-        }
-      })
-    }
-  }
-
-  const App1 = {
-    components: {
-      Input1
-    },
-    props: ['listenFocus1', 'listenFocus2'],
-    methods: {
-      emit1($event) {
-        if (this.listenFocus1) {
-          this.$emit('focus1', $event)
+        emit2($event) {
+          if (this.listenFocus2) {
+            this.$emit('focus2', $event)
+          }
         }
       },
-      emit2($event) {
-        if (this.listenFocus2) {
-          this.$emit('focus2', $event)
-        }
-      }
-    },
-    template: `<div>
+      template: `<div>
         <Input1 @focus="emit1" />
         <Input1 @focus="emit2" />
       </div>`
-  }
+    }
 
-  const App2 = {
-    components: {
-      Input2
-    },
-    props: ['listenFocus1', 'listenFocus2'],
-    methods: {
-      emit1($event) {
-        if (this.listenFocus1) {
-          this.$emit('focus1', $event)
-        }
-      },
-      emit2($event) {
-        if (this.listenFocus2) {
-          this.$emit('focus2', $event)
+    beforeEach(() => {
+      input1RenderCount = 0
+    })
+
+    if (isVue3) {
+      it('does not re-render for listener changes in Vue 3', async () => {
+        const wrapper = mount(App1, {
+          attachTo: document.body
+        })
+        const $inputs1 = wrapper.findAllComponents(Input1)
+
+        expect($inputs1.length).toBe(2)
+        expect($inputs1.at(0)).toBeDefined()
+        expect($inputs1.at(1)).toBeDefined()
+        expect(wrapper.emitted().focus1).not.toBeTruthy()
+        expect(wrapper.emitted().focus2).not.toBeTruthy()
+        expect(input1RenderCount).toBe(2)
+
+        await $inputs1.at(0).trigger('focus')
+        expect(wrapper.emitted().focus1).not.toBeTruthy()
+        await $inputs1.at(1).trigger('focus')
+        expect(wrapper.emitted().focus2).not.toBeTruthy()
+        expect(input1RenderCount).toBe(2)
+
+        await wrapper.setProps({
+          listenFocus1: true
+        })
+        await $inputs1.at(0).trigger('focus')
+        expect(wrapper.emitted().focus1).toBeTruthy()
+        expect(wrapper.emitted().focus2).not.toBeTruthy()
+        expect(input1RenderCount).toBe(2)
+
+        await wrapper.setProps({
+          listenFocus2: true
+        })
+        await $inputs1.at(1).trigger('focus')
+        expect(wrapper.emitted().focus1).toBeTruthy()
+        expect(wrapper.emitted().focus2).toBeTruthy()
+        expect(input1RenderCount).toBe(2)
+
+        wrapper.destroy()
+      })
+    } else {
+      it('re-renders for listener changes in Vue 2', async () => {
+        const wrapper = mount(App1, {
+          attachTo: document.body
+        })
+        const $inputs1 = wrapper.findAllComponents(Input1)
+
+        expect($inputs1.length).toBe(2)
+        expect($inputs1.at(0)).toBeDefined()
+        expect($inputs1.at(1)).toBeDefined()
+        expect(wrapper.emitted().focus1).not.toBeTruthy()
+        expect(wrapper.emitted().focus2).not.toBeTruthy()
+        expect(input1RenderCount).toBe(2)
+
+        await $inputs1.at(0).trigger('focus')
+        expect(wrapper.emitted().focus1).not.toBeTruthy()
+        await $inputs1.at(1).trigger('focus')
+        expect(wrapper.emitted().focus2).not.toBeTruthy()
+        expect(input1RenderCount).toBe(2)
+
+        await wrapper.setProps({
+          listenFocus1: true
+        })
+        await $inputs1.at(0).trigger('focus')
+        expect(wrapper.emitted().focus1).toBeTruthy()
+        expect(wrapper.emitted().focus2).not.toBeTruthy()
+        expect(input1RenderCount).toBe(4)
+
+        await wrapper.setProps({
+          listenFocus2: true
+        })
+        await $inputs1.at(1).trigger('focus')
+        expect(wrapper.emitted().focus1).toBeTruthy()
+        expect(wrapper.emitted().focus2).toBeTruthy()
+        expect(input1RenderCount).toBe(6)
+
+        wrapper.destroy()
+      })
+    }
+  })
+
+  describe('with listenersMixin', () => {
+    it('does not re-render sibling components', async () => {
+      let input2RenderCount = 0
+      const Input2 = {
+        compatConfig: {
+          MODE: 3,
+          RENDER_FUNCTION: 'suppress-warning',
+          INSTANCE_LISTENERS: 'suppress-warning'
+        },
+        props: ['value'],
+        mixins: [listenersMixin],
+        render(h) {
+          input2RenderCount++
+          return h('input', {
+            attrs: {
+              value: this.value
+            },
+            domProps: {
+              value: this.value
+            },
+            on: { ...this.bvListeners,
+              input: e => this.$emit('input', e.target.value)
+            }
+          })
         }
       }
-    },
-    template: `<div>
-        <Input2 @focus="emit1" />
-        <Input2 @focus="emit2" />
-      </div>`
-  }
+      const App2 = {
+        components: {
+          Input2
+        },
+        props: ['listenFocus1', 'listenFocus2'],
+        methods: {
+          emit1($event) {
+            if (this.listenFocus1) {
+              this.$emit('focus1', $event)
+            }
+          },
+          emit2($event) {
+            if (this.listenFocus2) {
+              this.$emit('focus2', $event)
+            }
+          }
+        },
+        template: `<div>
+          <Input2 @focus="emit1" />
+          <Input2 @focus="emit2" />
+        </div>`
+      }
 
-  beforeEach(() => {
-    input1RenderCount = 0
-    input2RenderCount = 0
-  })
+      const wrapper = mount(App2, {
+        attachTo: document.body
+      })
 
-  it('re-renders both children when listeners change (Vue 2 behavior)', async () => {
-    if (isVue3) {
-      return
-    }
+      const $inputs2 = wrapper.findAllComponents(Input2)
+      expect($inputs2.length).toBe(2)
+      expect($inputs2.at(0)).toBeDefined()
+      expect($inputs2.at(1)).toBeDefined()
+      expect(wrapper.emitted().focus1).not.toBeTruthy()
+      expect(wrapper.emitted().focus2).not.toBeTruthy()
+      expect(input2RenderCount).toBe(2)
 
-    const wrapper = mount(App1, {
-      attachTo: document.body
+      await $inputs2.at(0).trigger('focus')
+      expect(wrapper.emitted().focus1).not.toBeTruthy()
+      await $inputs2.at(1).trigger('focus')
+      expect(wrapper.emitted().focus2).not.toBeTruthy()
+      expect(input2RenderCount).toBe(2)
+
+      await wrapper.setProps({
+        listenFocus1: true
+      })
+      await $inputs2.at(0).trigger('focus')
+      expect(wrapper.emitted().focus1).toBeTruthy()
+      expect(wrapper.emitted().focus2).not.toBeTruthy()
+      expect(input2RenderCount).toBe(2)
+
+      await wrapper.setProps({
+        listenFocus2: true
+      })
+      await $inputs2.at(1).trigger('focus')
+      expect(wrapper.emitted().focus1).toBeTruthy()
+      expect(wrapper.emitted().focus2).toBeTruthy()
+      expect(input2RenderCount).toBe(2)
+
+      wrapper.destroy()
     })
-    const $inputs = wrapper.findAllComponents(Input1)
-
-    expect($inputs.length).toBe(2)
-    expect(wrapper.emitted().focus1).not.toBeTruthy()
-    expect(wrapper.emitted().focus2).not.toBeTruthy()
-    expect(input1RenderCount).toBe(2)
-
-    await $inputs.at(0).trigger('focus')
-    expect(wrapper.emitted().focus1).not.toBeTruthy()
-    await $inputs.at(1).trigger('focus')
-    expect(wrapper.emitted().focus2).not.toBeTruthy()
-    expect(input1RenderCount).toBe(2)
-
-    await wrapper.setProps({
-      listenFocus1: true
-    })
-    await $inputs.at(0).trigger('focus')
-    expect(wrapper.emitted().focus1).toBeTruthy()
-    expect(wrapper.emitted().focus2).not.toBeTruthy()
-    expect(input1RenderCount).toBe(4)
-
-    await wrapper.setProps({
-      listenFocus2: true
-    })
-    await $inputs.at(1).trigger('focus')
-    expect(wrapper.emitted().focus2).toBeTruthy()
-    expect(input1RenderCount).toBe(6)
-
-    wrapper.destroy()
-  })
-
-  it('does not re-render children when listeners change (Vue 3 behavior)', async () => {
-    if (!isVue3) {
-      return
-    }
-
-    const wrapper = mount(App1, {
-      attachTo: document.body
-    })
-    const $inputs = wrapper.findAllComponents(Input1)
-
-    expect($inputs.length).toBe(2)
-    expect(wrapper.emitted().focus1).not.toBeTruthy()
-    expect(wrapper.emitted().focus2).not.toBeTruthy()
-    expect(input1RenderCount).toBe(2)
-
-    await $inputs.at(0).trigger('focus')
-    expect(wrapper.emitted().focus1).not.toBeTruthy()
-    await $inputs.at(1).trigger('focus')
-    expect(wrapper.emitted().focus2).not.toBeTruthy()
-    expect(input1RenderCount).toBe(2)
-
-    await wrapper.setProps({
-      listenFocus1: true
-    })
-    await $inputs.at(0).trigger('focus')
-    expect(wrapper.emitted().focus1).toBeTruthy()
-    expect(wrapper.emitted().focus2).not.toBeTruthy()
-    expect(input1RenderCount).toBe(2)
-
-    await wrapper.setProps({
-      listenFocus2: true
-    })
-    await $inputs.at(1).trigger('focus')
-    expect(wrapper.emitted().focus2).toBeTruthy()
-    expect(input1RenderCount).toBe(2)
-
-    wrapper.destroy()
-  })
-
-  it('does not re-render children when using listenersMixin', async () => {
-    const wrapper = mount(App2, {
-      attachTo: document.body
-    })
-    const $inputs = wrapper.findAllComponents(Input2)
-
-    expect($inputs.length).toBe(2)
-    expect(wrapper.emitted().focus1).not.toBeTruthy()
-    expect(wrapper.emitted().focus2).not.toBeTruthy()
-    expect(input2RenderCount).toBe(2)
-
-    await $inputs.at(0).trigger('focus')
-    expect(wrapper.emitted().focus1).not.toBeTruthy()
-    await $inputs.at(1).trigger('focus')
-    expect(wrapper.emitted().focus2).not.toBeTruthy()
-    expect(input2RenderCount).toBe(2)
-
-    await wrapper.setProps({
-      listenFocus1: true
-    })
-    await $inputs.at(0).trigger('focus')
-    expect(wrapper.emitted().focus1).toBeTruthy()
-    expect(wrapper.emitted().focus2).not.toBeTruthy()
-    expect(input2RenderCount).toBe(2)
-
-    await wrapper.setProps({
-      listenFocus2: true
-    })
-    await $inputs.at(1).trigger('focus')
-    expect(wrapper.emitted().focus2).toBeTruthy()
-    expect(input2RenderCount).toBe(2)
-
-    wrapper.destroy()
   })
 })

@@ -18,6 +18,8 @@ it('should not leak memory', () => {
     render(App(), container);
     expect(container.firstChild.innerHTML).toBe('1');
 
+    render(App(), container);
+
     render(AppTwo(), container);
     expect(container.firstChild.innerHTML).toBe('2');
   })

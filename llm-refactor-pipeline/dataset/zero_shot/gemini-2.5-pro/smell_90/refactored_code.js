@@ -1,8 +1,5 @@
 it("uses default threshold of 3px when not specified (v2 API)", function () {
   const onDragStart = jest.fn();
-  const DEFAULT_DRAG_THRESHOLD = 3;
-  const startX = 50;
-  const startY = 50;
 
   const { container } = render(
     <GridLayoutV2
@@ -21,29 +18,28 @@ it("uses default threshold of 3px when not specified (v2 API)", function () {
 
   act(() => {
     dispatchMouseEvent(gridItem, "mousedown", {
-      clientX: startX,
-      clientY: startY
+      clientX: 50,
+      clientY: 50
     });
   });
 
   act(() => {
-    mouseMove(startX + DEFAULT_DRAG_THRESHOLD - 1, startY, gridItem);
+    mouseMove(52, 50, gridItem);
   });
   expect(onDragStart).not.toHaveBeenCalled();
 
   act(() => {
-    mouseMove(startX + DEFAULT_DRAG_THRESHOLD + 1, startY, gridItem);
+    mouseMove(54, 50, gridItem);
   });
   expect(onDragStart).toHaveBeenCalled();
 
   act(() => {
-    const finalX = startX + DEFAULT_DRAG_THRESHOLD + 1;
     const mouseUpEvent = new MouseEvent("mouseup", {
       bubbles: true,
       cancelable: true,
       view: window,
-      clientX: finalX,
-      clientY: startY,
+      clientX: 54,
+      clientY: 50,
       button: 0
     });
     document.dispatchEvent(mouseUpEvent);

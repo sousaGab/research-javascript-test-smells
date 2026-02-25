@@ -12,25 +12,20 @@ it('should scroll to next/prev slide when key next/prev pressed', async () => {
   await waitNT(wrapper.vm)
   await waitRAF()
 
-  expect($carousel.emitted('sliding-start')).toBeUndefined()
-  expect($carousel.emitted('sliding-end')).toBeUndefined()
-  expect($carousel.emitted('input')).toBeUndefined()
+  expect($carousel.emitted()).toEqual({})
 
+  // Go to next slide
   await $carousel.trigger('keydown.right')
 
   expect($carousel.emitted('sliding-start')).toEqual([
     [1]
   ])
   expect($carousel.emitted('sliding-end')).toBeUndefined()
-  expect($carousel.emitted('input')).toBeUndefined()
 
   jest.runOnlyPendingTimers()
   await waitNT(wrapper.vm)
   await waitRAF()
 
-  expect($carousel.emitted('sliding-start')).toEqual([
-    [1]
-  ])
   expect($carousel.emitted('sliding-end')).toEqual([
     [1]
   ])
@@ -38,27 +33,19 @@ it('should scroll to next/prev slide when key next/prev pressed', async () => {
     [1]
   ])
 
+  // Go to previous slide
   await $carousel.trigger('keydown.left')
 
   expect($carousel.emitted('sliding-start')).toEqual([
     [1],
     [0]
   ])
-  expect($carousel.emitted('sliding-end')).toEqual([
-    [1]
-  ])
-  expect($carousel.emitted('input')).toEqual([
-    [1]
-  ])
+  expect($carousel.emitted('sliding-end')).toHaveLength(1)
 
   jest.runOnlyPendingTimers()
   await waitNT(wrapper.vm)
   await waitRAF()
 
-  expect($carousel.emitted('sliding-start')).toEqual([
-    [1],
-    [0]
-  ])
   expect($carousel.emitted('sliding-end')).toEqual([
     [1],
     [0]

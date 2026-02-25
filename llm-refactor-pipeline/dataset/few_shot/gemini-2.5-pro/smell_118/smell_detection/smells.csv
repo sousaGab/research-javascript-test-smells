@@ -539,7 +539,7 @@ file,type,line,method,methodStart,methodEnd,source
     // Clean up
     element.remove();
   })",143,185,snuts
-/tests/Rickshaw.Graph.HoverDetail.test.js,SubOptimalAssert,"{'startLine':262,'endLine':262}","test('handles DOM cleanup correctly', () => {
+/tests/Rickshaw.Graph.HoverDetail.test.js,SubOptimalAssert,"{'startLine':290,'endLine':290}","test('handles DOM cleanup correctly', () => {
     const element = document.createElement('div');
     const graph = createTestGraph(element);
     
@@ -572,8 +572,8 @@ file,type,line,method,methodStart,methodEnd,source
 
     // Clean up
     element.remove();
-  })",252,285,snuts
-/tests/Rickshaw.Graph.HoverDetail.test.js,SubOptimalAssert,"{'startLine':268,'endLine':268}","test('handles DOM cleanup correctly', () => {
+  })",280,313,snuts
+/tests/Rickshaw.Graph.HoverDetail.test.js,SubOptimalAssert,"{'startLine':296,'endLine':296}","test('handles DOM cleanup correctly', () => {
     const element = document.createElement('div');
     const graph = createTestGraph(element);
     
@@ -606,7 +606,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     // Clean up
     element.remove();
-  })",252,285,snuts
+  })",280,313,snuts
 /tests/Rickshaw.Graph.HoverDetail.test.js,VerboseStatement,"{'startLine':64,'endLine':94}","test('accepts custom formatters', () => {
     const element = document.createElement('div');
     const graph = createTestGraph(element);
@@ -681,71 +681,7 @@ file,type,line,method,methodStart,methodEnd,source
     // Clean up
     element.remove();
   })",143,185,snuts
-/tests/Rickshaw.Graph.HoverDetail.test.js,VerboseStatement,"{'startLine':187,'endLine':250}","test('renders hover details correctly', () => {
-  const element = document.createElement('div');
-  const graph = createTestGraph(element);
-
-  const onShow = jest.fn();
-  const onHide = jest.fn();
-  const onRender = jest.fn();
-
-  const hoverDetail = new Rickshaw.Graph.HoverDetail({
-    graph,
-    onShow,
-    onHide,
-    onRender,
-  });
-
-  // Test render with null value
-  hoverDetail.render({
-    points: [{
-      active: true,
-      series: graph.series[0],
-      value: {
-        y: null
-      },
-    }, ],
-  });
-
-  expect(element.querySelector('.item')).toBeNull();
-  expect(onRender).not.toHaveBeenCalled();
-
-  // Test render with multiple points
-  hoverDetail.render({
-    points: [{
-      active: true,
-      series: graph.series[0],
-      value: graph.series[0].data[0],
-      formattedXValue: '4 foo',
-      formattedYValue: '32 bar',
-    }, {
-      active: true,
-      series: graph.series[0],
-      value: graph.series[0].data[1],
-    }, {
-      active: true,
-      series: graph.series[0],
-      value: {
-        y: null
-      },
-    }, ],
-  });
-
-  expect(onShow).toHaveBeenCalledTimes(1);
-  expect(onRender).toHaveBeenCalledTimes(1);
-
-  expect(element.querySelector('.x_label').innerHTML).toBe('4 foo');
-  expect(element.querySelector('.item').innerHTML).toBe('testseries:&nbsp;32 bar');
-  expect(element.querySelector('.dot')).not.toBeNull();
-
-  // Test hide functionality
-  hoverDetail.hide();
-  expect(onHide).toHaveBeenCalledTimes(1);
-
-  // Clean up
-  element.remove();
-})",187,250,snuts
-/tests/Rickshaw.Graph.HoverDetail.test.js,VerboseStatement,"{'startLine':252,'endLine':285}","test('handles DOM cleanup correctly', () => {
+/tests/Rickshaw.Graph.HoverDetail.test.js,VerboseStatement,"{'startLine':280,'endLine':313}","test('handles DOM cleanup correctly', () => {
     const element = document.createElement('div');
     const graph = createTestGraph(element);
     
@@ -778,7 +714,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     // Clean up
     element.remove();
-  })",252,285,snuts
+  })",280,313,snuts
 /tests/Rickshaw.Graph.DragZoom.test.js,VerboseStatement,"{'startLine':57,'endLine':88}","test('creates and removes rect on drag', () => {
     // Initial state - no rect
     let rect = d3.select(element).selectAll('rect')[0][0];
@@ -2899,69 +2835,97 @@ file,type,line,method,methodStart,methodEnd,source
     element.remove();
   });
 
-  test('renders hover details correctly', () => {
-  const element = document.createElement('div');
-  const graph = createTestGraph(element);
+  describe('Rickshaw.Graph.HoverDetail', () => {
+  let element;
+  let graph;
+  let onShow;
+  let onHide;
+  let onRender;
+  let hoverDetail;
 
-  const onShow = jest.fn();
-  const onHide = jest.fn();
-  const onRender = jest.fn();
+  beforeEach(() => {
+    element = document.createElement('div');
+    graph = createTestGraph(element);
 
-  const hoverDetail = new Rickshaw.Graph.HoverDetail({
-    graph,
-    onShow,
-    onHide,
-    onRender,
+    onShow = jest.fn();
+    onHide = jest.fn();
+    onRender = jest.fn();
+
+    hoverDetail = new Rickshaw.Graph.HoverDetail({
+      graph,
+      onShow,
+      onHide,
+      onRender,
+    });
   });
 
-  // Test render with null value
-  hoverDetail.render({
-    points: [{
-      active: true,
-      series: graph.series[0],
-      value: {
-        y: null
-      },
-    }, ],
+  afterEach(() => {
+    element.remove();
   });
 
-  expect(element.querySelector('.item')).toBeNull();
-  expect(onRender).not.toHaveBeenCalled();
+  test('does not render or call onRender when value is null', () => {
+    hoverDetail.render({
+      points: [{
+        active: true,
+        series: graph.series[0],
+        value: {
+          y: null
+        },
+      }, ],
+    });
 
-  // Test render with multiple points
-  hoverDetail.render({
-    points: [{
-      active: true,
-      series: graph.series[0],
-      value: graph.series[0].data[0],
-      formattedXValue: '4 foo',
-      formattedYValue: '32 bar',
-    }, {
-      active: true,
-      series: graph.series[0],
-      value: graph.series[0].data[1],
-    }, {
-      active: true,
-      series: graph.series[0],
-      value: {
-        y: null
-      },
-    }, ],
+    const items = d3.select(element).selectAll('.item');
+    expect(items.empty()).toBe(true);
+    expect(onRender).not.toHaveBeenCalled();
   });
 
-  expect(onShow).toHaveBeenCalledTimes(1);
-  expect(onRender).toHaveBeenCalledTimes(1);
+  test('renders details correctly for the first active point', () => {
+    hoverDetail.render({
+      points: [{
+        active: true,
+        series: graph.series[0],
+        value: graph.series[0].data[0],
+        formattedXValue: '4 foo',
+        formattedYValue: '32 bar',
+      }, {
+        active: true,
+        series: graph.series[0],
+        value: graph.series[0].data[1],
+      }, {
+        active: true,
+        series: graph.series[0],
+        value: {
+          y: null
+        },
+      }, ],
+    });
 
-  expect(element.querySelector('.x_label').innerHTML).toBe('4 foo');
-  expect(element.querySelector('.item').innerHTML).toBe('testseries:&nbsp;32 bar');
-  expect(element.querySelector('.dot')).not.toBeNull();
+    expect(onShow).toHaveBeenCalledTimes(1);
+    expect(onRender).toHaveBeenCalledTimes(1);
 
-  // Test hide functionality
-  hoverDetail.hide();
-  expect(onHide).toHaveBeenCalledTimes(1);
+    const xLabel = d3.select(element).select('.x_label');
+    expect(xLabel.html()).toBe('4 foo');
 
-  // Clean up
-  element.remove();
+    const item = d3.select(element).select('.item');
+    expect(item.html()).toBe('testseries:&nbsp;32 bar');
+
+    const dots = d3.select(element).selectAll('.dot');
+    expect(dots.size()).toBe(1);
+  });
+
+  test('calls onHide when hide is invoked', () => {
+    hoverDetail.render({
+      points: [{
+        active: true,
+        series: graph.series[0],
+        value: graph.series[0].data[0],
+      }, ],
+    });
+
+    hoverDetail.hide();
+
+    expect(onHide).toHaveBeenCalledTimes(1);
+  });
 });;
 
   test('handles DOM cleanup correctly', () => {
@@ -2998,7 +2962,7 @@ file,type,line,method,methodStart,methodEnd,source
     // Clean up
     element.remove();
   });
-})",3,286,steel
+})",3,314,steel
 /tests/Rickshaw.Graph.HoverDetail.test.js,Duplicate Assert,"{'line': 79, 'column': 4, 'index': 2091}","test('accepts custom formatters', () => {
     const element = document.createElement('div');
     const graph = createTestGraph(element);
@@ -3535,135 +3499,7 @@ file,type,line,method,methodStart,methodEnd,source
     // Clean up
     element.remove();
   })",143,185,steel
-/tests/Rickshaw.Graph.HoverDetail.test.js,Duplicate Assert,"{'line': 214, 'column': 2, 'index': 5790}","test('renders hover details correctly', () => {
-  const element = document.createElement('div');
-  const graph = createTestGraph(element);
-
-  const onShow = jest.fn();
-  const onHide = jest.fn();
-  const onRender = jest.fn();
-
-  const hoverDetail = new Rickshaw.Graph.HoverDetail({
-    graph,
-    onShow,
-    onHide,
-    onRender,
-  });
-
-  // Test render with null value
-  hoverDetail.render({
-    points: [{
-      active: true,
-      series: graph.series[0],
-      value: {
-        y: null
-      },
-    }, ],
-  });
-
-  expect(element.querySelector('.item')).toBeNull();
-  expect(onRender).not.toHaveBeenCalled();
-
-  // Test render with multiple points
-  hoverDetail.render({
-    points: [{
-      active: true,
-      series: graph.series[0],
-      value: graph.series[0].data[0],
-      formattedXValue: '4 foo',
-      formattedYValue: '32 bar',
-    }, {
-      active: true,
-      series: graph.series[0],
-      value: graph.series[0].data[1],
-    }, {
-      active: true,
-      series: graph.series[0],
-      value: {
-        y: null
-      },
-    }, ],
-  });
-
-  expect(onShow).toHaveBeenCalledTimes(1);
-  expect(onRender).toHaveBeenCalledTimes(1);
-
-  expect(element.querySelector('.x_label').innerHTML).toBe('4 foo');
-  expect(element.querySelector('.item').innerHTML).toBe('testseries:&nbsp;32 bar');
-  expect(element.querySelector('.dot')).not.toBeNull();
-
-  // Test hide functionality
-  hoverDetail.hide();
-  expect(onHide).toHaveBeenCalledTimes(1);
-
-  // Clean up
-  element.remove();
-})",187,250,steel
-/tests/Rickshaw.Graph.HoverDetail.test.js,Duplicate Assert,"{'line': 238, 'column': 2, 'index': 6322}","test('renders hover details correctly', () => {
-  const element = document.createElement('div');
-  const graph = createTestGraph(element);
-
-  const onShow = jest.fn();
-  const onHide = jest.fn();
-  const onRender = jest.fn();
-
-  const hoverDetail = new Rickshaw.Graph.HoverDetail({
-    graph,
-    onShow,
-    onHide,
-    onRender,
-  });
-
-  // Test render with null value
-  hoverDetail.render({
-    points: [{
-      active: true,
-      series: graph.series[0],
-      value: {
-        y: null
-      },
-    }, ],
-  });
-
-  expect(element.querySelector('.item')).toBeNull();
-  expect(onRender).not.toHaveBeenCalled();
-
-  // Test render with multiple points
-  hoverDetail.render({
-    points: [{
-      active: true,
-      series: graph.series[0],
-      value: graph.series[0].data[0],
-      formattedXValue: '4 foo',
-      formattedYValue: '32 bar',
-    }, {
-      active: true,
-      series: graph.series[0],
-      value: graph.series[0].data[1],
-    }, {
-      active: true,
-      series: graph.series[0],
-      value: {
-        y: null
-      },
-    }, ],
-  });
-
-  expect(onShow).toHaveBeenCalledTimes(1);
-  expect(onRender).toHaveBeenCalledTimes(1);
-
-  expect(element.querySelector('.x_label').innerHTML).toBe('4 foo');
-  expect(element.querySelector('.item').innerHTML).toBe('testseries:&nbsp;32 bar');
-  expect(element.querySelector('.dot')).not.toBeNull();
-
-  // Test hide functionality
-  hoverDetail.hide();
-  expect(onHide).toHaveBeenCalledTimes(1);
-
-  // Clean up
-  element.remove();
-})",187,250,steel
-/tests/Rickshaw.Graph.HoverDetail.test.js,Duplicate Assert,"{'line': 261, 'column': 4, 'index': 6971}","test('handles DOM cleanup correctly', () => {
+/tests/Rickshaw.Graph.HoverDetail.test.js,Duplicate Assert,"{'line': 289, 'column': 4, 'index': 7557}","test('handles DOM cleanup correctly', () => {
     const element = document.createElement('div');
     const graph = createTestGraph(element);
     
@@ -3696,8 +3532,8 @@ file,type,line,method,methodStart,methodEnd,source
 
     // Clean up
     element.remove();
-  })",252,285,steel
-/tests/Rickshaw.Graph.HoverDetail.test.js,Duplicate Assert,"{'line': 268, 'column': 4, 'index': 7258}","test('handles DOM cleanup correctly', () => {
+  })",280,313,steel
+/tests/Rickshaw.Graph.HoverDetail.test.js,Duplicate Assert,"{'line': 296, 'column': 4, 'index': 7844}","test('handles DOM cleanup correctly', () => {
     const element = document.createElement('div');
     const graph = createTestGraph(element);
     
@@ -3730,8 +3566,8 @@ file,type,line,method,methodStart,methodEnd,source
 
     // Clean up
     element.remove();
-  })",252,285,steel
-/tests/Rickshaw.Graph.HoverDetail.test.js,Duplicate Assert,"{'line': 275, 'column': 4, 'index': 7526}","test('handles DOM cleanup correctly', () => {
+  })",280,313,steel
+/tests/Rickshaw.Graph.HoverDetail.test.js,Duplicate Assert,"{'line': 303, 'column': 4, 'index': 8112}","test('handles DOM cleanup correctly', () => {
     const element = document.createElement('div');
     const graph = createTestGraph(element);
     
@@ -3764,8 +3600,8 @@ file,type,line,method,methodStart,methodEnd,source
 
     // Clean up
     element.remove();
-  })",252,285,steel
-/tests/Rickshaw.Graph.HoverDetail.test.js,Duplicate Assert,"{'line': 281, 'column': 4, 'index': 7723}","test('handles DOM cleanup correctly', () => {
+  })",280,313,steel
+/tests/Rickshaw.Graph.HoverDetail.test.js,Duplicate Assert,"{'line': 309, 'column': 4, 'index': 8309}","test('handles DOM cleanup correctly', () => {
     const element = document.createElement('div');
     const graph = createTestGraph(element);
     
@@ -3798,7 +3634,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     // Clean up
     element.remove();
-  })",252,285,steel
+  })",280,313,steel
 /tests/Rickshaw.Graph.HoverDetail.test.js,Magic Number,"{'line': 58, 'column': 34, 'index': 1660}","test('initializes with default settings', () => {
     const element = document.createElement('div');
     const graph = createTestGraph(element);
@@ -3908,7 +3744,40 @@ file,type,line,method,methodStart,methodEnd,source
     // Clean up
     element.remove();
   })",143,185,steel
-/tests/Rickshaw.Graph.HoverDetail.test.js,Magic Number,"{'line': 262, 'column': 43, 'index': 7068}","test('handles DOM cleanup correctly', () => {
+/tests/Rickshaw.Graph.HoverDetail.test.js,Magic Number,"{'line': 262, 'column': 29, 'index': 6994}","test('renders details correctly for the first active point', () => {
+    hoverDetail.render({
+      points: [{
+        active: true,
+        series: graph.series[0],
+        value: graph.series[0].data[0],
+        formattedXValue: '4 foo',
+        formattedYValue: '32 bar',
+      }, {
+        active: true,
+        series: graph.series[0],
+        value: graph.series[0].data[1],
+      }, {
+        active: true,
+        series: graph.series[0],
+        value: {
+          y: null
+        },
+      }, ],
+    });
+
+    expect(onShow).toHaveBeenCalledTimes(1);
+    expect(onRender).toHaveBeenCalledTimes(1);
+
+    const xLabel = d3.select(element).select('.x_label');
+    expect(xLabel.html()).toBe('4 foo');
+
+    const item = d3.select(element).select('.item');
+    expect(item.html()).toBe('testseries:&nbsp;32 bar');
+
+    const dots = d3.select(element).selectAll('.dot');
+    expect(dots.size()).toBe(1);
+  })",231,263,steel
+/tests/Rickshaw.Graph.HoverDetail.test.js,Magic Number,"{'line': 290, 'column': 43, 'index': 7654}","test('handles DOM cleanup correctly', () => {
     const element = document.createElement('div');
     const graph = createTestGraph(element);
     
@@ -3941,7 +3810,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     // Clean up
     element.remove();
-  })",252,285,steel
+  })",280,313,steel
 /tests/Rickshaw.Graph.DragZoom.test.js,Duplicate Assert,"{'line': 60, 'column': 4, 'index': 1354}","test('creates and removes rect on drag', () => {
     // Initial state - no rect
     let rect = d3.select(element).selectAll('rect')[0][0];

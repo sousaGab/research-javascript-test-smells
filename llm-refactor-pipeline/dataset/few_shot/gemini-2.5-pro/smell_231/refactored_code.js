@@ -1,23 +1,15 @@
-test('should report deep-equal state change in useReducer hook', () => {
-  const initialState = {
-    b: 'b'
-  };
+test('should detect re-render on new but deeply equal reducer state', () => {
+  const initialState = {b: 'b'};
 
   function reducer() {
-    return {
-      b: 'b'
-    };
+    return {b: 'b'};
   }
 
-  const ComponentWithHooks = ({
-    a
-  }) => {
+  const ComponentWithHooks = ({a}) => {
     const [state, dispatch] = React.useReducer(reducer, initialState);
 
     React.useLayoutEffect(() => {
-      dispatch({
-        type: 'something'
-      });
+      dispatch({type: 'something'});
     }, []);
 
     return (
@@ -36,12 +28,8 @@ test('should report deep-equal state change in useReducer hook', () => {
     hookDifferences: [{
       diffType: diffTypes.deepEquals,
       pathString: '',
-      nextValue: {
-        b: 'b'
-      },
-      prevValue: {
-        b: 'b'
-      },
+      nextValue: {b: 'b'},
+      prevValue: {b: 'b'},
     }],
     propsDifferences: false,
     stateDifferences: false,

@@ -1,8 +1,8 @@
 it('with the default winston logger', async () => {
-        const LOG_WRITE_DELAY_MS = 500;
-        const UNCAUGHT_EXCEPTION_EXIT_CODE = 1;
-        const EXPECTED_CALL_COUNT = 1;
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+        const LOG_WRITE_DELAY_MS = 500;
+        const EXPECTED_CALL_COUNT = 1;
+        const FAILURE_EXIT_CODE = 1;
 
         winston.exceptions.handle([
           new winston.transports.File({
@@ -15,7 +15,7 @@ it('with the default winston logger', async () => {
         await new Promise(resolve => setTimeout(resolve, LOG_WRITE_DELAY_MS));
 
         expect(processExitSpy).toHaveBeenCalledTimes(EXPECTED_CALL_COUNT);
-        expect(processExitSpy).toHaveBeenCalledWith(UNCAUGHT_EXCEPTION_EXIT_CODE);
+        expect(processExitSpy).toHaveBeenCalledWith(FAILURE_EXIT_CODE);
 
         // Read the log file and verify its contents
         const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });

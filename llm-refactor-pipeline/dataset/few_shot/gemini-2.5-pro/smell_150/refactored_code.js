@@ -1,79 +1,91 @@
-describe('BPagination', () => {
-  const baseProps = {
-    totalRows: 70,
-    perPage: 10,
-    limit: 7,
-  };
+it('renders classes correctly across different pages when more than 3 pages are available', async () => {
+  const wrapper = mount(BPagination, {
+    propsData: {
+      totalRows: 70,
+      perPage: 10,
+      limit: 7,
+      value: 1
+    }
+  })
+  expect(wrapper.element.tagName).toBe('UL')
 
-  describe('renders classes bv-d-xs-down-none when more than 3 pages', () => {
-    it('when on the first page', async () => {
-      const wrapper = mount(BPagination, {
-        propsData: { ...baseProps,
-          value: 1
-        }
-      });
+  // --- State 1: Assertions for the first page ---
+  expect(wrapper.vm.computedCurrentPage).toBe(1)
+  let lis = wrapper.findAll('li').wrappers
+  expect(lis).toHaveLength(11)
 
-      expect(wrapper.element.tagName).toBe('UL');
-      const lis = wrapper.findAll('li').wrappers;
-      expect(lis.length).toBe(11);
+  // Bookend button states
+  expect(lis[0].classes()).toContain('disabled') // First
+  expect(lis[1].classes()).toContain('disabled') // Prev
+  expect(lis[9].classes()).not.toContain('disabled') // Next
+  expect(lis[10].classes()).not.toContain('disabled') // Last
 
-      const expectedDisabled = [true, true, false, false, false, false, false, false, false, false, false];
-      const expectedActive = [false, false, true, false, false, false, false, false, false, false, false];
-      const expectedHidden = [false, false, false, false, false, true, true, true, true, false, false];
+  // Page button active states
+  expect(lis[2].classes()).toContain('active') // Page 1
+  expect(lis[3].classes()).not.toContain('active') // Page 2
 
-      lis.forEach((li, index) => {
-        expect(li.classes()).toContain('page-item');
-        expect(li.classes().includes('disabled')).toBe(expectedDisabled[index]);
-        expect(li.classes().includes('active')).toBe(expectedActive[index]);
-        expect(li.classes().includes('bv-d-xs-down-none')).toBe(expectedHidden[index]);
-      });
+  // Page button visibility states
+  expect(lis[2].classes()).not.toContain('bv-d-xs-down-none') // Page 1
+  expect(lis[3].classes()).not.toContain('bv-d-xs-down-none') // Page 2
+  expect(lis[4].classes()).not.toContain('bv-d-xs-down-none') // Page 3
+  expect(lis[5].classes()).toContain('bv-d-xs-down-none') // Page 4
+  expect(lis[6].classes()).toContain('bv-d-xs-down-none') // Page 5
+  expect(lis[7].classes()).toContain('bv-d-xs-down-none') // Page 6
+  expect(lis[8].classes()).toContain('bv-d-xs-down-none') // Page 7
 
-      wrapper.destroy();
-    });
+  // --- State 2: Assertions for a middle page ---
+  await wrapper.setProps({
+    value: 4
+  })
+  await waitNT(wrapper.vm)
 
-    it('when on a middle page', async () => {
-      const wrapper = mount(BPagination, {
-        propsData: { ...baseProps,
-          value: 4
-        }
-      });
+  expect(wrapper.vm.computedCurrentPage).toBe(4)
+  lis = wrapper.findAll('li').wrappers
 
-      const lis = wrapper.findAll('li').wrappers;
-      expect(lis.length).toBe(11);
+  // Bookend button states
+  expect(lis[0].classes()).not.toContain('disabled') // First
+  expect(lis[1].classes()).not.toContain('disabled') // Prev
+  expect(lis[9].classes()).not.toContain('disabled') // Next
+  expect(lis[10].classes()).not.toContain('disabled') // Last
 
-      const expectedDisabled = [false, false, false, false, false, false, false, false, false, false, false];
-      const expectedActive = [false, false, false, false, false, true, false, false, false, false, false];
-      const expectedHidden = [false, false, true, true, false, false, false, true, true, false, false];
+  // Page button active states
+  expect(lis[4].classes()).not.toContain('active') // Page 3
+  expect(lis[5].classes()).toContain('active') // Page 4
+  expect(lis[6].classes()).not.toContain('active') // Page 5
 
-      lis.forEach((li, index) => {
-        expect(li.classes()).toContain('page-item');
-        expect(li.classes().includes('disabled')).toBe(expectedDisabled[index]);
-        expect(li.classes().includes('active')).toBe(expectedActive[index]);
-        expect(li.classes().includes('bv-d-xs-down-none')).toBe(expectedHidden[index]);
-      });
+  // Page button visibility states
+  expect(lis[2].classes()).toContain('bv-d-xs-down-none') // Page 1
+  expect(lis[3].classes()).toContain('bv-d-xs-down-none') // Page 2
+  expect(lis[4].classes()).not.toContain('bv-d-xs-down-none') // Page 3
+  expect(lis[5].classes()).not.toContain('bv-d-xs-down-none') // Page 4
+  expect(lis[6].classes()).not.toContain('bv-d-xs-down-none') // Page 5
+  expect(lis[7].classes()).toContain('bv-d-xs-down-none') // Page 6
+  expect(lis[8].classes()).toContain('bv-d-xs-down-none') // Page 7
 
-      wrapper.destroy();
-    });
+  // --- State 3: Assertions for the last page ---
+  await wrapper.setProps({
+    value: 7
+  })
+  await waitNT(wrapper.vm)
 
-    it('when on the last page', async () => {
-      const wrapper = mount(BPagination, {
-        propsData: { ...baseProps,
-          value: 7
-        }
-      });
+  expect(wrapper.vm.computedCurrentPage).toBe(7)
+  lis = wrapper.findAll('li').wrappers
 
-      const lis = wrapper.findAll('li').wrappers;
-      expect(lis.length).toBe(11);
+  // Bookend button states
+  expect(lis[9].classes()).toContain('disabled') // Next
+  expect(lis[10].classes()).toContain('disabled') // Last
 
-      // Mapping: [First, Prev, P1, P2, P3, P4, P5, P6, P7, Next, Last]
-      const expectedHidden = [false, false, true, true, true, true, false, false, false, false, false];
+  // Page button active states
+  expect(lis[8].classes()).toContain('active') // Page 7
 
-      lis.forEach((li, index) => {
-        expect(li.classes()).toContain('page-item');
-        expect(li.classes().includes('bv-d-xs-down-none')).toBe(expectedHidden[index]);
-      });
+  // Page button visibility states
+  expect(lis[2].classes()).toContain('bv-d-xs-down-none') // Page 1
+  expect(lis[3].classes()).toContain('bv-d-xs-down-none') // Page 2
+  expect(lis[4].classes()).toContain('bv-d-xs-down-none') // Page 3
+  expect(lis[5].classes()).toContain('bv-d-xs-down-none') // Page 4
+  expect(lis[6].classes()).not.toContain('bv-d-xs-down-none') // Page 5
+  expect(lis[7].classes()).not.toContain('bv-d-xs-down-none') // Page 6
+  expect(lis[8].classes()).not.toContain('bv-d-xs-down-none') // Page 7
 
-      wrapper.destroy();
-    });
-  });
-});
+  wrapper.destroy()
+})

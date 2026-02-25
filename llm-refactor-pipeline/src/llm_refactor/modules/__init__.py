@@ -3,7 +3,6 @@ Feature modules for the LLM Refactor Pipeline.
 
 This package contains:
 - base: Base module interface
-- hello_world: Example Hello World module
 - detect_smells: Detect smells module
 - run_tests: Run tests module
 - database_module: Database operations module
@@ -17,7 +16,6 @@ Add new modules here to extend functionality.
 
 from . import (
     base,
-    hello_world,
     detect_smells,
     run_tests,
     database_module,
@@ -29,7 +27,6 @@ from . import (
 
 __all__ = [
     "base",
-    "hello_world",
     "detect_smells",
     "run_tests",
     "database_module",

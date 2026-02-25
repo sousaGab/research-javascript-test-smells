@@ -1,5 +1,5 @@
 describe('getBreakpointsUp', () => {
-  it('should return an array of breakpoint names in ascending order', () => {
+  it('should return the list of breakpoints in ascending order', () => {
     expect(getBreakpointsUp()).toEqual(['', 'sm', 'md', 'lg', 'xl']);
   });
 

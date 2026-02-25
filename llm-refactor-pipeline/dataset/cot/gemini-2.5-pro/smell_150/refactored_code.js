@@ -1,14 +1,14 @@
-describe('responsive class "bv-d-xs-down-none"', () => {
-  const baseProps = {
-    totalRows: 70,
+describe('BPagination class rendering when more than 3 pages', () => {
+  const defaultProps = {
+    totalRows: 70, // 7 pages
     perPage: 10,
-    limit: 7,
+    limit: 7
   };
 
-  it('applies correct classes when on first page', async () => {
+  it('renders correct classes when on the first page', () => {
     const wrapper = mount(BPagination, {
       propsData: {
-        ...baseProps,
+        ...defaultProps,
         value: 1
       }
     });
@@ -16,81 +16,37 @@ describe('responsive class "bv-d-xs-down-none"', () => {
     expect(wrapper.element.tagName).toBe('UL');
     const lis = wrapper.findAll('li');
     expect(lis.length).toBe(11); // 7 pages + 4 bookends
-
-    const expectedStates = [
-      // { text: '«', disabled, active, responsive }
-      {
-        disabled: true,
-        active: false,
-        responsive: false
-      }, // First
-      {
-        disabled: true,
-        active: false,
-        responsive: false
-      }, // Prev
-      {
-        disabled: false,
-        active: true,
-        responsive: false
-      }, // Page 1
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // Page 2
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // Page 3
-      {
-        disabled: false,
-        active: false,
-        responsive: true
-      }, // Page 4
-      {
-        disabled: false,
-        active: false,
-        responsive: true
-      }, // Page 5
-      {
-        disabled: false,
-        active: false,
-        responsive: true
-      }, // Page 6
-      {
-        disabled: false,
-        active: false,
-        responsive: true
-      }, // Page 7
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // Next
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // Last
-    ];
-
-    lis.wrappers.forEach((li, i) => {
-      const state = expectedStates[i];
-      const classes = li.classes();
-      expect(classes.includes('disabled')).toBe(state.disabled);
-      expect(classes.includes('active')).toBe(state.active);
-      expect(classes.includes('bv-d-xs-down-none')).toBe(state.responsive);
+    lis.wrappers.forEach(li => {
+      expect(li.classes()).toContain('page-item');
     });
 
-    wrapper.destroy();
+    // Bookend states
+    expect(lis.at(0).classes()).toContain('disabled'); // First
+    expect(lis.at(1).classes()).toContain('disabled'); // Prev
+    expect(lis.at(9).classes()).not.toContain('disabled'); // Next
+    expect(lis.at(10).classes()).not.toContain('disabled'); // Last
+
+    // Page button states (indices 2-8)
+    expect(lis.at(2).classes()).toContain('active');
+    expect(lis.at(2).classes()).not.toContain('bv-d-xs-down-none'); // Page 1
+    expect(lis.at(3).classes()).not.toContain('active');
+    expect(lis.at(3).classes()).not.toContain('bv-d-xs-down-none'); // Page 2
+    expect(lis.at(4).classes()).not.toContain('active');
+    expect(lis.at(4).classes()).not.toContain('bv-d-xs-down-none'); // Page 3
+    expect(lis.at(5).classes()).not.toContain('active');
+    expect(lis.at(5).classes()).toContain('bv-d-xs-down-none'); // Page 4
+    expect(lis.at(6).classes()).not.toContain('active');
+    expect(lis.at(6).classes()).toContain('bv-d-xs-down-none'); // Page 5
+    expect(lis.at(7).classes()).not.toContain('active');
+    expect(lis.at(7).classes()).toContain('bv-d-xs-down-none'); // Page 6
+    expect(lis.at(8).classes()).not.toContain('active');
+    expect(lis.at(8).classes()).toContain('bv-d-xs-down-none'); // Page 7
   });
 
-  it('applies correct classes when on a middle page', async () => {
+  it('renders correct classes when on a middle page (page 4)', () => {
     const wrapper = mount(BPagination, {
       propsData: {
-        ...baseProps,
+        ...defaultProps,
         value: 4
       }
     });
@@ -98,80 +54,33 @@ describe('responsive class "bv-d-xs-down-none"', () => {
     const lis = wrapper.findAll('li');
     expect(lis.length).toBe(11);
 
-    const expectedStates = [
-      // { text: '«', disabled, active, responsive }
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // First
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // Prev
-      {
-        disabled: false,
-        active: false,
-        responsive: true
-      }, // Page 1
-      {
-        disabled: false,
-        active: false,
-        responsive: true
-      }, // Page 2
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // Page 3
-      {
-        disabled: false,
-        active: true,
-        responsive: false
-      }, // Page 4
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // Page 5
-      {
-        disabled: false,
-        active: false,
-        responsive: true
-      }, // Page 6
-      {
-        disabled: false,
-        active: false,
-        responsive: true
-      }, // Page 7
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // Next
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // Last
-    ];
+    // Bookend states
+    expect(lis.at(0).classes()).not.toContain('disabled'); // First
+    expect(lis.at(1).classes()).not.toContain('disabled'); // Prev
+    expect(lis.at(9).classes()).not.toContain('disabled'); // Next
+    expect(lis.at(10).classes()).not.toContain('disabled'); // Last
 
-    lis.wrappers.forEach((li, i) => {
-      const state = expectedStates[i];
-      const classes = li.classes();
-      expect(classes.includes('disabled')).toBe(state.disabled);
-      expect(classes.includes('active')).toBe(state.active);
-      expect(classes.includes('bv-d-xs-down-none')).toBe(state.responsive);
-    });
-
-    wrapper.destroy();
+    // Page button states (indices 2-8)
+    expect(lis.at(2).classes()).not.toContain('active');
+    expect(lis.at(2).classes()).toContain('bv-d-xs-down-none'); // Page 1
+    expect(lis.at(3).classes()).not.toContain('active');
+    expect(lis.at(3).classes()).toContain('bv-d-xs-down-none'); // Page 2
+    expect(lis.at(4).classes()).not.toContain('active');
+    expect(lis.at(4).classes()).not.toContain('bv-d-xs-down-none'); // Page 3
+    expect(lis.at(5).classes()).toContain('active');
+    expect(lis.at(5).classes()).not.toContain('bv-d-xs-down-none'); // Page 4
+    expect(lis.at(6).classes()).not.toContain('active');
+    expect(lis.at(6).classes()).not.toContain('bv-d-xs-down-none'); // Page 5
+    expect(lis.at(7).classes()).not.toContain('active');
+    expect(lis.at(7).classes()).toContain('bv-d-xs-down-none'); // Page 6
+    expect(lis.at(8).classes()).not.toContain('active');
+    expect(lis.at(8).classes()).toContain('bv-d-xs-down-none'); // Page 7
   });
 
-  it('applies correct classes when on last page', async () => {
+  it('renders correct classes when on the last page (page 7)', () => {
     const wrapper = mount(BPagination, {
       propsData: {
-        ...baseProps,
+        ...defaultProps,
         value: 7
       }
     });
@@ -179,73 +88,26 @@ describe('responsive class "bv-d-xs-down-none"', () => {
     const lis = wrapper.findAll('li');
     expect(lis.length).toBe(11);
 
-    const expectedStates = [
-      // { text: '«', disabled, active, responsive }
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // First
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // Prev
-      {
-        disabled: false,
-        active: false,
-        responsive: true
-      }, // Page 1
-      {
-        disabled: false,
-        active: false,
-        responsive: true
-      }, // Page 2
-      {
-        disabled: false,
-        active: false,
-        responsive: true
-      }, // Page 3
-      {
-        disabled: false,
-        active: false,
-        responsive: true
-      }, // Page 4
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // Page 5
-      {
-        disabled: false,
-        active: false,
-        responsive: false
-      }, // Page 6
-      {
-        disabled: false,
-        active: true,
-        responsive: false
-      }, // Page 7
-      {
-        disabled: true,
-        active: false,
-        responsive: false
-      }, // Next
-      {
-        disabled: true,
-        active: false,
-        responsive: false
-      }, // Last
-    ];
+    // Bookend states
+    expect(lis.at(0).classes()).not.toContain('disabled'); // First
+    expect(lis.at(1).classes()).not.toContain('disabled'); // Prev
+    expect(lis.at(9).classes()).toContain('disabled'); // Next
+    expect(lis.at(10).classes()).toContain('disabled'); // Last
 
-    lis.wrappers.forEach((li, i) => {
-      const state = expectedStates[i];
-      const classes = li.classes();
-      expect(classes.includes('disabled')).toBe(state.disabled);
-      expect(classes.includes('active')).toBe(state.active);
-      expect(classes.includes('bv-d-xs-down-none')).toBe(state.responsive);
-    });
-
-    wrapper.destroy();
+    // Page button states (indices 2-8)
+    expect(lis.at(2).classes()).not.toContain('active');
+    expect(lis.at(2).classes()).toContain('bv-d-xs-down-none'); // Page 1
+    expect(lis.at(3).classes()).not.toContain('active');
+    expect(lis.at(3).classes()).toContain('bv-d-xs-down-none'); // Page 2
+    expect(lis.at(4).classes()).not.toContain('active');
+    expect(lis.at(4).classes()).toContain('bv-d-xs-down-none'); // Page 3
+    expect(lis.at(5).classes()).not.toContain('active');
+    expect(lis.at(5).classes()).toContain('bv-d-xs-down-none'); // Page 4
+    expect(lis.at(6).classes()).not.toContain('active');
+    expect(lis.at(6).classes()).not.toContain('bv-d-xs-down-none'); // Page 5
+    expect(lis.at(7).classes()).not.toContain('active');
+    expect(lis.at(7).classes()).not.toContain('bv-d-xs-down-none'); // Page 6
+    expect(lis.at(8).classes()).toContain('active');
+    expect(lis.at(8).classes()).not.toContain('bv-d-xs-down-none'); // Page 7
   });
 });

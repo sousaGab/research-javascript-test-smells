@@ -4482,22 +4482,24 @@ file,type,line,method,methodStart,methodEnd,source
   })
 
   describe('Filter', function () {
-    it('should be triggered before and after filter', function (done) {
-  const eventOrder = [];
+    it('should trigger filterStart before filterComplete', function (done) {
+  let filterStartTriggered = false;
+
   list.on('filterStart', function () {
-    eventOrder.push('filterStart');
+    filterStartTriggered = true;
   });
+
   list.on('filterComplete', function () {
-    eventOrder.push('filterComplete');
-    expect(eventOrder).toEqual(['filterStart', 'filterComplete']);
+    expect(filterStartTriggered).to.be.true;
     done();
   });
+
   list.filter(function () {
     return true;
   });
 });
   })
-})",3,124,steel
+})",3,126,steel
 /__test__/on.test.js,Global Variable,"{'line': 58, 'column': 6, 'index': 1385}","it('should be trigger both handlers', function (done) {
       var done1 = false,
         done2 = false,

@@ -1,6 +1,6 @@
-describe('accepts aria props', () => {
-  // This test covers the behavior in a Vue 2 environment
-  it('and renders PortalTarget in Vue 2', async () => {
+describe('BToaster with aria props', () => {
+  // Test for Vue 2 specific behavior
+  (!isVue3 ? it : it.skip)('renders PortalTarget on Vue 2', async () => {
     const wrapper = mount(BToaster, {
       attachTo: document.body,
       propsData: {
@@ -21,8 +21,8 @@ describe('accepts aria props', () => {
     expect(wrapper.attributes('aria-atomic')).toEqual('true')
     expect(wrapper.attributes('role')).toEqual('alert')
 
-    expect(wrapper.find('.b-toaster-slot').exists()).toBe(true)
     const $slot = wrapper.find('.b-toaster-slot')
+    expect($slot.exists()).toBe(true)
     expect($slot.findComponent(PortalTarget).exists()).toBe(true)
     expect($slot.element.tagName).toBe('DIV')
     expect($slot.classes()).toContain('b-toaster-slot')
@@ -33,8 +33,8 @@ describe('accepts aria props', () => {
     wrapper.destroy()
   })
 
-  // This test covers the behavior in a Vue 3 environment
-  it('in Vue 3', async () => {
+  // Test for Vue 3 specific behavior
+  (isVue3 ? it : it.skip)('renders correctly on Vue 3', async () => {
     const wrapper = mount(BToaster, {
       attachTo: document.body,
       propsData: {
@@ -55,8 +55,8 @@ describe('accepts aria props', () => {
     expect(wrapper.attributes('aria-atomic')).toEqual('true')
     expect(wrapper.attributes('role')).toEqual('alert')
 
-    expect(wrapper.find('.b-toaster-slot').exists()).toBe(true)
     const $slot = wrapper.find('.b-toaster-slot')
+    expect($slot.exists()).toBe(true)
     expect($slot.element.tagName).toBe('DIV')
     expect($slot.classes()).toContain('b-toaster-slot')
     expect($slot.classes()).toContain('vue-portal-target')

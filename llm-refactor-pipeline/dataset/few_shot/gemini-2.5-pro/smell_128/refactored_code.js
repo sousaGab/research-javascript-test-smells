@@ -5,69 +5,71 @@ describe('HashTable', () => {
     hashTable = new HashTable(3);
   });
 
-  it('should set and get values', () => {
-    hashTable.set('a', 'sky');
-    hashTable.set('b', 'sea');
-
-    expect(hashTable.get('a')).toBe('sky');
-    expect(hashTable.get('b')).toBe('sea');
+  it('should generate correct hashes for keys, including collisions', () => {
+    expect(hashTable.hash('a')).toBe(1);
+    expect(hashTable.hash('b')).toBe(2);
+    expect(hashTable.hash('c')).toBe(0);
+    expect(hashTable.hash('d')).toBe(1); // Collision with 'a'
   });
 
-  it('should overwrite the value for an existing key', () => {
+  it('should set, get, and overwrite values', () => {
     hashTable.set('a', 'sky-old');
     hashTable.set('a', 'sky');
 
     expect(hashTable.get('a')).toBe('sky');
+    expect(hashTable.get('x')).not.toBeDefined();
   });
 
-  it('should return undefined for non-existent keys', () => {
-    expect(hashTable.get('x')).not.toBeDefined();
+  it('should correctly check for the existence of keys', () => {
+    hashTable.set('b', 'sea');
+
+    expect(hashTable.has('b')).toBe(true);
     expect(hashTable.has('x')).toBe(false);
   });
 
-  it('should correctly check for the existence of a key', () => {
-    hashTable.set('c', 'earth');
-    expect(hashTable.has('c')).toBe(true);
-  });
-
-  it('should handle hash collisions during set and get', () => {
-    // 'a' and 'd' both hash to index 1.
-    expect(hashTable.hash('a')).toBe(1);
-    expect(hashTable.hash('d')).toBe(1);
-
+  it('should handle collisions when setting and getting data', () => {
+    // Keys 'a' and 'd' collide in a table of size 3.
     hashTable.set('a', 'sky');
     hashTable.set('d', 'ocean');
 
     expect(hashTable.get('a')).toBe('sky');
     expect(hashTable.get('d')).toBe('ocean');
-
-    // Verify internal structure for collision.
-    const stringifier = (value) => `${value.key}:${value.value}`;
-    expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
   });
 
-  it('should delete keys and handle collisions during deletion', () => {
+  it('should delete data by key', () => {
     hashTable.set('a', 'sky');
-    hashTable.set('d', 'ocean'); // 'a' and 'd' collide.
+    hashTable.set('d', 'ocean'); // Collision with 'a'
 
     hashTable.delete('a');
 
-    expect(hashTable.has('a')).toBe(false);
     expect(hashTable.get('a')).not.toBeDefined();
-    expect(hashTable.get('d')).toBe('ocean'); // Other key in bucket remains.
+    expect(hashTable.has('a')).toBe(false);
+    expect(hashTable.get('d')).toBe('ocean'); // Ensure other item in bucket remains
   });
 
-  it('should return null when trying to delete a non-existent key', () => {
+  it('should return null when deleting a non-existent key', () => {
     expect(hashTable.delete('not-existing')).toBeNull();
   });
 
-  it('should allow updating a key after a collision-related deletion', () => {
+  it('should allow updating a value after a collision and deletion', () => {
     hashTable.set('a', 'sky');
-    hashTable.set('d', 'ocean'); // 'a' and 'd' collide.
-
+    hashTable.set('d', 'ocean');
     hashTable.delete('a');
-    hashTable.set('d', 'ocean-new');
 
+    hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
+  });
+
+  it('should correctly represent buckets as strings after multiple operations', () => {
+    hashTable.set('a', 'sky');
+    hashTable.set('b', 'sea');
+    hashTable.set('c', 'earth');
+    hashTable.set('d', 'ocean'); // Collides with 'a'
+
+    const stringifier = (value) => `${value.key}:${value.value}`;
+
+    expect(hashTable.buckets[0].toString(stringifier)).toBe('c:earth');
+    expect(hashTable.buckets[1].toString(stringifier)).toBe('a:sky,d:ocean');
+    expect(hashTable.buckets[2].toString(stringifier)).toBe('b:sea');
   });
 });

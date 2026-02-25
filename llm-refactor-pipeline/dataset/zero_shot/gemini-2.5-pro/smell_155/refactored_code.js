@@ -1,22 +1,13 @@
-describe('BVTransporter when disabled=false', () => {
-  // This test covers the behavior common to both Vue 2 and Vue 3
-  it('moves content to body and cleans up on destroy', async () => {
-    const App = {
-      render(h) {
-        return h(BVTransporter, {
-          props: {
-            disabled: false
-          }
-        }, [
-          h('div', {
-            attrs: {
-              id: 'foobar'
-            }
-          }, 'content')
-        ])
-      }
+describe('when disabled=false', () => {
+  const App = {
+    render(h) {
+      return h(BVTransporter, { props: { disabled: false } }, [
+        h('div', { attrs: { id: 'foobar' } }, 'content')
+      ])
     }
+  }
 
+  it('transports content to body and cleans up on destroy', async () => {
     const wrapper = mount(App, {
       attachTo: document.body
     })
@@ -42,25 +33,8 @@ describe('BVTransporter when disabled=false', () => {
     expect(target.parentElement).toEqual(null)
   })
 
-  // This test covers the Vue 2-specific implementation detail
   if (!isVue3) {
-    it('creates a BVTransporterTarget component instance in Vue 2', async () => {
-      const App = {
-        render(h) {
-          return h(BVTransporter, {
-            props: {
-              disabled: false
-            }
-          }, [
-            h('div', {
-              attrs: {
-                id: 'foobar'
-              }
-            }, 'content')
-          ])
-        }
-      }
-
+    it('creates a BVTransporterTarget component instance (Vue 2 only)', async () => {
       const wrapper = mount(App, {
         attachTo: document.body
       })

@@ -1,8 +1,6 @@
+const EXPECTED_MATCH_COUNT = 4;
+
 it('should find result', function () {
-    const searchQuery = 'thre';
-    const expectedMatchCount = 4;
-
-    list.fuzzySearch(searchQuery);
-
-    expect(list.matchingItems.length).toBe(expectedMatchCount);
-  });
+    list.fuzzySearch('thre');
+    expect(list.matchingItems.length).toBe(EXPECTED_MATCH_COUNT);
+});

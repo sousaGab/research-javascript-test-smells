@@ -12,4 +12,4 @@ it("compares with static items (200 items, 20 static)", () => {
       );
 
       expect(fastTime).toBeLessThanOrEqual(stdTime);
-    })
+    });

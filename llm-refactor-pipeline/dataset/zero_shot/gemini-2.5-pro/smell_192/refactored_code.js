@@ -1,8 +1,8 @@
 test.each([
-  { argv: ['node', 'script1.js'], expectedName: 'script1' },
-  { argv: ['electron', 'script2.js'], expectedName: 'script2' }
-])('when parse with argv $argv then name is $expectedName', ({ argv, expectedName }) => {
+  [['node', 'script1.js'], 'script1'],
+  [['electron', 'script2.js'], 'script2']
+])('when parse with args %p then implied program name is %p', (args, expectedName) => {
   const program = new commander.Command();
-  program.parse(argv);
+  program.parse(args);
   expect(program.name()).toEqual(expectedName);
 });

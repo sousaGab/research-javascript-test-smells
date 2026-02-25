@@ -1,9 +1,6 @@
-test('should style option term when help configured with styleOptionTerm', () => {
+test('should apply custom style to option terms in help information', () => {
   const program = makeProgram();
-  program.configureHelp({
-    styleOptionTerm: (str) => red(str),
-    displayWidth
-  });
+  program.configureHelp({ styleOptionTerm: (str) => red(str), displayWidth });
   const helpText = program.helpInformation();
   expect(helpText).toEqual(
     plainHelpInformation.replace('-h, --help', red('-h, --help')),

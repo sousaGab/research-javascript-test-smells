@@ -1,51 +1,50 @@
-test("DateTime.fromFormat() parses format month names", () => {
-  const testCases = [
-    {
-      description: "full month name",
-      input: "May 25 1982",
-      format: "MMMM dd yyyy",
-      options: {},
-      expected: { year: 1982, month: 5, day: 25 },
-    },
-    {
-      description: "short month name",
-      input: "Sep 25 1982",
-      format: "MMM dd yyyy",
-      options: {},
-      expected: { year: 1982, month: 9, day: 25 },
-    },
-    {
-      description: "numeric month",
-      input: "5 25 1982",
-      format: "M dd yyyy",
-      options: {},
-      expected: { year: 1982, month: 5, day: 25 },
-    },
-    {
-      description: "padded numeric month",
-      input: "05 25 1982",
-      format: "MM dd yyyy",
-      options: {},
-      expected: { year: 1982, month: 5, day: 25 },
-    },
-    {
-      description: "French full month name",
-      input: "mai 25 1982",
-      format: "MMMM dd yyyy",
-      options: { locale: "fr" },
-      expected: { year: 1982, month: 5, day: 25 },
-    },
-    {
-      description: "French short month name",
-      input: "janv. 25 1982",
-      format: "MMM dd yyyy",
-      options: { locale: "fr" },
-      expected: { year: 1982, month: 1, day: 25 },
-    },
-  ];
-
-  testCases.forEach(({ description, input, format, options, expected }) => {
-    const i = DateTime.fromFormat(input, format, options);
-    expect(i).toMatchObject(expected, `Failed on case: ${description}`);
-  });
-});
+test.each([
+  {
+    description: "full month name (MMMM)",
+    dateStr: "May 25 1982",
+    formatStr: "MMMM dd yyyy",
+    opts: {},
+    expected: { year: 1982, month: 5, day: 25 },
+  },
+  {
+    description: "short month name (MMM)",
+    dateStr: "Sep 25 1982",
+    formatStr: "MMM dd yyyy",
+    opts: {},
+    expected: { year: 1982, month: 9, day: 25 },
+  },
+  {
+    description: "numeric month (M)",
+    dateStr: "5 25 1982",
+    formatStr: "M dd yyyy",
+    opts: {},
+    expected: { year: 1982, month: 5, day: 25 },
+  },
+  {
+    description: "padded numeric month (MM)",
+    dateStr: "05 25 1982",
+    formatStr: "MM dd yyyy",
+    opts: {},
+    expected: { year: 1982, month: 5, day: 25 },
+  },
+  {
+    description: "full month name with French locale",
+    dateStr: "mai 25 1982",
+    formatStr: "MMMM dd yyyy",
+    opts: { locale: "fr" },
+    expected: { year: 1982, month: 5, day: 25 },
+  },
+  {
+    description: "short month name with French locale",
+    dateStr: "janv. 25 1982",
+    formatStr: "MMM dd yyyy",
+    opts: { locale: "fr" },
+    expected: { year: 1982, month: 1, day: 25 },
+  },
+])(
+  "DateTime.fromFormat() parses $description",
+  ({ dateStr, formatStr, opts, expected }) => {
+    const i = DateTime.fromFormat(dateStr, formatStr, opts);
+    expect({ year: i.year, month: i.month, day: i.day }).toEqual(expected);
+  }
+);

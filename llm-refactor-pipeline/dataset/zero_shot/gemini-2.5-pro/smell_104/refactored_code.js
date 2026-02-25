@@ -1,11 +1,14 @@
-it("should set a simple value in the cache using a path map", function() {
+it("should set a simple value via a path map", function() {
 
     var cache = {};
     var version = 0;
     setPathMaps(
-        getModel({ cache: cache, version: version++ }), [
-        $pathMapEnvelope("movies['pulp-fiction'].title", "Pulp Fiction")
-    ]);
+        getModel({
+            cache: cache,
+            version: version++
+        }), [
+            $pathMapEnvelope("movies['pulp-fiction'].title", "Pulp Fiction")
+        ]);
 
     expect(strip(cache)).toEqual(strip({
         movies: {

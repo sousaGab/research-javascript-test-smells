@@ -1,6 +1,6 @@
 describe('custom levels', () => {
-  const loggerMethods = ['error', 'warn', 'info', 'verbose', 'debug'];
-  const consoleMethodMap = {
+  const LOG_LEVELS = ['error', 'warn', 'info', 'verbose', 'debug'];
+  const CONSOLE_METHODS = {
     error: 'error',
     warn: 'warn',
     info: 'info',
@@ -8,43 +8,42 @@ describe('custom levels', () => {
     debug: 'debug'
   };
 
-  const testCases = [
-    { level: 'error', shouldLog: ['error'] },
-    { level: 'warn', shouldLog: ['error', 'warn'] },
-    { level: 'info', shouldLog: ['error', 'warn', 'info'] },
-    { level: 'verbose', shouldLog: ['error', 'warn', 'info', 'verbose'] },
-    { level: 'debug', shouldLog: ['error', 'warn', 'info', 'verbose', 'debug'] }
-  ];
+  const testCases = LOG_LEVELS.map((level, index) => ({
+    level,
+    shouldCall: LOG_LEVELS.slice(0, index + 1)
+  }));
 
   test.each(testCases)(
     'when level is "$level", it should only log messages at that level or higher',
-    ({ level, shouldLog }) => {
-      const logger = serverlessExpressLogger({ level });
+    ({
+      level,
+      shouldCall
+    }) => {
+      // Arrange
+      const logger = serverlessExpressLogger({
+        level
+      });
+      const calledConsoleMethods = new Set(shouldCall.map(lvl => CONSOLE_METHODS[lvl]));
+      const allConsoleMethods = new Set(Object.values(CONSOLE_METHODS));
+      const notCalledConsoleMethods = [...allConsoleMethods].filter(
+        method => !calledConsoleMethods.has(method)
+      );
 
-      loggerMethods.forEach(method => {
-        logger[method](`${method} message`);
+      // Act
+      LOG_LEVELS.forEach(logLevelToCall => {
+        logger[logLevelToCall](logLevelToCall);
       });
 
-      const shouldNotLog = loggerMethods.filter(method => !shouldLog.includes(method));
-
-      shouldLog.forEach(method => {
-        const consoleMethod = consoleMethodMap[method];
+      // Assert which methods were called
+      shouldCall.forEach(logLevel => {
+        const consoleMethod = CONSOLE_METHODS[logLevel];
         expect(global.console[consoleMethod]).toHaveBeenCalledWith({
-          message: `${method} message`
+          message: logLevel
         });
       });
 
-      // Group assertions for console methods that should not have been called
-      const uncalledConsoleMethods = new Set();
-      shouldNotLog.forEach(method => {
-        const consoleMethod = consoleMethodMap[method];
-        // Avoid re-checking a console method if multiple logger methods map to it
-        if (!shouldLog.some(logMethod => consoleMethodMap[logMethod] === consoleMethod)) {
-          uncalledConsoleMethods.add(consoleMethod);
-        }
-      });
-
-      uncalledConsoleMethods.forEach(consoleMethod => {
+      // Assert which methods were not called
+      notCalledConsoleMethods.forEach(consoleMethod => {
         expect(global.console[consoleMethod]).not.toHaveBeenCalled();
       });
     }

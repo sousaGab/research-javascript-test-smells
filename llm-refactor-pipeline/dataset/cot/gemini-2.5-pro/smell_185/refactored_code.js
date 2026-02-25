@@ -5,7 +5,7 @@ test('when helpOption(false) then -h is an unknown option', () => {
       program.parse(['-h'], {
         from: 'user'
       });
-    }).toThrow({
+    }).toThrow(expect.objectContaining({
       code: 'commander.unknownOption'
-    });
+    }));
   })

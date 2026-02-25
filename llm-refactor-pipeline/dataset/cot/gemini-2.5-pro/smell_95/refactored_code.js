@@ -15,9 +15,11 @@ test('.parse throw error when some plugin fail', async () => {
         throw new Error('custom plugin err');
       });
 
-      let errorCaught = false;
       try {
         await form.parse(ctx.req);
+        throw new Error(
+          '.parse() should have thrown an error but completed successfully.',
+        );
       } catch (err) {
         expect(err.code).toBe(errors.pluginFailed);
         expect(err.httpCode).toBe(500);
@@ -25,21 +27,12 @@ test('.parse throw error when some plugin fail', async () => {
         expect(form._plugins.length).toBe(3);
         expect(ctx.__pluginsCount).toBe(2);
         expect(ctx.__pluginsResults).toBe(undefined);
-
-        errorCaught = true;
-      }
-
-      if (!errorCaught) {
-        throw new Error('.parse should have thrown an error');
       }
     },
   );
 
-  return new Promise((resolve, reject) => {
-    request(server.callback())
-      .post('/')
-      .type('application/octet-stream')
-      .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'))
-      .end((err) => (err ? reject(err) : resolve()));
-  });
+  await request(server.callback())
+    .post('/')
+    .type('application/octet-stream')
+    .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'));
 });

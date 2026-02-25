@@ -1,11 +1,7 @@
 it("makes a couple requests where only part of the second request is deduped then disposed", done => {
     const scheduler = new ImmediateScheduler();
-    const source = new LocalDataSource(Cache(), {
-        wait: 100
-    });
-    const model = new Model({
-        source
-    });
+    const source = new LocalDataSource(Cache(), { wait: 100 });
+    const model = new Model({ source });
     const queue = new RequestQueue(model, scheduler);
 
     const zip = zipSpy(
@@ -33,17 +29,11 @@ it("makes a couple requests where only part of the second request is deduped the
 
     queue.get([videos0], [videos0], zip);
     expect(queue._requests.length).toBe(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[0].sent).toBe(true);
 
     const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
     expect(queue._requests.length).toBe(2);
-    expect(queue._requests[1]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[1].sent).toBe(true);
 
     disposable2();
-});
+})

@@ -1,15 +1,16 @@
 it('when strings are thrown as errors', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
-          const exitPromise = new Promise(resolve => {
-            processExitSpy.mockImplementation(exitCode => resolve(exitCode));
+          // Create a promise that resolves when the process.exit spy is called,
+          // indicating the async logging operation should be complete.
+          const exitCalled = new Promise(resolve => {
+            processExitSpy.mockImplementation(resolve);
           });
 
           process.emit('uncaughtException', expectedMessage);
 
-          // Wait for the process.exit mock to be called, which indicates the async
-          // file write operation triggered by the exception is complete.
-          await exitPromise;
+          // Wait for the uncaughtException handler to finish and call process.exit
+          await exitCalled;
 
           expect(processExitSpy).toHaveBeenCalledTimes(1);
           expect(processExitSpy).toHaveBeenCalledWith(1);

@@ -3,7 +3,6 @@ it("when setting bad key", () => {
     { one: "a", two: { b: "c" } },
     { set: true, get: false }
   );
-
   expect(() => {
     // $FlowIgnore to test the error throw
     res.badProp = "dog";

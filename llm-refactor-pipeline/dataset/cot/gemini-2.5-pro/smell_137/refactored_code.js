@@ -13,6 +13,8 @@ it('calling profile with a callback function should not make a difference', func
         done(new Error('Unexpected callback invoked'));
       });
 
+      // End the profile session immediately, which triggers the logger transport.
+      // This removes the non-deterministic setTimeout.
       logger.profile('testing2', {
         something: 'ok',
         level: 'info'

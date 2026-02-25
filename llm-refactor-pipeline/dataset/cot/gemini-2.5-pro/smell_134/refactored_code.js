@@ -8,41 +8,36 @@ it('should handle a high volume of writes with lazy option enabled', function (d
       ]
     });
 
-    const totalWrites = 5000; // A deterministic, high volume of logs
-    const counters = {
-      write: 0,
-      read: 0
-    };
+    const totalWrites = 5000; // A large, but deterministic, number of writes.
+    let readCount = 0;
 
-    // The 'finish' event is emitted when all transports have finished logging.
-    // This is our synchronization point.
+    // The 'finish' event is emitted after all logs have been written.
+    // This is the synchronization point that replaces the fixed timeout.
     logger.on('finish', () => {
       helpers
         .tryRead(fileStressLogFile)
-        .on('error', function (err) {
+        .on('error', (err) => {
           assume(err).false();
           done();
         })
         .pipe(split())
-        .on('data', function (d) {
+        .on('data', (d) => {
           const json = JSON.parse(d);
           assume(json.level).equal('info');
-          assume(json.message).equal(++counters.read);
+          assume(json.message).equal(++readCount);
         })
-        .on('end', function () {
-          assume(counters.write).equal(counters.read);
-          assume(counters.read).equal(totalWrites);
+        .on('end', () => {
+          assume(totalWrites).equal(readCount);
           done();
         });
     });
 
-    // Write a large number of logs synchronously to the stream.
+    // Queue all log writes synchronously.
     for (let i = 1; i <= totalWrites; i++) {
       logger.info(i);
-      counters.write++;
     }
 
-    // End the logger stream. This will trigger the 'finish' event
-    // after all logs have been flushed to the transport.
-    logger.end();
+    // Close the logger. This flushes the stream and triggers the 'finish' event
+    // once all writes are complete.
+    logger.close();
   });

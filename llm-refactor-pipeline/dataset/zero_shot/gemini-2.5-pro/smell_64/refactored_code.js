@@ -1,11 +1,14 @@
-it("should suppress onNext method after ModelResponseObserver is onError'ed", function() {
-    const onNextSpy = jasmine.createSpy('onNext');
-    const modelResponseObserver = new ModelResponseObserver({
-        onNext: onNextSpy
-    });
+it(
+    "should suppress onNext method after ModelResponseObserver is onError'ed",
+    function() {
+        const onNextSpy = jest.fn();
+        const modelResponseObserver = new ModelResponseObserver({
+            onNext: onNextSpy
+        });
 
-    modelResponseObserver.onError();
-    modelResponseObserver.onNext(5);
+        modelResponseObserver.onError();
+        modelResponseObserver.onNext(5);
 
-    expect(onNextSpy).not.toHaveBeenCalled();
-});
+        expect(onNextSpy).not.toHaveBeenCalled();
+    }
+)

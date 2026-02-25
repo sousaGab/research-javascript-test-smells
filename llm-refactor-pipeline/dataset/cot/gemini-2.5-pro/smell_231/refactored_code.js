@@ -1,4 +1,4 @@
-test('should report deep equality for new state objects from useReducer', () => {
+test('should report deep equality in useReducer state when the new state is a different but deeply equal object', () => {
   const initialState = {b: 'b'};
 
   function reducer() {

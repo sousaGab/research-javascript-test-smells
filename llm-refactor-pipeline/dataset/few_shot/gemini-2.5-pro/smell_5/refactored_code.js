@@ -5,7 +5,6 @@ it('should promote references on a get.', function() {
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');

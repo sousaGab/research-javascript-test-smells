@@ -1,10 +1,10 @@
 test('onprocessfileabort', () => {
-    const handleProcessFileAbort = jest.fn();
-    createPond();
-    pond.onprocessfileabort = handleProcessFileAbort;
-    pond.files = [data];
+        createPond();
+        const handleProcessFileAbort = jest.fn();
+        pond.onprocessfileabort = handleProcessFileAbort;
+        pond.files = [data];
 
-    pond.getFile().abortProcessing();
+        pond.getFile().abortProcessing();
 
-    expect(handleProcessFileAbort).toHaveBeenCalledTimes(1);
-})
+        expect(handleProcessFileAbort).toHaveBeenCalledTimes(1);
+    })

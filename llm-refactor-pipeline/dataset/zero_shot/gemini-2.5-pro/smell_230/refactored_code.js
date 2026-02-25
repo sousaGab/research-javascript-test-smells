@@ -1,15 +1,21 @@
-test('should report re-render reason when props change', () => {
-  function ComponentWithHooks({a}) {
-    const [currentState] = React.useState({b: 'b'});
+test('should track component updates caused by different props', () => {
+  const ComponentWithHooks = ({
+    a
+  }) => {
+    const [currentState] = React.useState({
+      b: 'b'
+    });
 
     return (
       <div>hi! {a} {currentState.b}</div>
     );
-  }
+  };
 
   ComponentWithHooks.whyDidYouRender = true;
 
-  const {rerender} = rtl.render(
+  const {
+    rerender
+  } = rtl.render(
     <ComponentWithHooks a={1}/>
   );
   rerender(
@@ -28,4 +34,4 @@ test('should report re-render reason when props change', () => {
     hookDifferences: false,
     ownerDifferences: false,
   });
-});
+})

@@ -3,7 +3,7 @@ test('when unknown command then error', () => {
   program.exitOverride().command('sub');
   expect(() => {
     program.parse('node test.js unknown'.split(' '));
-  }).toThrow({
+  }).toThrow(expect.objectContaining({
     code: 'commander.unknownCommand'
-  });
+  }));
 });

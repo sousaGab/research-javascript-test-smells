@@ -1,14 +1,10 @@
 it('with a custom winston.Logger instance', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
-          // Create a promise that resolves when the logger has finished writing to its transports.
-          // This assumes the `logger` instance is in scope for the test.
-          const logFinished = new Promise(resolve => logger.on('finish', resolve));
+          const loggedPromise = new Promise(resolve => fileTransport.once('logged', resolve));
 
           process.emit('uncaughtException', expectedMessage);
-
-          // Wait for the asynchronous log operation to complete before proceeding.
-          await logFinished;
+          await loggedPromise;
 
           expect(processExitSpy).toHaveBeenCalledTimes(1);
           expect(processExitSpy).toHaveBeenCalledWith(1);

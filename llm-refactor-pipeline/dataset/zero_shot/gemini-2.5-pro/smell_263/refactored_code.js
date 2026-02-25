@@ -3,7 +3,7 @@ it('should populate the value attribute on select multiple using groups', () => 
     createElement(
       'select', {
         multiple: true,
-        value: val
+        value: val,
       },
       createElement(
         'optgroup', {
@@ -26,25 +26,56 @@ it('should populate the value attribute on select multiple using groups', () => 
 
   render(template(undefined), container);
 
-  const select = container.firstChild;
-  const [optgroup1, optgroup2] = select.children;
-  const [option1] = optgroup1.children;
-  const [option2] = optgroup2.children;
+  const selectElement = container.firstChild;
+  const fooOptGroup = selectElement.children[0];
+  const barOptGroup = selectElement.children[1];
+  const fooOption = fooOptGroup.children[0];
+  const barOption = barOptGroup.children[0];
 
-  expect(optgroup1.disabled).toBe(false);
-  expect(optgroup2.disabled).toBe(true);
-  expect(optgroup1.innerHTML).toBe('<option value="foo"></option>');
-  expect(optgroup2.innerHTML).toBe('<option value="bar"></option>');
+  // Assert static properties once, as they don't change between renders
+  expect(fooOptGroup.disabled).toBe(false);
+  expect(barOptGroup.disabled).toBe(true);
+  expect(fooOptGroup.innerHTML).toBe('<option value="foo"></option>');
+  expect(barOptGroup.innerHTML).toBe('<option value="bar"></option>');
 
-  const assertSelection = (value, expectedFoo, expectedBar) => {
+  const testCases = [{
+    value: ['foo', 'bar'],
+    expected: {
+      foo: true,
+      bar: true
+    }
+  }, {
+    value: [],
+    expected: {
+      foo: false,
+      bar: false
+    }
+  }, {
+    value: 'foo',
+    expected: {
+      foo: true,
+      bar: false
+    }
+  }, {
+    value: 'bar',
+    expected: {
+      foo: false,
+      bar: true
+    }
+  }, {
+    value: false,
+    expected: {
+      foo: false,
+      bar: false
+    }
+  }, ];
+
+  testCases.forEach(({
+    value,
+    expected
+  }) => {
     render(template(value), container);
-    expect(option1.selected).toBe(expectedFoo);
-    expect(option2.selected).toBe(expectedBar);
-  };
-
-  assertSelection(['foo', 'bar'], true, true);
-  assertSelection([], false, false);
-  assertSelection('foo', true, false);
-  assertSelection('bar', false, true);
-  assertSelection(false, false, false);
+    expect(fooOption.selected).toBe(expected.foo);
+    expect(barOption.selected).toBe(expected.bar);
+  });
 });

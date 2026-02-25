@@ -7,15 +7,15 @@ it('should not exceed the max files', async function () {
       });
 
       // Create a promise that resolves after enough rotations have occurred
-      // to trigger the maxFiles cleanup logic.
-      const requiredRotations = 4; // A few rotations to ensure cleanup is triggered.
-      let rotationCount = 0;
+      // to test the maxFiles pruning logic.
       const rotationPromise = new Promise(resolve => {
+        let rotationCount = 0;
+        // The 'rotate' event is emitted after a file rotation is complete.
         transport.on('rotate', () => {
           rotationCount++;
-          if (rotationCount >= requiredRotations) {
-            // Resolve on the next tick to allow FS operations to fully settle.
-            setImmediate(resolve);
+          // We need at least 4 rotations to ensure the file limit is enforced.
+          if (rotationCount >= 4) {
+            resolve();
           }
         });
       });
@@ -29,7 +29,7 @@ it('should not exceed the max files', async function () {
       await logToTransport(transport);
       await logToTransport(transport);
 
-      // Wait for the file rotation events to complete
+      // Wait for the rotation events to signal completion
       await rotationPromise;
 
       // Should have 3 files total (maxFiles)

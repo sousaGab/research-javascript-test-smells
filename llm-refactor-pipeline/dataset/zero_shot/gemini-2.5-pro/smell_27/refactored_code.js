@@ -1,15 +1,14 @@
 it('should remove one item', function () {
-      const itemToAdd = { name: 'Jonas' };
-      const initialItemCount = list.items.length;
-      
-      list.add(itemToAdd);
-      const itemCountAfterAdd = initialItemCount + 1;
-      expect(list.items.length).toEqual(itemCountAfterAdd);
+  const initialItemCount = list.items.length;
+  const newItem = { name: 'Jonas' };
+  const expectedItemsAdded = 1;
+  const expectedItemsRemoved = 1;
 
-      const expectedRemovedCount = 1;
-      const actualRemovedCount = list.remove('name', itemToAdd.name);
-      expect(actualRemovedCount).toEqual(expectedRemovedCount);
+  list.add(newItem);
+  expect(list.items.length).toEqual(initialItemCount + expectedItemsAdded);
 
-      const finalItemCount = itemCountAfterAdd - expectedRemovedCount;
-      expect(list.items.length).toEqual(finalItemCount);
-    })
+  const actualItemsRemoved = list.remove('name', newItem.name);
+  expect(actualItemsRemoved).toEqual(expectedItemsRemoved);
+
+  expect(list.items.length).toEqual(initialItemCount);
+})

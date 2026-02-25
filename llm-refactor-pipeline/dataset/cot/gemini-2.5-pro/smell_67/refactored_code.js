@@ -1,6 +1,8 @@
-test('revert limbo with serverId set', (done) => {
+test('revert limbo with serverId set', () => {
     const fileId = 'abcdefghijklmnop';
-    pond = setupPond({ chunkUploads: false }, fileId, 'limbo');
+    pond = setupPond({
+        chunkUploads: false
+    }, fileId, 'limbo');
 
     expect(item.serverId).toBe(fileId);
 

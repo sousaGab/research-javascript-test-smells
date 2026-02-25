@@ -14,44 +14,49 @@ test('handles custom d3 scales', () => {
     }]
   }];
 
-  const customXScale = d3.time.scale();
+  const scale = d3.time.scale();
   const graph = new Rickshaw.Graph({
     element: element,
     width: 960,
     height: 500,
-    xScale: customXScale,
+    xScale: scale,
     yScale: d3.scale.sqrt(),
     series: series
   });
 
   graph.render();
 
-  new Rickshaw.Graph.Axis.X({
+  const xAxis = new Rickshaw.Graph.Axis.X({
     graph: graph,
     tickFormat: graph.x.tickFormat()
-  }).render();
+  });
+  xAxis.render();
 
-  new Rickshaw.Graph.Axis.Y({
+  const yAxis = new Rickshaw.Graph.Axis.Y({
     graph: graph
-  }).render();
+  });
+  yAxis.render();
 
+  // Check x-axis ticks
   expect(graph.x.ticks()[0]).toBeInstanceOf(Date);
+  const xTicks = element.querySelectorAll('.x_ticks_d3 text');
+  expect(xTicks[0].innerHTML).toBe('Sep 29');
+  expect(xTicks[1].innerHTML).toBe('Oct 06');
+  expect(xTicks[8].innerHTML).toBe('Nov 24');
 
-  const xTickElements = element.querySelectorAll('.x_ticks_d3 text');
-  expect(xTickElements[0].innerHTML).toBe('Sep 29');
-  expect(xTickElements[1].innerHTML).toBe('Oct 06');
-  expect(xTickElements[8].innerHTML).toBe('Nov 24');
-
-  const yTickElements = element.querySelectorAll('.y_ticks g');
-  const yTickTransforms = Array.from(yTickElements, el => el.getAttribute('transform'));
+  // Check y-axis ticks
+  const yTicks = element.querySelectorAll('.y_ticks g');
+  const yTickTransforms = Array.from(yTicks).map(el => el.getAttribute('transform'));
   expect(yTickTransforms.slice(0, 3)).toEqual([
     'translate(0,500)',
     'translate(0,275.24400874015976)',
     'translate(0,182.14702893572516)'
   ]);
 
-  customXScale.range([0, 960]);
-  expect(customXScale.range()).toEqual(graph.x.range());
-  customXScale.range([0, 1]);
-  expect(customXScale.range()).not.toEqual(graph.x.range());
+
+  // Check scale independence
+  scale.range([0, 960]);
+  expect(scale.range()).toEqual(graph.x.range());
+  scale.range([0, 1]);
+  expect(scale.range()).not.toEqual(graph.x.range());
 });

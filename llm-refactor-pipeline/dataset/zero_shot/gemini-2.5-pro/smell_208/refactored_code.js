@@ -17,14 +17,14 @@ it('should not exceed the max files', async function () {
       await logToTransport(transport);
       await logToTransport(transport);
 
-      // Close the transport to flush all logs and trigger the 'finish' event
-      transport.close();
+      // End the stream to trigger the 'finish' event after all logs are written
+      transport.end();
 
-      // Wait for all file operations to complete
+      // Wait for the 'finish' event to ensure all file operations are complete
       await finished;
 
       // Should have 3 files total (maxFiles)
       assertFileExists('testarchive.log');
       assertFileExists('testarchive1.log');
       assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
-    });
+    }, 10000);

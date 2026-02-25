@@ -26,25 +26,29 @@ it("should re-emit favicon and assets from a loader if watch is active", () => {
       ],
     };
 
-    const assertAssetsAndCompilerResult = (stats, expectedAssets) => {
-      const assetNames = Object.keys(stats.compilation.assets).sort();
-      expect(assetNames).toEqual(expectedAssets.sort());
-      expect(stats.compilation.errors).toEqual([]);
-      expect(stats.compilation.warnings).toEqual([]);
-    };
-
     const templateContent = fs.readFileSync(template, "utf-8");
     const compiler = new WebpackRecompilationSimulator(webpack(config));
     const jsFileTempPath = compiler.addTestFile(
       path.join(__dirname, "fixtures/index.js"),
     );
-    const expected = ["favicon.ico", "index.html", "logo.png", "main.js"];
+    const expected = ["logo.png", "main.js", "favicon.ico", "index.html"];
+
+    const assertCompilationResult = (stats) => {
+      expect(
+        expected.every((val) =>
+          Object.keys(stats.compilation.assets).includes(val),
+        ),
+      ).toBe(true);
+      expect(stats.compilation.errors).toEqual([]);
+      expect(stats.compilation.warnings).toEqual([]);
+    };
 
     return (
       compiler
         .startWatching()
+        // Change the template file and compile again
         .then((stats) => {
-          assertAssetsAndCompilerResult(stats, expected);
+          assertCompilationResult(stats);
 
           fs.writeFileSync(
             jsFileTempPath,
@@ -54,7 +58,7 @@ it("should re-emit favicon and assets from a loader if watch is active", () => {
           return compiler.waitForWatchRunComplete();
         })
         .then((stats) => {
-          assertAssetsAndCompilerResult(stats, expected);
+          assertCompilationResult(stats);
 
           fs.writeFileSync(
             template,
@@ -67,7 +71,7 @@ it("should re-emit favicon and assets from a loader if watch is active", () => {
           return compiler.waitForWatchRunComplete();
         })
         .then((stats) => {
-          assertAssetsAndCompilerResult(stats, expected);
+          assertCompilationResult(stats);
 
           fs.writeFileSync(template, templateContent);
         })

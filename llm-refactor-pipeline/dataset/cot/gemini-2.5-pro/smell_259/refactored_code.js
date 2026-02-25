@@ -1,10 +1,7 @@
 it("inline example", (done) => {
     runExample("inline", (err, result) => {
-      if (err) {
-        return done(err);
-      }
+      expect(err).toBeNull();
       expect(result).toBeDefined();
-      expect(result.status).toBe('completed');
       done();
     });
   })

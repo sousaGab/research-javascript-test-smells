@@ -3216,7 +3216,7 @@
                   <div class="column is-one-quarter">
                     <div class="box px-4 py-4">
                       <div class="heading">Physical SLOC</div>
-                      <div class="title has-text-weight-light is-size-4">50</div>
+                      <div class="title has-text-weight-light is-size-4">45</div>
                     </div>
                   </div>
                   <div class="column is-one-quarter">
@@ -3322,20 +3322,20 @@
   30 |       var searchComplete &#x3D; function (list) {
 &gt; 31 |         expect(list.handlers.searchComplete.length).toEqual(INITIAL_HANDLER_COUNT);
      |        ^ Duplicate Assert
-  32 |
-  33 |         &#x2F;&#x2F; This should not remove any handlers since the function instance is different
-  34 |         list.off(&#39;searchComplete&#39;, function () {});</code></pre><br>
+  32 |         list.off(&#39;searchComplete&#39;, function () {});
+  33 |         list.off(&#39;searchComplete&#39;, searchComplete);
+  34 |         expect(list.handlers.searchComplete.length).toEqual(EXPECTED_HANDLER_COUNT_AFTER_REMOVAL);</code></pre><br>
                       </td>
                     </tr>
                     <tr>
                       <td>
-                        <pre><code>  36 |         list.off(&#39;searchComplete&#39;, searchComplete);
-  37 |
-&gt; 38 |         expect(list.handlers.searchComplete.length).toEqual(FINAL_HANDLER_COUNT);
+                        <pre><code>  32 |         list.off(&#39;searchComplete&#39;, function () {});
+  33 |         list.off(&#39;searchComplete&#39;, searchComplete);
+&gt; 34 |         expect(list.handlers.searchComplete.length).toEqual(EXPECTED_HANDLER_COUNT_AFTER_REMOVAL);
      |        ^ Duplicate Assert
-  39 |         done();
-  40 |       };
-  41 |</code></pre><br>
+  35 |         done();
+  36 |       };
+  37 |</code></pre><br>
                       </td>
                     </tr>
                   </tbody>
@@ -3372,13 +3372,13 @@
                     </tr>
                     <tr>
                       <td>
-                        <pre><code>  28 |       const FINAL_HANDLER_COUNT &#x3D; 2;
+                        <pre><code>  28 |       const EXPECTED_HANDLER_COUNT_AFTER_REMOVAL &#x3D; 2;
   29 |
 &gt; 30 |       var searchComplete &#x3D; function (list) {
      |      ^ Global Variable
   31 |         expect(list.handlers.searchComplete.length).toEqual(INITIAL_HANDLER_COUNT);
-  32 |
-  33 |         &#x2F;&#x2F; This should not remove any handlers since the function instance is different</code></pre><br>
+  32 |         list.off(&#39;searchComplete&#39;, function () {});
+  33 |         list.off(&#39;searchComplete&#39;, searchComplete);</code></pre><br>
                       </td>
                     </tr>
                   </tbody>

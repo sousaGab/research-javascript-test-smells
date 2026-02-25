@@ -1,4 +1,4 @@
-it('shows tooltip on click when configured with .click and .html modifiers', async () => {
+it('shows tooltip with HTML content on click', async () => {
   jest.useFakeTimers()
 
   const App = {

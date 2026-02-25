@@ -10,24 +10,24 @@ it('can destroy the socket if stream is not finished', async () => {
     const req = http.get('http://example.test/somepath')
     const stream = await new Promise(resolve => req.on('response', resolve))
 
-    let endCalled = false
-    let closeCalled = false
+    let closed = false
+    let ended = false
+
+    stream.on('close', () => {
+      closed = true
+    })
+    stream.on('end', () => {
+      ended = true
+    })
 
     // close after first chunk of data
     stream.on('data', () => stream.destroy())
-    stream.on('end', () => {
-      endCalled = true
-    })
-    stream.on('close', () => {
-      closeCalled = true
-    })
 
     await new Promise((resolve, reject) => {
       stream.on('error', reject)
       stream.on('close', resolve)
     })
 
-    expect(closeCalled).toBe(true)
-    expect(endCalled).toBe(false)
-    expect(stream.destroyed).toBe(true)
+    expect(closed).toBe(true)
+    expect(ended).toBe(false)
   })

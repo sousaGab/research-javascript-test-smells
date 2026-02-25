@@ -19,16 +19,14 @@ describe('BToaster with aria props', () => {
     wrapper.destroy()
   })
 
-  it('renders the toaster with the correct attributes', () => {
+  it('renders correctly with specified attributes and slot structure', () => {
     expect(wrapper.vm).toBeDefined()
     expect(wrapper.element.tagName).toBe('DIV')
     expect(wrapper.attributes('id')).toBe('bar')
     expect(wrapper.attributes('aria-live')).toEqual('assertive')
     expect(wrapper.attributes('aria-atomic')).toEqual('true')
     expect(wrapper.attributes('role')).toEqual('alert')
-  })
 
-  it('renders the toaster slot correctly', () => {
     const $slot = wrapper.find('.b-toaster-slot')
     expect($slot.exists()).toBe(true)
     expect($slot.element.tagName).toBe('DIV')

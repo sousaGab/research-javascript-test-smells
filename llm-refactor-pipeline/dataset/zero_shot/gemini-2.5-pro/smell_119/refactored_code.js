@@ -26,32 +26,27 @@ test('handles custom d3 scales', () => {
 
   graph.render();
 
-  new Rickshaw.Graph.Axis.X({
+  const xAxis = new Rickshaw.Graph.Axis.X({
     graph: graph,
     tickFormat: graph.x.tickFormat()
-  }).render();
+  });
+  xAxis.render();
 
-  new Rickshaw.Graph.Axis.Y({
+  const yAxis = new Rickshaw.Graph.Axis.Y({
     graph: graph
-  }).render();
+  });
+  yAxis.render();
 
-  // Check x-axis ticks
+  const xTickElements = element.querySelectorAll('.x_ticks_d3 text');
   expect(graph.x.ticks()[0]).toBeInstanceOf(Date);
-  const xTickLabels = Array.from(element.querySelectorAll('.x_ticks_d3 text'), el => el.innerHTML);
-  expect(xTickLabels[0]).toBe('Sep 29');
-  expect(xTickLabels[1]).toBe('Oct 06');
-  expect(xTickLabels[8]).toBe('Nov 24');
+  expect(xTickElements[0].innerHTML).toBe('Sep 29');
+  expect(xTickElements[1].innerHTML).toBe('Oct 06');
+  expect(xTickElements[8].innerHTML).toBe('Nov 24');
 
-  // Check y-axis ticks
-  const yTickTransforms = Array.from(
-    element.querySelectorAll('.y_ticks g'),
-    el => el.getAttribute('transform')
-  );
-  expect(yTickTransforms.slice(0, 3)).toEqual([
-    'translate(0,500)',
-    'translate(0,275.24400874015976)',
-    'translate(0,182.14702893572516)'
-  ]);
+  const yTickElements = element.querySelectorAll('.y_ticks g');
+  expect(yTickElements[0].getAttribute('transform')).toBe('translate(0,500)');
+  expect(yTickElements[1].getAttribute('transform')).toBe('translate(0,275.24400874015976)');
+  expect(yTickElements[2].getAttribute('transform')).toBe('translate(0,182.14702893572516)');
 
   // Check scale independence
   scale.range([0, 960]);

@@ -6,9 +6,11 @@ test('when help option (without command-argument) then help called', () => {
     formatHelp: mockHelp
   });
 
-  expect(() => program.parse(['--help'], {
-    from: 'user'
-  })).toThrow();
+  expect(() => {
+    program.parse(['--help'], {
+      from: 'user'
+    });
+  }).toThrow();
 
   expect(mockHelp).toHaveBeenCalled();
 });

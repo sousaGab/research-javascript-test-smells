@@ -3902,7 +3902,7 @@ file,type,line,method,methodStart,methodEnd,source
       '<select multiple=""""><option value=""1"">1</option><option value=""2"">2</option></select>',
     );
   })",18,67,snuts
-/packages/inferno-create-element/__tests__/select.spec.js,VerboseStatement,"{'startLine':238,'endLine':262}","it('should assure the value attribute also set the value property for `textarea`', () => {
+/packages/inferno-create-element/__tests__/select.spec.js,VerboseStatement,"{'startLine':256,'endLine':280}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -3926,7 +3926,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,snuts
+  })",256,280,snuts
 /packages/inferno-create-element/__tests__/patching.spec.js,VerboseStatement,"{'startLine':109,'endLine':203}","it('should render various combinations', () => {
     let dataModel = dataModels[0];
 
@@ -19073,6 +19073,92 @@ file,type,line,method,methodStart,methodEnd,source
     document.body.removeChild(root3);
     document.body.removeChild(root4);
   })",601,634,snuts
+/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}","it('Should be possible to listen changes and remove listeners by calling callback', () => {
+    const emitter = new EventEmitter();
+    const listener1 = function () {};
+    expect(emitter.listeners.length).toEqual(0);
+
+    const listener = emitter.on(listener1);
+
+    expect(emitter.listeners.length).toEqual(1);
+    expect(emitter.listeners[0]).toEqual(listener1);
+
+    listener();
+
+    expect(emitter.listeners.length).toEqual(0);
+  })",4,17,snuts
+/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':21,'endLine':21}","it('Should do nothing if removing same callback twice/or more', () => {
+    const emitter = new EventEmitter();
+    const listener1 = function () {};
+    expect(emitter.listeners.length).toEqual(0);
+
+    const listener = emitter.on(listener1);
+
+    expect(emitter.listeners.length).toEqual(1);
+    expect(emitter.listeners[0]).toEqual(listener1);
+
+    listener();
+    listener();
+    listener();
+
+    expect(emitter.listeners.length).toEqual(0);
+  })",19,34,snuts
+/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':38,'endLine':38}","it('Should emit the change data to all active listeners', () => {
+    const emitter = new EventEmitter();
+    const listener1 = function () {};
+    const listener2 = function (data) {
+      console.error(data);
+    };
+
+    spyOn(console, 'error');
+
+    expect(emitter.listeners.length).toEqual(0);
+
+    const listener = emitter.on(listener1);
+    emitter.on(listener2);
+
+    expect(emitter.listeners.length).toEqual(2);
+    expect(emitter.listeners[0]).toEqual(listener1);
+
+    listener();
+    listener();
+    listener();
+
+    expect(emitter.listeners.length).toEqual(1);
+
+    emitter.emit('foobar');
+
+    expect(console.error.calls.count()).toBe(1);
+    expect(console.error.calls.argsFor(0)[0]).toContain('foobar');
+  })",36,63,snuts
+/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,VerboseStatement,"{'startLine':36,'endLine':63}","it('Should emit the change data to all active listeners', () => {
+    const emitter = new EventEmitter();
+    const listener1 = function () {};
+    const listener2 = function (data) {
+      console.error(data);
+    };
+
+    spyOn(console, 'error');
+
+    expect(emitter.listeners.length).toEqual(0);
+
+    const listener = emitter.on(listener1);
+    emitter.on(listener2);
+
+    expect(emitter.listeners.length).toEqual(2);
+    expect(emitter.listeners[0]).toEqual(listener1);
+
+    listener();
+    listener();
+    listener();
+
+    expect(emitter.listeners.length).toEqual(1);
+
+    emitter.emit('foobar');
+
+    expect(console.error.calls.count()).toBe(1);
+    expect(console.error.calls.argsFor(0)[0]).toContain('foobar');
+  })",36,63,snuts
 /packages/inferno-redux/__tests__/components/connect.spec.js,ConditionalTestLogic,"{'startLine':1089,'endLine':1091}","it('should not attempt to notify unmounted child of state change', () => {
       class ProviderMockTest extends Component {
         getChildContext() {
@@ -23117,92 +23203,6 @@ file,type,line,method,methodStart,methodEnd,source
       renderIntoContainer(vNode);
       expect(childMapStateInvokes).toEqual(4);
     })",151,225,snuts
-/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}","it('Should be possible to listen changes and remove listeners by calling callback', () => {
-    const emitter = new EventEmitter();
-    const listener1 = function () {};
-    expect(emitter.listeners.length).toEqual(0);
-
-    const listener = emitter.on(listener1);
-
-    expect(emitter.listeners.length).toEqual(1);
-    expect(emitter.listeners[0]).toEqual(listener1);
-
-    listener();
-
-    expect(emitter.listeners.length).toEqual(0);
-  })",4,17,snuts
-/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':21,'endLine':21}","it('Should do nothing if removing same callback twice/or more', () => {
-    const emitter = new EventEmitter();
-    const listener1 = function () {};
-    expect(emitter.listeners.length).toEqual(0);
-
-    const listener = emitter.on(listener1);
-
-    expect(emitter.listeners.length).toEqual(1);
-    expect(emitter.listeners[0]).toEqual(listener1);
-
-    listener();
-    listener();
-    listener();
-
-    expect(emitter.listeners.length).toEqual(0);
-  })",19,34,snuts
-/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,NonFunctionalStatement,"{'startLine':38,'endLine':38}","it('Should emit the change data to all active listeners', () => {
-    const emitter = new EventEmitter();
-    const listener1 = function () {};
-    const listener2 = function (data) {
-      console.error(data);
-    };
-
-    spyOn(console, 'error');
-
-    expect(emitter.listeners.length).toEqual(0);
-
-    const listener = emitter.on(listener1);
-    emitter.on(listener2);
-
-    expect(emitter.listeners.length).toEqual(2);
-    expect(emitter.listeners[0]).toEqual(listener1);
-
-    listener();
-    listener();
-    listener();
-
-    expect(emitter.listeners.length).toEqual(1);
-
-    emitter.emit('foobar');
-
-    expect(console.error.calls.count()).toBe(1);
-    expect(console.error.calls.argsFor(0)[0]).toContain('foobar');
-  })",36,63,snuts
-/packages/inferno-mobx/__tests__/extra/eventemitter.spec.js,VerboseStatement,"{'startLine':36,'endLine':63}","it('Should emit the change data to all active listeners', () => {
-    const emitter = new EventEmitter();
-    const listener1 = function () {};
-    const listener2 = function (data) {
-      console.error(data);
-    };
-
-    spyOn(console, 'error');
-
-    expect(emitter.listeners.length).toEqual(0);
-
-    const listener = emitter.on(listener1);
-    emitter.on(listener2);
-
-    expect(emitter.listeners.length).toEqual(2);
-    expect(emitter.listeners[0]).toEqual(listener1);
-
-    listener();
-    listener();
-    listener();
-
-    expect(emitter.listeners.length).toEqual(1);
-
-    emitter.emit('foobar');
-
-    expect(console.error.calls.count()).toBe(1);
-    expect(console.error.calls.argsFor(0)[0]).toContain('foobar');
-  })",36,63,snuts
 /packages/inferno-redux/__tests__/components/connect.spec.js,Conditional Test Logic,"{'line': 17, 'column': 4, 'index': 630}","describe('Inferno', () => {
   // IE does not support function names so error messages are different
   const testFunction = function testFunction() {};
@@ -77790,7 +77790,7 @@ file,type,line,method,methodStart,methodEnd,source
       '<select multiple=""""><option value=""1"">1</option><option value=""2"">2</option></select>',
     );
   })",18,67,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 218, 'column': 4, 'index': 6302}","it('should render ""select"" boolean on select options #3 browser', () => {
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 236, 'column': 4, 'index': 6415}","it('should render ""select"" boolean on select options #3 browser', () => {
     const template = (val) =>
       createElement(
         'select',
@@ -77829,8 +77829,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.innerHTML).toBe(
       '<select multiple=""""><option value=""foo"">foo</option><option value=""bar"">bar</option></select>',
     );
-  })",192,231,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 218, 'column': 4, 'index': 6302}","it('should render ""select"" boolean on select options #3 browser', () => {
+  })",210,249,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 236, 'column': 4, 'index': 6415}","it('should render ""select"" boolean on select options #3 browser', () => {
     const template = (val) =>
       createElement(
         'select',
@@ -77869,8 +77869,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.innerHTML).toBe(
       '<select multiple=""""><option value=""foo"">foo</option><option value=""bar"">bar</option></select>',
     );
-  })",192,231,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 219, 'column': 4, 'index': 6372}","it('should render ""select"" boolean on select options #3 browser', () => {
+  })",210,249,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 237, 'column': 4, 'index': 6485}","it('should render ""select"" boolean on select options #3 browser', () => {
     const template = (val) =>
       createElement(
         'select',
@@ -77909,8 +77909,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.innerHTML).toBe(
       '<select multiple=""""><option value=""foo"">foo</option><option value=""bar"">bar</option></select>',
     );
-  })",192,231,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 220, 'column': 4, 'index': 6441}","it('should render ""select"" boolean on select options #3 browser', () => {
+  })",210,249,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 238, 'column': 4, 'index': 6554}","it('should render ""select"" boolean on select options #3 browser', () => {
     const template = (val) =>
       createElement(
         'select',
@@ -77949,8 +77949,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.innerHTML).toBe(
       '<select multiple=""""><option value=""foo"">foo</option><option value=""bar"">bar</option></select>',
     );
-  })",192,231,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 220, 'column': 4, 'index': 6441}","it('should render ""select"" boolean on select options #3 browser', () => {
+  })",210,249,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 238, 'column': 4, 'index': 6554}","it('should render ""select"" boolean on select options #3 browser', () => {
     const template = (val) =>
       createElement(
         'select',
@@ -77989,8 +77989,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.innerHTML).toBe(
       '<select multiple=""""><option value=""foo"">foo</option><option value=""bar"">bar</option></select>',
     );
-  })",192,231,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 226, 'column': 4, 'index': 6628}","it('should render ""select"" boolean on select options #3 browser', () => {
+  })",210,249,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 244, 'column': 4, 'index': 6741}","it('should render ""select"" boolean on select options #3 browser', () => {
     const template = (val) =>
       createElement(
         'select',
@@ -78029,8 +78029,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.innerHTML).toBe(
       '<select multiple=""""><option value=""foo"">foo</option><option value=""bar"">bar</option></select>',
     );
-  })",192,231,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 226, 'column': 4, 'index': 6628}","it('should render ""select"" boolean on select options #3 browser', () => {
+  })",210,249,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 244, 'column': 4, 'index': 6741}","it('should render ""select"" boolean on select options #3 browser', () => {
     const template = (val) =>
       createElement(
         'select',
@@ -78069,8 +78069,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.innerHTML).toBe(
       '<select multiple=""""><option value=""foo"">foo</option><option value=""bar"">bar</option></select>',
     );
-  })",192,231,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 227, 'column': 4, 'index': 6698}","it('should render ""select"" boolean on select options #3 browser', () => {
+  })",210,249,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 245, 'column': 4, 'index': 6811}","it('should render ""select"" boolean on select options #3 browser', () => {
     const template = (val) =>
       createElement(
         'select',
@@ -78109,8 +78109,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.innerHTML).toBe(
       '<select multiple=""""><option value=""foo"">foo</option><option value=""bar"">bar</option></select>',
     );
-  })",192,231,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 228, 'column': 4, 'index': 6768}","it('should render ""select"" boolean on select options #3 browser', () => {
+  })",210,249,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 246, 'column': 4, 'index': 6881}","it('should render ""select"" boolean on select options #3 browser', () => {
     const template = (val) =>
       createElement(
         'select',
@@ -78149,8 +78149,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.innerHTML).toBe(
       '<select multiple=""""><option value=""foo"">foo</option><option value=""bar"">bar</option></select>',
     );
-  })",192,231,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 228, 'column': 4, 'index': 6768}","it('should render ""select"" boolean on select options #3 browser', () => {
+  })",210,249,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 246, 'column': 4, 'index': 6881}","it('should render ""select"" boolean on select options #3 browser', () => {
     const template = (val) =>
       createElement(
         'select',
@@ -78189,8 +78189,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.innerHTML).toBe(
       '<select multiple=""""><option value=""foo"">foo</option><option value=""bar"">bar</option></select>',
     );
-  })",192,231,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 245, 'column': 4, 'index': 7344}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",210,249,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 263, 'column': 4, 'index': 7457}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78214,8 +78214,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 245, 'column': 4, 'index': 7344}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 263, 'column': 4, 'index': 7457}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78239,8 +78239,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 247, 'column': 4, 'index': 7439}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 265, 'column': 4, 'index': 7552}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78264,8 +78264,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 247, 'column': 4, 'index': 7439}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 265, 'column': 4, 'index': 7552}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78289,8 +78289,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 249, 'column': 4, 'index': 7534}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 267, 'column': 4, 'index': 7647}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78314,8 +78314,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 249, 'column': 4, 'index': 7534}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 267, 'column': 4, 'index': 7647}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78339,8 +78339,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 251, 'column': 4, 'index': 7629}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 269, 'column': 4, 'index': 7742}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78364,8 +78364,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 251, 'column': 4, 'index': 7629}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 269, 'column': 4, 'index': 7742}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78389,8 +78389,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 253, 'column': 4, 'index': 7723}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 271, 'column': 4, 'index': 7836}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78414,8 +78414,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 253, 'column': 4, 'index': 7723}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 271, 'column': 4, 'index': 7836}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78439,8 +78439,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 255, 'column': 4, 'index': 7819}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 273, 'column': 4, 'index': 7932}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78464,8 +78464,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 255, 'column': 4, 'index': 7819}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 273, 'column': 4, 'index': 7932}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78489,8 +78489,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 257, 'column': 4, 'index': 7911}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 275, 'column': 4, 'index': 8024}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78514,8 +78514,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 257, 'column': 4, 'index': 7911}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 275, 'column': 4, 'index': 8024}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78539,8 +78539,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 259, 'column': 4, 'index': 8003}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 277, 'column': 4, 'index': 8116}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78564,8 +78564,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 259, 'column': 4, 'index': 8003}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 277, 'column': 4, 'index': 8116}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78589,8 +78589,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
-/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 261, 'column': 4, 'index': 8092}","it('should assure the value attribute also set the value property for `textarea`', () => {
+  })",256,280,steel
+/packages/inferno-create-element/__tests__/select.spec.js,Duplicate Assert,"{'line': 279, 'column': 4, 'index': 8205}","it('should assure the value attribute also set the value property for `textarea`', () => {
     const template = (val) =>
       createElement('textarea', {
         value: val,
@@ -78614,7 +78614,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(container.firstChild.value).toEqual('');
     render(template({}), container);
     expect(container.firstChild.value).toEqual('[object Object]');
-  })",238,262,steel
+  })",256,280,steel
 /packages/inferno-create-element/__tests__/patching.spec.js,Conditional Test Logic,"{'line': 20, 'column': 4, 'index': 615}","describe('patching keyed lists (non-jsx)', () => {
   function createDataModels() {
     const dataModels = [];

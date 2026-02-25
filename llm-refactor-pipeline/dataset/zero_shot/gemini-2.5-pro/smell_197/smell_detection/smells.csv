@@ -96,7 +96,7 @@ file,type,line,method,methodStart,methodEnd,source
       done();
     });
   })",18,32,snuts
-/src/__tests__/Collection-test.js,AnonymousTest,"{'startLine':294,'endLine':302}","it('dedupes elements', function() {
+/src/__tests__/Collection-test.js,AnonymousTest,"{'startLine':296,'endLine':304}","it('dedupes elements', function() {
         const path = new NodePath(nodes[0]);
         const root = Collection.fromNodes(nodes);
         const mapped = root.map(() => path);
@@ -104,7 +104,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(root).not.toBe(mapped);
         expect(mapped.length).toBe(1);
         expect(mapped.paths()[0]).toBe(path);
-      })",294,302,snuts
+      })",296,304,snuts
 /src/__tests__/Collection-test.js,GeneralFixture,"{'startLine':24,'endLine':24}","beforeEach(function() {
     jest.resetModules();
 
@@ -292,24 +292,26 @@ file,type,line,method,methodStart,methodEnd,source
         expect(each.mock.calls.length).toBe(1);
         expect(each.mock.calls[0][0].value).toBe(nodes[0]);
       })",256,262,snuts
-/src/__tests__/Collection-test.js,SubOptimalAssert,"{'startLine':289,'endLine':289}","it('returns a new collection with mapped values', function() {
+/src/__tests__/Collection-test.js,SubOptimalAssert,"{'startLine':291,'endLine':291}","it('returns a new collection with mapped values', function() {
+  const [firstNode, secondNode] = nodes;
   const root = Collection.fromNodes(nodes);
-  const firstNode = nodes[0];
-  const secondNode = nodes[1];
+  const expectedLength = nodes.length;
 
-  // The map function swaps the order of the nodes.
-  const mapped = root.map((_, index) => {
-    const isFirstIteration = index === 0;
-    const nodeForPath = isFirstIteration ? secondNode : firstNode;
-    return new NodePath(nodeForPath);
+  // Map callback swaps the order of the two nodes
+  const mapped = root.map((node, index) => {
+    const isFirstElement = index === 0;
+    const swappedNode = isFirstElement ? secondNode : firstNode;
+    return new NodePath(swappedNode);
   });
 
+  const mappedNodes = mapped.nodes();
+
   expect(root).not.toBe(mapped);
-  expect(mapped.length).toBe(nodes.length);
-  expect(mapped.nodes()[0]).toBe(secondNode);
-  expect(mapped.nodes()[1]).toBe(firstNode);
-})",276,292,snuts
-/src/__tests__/Collection-test.js,SubOptimalAssert,"{'startLine':300,'endLine':300}","it('dedupes elements', function() {
+  expect(mapped.length).toBe(expectedLength);
+  expect(mappedNodes[0]).toBe(secondNode);
+  expect(mappedNodes[1]).toBe(firstNode);
+})",276,294,snuts
+/src/__tests__/Collection-test.js,SubOptimalAssert,"{'startLine':302,'endLine':302}","it('dedupes elements', function() {
         const path = new NodePath(nodes[0]);
         const root = Collection.fromNodes(nodes);
         const mapped = root.map(() => path);
@@ -317,7 +319,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(root).not.toBe(mapped);
         expect(mapped.length).toBe(1);
         expect(mapped.paths()[0]).toBe(path);
-      })",294,302,snuts
+      })",296,304,snuts
 /dist/__tests__/testUtils-test.js,IdenticalTestDescription,"{'startLine':91,'endLine':97}","it('should apply transformation', async () => {
       const moduleToTransform = getModuleToTransform();
       const transformedCode = await testUtils.applyTransform(testAsyncTransform, null, moduleToTransform);
@@ -4898,7 +4900,7 @@ while (i < 10) {
         expect(each.mock.calls.length).toBe(1);
         expect(each.mock.calls[0][0].value).toBe(nodes[0]);
       })",256,262,steel
-/src/__tests__/Collection-test.js,Magic Number,"{'line': 300, 'column': 35, 'index': 9942}","it('dedupes elements', function() {
+/src/__tests__/Collection-test.js,Magic Number,"{'line': 302, 'column': 35, 'index': 9994}","it('dedupes elements', function() {
         const path = new NodePath(nodes[0]);
         const root = Collection.fromNodes(nodes);
         const mapped = root.map(() => path);
@@ -4906,7 +4908,7 @@ while (i < 10) {
         expect(root).not.toBe(mapped);
         expect(mapped.length).toBe(1);
         expect(mapped.paths()[0]).toBe(path);
-      })",294,302,steel
+      })",296,304,steel
 /bin/__tests__/jscodeshift-test.js,Conditional Test Logic,"{'line': 43, 'column': 4, 'index': 1185}",Unknown,,,steel
 /bin/__tests__/jscodeshift-test.js,Conditional Test Logic,"{'line': 241, 'column': 4, 'index': 7329}","it('does not stall with too many files', () => {
     const sources = [];

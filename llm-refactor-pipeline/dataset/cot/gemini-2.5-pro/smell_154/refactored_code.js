@@ -16,26 +16,28 @@ describe('BToaster structure', () => {
     wrapper.destroy()
   })
 
-  it('renders a root element with correct structure and attributes', () => {
+  it('has expected common structure', () => {
     expect(wrapper.vm).toBeDefined()
     expect(wrapper.element.tagName).toBe('DIV')
     expect(wrapper.attributes('id')).toBe('foo')
     expect(wrapper.attributes('aria-live')).toBeUndefined()
     expect(wrapper.attributes('aria-atomic')).toBeUndefined()
     expect(wrapper.attributes('role')).toBeUndefined()
-    expect(wrapper.classes()).toEqual(['b-toaster', 'foo'])
-  })
+    expect(wrapper.classes()).toContain('b-toaster')
+    expect(wrapper.classes()).toContain('foo')
+    expect(wrapper.classes().length).toBe(2)
 
-  it('renders a slot element with correct structure', () => {
     const $slot = wrapper.find('.b-toaster-slot')
     expect($slot.exists()).toBe(true)
     expect($slot.element.tagName).toBe('DIV')
-    expect($slot.classes()).toEqual(['b-toaster-slot', 'vue-portal-target'])
+    expect($slot.classes()).toContain('b-toaster-slot')
+    expect($slot.classes()).toContain('vue-portal-target')
+    expect($slot.classes().length).toBe(2)
     expect($slot.text()).toEqual('')
   })
 
   if (!isVue3) {
-    it('renders a PortalTarget component for Vue 2', () => {
+    it('includes PortalTarget component for Vue 2', () => {
       const $slot = wrapper.find('.b-toaster-slot')
       expect($slot.findComponent(PortalTarget).exists()).toBe(true)
     })

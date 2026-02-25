@@ -3972,7 +3972,7 @@ file,type,line,method,methodStart,methodEnd,source
         });
     }, 10000);
   })",70,112,steel
-/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 173, 'column': 4, 'index': 4393}","it('should handle a high volume of writes with lazy option enabled', function (done) {
+/test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 173, 'column': 4, 'index': 4401}","it('should handle a high volume of writes with lazy option enabled', function (done) {
     const logger = winston.createLogger({
       transports: [
         new winston.transports.File({
@@ -4107,7 +4107,12 @@ file,type,line,method,methodStart,methodEnd,source
       read: 0
     };
 
-    logger.on('finish', () => {
+    const msgs = new Array(10).fill().map(() => ({
+      counter: ++counters.write,
+      message: 'a'.repeat(16384 - os.EOL.length - 1)
+    }));
+
+    logger.on('finish', function () {
       helpers.tryRead(fileStressLogFile)
         .on('error', function (err) {
           assume(err).false();
@@ -4126,13 +4131,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
     });
 
-    const msgs = new Array(10).fill().map(() => ({
-      counter: ++counters.write,
-      message: 'a'.repeat(16384 - os.EOL.length - 1)
-    }));
     msgs.forEach(msg => logger.info(msg));
-
-    logger.end();
+    logger.close();
   })",114,152,steel
 /test/unit/winston/transports/00-file-stress.test.js,Unknown Test,"{'column': 2, 'line': 154}","it('should handle a high volume of writes with lazy option enabled', function (done) {
     const logger = winston.createLogger({

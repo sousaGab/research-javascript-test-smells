@@ -43,14 +43,14 @@ describe('event options parsing', () => {
     });
   } else {
     describe('without passive event support', () => {
-      it('converts non-object values to a boolean', () => {
+      it('converts non-object to boolean', () => {
         expect(parseEventOptions(true)).toBe(true);
         expect(parseEventOptions(false)).toBe(false);
         expect(parseEventOptions()).toBe(false);
         expect(parseEventOptions(null)).toBe(false);
       });
 
-      it('converts an object to a boolean based on the capture property', () => {
+      it('converts object to boolean based on capture property', () => {
         expect(parseEventOptions({
           capture: false
         })).toBe(false);

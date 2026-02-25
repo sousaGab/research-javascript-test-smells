@@ -11,5 +11,15 @@ it("compares with static items (200 items, 20 static)", () => {
     5
   );
 
+  console.log(
+    [
+      "",
+      "  With static items (200 items, 20 static):",
+      `    Standard: ${stdTime.toFixed(2)}ms`,
+      `    Fast:     ${fastTime.toFixed(2)}ms`,
+      `    Speedup:  ${(stdTime / fastTime).toFixed(2)}x`
+    ].join("\n")
+  );
+
   expect(fastTime).toBeLessThan(stdTime);
 });

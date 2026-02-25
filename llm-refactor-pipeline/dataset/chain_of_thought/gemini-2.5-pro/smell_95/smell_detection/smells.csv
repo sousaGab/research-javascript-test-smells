@@ -1,4 +1,60 @@
 file,type,line,method,methodStart,methodEnd,source
+/test-node/standalone/createDirsFromUploads.test.js,AnonymousTest,"{'startLine':10,'endLine':65}","test('folder created', (t,done) => {
+  const server = createServer((req, res) => {
+    const form = formidable({
+      createDirsFromUploads: true,
+      uploadDir: uploads,
+      filename: (x) => {
+        return 'x/y/z.txt'
+      }
+    });
+
+    form.parse(req, () => {
+      res.writeHead(200);
+      res.end(""ok"")
+    });
+  });
+
+  server.listen(PORT, () => {
+    const chosenPort = server.address().port;
+    const  body = `----13068458571765726332503797717\r
+Content-Disposition: form-data; name=""title""\r
+\r
+a\r
+----13068458571765726332503797717\r
+Content-Disposition: form-data; name=""multipleFiles""; filename=""x.txt""\r
+Content-Type: application/x-javascript\r
+\r
+\r
+\r
+a\r
+b\r
+c\r
+d\r
+\r
+----13068458571765726332503797717--\r
+`;
+    fetch(String(new URL(`http:localhost:${chosenPort}/`)), {
+      method: 'POST',
+      
+      headers: {
+        'Content-Length': body.length,
+        Host: `localhost:${chosenPort}`,
+        'Content-Type': 'multipart/form-data; boundary=--13068458571765726332503797717',
+      },
+      body
+    }).then(res => {
+      //may also contain tests from other tests
+      deepEqual(fs.readdirSync(uploads).includes('x'), true);
+      deepEqual(fs.readdirSync(`${uploads}/x`), ['y']);
+      deepEqual(fs.readdirSync(`${uploads}/x/y`), ['z.txt']);
+      strictEqual(res.status, 200);
+      server.close();
+      done();
+    });
+   
+  });
+})",10,65,snuts
 /test/unit/volatile-file.test.js,AnonymousTest,"{'startLine':29,'endLine':43}","test('open()', (done) => {
     const error = new Error('test');
     file.on('error', (err) => {
@@ -169,96 +225,6 @@ file,type,line,method,methodStart,methodEnd,source
       })",273,284,snuts
 /test/unit/formidable.test.js,NonFunctionalStatement,"{'startLine':15,'endLine':15}",Unknown,,,snuts
 /test/unit/formidable.test.js,NonFunctionalStatement,"{'startLine':16,'endLine':16}",Unknown,,,snuts
-/test/unit/custom-plugins.test.js,ConditionalTestLogic,"{'startLine':131,'endLine':133}","test('.parse throw error when some plugin fail', async () => {
-  const server = createServer(
-    { enabledPlugins: [octetstream, json] },
-    async (ctx, form) => {
-      form.on('plugin', () => {
-        ctx.__pluginsCount = ctx.__pluginsCount || 0;
-        ctx.__pluginsCount += 1;
-      });
-
-      form.once('error', () => {
-        throw new Error('error event should not be fired when plugin throw');
-      });
-
-      form.use(() => {
-        throw new Error('custom plugin err');
-      });
-
-      let errorCaught = false;
-      try {
-        await form.parse(ctx.req);
-      } catch (err) {
-        expect(err.code).toBe(errors.pluginFailed);
-        expect(err.httpCode).toBe(500);
-
-        expect(form._plugins.length).toBe(3);
-        expect(ctx.__pluginsCount).toBe(2);
-        expect(ctx.__pluginsResults).toBe(undefined);
-
-        errorCaught = true;
-      }
-
-      if (!errorCaught) {
-        throw new Error('.parse should have thrown an error');
-      }
-    },
-  );
-
-  return new Promise((resolve, reject) => {
-    request(server.callback())
-      .post('/')
-      .type('application/octet-stream')
-      .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'))
-      .end((err) => (err ? reject(err) : resolve()));
-  });
-})",100,144,snuts
-/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':124,'endLine':124}","test('.parse throw error when some plugin fail', async () => {
-  const server = createServer(
-    { enabledPlugins: [octetstream, json] },
-    async (ctx, form) => {
-      form.on('plugin', () => {
-        ctx.__pluginsCount = ctx.__pluginsCount || 0;
-        ctx.__pluginsCount += 1;
-      });
-
-      form.once('error', () => {
-        throw new Error('error event should not be fired when plugin throw');
-      });
-
-      form.use(() => {
-        throw new Error('custom plugin err');
-      });
-
-      let errorCaught = false;
-      try {
-        await form.parse(ctx.req);
-      } catch (err) {
-        expect(err.code).toBe(errors.pluginFailed);
-        expect(err.httpCode).toBe(500);
-
-        expect(form._plugins.length).toBe(3);
-        expect(ctx.__pluginsCount).toBe(2);
-        expect(ctx.__pluginsResults).toBe(undefined);
-
-        errorCaught = true;
-      }
-
-      if (!errorCaught) {
-        throw new Error('.parse should have thrown an error');
-      }
-    },
-  );
-
-  return new Promise((resolve, reject) => {
-    request(server.callback())
-      .post('/')
-      .type('application/octet-stream')
-      .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'))
-      .end((err) => (err ? reject(err) : resolve()));
-  });
-})",100,144,snuts
 /test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':126,'endLine':126}","test('.parse throw error when some plugin fail', async () => {
   const server = createServer(
     { enabledPlugins: [octetstream, json] },
@@ -276,9 +242,11 @@ file,type,line,method,methodStart,methodEnd,source
         throw new Error('custom plugin err');
       });
 
-      let errorCaught = false;
       try {
         await form.parse(ctx.req);
+        throw new Error(
+          '.parse() should have thrown an error but completed successfully.',
+        );
       } catch (err) {
         expect(err.code).toBe(errors.pluginFailed);
         expect(err.httpCode).toBe(500);
@@ -286,25 +254,54 @@ file,type,line,method,methodStart,methodEnd,source
         expect(form._plugins.length).toBe(3);
         expect(ctx.__pluginsCount).toBe(2);
         expect(ctx.__pluginsResults).toBe(undefined);
-
-        errorCaught = true;
-      }
-
-      if (!errorCaught) {
-        throw new Error('.parse should have thrown an error');
       }
     },
   );
 
-  return new Promise((resolve, reject) => {
-    request(server.callback())
-      .post('/')
-      .type('application/octet-stream')
-      .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'))
-      .end((err) => (err ? reject(err) : resolve()));
-  });
-})",100,144,snuts
-/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':153,'endLine':153}","test('multipart plugin fire `error` event when malformed boundary', async () => {
+  await request(server.callback())
+    .post('/')
+    .type('application/octet-stream')
+    .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'));
+})",100,137,snuts
+/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':128,'endLine':128}","test('.parse throw error when some plugin fail', async () => {
+  const server = createServer(
+    { enabledPlugins: [octetstream, json] },
+    async (ctx, form) => {
+      form.on('plugin', () => {
+        ctx.__pluginsCount = ctx.__pluginsCount || 0;
+        ctx.__pluginsCount += 1;
+      });
+
+      form.once('error', () => {
+        throw new Error('error event should not be fired when plugin throw');
+      });
+
+      form.use(() => {
+        throw new Error('custom plugin err');
+      });
+
+      try {
+        await form.parse(ctx.req);
+        throw new Error(
+          '.parse() should have thrown an error but completed successfully.',
+        );
+      } catch (err) {
+        expect(err.code).toBe(errors.pluginFailed);
+        expect(err.httpCode).toBe(500);
+
+        expect(form._plugins.length).toBe(3);
+        expect(ctx.__pluginsCount).toBe(2);
+        expect(ctx.__pluginsResults).toBe(undefined);
+      }
+    },
+  );
+
+  await request(server.callback())
+    .post('/')
+    .type('application/octet-stream')
+    .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'));
+})",100,137,snuts
+/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':146,'endLine':146}","test('multipart plugin fire `error` event when malformed boundary', async () => {
   const server = createServer(
     { enabledPlugins: [json, multipart] },
     (ctx, form) => {
@@ -342,7 +339,7 @@ file,type,line,method,methodStart,methodEnd,source
       .set('Content-Type', 'multipart/form-data; bouZndary=')
       .end((err) => (err ? reject(err) : resolve()));
   });
-})",146,184,snuts
+})",139,177,snuts
 /test/standalone/issue-46.test.js,AnonymousTest,"{'startLine':12,'endLine':41}","test(""issue 46"", (done) => {
   const server = createServer(async (req, res) => {
     // Parse form and write results to response.
@@ -1221,62 +1218,6 @@ file,type,line,method,methodStart,methodEnd,source
     });
   }
 })",32,131,snuts
-/test-node/standalone/createDirsFromUploads.test.js,AnonymousTest,"{'startLine':10,'endLine':65}","test('folder created', (t,done) => {
-  const server = createServer((req, res) => {
-    const form = formidable({
-      createDirsFromUploads: true,
-      uploadDir: uploads,
-      filename: (x) => {
-        return 'x/y/z.txt'
-      }
-    });
-
-    form.parse(req, () => {
-      res.writeHead(200);
-      res.end(""ok"")
-    });
-  });
-
-  server.listen(PORT, () => {
-    const chosenPort = server.address().port;
-    const  body = `----13068458571765726332503797717\r
-Content-Disposition: form-data; name=""title""\r
-\r
-a\r
-----13068458571765726332503797717\r
-Content-Disposition: form-data; name=""multipleFiles""; filename=""x.txt""\r
-Content-Type: application/x-javascript\r
-\r
-\r
-\r
-a\r
-b\r
-c\r
-d\r
-\r
-----13068458571765726332503797717--\r
-`;
-    fetch(String(new URL(`http:localhost:${chosenPort}/`)), {
-      method: 'POST',
-      
-      headers: {
-        'Content-Length': body.length,
-        Host: `localhost:${chosenPort}`,
-        'Content-Type': 'multipart/form-data; boundary=--13068458571765726332503797717',
-      },
-      body
-    }).then(res => {
-      //may also contain tests from other tests
-      deepEqual(fs.readdirSync(uploads).includes('x'), true);
-      deepEqual(fs.readdirSync(`${uploads}/x`), ['y']);
-      deepEqual(fs.readdirSync(`${uploads}/x/y`), ['z.txt']);
-      strictEqual(res.status, 200);
-      server.close();
-      done();
-    });
-   
-  });
-})",10,65,snuts
 /test-legacy/simple/test-file.js,NonFunctionalStatement,"{'startLine':99,'endLine':99}","test(function end() {
   let CB_STUB;
   const CB = function() {

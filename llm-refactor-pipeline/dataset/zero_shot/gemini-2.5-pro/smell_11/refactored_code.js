@@ -1,37 +1,34 @@
 it('should do a advanced shuffle - numbers and letters', () => {
-  const testCases = [{
-    input: ['a', 'b', 'c', 'd', 1, 2, 3],
-    expectedText: 'abcd123',
-    expectedLength: 7
+  const assertRenderResult = (nodes, expectedText) => {
+    render(template(generateKeyNodes(nodes)), container);
+    expect(container.textContent).toBe(expectedText);
+    expect(container.firstChild.childNodes.length).toBe(nodes.length);
+  };
+
+  const testSequence = [{
+    nodes: ['a', 'b', 'c', 'd', 1, 2, 3],
+    text: 'abcd123'
   }, {
-    input: [1, 'e', 2, 'b', 'f', 'g', 'c', 'a', 3],
-    expectedText: '1e2bfgca3',
-    expectedLength: 9
+    nodes: [1, 'e', 2, 'b', 'f', 'g', 'c', 'a', 3],
+    text: '1e2bfgca3'
   }, {
-    input: ['a', 'b', 'c', 'd', 1, 2, 3],
-    expectedText: 'abcd123',
-    expectedLength: 7
+    nodes: ['a', 'b', 'c', 'd', 1, 2, 3],
+    text: 'abcd123'
   }, {
-    input: [0, 'e', 2, 'b', 'f', 'g', 'c', 'a', 4],
-    expectedText: '0e2bfgca4',
-    expectedLength: 9
+    nodes: [0, 'e', 2, 'b', 'f', 'g', 'c', 'a', 4],
+    text: '0e2bfgca4'
   }, {
-    input: ['a', 'b', 'c', 'd', 1, 2, 3],
-    expectedText: 'abcd123',
-    expectedLength: 7
+    nodes: ['a', 'b', 'c', 'd', 1, 2, 3],
+    text: 'abcd123'
   }, {
-    input: [1, 'e', 2, 'b', 'f', 'g', 'c', 'a', 3],
-    expectedText: '1e2bfgca3',
-    expectedLength: 9
+    nodes: [1, 'e', 2, 'b', 'f', 'g', 'c', 'a', 3],
+    text: '1e2bfgca3'
   }, ];
 
-  testCases.forEach(({
-    input,
-    expectedText,
-    expectedLength
+  testSequence.forEach(({
+    nodes,
+    text
   }) => {
-    render(template(generateKeyNodes(input)), container);
-    expect(container.textContent).toBe(expectedText);
-    expect(container.firstChild.childNodes.length).toBe(expectedLength);
+    assertRenderResult(nodes, text);
   });
 });

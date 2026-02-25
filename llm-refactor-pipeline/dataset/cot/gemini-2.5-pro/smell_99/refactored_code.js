@@ -1,4 +1,4 @@
-it('renders a list item containing a styled hr with a separator role', async () => {
+it('renders a list item with a separator horizontal rule', async () => {
     const wrapper = mount(BDropdownDivider)
 
     expect(wrapper.element.tagName).toBe('LI')

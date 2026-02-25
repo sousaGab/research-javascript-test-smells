@@ -1,4 +1,4 @@
-test('should use styleCommandText function to format command name in help', () => {
+test('should use styleCommandText function to format command name in help output', () => {
     const program = makeProgram();
     program.configureHelp({
       styleCommandText: (str) => red(str),

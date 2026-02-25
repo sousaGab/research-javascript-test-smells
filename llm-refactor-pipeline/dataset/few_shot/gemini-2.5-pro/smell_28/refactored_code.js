@@ -1,10 +1,9 @@
 it('should not remove anything due to case sensitivity', function () {
-      const VALUE_TO_REMOVE_WITH_WRONG_CASE = 'jonny';
       const EXPECTED_REMOVED_COUNT = 0;
-      const EXPECTED_LIST_SIZE = 1;
+      const EXPECTED_ITEMS_REMAINING = 1;
 
-      var count = list.remove('name', VALUE_TO_REMOVE_WITH_WRONG_CASE);
+      var count = list.remove('name', 'jonny');
 
       expect(count).toBe(EXPECTED_REMOVED_COUNT);
-      expect(list.items.length).toEqual(EXPECTED_LIST_SIZE);
-    })
+      expect(list.items.length).toEqual(EXPECTED_ITEMS_REMAINING);
+    });

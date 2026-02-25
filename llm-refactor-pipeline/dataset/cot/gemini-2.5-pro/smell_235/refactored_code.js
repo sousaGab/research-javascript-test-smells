@@ -9,43 +9,60 @@ it('next/prev slide wraps to end/start when "no-wrap is "false"', async () => {
       value: 3
     }
   })
+
+  expect(wrapper.vm).toBeDefined()
   const $carousel = wrapper.findComponent(BCarousel)
-
-  const assertSlideChange = (expectedIndex, callCount) => {
-    // Consolidate event emission checks
-    const events = ['sliding-start', 'sliding-end', 'input']
-    events.forEach(event => {
-      expect($carousel.emitted(event)).toHaveLength(callCount)
-      expect($carousel.emitted(event)[callCount - 1]).toEqual([expectedIndex])
-    })
-
-    // Consolidate state checks
-    expect($carousel.vm).toHaveProperty('index', expectedIndex)
-    expect($carousel.vm).toHaveProperty('isSliding', false)
-  }
+  expect($carousel.vm).toBeDefined()
 
   await waitNT(wrapper.vm)
   await waitRAF()
 
-  // Initial state
-  expect($carousel.findAll('.carousel-indicators > li')).toHaveLength(4)
-  expect($carousel.emitted()).toEqual({})
+  const $indicators = $carousel.findAll('.carousel-indicators > li')
+  expect($indicators.length).toBe(4)
+
+  expect($carousel.emitted('sliding-start')).toBeUndefined()
+  expect($carousel.emitted('sliding-end')).toBeUndefined()
+  expect($carousel.emitted('input')).toBeUndefined()
+
   expect($carousel.vm.index).toBe(3)
   expect($carousel.vm.isSliding).toBe(false)
 
-  // Action 1: Go to next slide (wraps from 3 to 0)
+  // Call vm.next()
   $carousel.vm.next()
   await waitNT(wrapper.vm)
 
-  // Assertions 1
-  assertSlideChange(0, 1)
+  // Should have wrapped to first slide (index 0)
+  expect($carousel.emitted('sliding-start')).toEqual([
+    [0]
+  ])
+  expect($carousel.emitted('sliding-end')).toEqual([
+    [0]
+  ])
+  expect($carousel.emitted('input')).toEqual([
+    [0]
+  ])
+  expect($carousel.vm.index).toBe(0)
+  expect($carousel.vm.isSliding).toBe(false)
 
-  // Action 2: Go to previous slide (wraps from 0 to 3)
+  // Call vm.prev()
   $carousel.vm.prev()
   await waitNT(wrapper.vm)
 
-  // Assertions 2
-  assertSlideChange(3, 2)
+  // Should have wrapped to last slide (index 3)
+  expect($carousel.emitted('sliding-start')).toEqual([
+    [0],
+    [3]
+  ])
+  expect($carousel.emitted('sliding-end')).toEqual([
+    [0],
+    [3]
+  ])
+  expect($carousel.emitted('input')).toEqual([
+    [0],
+    [3]
+  ])
+  expect($carousel.vm.index).toBe(3)
+  expect($carousel.vm.isSliding).toBe(false)
 
   wrapper.destroy()
 })

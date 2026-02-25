@@ -1,28 +1,23 @@
-it('should remove all items matching a property value and return the count of removed items', function () {
-  const nameToRemove = 'Jonny';
+it('should return the count of removed items and update the list', function () {
   const itemsToAdd = [
-    { name: 'Jonny' },
-    { name: 'Jonny' },
-    { name: 'Sven' },
-    { name: 'Jonny' },
-    { name: 'Jonny' },
-    { name: 'Jonny' },
-    { name: 'Jonas' },
-    { name: 'Jonny' },
-    { name: 'Jonny' },
+    { name: 'Jonny' }, { name: 'Jonny' }, { name: 'Sven' },
+    { name: 'Jonny' }, { name: 'Jonny' }, { name: 'Jonny' },
+    { name: 'Jonas' }, { name: 'Jonny' }, { name: 'Jonny' },
     { name: 'Jonny' }
   ];
+  const NAME_TO_REMOVE = 'Jonny';
+  const PROPERTY_TO_MATCH = 'name';
 
-  const initialCount = itemsToAdd.length;
-  const expectedRemovedCount = itemsToAdd.filter(item => item.name === nameToRemove).length;
-  const expectedRemainingCount = initialCount - expectedRemovedCount;
+  const INITIAL_ITEMS_COUNT = itemsToAdd.length;
+  const EXPECTED_REMOVED_COUNT = itemsToAdd.filter(item => item.name === NAME_TO_REMOVE).length;
+  const EXPECTED_REMAINING_COUNT = INITIAL_ITEMS_COUNT - EXPECTED_REMOVED_COUNT;
 
   itemsToAdd.forEach(item => list.add(item));
 
-  expect(list.items.length).toEqual(initialCount);
+  expect(list.items.length).toEqual(INITIAL_ITEMS_COUNT);
 
-  const actualRemovedCount = list.remove('name', nameToRemove);
+  const removedCount = list.remove(PROPERTY_TO_MATCH, NAME_TO_REMOVE);
 
-  expect(actualRemovedCount).toEqual(expectedRemovedCount);
-  expect(list.items.length).toEqual(expectedRemainingCount);
+  expect(removedCount).toEqual(EXPECTED_REMOVED_COUNT);
+  expect(list.items.length).toEqual(EXPECTED_REMAINING_COUNT);
 });

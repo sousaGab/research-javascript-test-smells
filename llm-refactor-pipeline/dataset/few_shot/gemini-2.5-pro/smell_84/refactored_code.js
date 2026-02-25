@@ -12,9 +12,7 @@ it('should delete the oldest file when maxfiles is met', async function () {
   await logToTransport(transport);
   await waitForFile('testarchive1.log');
 
-  await logToTransport(transport, {
-    kbytes: 0.5
-  });
+  await logToTransport(transport, { kbytes: 0.5 });
   await waitForFile('testarchive2.log');
 
   assertFileDoesNotExist('testarchive.log');

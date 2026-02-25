@@ -1,4 +1,4 @@
-describe("compact() with overlapping items", () => {
+describe("compact", () => {
   const overlappingLayout = [
     { i: "a", x: 0, y: 0, w: 4, h: 4 },
     { i: "b", x: 2, y: 2, w: 4, h: 4 },
@@ -6,13 +6,13 @@ describe("compact() with overlapping items", () => {
 
   it("should preserve item positions when allowOverlap is true", () => {
     const compactedLayout = compact(overlappingLayout, "vertical", 12, true);
-    const itemB = compactedLayout.find(l => l.i === "b");
+    const itemB = compactedLayout.find((item) => item.i === "b");
     expect(itemB.y).toBe(2);
   });
 
-  it("should resolve collisions by moving items when allowOverlap is false", () => {
+  it("should resolve collisions by moving items down when allowOverlap is false", () => {
     const compactedLayout = compact(overlappingLayout, "vertical", 12, false);
-    const itemB = compactedLayout.find(l => l.i === "b");
+    const itemB = compactedLayout.find((item) => item.i === "b");
     expect(itemB.y).toBe(4);
   });
 });

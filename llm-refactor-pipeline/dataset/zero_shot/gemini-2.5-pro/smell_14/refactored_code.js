@@ -1,12 +1,10 @@
 it('should update an node with static child and text', () => {
     const template = () =>
       createElement('div', null, createElement('div', null, 'Hello, World'));
+    const expectedHTML = '<div>Hello, World</div>';
 
-    // Initial render
-    render(template(), container);
-
-    // Re-render with the same template to test the update path
-    render(template(), container);
-
-    expect(container.firstChild.innerHTML).toBe('<div>Hello, World</div>');
+    for (let i = 0; i < 3; i++) {
+      render(template(), container);
+      expect(container.firstChild.innerHTML).toBe(expectedHTML);
+    }
   })

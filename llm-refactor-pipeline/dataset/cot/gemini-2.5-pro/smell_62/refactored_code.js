@@ -1,11 +1,9 @@
-describe('HashTable', () => {
-  it('should create a hash table with default size', () => {
-    const hashTable = new HashTable();
-    expect(hashTable.buckets.length).toBe(32);
-  });
+it('should create a hash table with default size', () => {
+  const defaultHashTable = new HashTable();
+  expect(defaultHashTable.buckets.length).toBe(32);
+});
 
-  it('should create a hash table with a specified size', () => {
-    const hashTable = new HashTable(64);
-    expect(hashTable.buckets.length).toBe(64);
-  });
+it('should create a hash table with a specified size', () => {
+  const biggerHashTable = new HashTable(64);
+  expect(biggerHashTable.buckets.length).toBe(64);
 });

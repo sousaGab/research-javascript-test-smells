@@ -1,69 +1,44 @@
 it('should bail out early if mapState does not depend on props', () => {
   const store = createStore(stringBuilder);
-  let renderCalls = 0;
-  let mapStateCalls = 0;
-  let setStateCalls = 0;
+  const mapStateSpy = jest.fn(state =>
+    state === 'aaa' ? { change: 1 } : {},
+  );
+  const renderSpy = jest.fn();
 
-  const Container = connect((state) => {
-    mapStateCalls++;
-    return state === 'aaa' ? {
-      change: 1
-    } : {};
-  })(
+  const Container = connect(mapStateSpy)(
     class Container extends Component {
       render() {
-        renderCalls++;
-        return <Passthrough { ...this.props
-        }
-        />;
+        renderSpy();
+        return <Passthrough {...this.props} />;
       }
     },
   );
 
-  const oldSetState = Container.prototype.setState;
-  Container.prototype.setState = function setState(...args) {
-    setStateCalls++;
-    oldSetState.apply(this, args);
-  };
+  const setStateSpy = jest.spyOn(Container.prototype, 'setState');
 
-  const vNode = ( <
-    ProviderMock store = {
-      store
-    } >
-    <
-    Container / >
-    <
-    /ProviderMock>
+  const vNode = (
+    <ProviderMock store={store}>
+      <Container />
+    </ProviderMock>
   );
 
   renderToContainer(vNode);
-  expect(renderCalls).toBe(1);
-  expect(mapStateCalls).toBe(1);
-  expect(setStateCalls).toBe(0);
 
-  const dispatchSteps = [{
-    mapState: 2,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 3,
-    render: 1,
-    setState: 0
-  }, {
-    mapState: 4,
-    render: 2,
-    setState: 1
-  }, ];
+  expect(renderSpy).toHaveBeenCalledTimes(1);
+  expect(mapStateSpy).toHaveBeenCalledTimes(1);
 
-  dispatchSteps.forEach(step => {
-    store.dispatch({
-      type: 'APPEND',
-      payload: 'a'
-    });
+  const dispatchSteps = [
+    { mapStateCalls: 2, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 3, renderCalls: 1, setStateCalls: 0 },
+    { mapStateCalls: 4, renderCalls: 2, setStateCalls: 1 },
+  ];
+
+  dispatchSteps.forEach(({ mapStateCalls, renderCalls, setStateCalls }) => {
+    store.dispatch({ type: 'APPEND', payload: 'a' });
     renderToContainer(vNode);
 
-    expect(mapStateCalls).toBe(step.mapState);
-    expect(renderCalls).toBe(step.render);
-    expect(setStateCalls).toBe(step.setState);
+    expect(mapStateSpy).toHaveBeenCalledTimes(mapStateCalls);
+    expect(renderSpy).toHaveBeenCalledTimes(renderCalls);
+    expect(setStateSpy).toHaveBeenCalledTimes(setStateCalls);
   });
 });

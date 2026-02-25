@@ -8,34 +8,36 @@ it('should handle a high volume of writes with lazy option enabled', function (d
       ]
     });
 
-    const totalWrites = 1000;
-    let readCounter = 0;
+    const counters = {
+      write: 0,
+      read: 0
+    };
 
     logger.on('finish', () => {
       helpers
         .tryRead(fileStressLogFile)
         .on('error', function (err) {
           assume(err).false();
+          logger.close();
           done();
         })
         .pipe(split())
         .on('data', function (d) {
-          if (!d) {
-            return;
-          }
           const json = JSON.parse(d);
           assume(json.level).equal('info');
-          assume(json.message).equal(String(++readCounter));
+          assume(json.message).equal(++counters.read);
         })
         .on('end', function () {
-          assume(totalWrites).equal(readCounter);
+          assume(counters.write).equal(counters.read);
+          logger.close();
           done();
         });
     });
 
-    for (let i = 1; i <= totalWrites; i++) {
-      logger.info(String(i));
+    const numWrites = 1000;
+    for (let i = 0; i < numWrites; i++) {
+      logger.info(++counters.write);
     }
 
-    logger.close();
+    logger.end();
   })

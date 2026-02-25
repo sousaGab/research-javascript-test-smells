@@ -17,15 +17,13 @@ it("Does not allow elements to move when resizing with no free space", () => {
   });
 
   // Layout should be called but item 0 should not be able to expand
-  // because item 1 is blocking it
+  // because item 1 is blocking it.
   expect(onLayoutChange).toHaveBeenCalled();
 
-  const layout = onLayoutChange.mock.lastCall[0];
-  const item0 = layout.find(item => item.i === "0");
+  const [lastLayout] = onLayoutChange.mock.lastCall;
+  const item0 = lastLayout.find((item) => item.i === "0");
 
-  // Ensure the item we want to check exists in the layout
   expect(item0).toBeDefined();
-
-  // Width should be at most 1 because of collision
+  // Width should be at most 1 because of collision.
   expect(item0.w).toBeLessThanOrEqual(1);
 });

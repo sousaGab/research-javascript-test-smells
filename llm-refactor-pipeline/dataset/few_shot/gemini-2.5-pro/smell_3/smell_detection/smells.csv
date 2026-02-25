@@ -4227,14 +4227,49 @@ file,type,line,method,methodStart,methodEnd,source
         disposable();
         disposable2();
     })",212,245,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':277,'endLine':277}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+    const scheduler = new ImmediateScheduler();
+    const source = new LocalDataSource(Cache(), { wait: 100 });
+    const model = new Model({ source });
+    const queue = new RequestQueue(model, scheduler);
+
+    const zip = zipSpy(
+        2,
+        callCount => {
+            expect(callCount).toBe(1);
+
+            const onNext = jest.fn();
+            toObservable(model.withoutDataSource().get(videos0, videos1))
+                .doAction(onNext, noOp, () => {
+                    expect(strip(onNext.mock.calls[0][0])).toEqual({
+                        json: {
+                            videos: {
+                                0: {
+                                    title: ""Video 0""
+                                }
+                            }
+                        }
+                    });
+                })
+                .subscribe(noOp, done, done);
+        },
+        300
+    );
+
+    queue.get([videos0], [videos0], zip);
+    expect(queue._requests.length).toBe(1);
+    expect(queue._requests[0].sent).toBe(true);
+
+    const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
+    expect(queue._requests.length).toBe(2);
+    expect(queue._requests[1].sent).toBe(true);
+
+    disposable2();
+})",247,285,snuts
 /test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':281,'endLine':281}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
     const scheduler = new ImmediateScheduler();
-    const source = new LocalDataSource(Cache(), {
-        wait: 100
-    });
-    const model = new Model({
-        source
-    });
+    const source = new LocalDataSource(Cache(), { wait: 100 });
+    const model = new Model({ source });
     const queue = new RequestQueue(model, scheduler);
 
     const zip = zipSpy(
@@ -4262,70 +4297,15 @@ file,type,line,method,methodStart,methodEnd,source
 
     queue.get([videos0], [videos0], zip);
     expect(queue._requests.length).toBe(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[0].sent).toBe(true);
 
     const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
     expect(queue._requests.length).toBe(2);
-    expect(queue._requests[1]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[1].sent).toBe(true);
 
     disposable2();
-})",247,295,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':288,'endLine':288}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
-    const scheduler = new ImmediateScheduler();
-    const source = new LocalDataSource(Cache(), {
-        wait: 100
-    });
-    const model = new Model({
-        source
-    });
-    const queue = new RequestQueue(model, scheduler);
-
-    const zip = zipSpy(
-        2,
-        callCount => {
-            expect(callCount).toBe(1);
-
-            const onNext = jest.fn();
-            toObservable(model.withoutDataSource().get(videos0, videos1))
-                .doAction(onNext, noOp, () => {
-                    expect(strip(onNext.mock.calls[0][0])).toEqual({
-                        json: {
-                            videos: {
-                                0: {
-                                    title: ""Video 0""
-                                }
-                            }
-                        }
-                    });
-                })
-                .subscribe(noOp, done, done);
-        },
-        300
-    );
-
-    queue.get([videos0], [videos0], zip);
-    expect(queue._requests.length).toBe(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
-
-    const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
-    expect(queue._requests.length).toBe(2);
-    expect(queue._requests[1]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
-
-    disposable2();
-})",247,295,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':319,'endLine':319}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+})",247,285,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':309,'endLine':309}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
         const model = new Model({ source });
@@ -4358,8 +4338,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         disposable();
         disposable2();
-    })",297,330,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':324,'endLine':324}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+    })",287,320,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':314,'endLine':314}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
         const model = new Model({ source });
@@ -4392,8 +4372,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         disposable();
         disposable2();
-    })",297,330,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':341,'endLine':341}","it(""does not dedupe requests when request deduplication is disabled"", done => {
+    })",287,320,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':331,'endLine':331}","it(""does not dedupe requests when request deduplication is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -4415,8 +4395,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",332,354,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':365,'endLine':365}","it(""does not collapse paths when path collapse is disabled"", done => {
+    })",322,344,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':355,'endLine':355}","it(""does not collapse paths when path collapse is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -4437,8 +4417,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",356,377,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':389,'endLine':389}","it(""does not collapse paths or dedupe requests"", done => {
+    })",346,367,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':379,'endLine':379}","it(""does not collapse paths or dedupe requests"", done => {
             const scheduler = new ImmediateScheduler();
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -4459,8 +4439,8 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",380,401,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':412,'endLine':412}","it(""combines batched paths without collapse"", done => {
+        })",370,391,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':402,'endLine':402}","it(""combines batched paths without collapse"", done => {
             const scheduler = new TimeoutScheduler(1); // To allow batching
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -4479,7 +4459,7 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",403,422,snuts
+        })",393,412,snuts
 /test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':123,'endLine':168}","it(""makes a couple requests where only part of the second request is deduped then first request is disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
@@ -4601,7 +4581,7 @@ file,type,line,method,methodStart,methodEnd,source
         disposable();
         disposable2();
     })",212,245,snuts
-/test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':297,'endLine':330}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+/test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':287,'endLine':320}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
         const model = new Model({ source });
@@ -4634,7 +4614,7 @@ file,type,line,method,methodStart,methodEnd,source
 
         disposable();
         disposable2();
-    })",297,330,snuts
+    })",287,320,snuts
 /test/internal/request/GetRequest.spec.js,ConditionalTestLogic,"{'startLine':21,'endLine':27}","it(""unsubscribing should cancel DataSource request (sync scheduler)."", () => {
         let unsubscribeSpy;
         const subscribeSpy = jest.fn((observerOrOnNext, onError, onCompleted) => {
@@ -53632,14 +53612,10 @@ file,type,line,method,methodStart,methodEnd,source
         disposable();
         disposable2();
     })",212,245,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 281, 'column': 4, 'index': 10528}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 277, 'column': 4, 'index': 10504}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
     const scheduler = new ImmediateScheduler();
-    const source = new LocalDataSource(Cache(), {
-        wait: 100
-    });
-    const model = new Model({
-        source
-    });
+    const source = new LocalDataSource(Cache(), { wait: 100 });
+    const model = new Model({ source });
     const queue = new RequestQueue(model, scheduler);
 
     const zip = zipSpy(
@@ -53667,28 +53643,18 @@ file,type,line,method,methodStart,methodEnd,source
 
     queue.get([videos0], [videos0], zip);
     expect(queue._requests.length).toBe(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[0].sent).toBe(true);
 
     const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
     expect(queue._requests.length).toBe(2);
-    expect(queue._requests[1]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[1].sent).toBe(true);
 
     disposable2();
-})",247,295,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 288, 'column': 4, 'index': 10753}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+})",247,285,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 281, 'column': 4, 'index': 10677}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
     const scheduler = new ImmediateScheduler();
-    const source = new LocalDataSource(Cache(), {
-        wait: 100
-    });
-    const model = new Model({
-        source
-    });
+    const source = new LocalDataSource(Cache(), { wait: 100 });
+    const model = new Model({ source });
     const queue = new RequestQueue(model, scheduler);
 
     const zip = zipSpy(
@@ -53716,21 +53682,15 @@ file,type,line,method,methodStart,methodEnd,source
 
     queue.get([videos0], [videos0], zip);
     expect(queue._requests.length).toBe(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[0].sent).toBe(true);
 
     const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
     expect(queue._requests.length).toBe(2);
-    expect(queue._requests[1]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[1].sent).toBe(true);
 
     disposable2();
-})",247,295,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 319, 'column': 8, 'index': 11799}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+})",247,285,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 309, 'column': 8, 'index': 11670}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
         const model = new Model({ source });
@@ -53763,8 +53723,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         disposable();
         disposable2();
-    })",297,330,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 324, 'column': 8, 'index': 12042}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+    })",287,320,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 314, 'column': 8, 'index': 11913}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
         const model = new Model({ source });
@@ -53797,8 +53757,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         disposable();
         disposable2();
-    })",297,330,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 343, 'column': 12, 'index': 12792}","it(""does not dedupe requests when request deduplication is disabled"", done => {
+    })",287,320,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 333, 'column': 12, 'index': 12663}","it(""does not dedupe requests when request deduplication is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -53820,8 +53780,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",332,354,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 346, 'column': 12, 'index': 12895}","it(""does not dedupe requests when request deduplication is disabled"", done => {
+    })",322,344,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 336, 'column': 12, 'index': 12766}","it(""does not dedupe requests when request deduplication is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -53843,8 +53803,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",332,354,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 347, 'column': 12, 'index': 13025}","it(""does not dedupe requests when request deduplication is disabled"", done => {
+    })",322,344,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 337, 'column': 12, 'index': 12896}","it(""does not dedupe requests when request deduplication is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -53866,8 +53826,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",332,354,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 368, 'column': 12, 'index': 13895}","it(""does not collapse paths when path collapse is disabled"", done => {
+    })",322,344,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 358, 'column': 12, 'index': 13766}","it(""does not collapse paths when path collapse is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -53888,8 +53848,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",356,377,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 369, 'column': 12, 'index': 13950}","it(""does not collapse paths when path collapse is disabled"", done => {
+    })",346,367,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 359, 'column': 12, 'index': 13821}","it(""does not collapse paths when path collapse is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -53910,8 +53870,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",356,377,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 370, 'column': 12, 'index': 14057}","it(""does not collapse paths when path collapse is disabled"", done => {
+    })",346,367,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 360, 'column': 12, 'index': 13928}","it(""does not collapse paths when path collapse is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -53932,8 +53892,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",356,377,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 392, 'column': 16, 'index': 15042}","it(""does not collapse paths or dedupe requests"", done => {
+    })",346,367,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 382, 'column': 16, 'index': 14913}","it(""does not collapse paths or dedupe requests"", done => {
             const scheduler = new ImmediateScheduler();
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -53954,8 +53914,8 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",380,401,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 393, 'column': 16, 'index': 15101}","it(""does not collapse paths or dedupe requests"", done => {
+        })",370,391,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 383, 'column': 16, 'index': 14972}","it(""does not collapse paths or dedupe requests"", done => {
             const scheduler = new ImmediateScheduler();
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -53976,8 +53936,8 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",380,401,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 394, 'column': 16, 'index': 15212}","it(""does not collapse paths or dedupe requests"", done => {
+        })",370,391,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 384, 'column': 16, 'index': 15083}","it(""does not collapse paths or dedupe requests"", done => {
             const scheduler = new ImmediateScheduler();
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -53998,8 +53958,8 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",380,401,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 414, 'column': 16, 'index': 16106}","it(""combines batched paths without collapse"", done => {
+        })",370,391,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 404, 'column': 16, 'index': 15977}","it(""combines batched paths without collapse"", done => {
             const scheduler = new TimeoutScheduler(1); // To allow batching
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -54018,8 +53978,8 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",403,422,steel
-/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 415, 'column': 16, 'index': 16165}","it(""combines batched paths without collapse"", done => {
+        })",393,412,steel
+/test/internal/request/RequestQueue.get.spec.js,Duplicate Assert,"{'line': 405, 'column': 16, 'index': 16036}","it(""combines batched paths without collapse"", done => {
             const scheduler = new TimeoutScheduler(1); // To allow batching
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -54038,7 +53998,7 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",403,422,steel
+        })",393,412,steel
 /test/internal/request/RequestQueue.get.spec.js,Eager Test,"{'line': 55, 'column': 20, 'index': 2188}","it(""makes a couple requests and have them batched together"", done => {
         const scheduler = new TimeoutScheduler(1); // To allow batching
         const source = new LocalDataSource(Cache());
@@ -54425,14 +54385,10 @@ file,type,line,method,methodStart,methodEnd,source
         disposable();
         disposable2();
     })",212,245,steel
-/test/internal/request/RequestQueue.get.spec.js,Eager Test,"{'line': 257, 'column': 16, 'index': 9801}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+/test/internal/request/RequestQueue.get.spec.js,Eager Test,"{'line': 253, 'column': 16, 'index': 9777}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
     const scheduler = new ImmediateScheduler();
-    const source = new LocalDataSource(Cache(), {
-        wait: 100
-    });
-    const model = new Model({
-        source
-    });
+    const source = new LocalDataSource(Cache(), { wait: 100 });
+    const model = new Model({ source });
     const queue = new RequestQueue(model, scheduler);
 
     const zip = zipSpy(
@@ -54460,28 +54416,18 @@ file,type,line,method,methodStart,methodEnd,source
 
     queue.get([videos0], [videos0], zip);
     expect(queue._requests.length).toBe(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[0].sent).toBe(true);
 
     const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
     expect(queue._requests.length).toBe(2);
-    expect(queue._requests[1]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[1].sent).toBe(true);
 
     disposable2();
-})",247,295,steel
-/test/internal/request/RequestQueue.get.spec.js,Eager Test,"{'line': 263, 'column': 12, 'index': 9933}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+})",247,285,steel
+/test/internal/request/RequestQueue.get.spec.js,Eager Test,"{'line': 259, 'column': 12, 'index': 9909}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
     const scheduler = new ImmediateScheduler();
-    const source = new LocalDataSource(Cache(), {
-        wait: 100
-    });
-    const model = new Model({
-        source
-    });
+    const source = new LocalDataSource(Cache(), { wait: 100 });
+    const model = new Model({ source });
     const queue = new RequestQueue(model, scheduler);
 
     const zip = zipSpy(
@@ -54509,21 +54455,15 @@ file,type,line,method,methodStart,methodEnd,source
 
     queue.get([videos0], [videos0], zip);
     expect(queue._requests.length).toBe(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[0].sent).toBe(true);
 
     const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
     expect(queue._requests.length).toBe(2);
-    expect(queue._requests[1]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[1].sent).toBe(true);
 
     disposable2();
-})",247,295,steel
-/test/internal/request/RequestQueue.get.spec.js,Eager Test,"{'line': 303, 'column': 20, 'index': 11279}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+})",247,285,steel
+/test/internal/request/RequestQueue.get.spec.js,Eager Test,"{'line': 293, 'column': 20, 'index': 11150}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
         const model = new Model({ source });
@@ -54556,8 +54496,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         disposable();
         disposable2();
-    })",297,330,steel
-/test/internal/request/RequestQueue.get.spec.js,Eager Test,"{'line': 309, 'column': 16, 'index': 11431}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+    })",287,320,steel
+/test/internal/request/RequestQueue.get.spec.js,Eager Test,"{'line': 299, 'column': 16, 'index': 11302}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
         const model = new Model({ source });
@@ -54590,7 +54530,7 @@ file,type,line,method,methodStart,methodEnd,source
 
         disposable();
         disposable2();
-    })",297,330,steel
+    })",287,320,steel
 /test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 33, 'column': 8, 'index': 1309}","it(""makes a simple get request"", done => {
         const scheduler = new ImmediateScheduler();
         const onGet = jest.fn();
@@ -55003,14 +54943,10 @@ file,type,line,method,methodStart,methodEnd,source
         disposable();
         disposable2();
     })",212,245,steel
-/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 257, 'column': 16, 'index': 9801}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 253, 'column': 16, 'index': 9777}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
     const scheduler = new ImmediateScheduler();
-    const source = new LocalDataSource(Cache(), {
-        wait: 100
-    });
-    const model = new Model({
-        source
-    });
+    const source = new LocalDataSource(Cache(), { wait: 100 });
+    const model = new Model({ source });
     const queue = new RequestQueue(model, scheduler);
 
     const zip = zipSpy(
@@ -55038,28 +54974,18 @@ file,type,line,method,methodStart,methodEnd,source
 
     queue.get([videos0], [videos0], zip);
     expect(queue._requests.length).toBe(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[0].sent).toBe(true);
 
     const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
     expect(queue._requests.length).toBe(2);
-    expect(queue._requests[1]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[1].sent).toBe(true);
 
     disposable2();
-})",247,295,steel
-/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 263, 'column': 12, 'index': 9933}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+})",247,285,steel
+/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 259, 'column': 12, 'index': 9909}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
     const scheduler = new ImmediateScheduler();
-    const source = new LocalDataSource(Cache(), {
-        wait: 100
-    });
-    const model = new Model({
-        source
-    });
+    const source = new LocalDataSource(Cache(), { wait: 100 });
+    const model = new Model({ source });
     const queue = new RequestQueue(model, scheduler);
 
     const zip = zipSpy(
@@ -55087,21 +55013,15 @@ file,type,line,method,methodStart,methodEnd,source
 
     queue.get([videos0], [videos0], zip);
     expect(queue._requests.length).toBe(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[0].sent).toBe(true);
 
     const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
     expect(queue._requests.length).toBe(2);
-    expect(queue._requests[1]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[1].sent).toBe(true);
 
     disposable2();
-})",247,295,steel
-/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 303, 'column': 20, 'index': 11279}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+})",247,285,steel
+/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 293, 'column': 20, 'index': 11150}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
         const model = new Model({ source });
@@ -55134,8 +55054,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         disposable();
         disposable2();
-    })",297,330,steel
-/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 309, 'column': 16, 'index': 11431}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+    })",287,320,steel
+/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 299, 'column': 16, 'index': 11302}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
         const model = new Model({ source });
@@ -55168,8 +55088,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         disposable();
         disposable2();
-    })",297,330,steel
-/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 339, 'column': 20, 'index': 12663}","it(""does not dedupe requests when request deduplication is disabled"", done => {
+    })",287,320,steel
+/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 329, 'column': 20, 'index': 12534}","it(""does not dedupe requests when request deduplication is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -55191,8 +55111,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",332,354,steel
-/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 363, 'column': 20, 'index': 13713}","it(""does not collapse paths when path collapse is disabled"", done => {
+    })",322,344,steel
+/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 353, 'column': 20, 'index': 13584}","it(""does not collapse paths when path collapse is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -55213,8 +55133,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",356,377,steel
-/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 387, 'column': 24, 'index': 14846}","it(""does not collapse paths or dedupe requests"", done => {
+    })",346,367,steel
+/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 377, 'column': 24, 'index': 14717}","it(""does not collapse paths or dedupe requests"", done => {
             const scheduler = new ImmediateScheduler();
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -55235,8 +55155,8 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",380,401,steel
-/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 410, 'column': 24, 'index': 15965}","it(""combines batched paths without collapse"", done => {
+        })",370,391,steel
+/test/internal/request/RequestQueue.get.spec.js,Lazy Test,"{'line': 400, 'column': 24, 'index': 15836}","it(""combines batched paths without collapse"", done => {
             const scheduler = new TimeoutScheduler(1); // To allow batching
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -55255,7 +55175,7 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",403,422,steel
+        })",393,412,steel
 /test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 44, 'column': 81, 'index': 1794}","it(""makes a simple get request"", done => {
         const scheduler = new ImmediateScheduler();
         const onGet = jest.fn();
@@ -55897,14 +55817,10 @@ file,type,line,method,methodStart,methodEnd,source
         disposable();
         disposable2();
     })",212,245,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 260, 'column': 35, 'index': 9878}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 256, 'column': 35, 'index': 9854}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
     const scheduler = new ImmediateScheduler();
-    const source = new LocalDataSource(Cache(), {
-        wait: 100
-    });
-    const model = new Model({
-        source
-    });
+    const source = new LocalDataSource(Cache(), { wait: 100 });
+    const model = new Model({ source });
     const queue = new RequestQueue(model, scheduler);
 
     const zip = zipSpy(
@@ -55932,28 +55848,18 @@ file,type,line,method,methodStart,methodEnd,source
 
     queue.get([videos0], [videos0], zip);
     expect(queue._requests.length).toBe(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[0].sent).toBe(true);
 
     const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
     expect(queue._requests.length).toBe(2);
-    expect(queue._requests[1]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[1].sent).toBe(true);
 
     disposable2();
-})",247,295,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 281, 'column': 40, 'index': 10564}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+})",247,285,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 277, 'column': 40, 'index': 10540}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
     const scheduler = new ImmediateScheduler();
-    const source = new LocalDataSource(Cache(), {
-        wait: 100
-    });
-    const model = new Model({
-        source
-    });
+    const source = new LocalDataSource(Cache(), { wait: 100 });
+    const model = new Model({ source });
     const queue = new RequestQueue(model, scheduler);
 
     const zip = zipSpy(
@@ -55981,28 +55887,18 @@ file,type,line,method,methodStart,methodEnd,source
 
     queue.get([videos0], [videos0], zip);
     expect(queue._requests.length).toBe(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[0].sent).toBe(true);
 
     const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
     expect(queue._requests.length).toBe(2);
-    expect(queue._requests[1]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[1].sent).toBe(true);
 
     disposable2();
-})",247,295,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 288, 'column': 40, 'index': 10789}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+})",247,285,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 281, 'column': 40, 'index': 10713}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
     const scheduler = new ImmediateScheduler();
-    const source = new LocalDataSource(Cache(), {
-        wait: 100
-    });
-    const model = new Model({
-        source
-    });
+    const source = new LocalDataSource(Cache(), { wait: 100 });
+    const model = new Model({ source });
     const queue = new RequestQueue(model, scheduler);
 
     const zip = zipSpy(
@@ -56030,21 +55926,15 @@ file,type,line,method,methodStart,methodEnd,source
 
     queue.get([videos0], [videos0], zip);
     expect(queue._requests.length).toBe(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[0].sent).toBe(true);
 
     const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
     expect(queue._requests.length).toBe(2);
-    expect(queue._requests[1]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests[1].sent).toBe(true);
 
     disposable2();
-})",247,295,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 306, 'column': 39, 'index': 11368}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+})",247,285,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 296, 'column': 39, 'index': 11239}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
         const model = new Model({ source });
@@ -56077,8 +55967,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         disposable();
         disposable2();
-    })",297,330,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 319, 'column': 44, 'index': 11835}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+    })",287,320,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 309, 'column': 44, 'index': 11706}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
         const model = new Model({ source });
@@ -56111,8 +56001,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         disposable();
         disposable2();
-    })",297,330,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 324, 'column': 44, 'index': 12078}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+    })",287,320,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 314, 'column': 44, 'index': 11949}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
         const scheduler = new ImmediateScheduler();
         const source = new LocalDataSource(Cache(), { wait: 100 });
         const model = new Model({ source });
@@ -56145,8 +56035,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         disposable();
         disposable2();
-    })",297,330,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 340, 'column': 35, 'index': 12723}","it(""does not dedupe requests when request deduplication is disabled"", done => {
+    })",287,320,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 330, 'column': 35, 'index': 12594}","it(""does not dedupe requests when request deduplication is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -56168,8 +56058,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",332,354,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 341, 'column': 48, 'index': 12775}","it(""does not dedupe requests when request deduplication is disabled"", done => {
+    })",322,344,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 331, 'column': 48, 'index': 12646}","it(""does not dedupe requests when request deduplication is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -56191,8 +56081,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",332,354,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 364, 'column': 35, 'index': 13773}","it(""does not collapse paths when path collapse is disabled"", done => {
+    })",322,344,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 354, 'column': 35, 'index': 13644}","it(""does not collapse paths when path collapse is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -56213,8 +56103,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",356,377,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 365, 'column': 48, 'index': 13825}","it(""does not collapse paths when path collapse is disabled"", done => {
+    })",346,367,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 355, 'column': 48, 'index': 13696}","it(""does not collapse paths when path collapse is disabled"", done => {
         const scheduler = new ImmediateScheduler();
         const dsGetSpy = jest.fn();
         const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -56235,8 +56125,8 @@ file,type,line,method,methodStart,methodEnd,source
 
         queue.get([videos0, videos1], [videos0, videos1], zip);
         queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",356,377,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 388, 'column': 39, 'index': 14910}","it(""does not collapse paths or dedupe requests"", done => {
+    })",346,367,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 378, 'column': 39, 'index': 14781}","it(""does not collapse paths or dedupe requests"", done => {
             const scheduler = new ImmediateScheduler();
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -56257,8 +56147,8 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",380,401,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 389, 'column': 52, 'index': 14966}","it(""does not collapse paths or dedupe requests"", done => {
+        })",370,391,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 379, 'column': 52, 'index': 14837}","it(""does not collapse paths or dedupe requests"", done => {
             const scheduler = new ImmediateScheduler();
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -56279,8 +56169,8 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",380,401,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 411, 'column': 39, 'index': 16029}","it(""combines batched paths without collapse"", done => {
+        })",370,391,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 401, 'column': 39, 'index': 15900}","it(""combines batched paths without collapse"", done => {
             const scheduler = new TimeoutScheduler(1); // To allow batching
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -56299,8 +56189,8 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",403,422,steel
-/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 412, 'column': 52, 'index': 16085}","it(""combines batched paths without collapse"", done => {
+        })",393,412,steel
+/test/internal/request/RequestQueue.get.spec.js,Magic Number,"{'line': 402, 'column': 52, 'index': 15956}","it(""combines batched paths without collapse"", done => {
             const scheduler = new TimeoutScheduler(1); // To allow batching
             const dsGetSpy = jest.fn();
             const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
@@ -56319,7 +56209,7 @@ file,type,line,method,methodStart,methodEnd,source
 
             queue.get([videos0, videos1], [videos0, videos1], zip);
             queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",403,422,steel
+        })",393,412,steel
 /test/internal/request/GetRequest.spec.js,Conditional Test Logic,"{'line': 21, 'column': 16, 'index': 766}","it(""unsubscribing should cancel DataSource request (sync scheduler)."", () => {
         let unsubscribeSpy;
         const subscribeSpy = jest.fn((observerOrOnNext, onError, onCompleted) => {

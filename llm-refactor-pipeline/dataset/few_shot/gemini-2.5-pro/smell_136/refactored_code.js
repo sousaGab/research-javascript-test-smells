@@ -5,39 +5,48 @@ it('should handle a high volume of large writes', function (done) {
       })]
     });
 
-    const numWrites = 500;
-    let numReads = 0;
-    const largeMessage = 'a'.repeat(16384 - os.EOL.length - 1);
+    const TOTAL_WRITES = 1000;
+    const counters = {
+      write: 0,
+      read: 0
+    };
+    const messageContent = 'a'.repeat(16384 - os.EOL.length - 1);
 
+    // When the logger stream has finished writing all data, start reading.
     logger.on('finish', () => {
       helpers.tryRead(fileStressLogFile)
         .on('error', function (err) {
           assume(err).false();
-          done();
+          logger.close();
+          done(err);
         })
         .pipe(split())
         .on('data', function (d) {
           if (!d) {
-            return;
+            return; // Ignore empty lines from split
           }
           const json = JSON.parse(d);
           assume(json.level).equal('info');
-          assume(json.message).equal(largeMessage);
-          assume(json.counter).equal(++numReads);
+          assume(json.message).equal(messageContent);
+          assume(json.counter).equal(++counters.read);
         })
         .on('end', function () {
-          assume(numWrites).equal(numReads);
+          assume(counters.write).equal(counters.read);
+          assume(counters.read).equal(TOTAL_WRITES);
+          logger.close();
           done();
         });
     });
 
-    for (let i = 1; i <= numWrites; i++) {
-      const msg = {
-        counter: i,
-        message: largeMessage
-      };
-      logger.info(msg);
+    // Queue up a deterministic number of log writes.
+    for (let i = 0; i < TOTAL_WRITES; i++) {
+      logger.info({
+        counter: ++counters.write,
+        message: messageContent
+      });
     }
 
+    // Signal that no more writes will be queued, triggering the 'finish' event
+    // once the buffer is flushed.
     logger.end();
   });

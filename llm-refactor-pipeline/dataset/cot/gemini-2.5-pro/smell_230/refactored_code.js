@@ -1,5 +1,5 @@
-it('should report a prop change as the reason for a re-render', () => {
-  const ComponentWithHooks = ({a}) => {
+test('should report prop changes as the reason for an update', () => {
+  const ComponentWithTrackedProps = ({a}) => {
     const [currentState] = React.useState({b: 'b'});
 
     return (
@@ -7,13 +7,13 @@ it('should report a prop change as the reason for a re-render', () => {
     );
   };
 
-  ComponentWithHooks.whyDidYouRender = true;
+  ComponentWithTrackedProps.whyDidYouRender = true;
 
   const {rerender} = rtl.render(
-    <ComponentWithHooks a={1}/>
+    <ComponentWithTrackedProps a={1}/>
   );
   rerender(
-    <ComponentWithHooks a={2}/>
+    <ComponentWithTrackedProps a={2}/>
   );
 
   expect(updateInfos).toHaveLength(1);

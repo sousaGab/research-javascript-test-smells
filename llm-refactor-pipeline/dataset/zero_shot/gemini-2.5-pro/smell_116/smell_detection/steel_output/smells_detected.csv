@@ -55,20 +55,13 @@ file,type,line,frame
   522 |     })
   523 |
   524 |     test('custom logger', async () => {"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Conditional Test Logic,"{'line': 604, 'column': 8, 'index': 18022}","  602 |
-  603 |         const consoleMethod = CONSOLE_METHODS_MAP[logLevel];
-> 604 |         if (!callsByConsoleMethod[consoleMethod]) {
-      |        ^ Conditional Test Logic
-  605 |           callsByConsoleMethod[consoleMethod] = {
-  606 |             should: [],
-  607 |             shouldNot: []"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Conditional Test Logic,"{'line': 614, 'column': 8, 'index': 18276}","  612 |           message: `${logLevel} message`
-  613 |         };
-> 614 |         if (shouldCall.includes(logLevel)) {
-      |        ^ Conditional Test Logic
-  615 |           callsByConsoleMethod[consoleMethod].should.push(message);
-  616 |         } else {
-  617 |           callsByConsoleMethod[consoleMethod].shouldNot.push(message);"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Conditional Test Logic,"{'line': 613, 'column': 6, 'index': 18264}","  611 |
+  612 |     allConsoleMethods.forEach(consoleMethod => {
+> 613 |       if (!expectedConsoleMethods.has(consoleMethod)) {
+      |      ^ Conditional Test Logic
+  614 |         expect(global.console[consoleMethod]).not.toHaveBeenCalled();
+  615 |       }
+  616 |     });"
 /home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Duplicate Assert,"{'line': 281, 'column': 8, 'index': 8873}","  279 |         expectedResponse.body = Buffer.from(samLogoBase64, 'base64')
   280 |         expectedResponse.isBase64Encoded = false
 > 281 |         expect(response.headers.etag).toMatch(etagRegex)
@@ -125,34 +118,48 @@ file,type,line,frame
   289 |         delete response.headers.etag
   290 |         delete response.headers['last-modified']
   291 |         break"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Duplicate Assert,"{'line': 650, 'column': 6, 'index': 19273}","  648 |       logger.debug('array', ['message'])
-  649 |
-> 650 |       expect(global.console.debug).toHaveBeenNthCalledWith(
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Duplicate Assert,"{'line': 607, 'column': 6, 'index': 18088}","  605 |       const consoleMethod = consoleMethodMap[methodName];
+  606 |       expectedConsoleMethods.add(consoleMethod);
+> 607 |       expect(global.console[consoleMethod]).toHaveBeenCalledWith({
       |      ^ Duplicate Assert
-  651 |         1,
-  652 |         {
-  653 |           message: 'simple message'"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Duplicate Assert,"{'line': 656, 'column': 6, 'index': 19408}","  654 |         }
-  655 |       )
-> 656 |       expect(global.console.debug).toHaveBeenNthCalledWith(
+  608 |         message: `${methodName} message`
+  609 |       });
+  610 |     });"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Duplicate Assert,"{'line': 614, 'column': 8, 'index': 18322}","  612 |     allConsoleMethods.forEach(consoleMethod => {
+  613 |       if (!expectedConsoleMethods.has(consoleMethod)) {
+> 614 |         expect(global.console[consoleMethod]).not.toHaveBeenCalled();
+      |        ^ Duplicate Assert
+  615 |       }
+  616 |     });
+  617 |   });"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Duplicate Assert,"{'line': 628, 'column': 6, 'index': 18696}","  626 |       logger.debug('array', ['message'])
+  627 |
+> 628 |       expect(global.console.debug).toHaveBeenNthCalledWith(
       |      ^ Duplicate Assert
-  657 |         2,
-  658 |         {
-  659 |           message: 'debug',"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Duplicate Assert,"{'line': 664, 'column': 6, 'index': 19579}","  662 |         }
-  663 |       )
-> 664 |       expect(global.console.debug).toHaveBeenNthCalledWith(
+  629 |         1,
+  630 |         {
+  631 |           message: 'simple message'"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Duplicate Assert,"{'line': 634, 'column': 6, 'index': 18831}","  632 |         }
+  633 |       )
+> 634 |       expect(global.console.debug).toHaveBeenNthCalledWith(
       |      ^ Duplicate Assert
-  665 |         3,
-  666 |         {
-  667 |           message: 'debug'"
-/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Duplicate Assert,"{'line': 670, 'column': 6, 'index': 19705}","  668 |         }
-  669 |       )
-> 670 |       expect(global.console.debug).toHaveBeenNthCalledWith(
+  635 |         2,
+  636 |         {
+  637 |           message: 'debug',"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Duplicate Assert,"{'line': 642, 'column': 6, 'index': 19002}","  640 |         }
+  641 |       )
+> 642 |       expect(global.console.debug).toHaveBeenNthCalledWith(
       |      ^ Duplicate Assert
-  671 |         4,
-  672 |         {
-  673 |           message: 'array',"
+  643 |         3,
+  644 |         {
+  645 |           message: 'debug'"
+/home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Duplicate Assert,"{'line': 648, 'column': 6, 'index': 19128}","  646 |         }
+  647 |       )
+> 648 |       expect(global.console.debug).toHaveBeenNthCalledWith(
+      |      ^ Duplicate Assert
+  649 |         4,
+  650 |         {
+  651 |           message: 'array',"
 /home/gabriel/Disk/Research/research-javascript-test-smells/repositories/serverless-express/__tests__/integration.js,Ignored Test,"{'line': 423, 'column': 7, 'index': 13127}","  421 |   })
   422 |
 > 423 |   test.skip('respondToEventSourceWithError', async () => {

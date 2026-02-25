@@ -17,5 +17,6 @@ it("onBreakpointChange provides breakpoint name and cols count", () => {
       global.triggerResize(1000, 600);
     });
 
+    // Assert that the callback was invoked with the correct arguments for the 'md' breakpoint
     expect(onBreakpointChange).toHaveBeenCalledWith("md", 10);
   })

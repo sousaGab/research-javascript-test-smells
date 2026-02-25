@@ -1,4 +1,4 @@
-it('should not exceed the max files', async function () {
+it('should not exceed the max files', function (done) {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         maxsize: 2024, // Small size to trigger frequent rotations
@@ -6,25 +6,27 @@ it('should not exceed the max files', async function () {
         lazy: true
       });
 
-      const finished = new Promise(resolve => transport.on('finish', resolve));
+      const logCount = 7;
+      const expectedRotations = logCount - 1;
+      let rotationCount = 0;
 
-      // Log well beyond enough data to create 3 files
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
-      await logToTransport(transport);
+      transport.on('rotate', () => {
+        rotationCount++;
+        if (rotationCount === expectedRotations) {
+          // After the final rotation, we can safely check the file system state.
+          assertFileExists('testarchive.log');
+          assertFileExists('testarchive1.log');
+          assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
+          done();
+        }
+      });
 
-      // End the stream to trigger the 'finish' event after all logs are processed
-      transport.close();
+      const performLogging = async () => {
+        // Log well beyond enough data to create 3 files
+        for (let i = 0; i < logCount; i++) {
+          await logToTransport(transport);
+        }
+      };
 
-      // Wait for all file operations to complete
-      await finished;
-
-      // Should have 3 files total (maxFiles)
-      assertFileExists('testarchive.log');
-      assertFileExists('testarchive1.log');
-      assertFileDoesNotExist('testarchive3.log'); // This should not exist because maxFiles = 3
+      performLogging().catch(done);
     }, 10000)

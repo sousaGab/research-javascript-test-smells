@@ -1,9 +1,13 @@
-test.each([
-  undefined,
-  null,
-  "",
-  "foo",
-  "UTC+blorp",
-])("FixedOffsetZone.parseSpecifier returns null for invalid specifier: %p", (specifier) => {
-  expect(FixedOffsetZone.parseSpecifier(specifier)).toBe(null);
+describe("FixedOffsetZone.parseSpecifier", () => {
+  const invalidCases = [
+    undefined,
+    null,
+    "",
+    "foo",
+    "UTC+blorp",
+  ];
+
+  test.each(invalidCases)("returns null for invalid specifier '%p'", (specifier) => {
+    expect(FixedOffsetZone.parseSpecifier(specifier)).toBe(null);
+  });
 });

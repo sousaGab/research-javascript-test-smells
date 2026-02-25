@@ -33,7 +33,7 @@ it("should re-emit favicon and assets from a loader if watch is active", () => {
     );
     const expected = ["logo.png", "main.js", "favicon.ico", "index.html"];
 
-    const assertCompilationResult = (stats) => {
+    const assertAssetsAndErrors = (stats) => {
       expect(
         expected.every((val) =>
           Object.keys(stats.compilation.assets).includes(val),
@@ -48,7 +48,7 @@ it("should re-emit favicon and assets from a loader if watch is active", () => {
         .startWatching()
         // Change the template file and compile again
         .then((stats) => {
-          assertCompilationResult(stats);
+          assertAssetsAndErrors(stats);
 
           fs.writeFileSync(
             jsFileTempPath,
@@ -58,7 +58,7 @@ it("should re-emit favicon and assets from a loader if watch is active", () => {
           return compiler.waitForWatchRunComplete();
         })
         .then((stats) => {
-          assertCompilationResult(stats);
+          assertAssetsAndErrors(stats);
 
           fs.writeFileSync(
             template,
@@ -71,7 +71,7 @@ it("should re-emit favicon and assets from a loader if watch is active", () => {
           return compiler.waitForWatchRunComplete();
         })
         .then((stats) => {
-          assertCompilationResult(stats);
+          assertAssetsAndErrors(stats);
 
           fs.writeFileSync(template, templateContent);
         })

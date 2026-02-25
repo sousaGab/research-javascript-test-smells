@@ -1,11 +1,13 @@
-test('when parse with different implied program name then name changes', () => {
+describe('when parse is used with different implied program names', () => {
+  test('should set the name from the script when parsed with node', () => {
     const program = new commander.Command();
-    // Set an initial state
     program.parse(['node', 'script1.js']);
+    expect(program.name()).toEqual('script1');
+  });
 
-    // Act by parsing again, which should change the name
+  test('should set the name from the script when parsed with electron', () => {
+    const program = new commander.Command();
     program.parse(['electron', 'script2.js']);
-
-    // Assert the final state is correct
     expect(program.name()).toEqual('script2');
-  })
+  });
+});

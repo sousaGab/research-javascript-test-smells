@@ -767,278 +767,77 @@ file,type,line,method,methodStart,methodEnd,source
         });
     })",57,110,snuts
 /test/set/edge-cases.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':68,'endLine':68}","it(
-        ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
-        function() {
-            var onErrorValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function(e) {
-                    onErrorValues.push(e);
-                }
-            );
-            modelResponseObserver.onError(1);
-            modelResponseObserver.onError(2);
+/test/integration/get.spec.js,GeneralFixture,"{'startLine':15,'endLine':15}","beforeEach(function(done) {
+        app = express();
+        server = app.listen(60002, done);
+        serverUrl = 'http://localhost:60002';
+        model = new falcor.Model({
+            source: new falcor.HttpDataSource(serverUrl + '/model.json')
+        });
+        onNext = jest.fn();
+    })",14,22,snuts
+/test/integration/get.spec.js,GeneralFixture,"{'startLine':16,'endLine':16}","beforeEach(function(done) {
+        app = express();
+        server = app.listen(60002, done);
+        serverUrl = 'http://localhost:60002';
+        model = new falcor.Model({
+            source: new falcor.HttpDataSource(serverUrl + '/model.json')
+        });
+        onNext = jest.fn();
+    })",14,22,snuts
+/test/integration/get.spec.js,GeneralFixture,"{'startLine':17,'endLine':17}","beforeEach(function(done) {
+        app = express();
+        server = app.listen(60002, done);
+        serverUrl = 'http://localhost:60002';
+        model = new falcor.Model({
+            source: new falcor.HttpDataSource(serverUrl + '/model.json')
+        });
+        onNext = jest.fn();
+    })",14,22,snuts
+/test/integration/get.spec.js,NonFunctionalStatement,"{'startLine':8,'endLine':8}",Unknown,,,snuts
+/test/integration/express.spec.js,GeneralFixture,"{'startLine':33,'endLine':33}","beforeEach(function(done) {
+        var app = express();
+        app.use(bodyParser.urlencoded({ extended: false }));
 
-            expect(onErrorValues.length).toBe(1);
-            expect(onErrorValues[0]).toBe(1);
-        }
-    )",63,79,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':86,'endLine':86}","it(
-        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function() {},
-                function(value) {
-                    onCompletedValues.push(value);
+        // Simple middleware to handle get/post
+        app.use('/model.json', FalcorServer.dataSourceRoute(function(req, res) {
+            return new FalcorRouter([
+                {
+                    // match a request for the key ""greeting""
+                    route: ""greeting"",
+                    // respond with a PathValue with the value of ""Hello World.""
+                    get: function() {
+                        return {path:[""greeting""], value: ""Hello World""};
+                    }
                 }
-            );
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
+            ]);
+        }));
 
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",81,98,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':87,'endLine':87}","it(
-        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function() {},
-                function(value) {
-                    onCompletedValues.push(value);
-                }
-            );
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
+        server = app.listen(60001, done);
+    })",15,34,snuts
+/test/integration/express.spec.js,NonFunctionalStatement,"{'startLine':9,'endLine':9}",Unknown,,,snuts
+/test/integration/dedupe.spec.js,AnonymousTest,"{'startLine':71,'endLine':80}","it(""using ranges"", done => {
+            const partDone = after(2, () => {
+                expect(onGet.mock.calls[1][1]).toEqual([[""things"", [0, 3]]]);
 
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",81,98,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':152,'endLine':152}","it(
-        ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
-        function() {
-            var onErrorValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function(e) {
-                    onErrorValues.push(e);
-                }
+                done();
             });
-            modelResponseObserver.onError(1);
-            modelResponseObserver.onError(2);
 
-            expect(onErrorValues.length).toBe(1);
-            expect(onErrorValues[0]).toBe(1);
-        }
-    )",147,163,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':170,'endLine':170}","it(
-        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function() {},
-                onCompleted: function(value) {
-                    onCompletedValues.push(value);
-                }
+            model.get([""things"", { from: 1, to: 2 }]).subscribe(noOp, done, partDone);
+            model.get([""things"", { from: 0, to: 3 }]).subscribe(noOp, done, partDone);
+        })",71,80,snuts
+/test/integration/dedupe.spec.js,AnonymousTest,"{'startLine':82,'endLine':91}","it(""using arrays"", done => {
+            const partDone = after(2, () => {
+                expect(onGet.mock.calls[1][1]).toEqual([[""things"", [0, 5]]]);
+
+                done();
             });
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
 
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",165,182,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':171,'endLine':171}","it(
-        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function() {},
-                onCompleted: function(value) {
-                    onCompletedValues.push(value);
-                }
-            });
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",165,182,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':43,'endLine':43}","it(
-        ""should suppress onNext callback after ModelResponseObserver is onCompleted"",
-        function() {
-            var onNextValue;
-            var modelResponseObserver = new ModelResponseObserver(function(
-                value
-            ) {
-                onNextValue = value;
-            });
-            modelResponseObserver.onCompleted();
-            modelResponseObserver.onNext(5);
-
-            expect(onNextValue).toBe(undefined);
-        }
-    )",31,45,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':59,'endLine':59}","it(
-        ""should suppress onNext callback after ModelResponseObserver is onError'ed"",
-        function() {
-            var onNextValue;
-            var modelResponseObserver = new ModelResponseObserver(function(
-                value
-            ) {
-                onNextValue = value;
-            });
-            modelResponseObserver.onError();
-            modelResponseObserver.onNext(5);
-
-            expect(onNextValue).toBe(undefined);
-        }
-    )",47,61,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':76,'endLine':76}","it(
-        ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
-        function() {
-            var onErrorValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function(e) {
-                    onErrorValues.push(e);
-                }
-            );
-            modelResponseObserver.onError(1);
-            modelResponseObserver.onError(2);
-
-            expect(onErrorValues.length).toBe(1);
-            expect(onErrorValues[0]).toBe(1);
-        }
-    )",63,79,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':95,'endLine':95}","it(
-        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function() {},
-                function(value) {
-                    onCompletedValues.push(value);
-                }
-            );
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",81,98,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':96,'endLine':96}","it(
-        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function() {},
-                function(value) {
-                    onCompletedValues.push(value);
-                }
-            );
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",81,98,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':127,'endLine':127}","it(
-        ""should suppress onNext method after ModelResponseObserver is onCompleted"",
-        function() {
-            var onNextValue;
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function(value) {
-                    onNextValue = value;
-                }
-            });
-            modelResponseObserver.onCompleted();
-            modelResponseObserver.onNext(5);
-
-            expect(onNextValue).toBe(undefined);
-        }
-    )",115,129,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':143,'endLine':143}","it(
-        ""should suppress onNext method after ModelResponseObserver is onError'ed"",
-        function() {
-            var onNextValue;
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function(value) {
-                    onNextValue = value;
-                }
-            });
-            modelResponseObserver.onError();
-            modelResponseObserver.onNext(5);
-
-            expect(onNextValue).toBe(undefined);
-        }
-    )",131,145,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':160,'endLine':160}","it(
-        ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
-        function() {
-            var onErrorValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function(e) {
-                    onErrorValues.push(e);
-                }
-            });
-            modelResponseObserver.onError(1);
-            modelResponseObserver.onError(2);
-
-            expect(onErrorValues.length).toBe(1);
-            expect(onErrorValues[0]).toBe(1);
-        }
-    )",147,163,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':179,'endLine':179}","it(
-        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function() {},
-                onCompleted: function(value) {
-                    onCompletedValues.push(value);
-                }
-            });
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",165,182,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':180,'endLine':180}","it(
-        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function() {},
-                onCompleted: function(value) {
-                    onCompletedValues.push(value);
-                }
-            });
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",165,182,snuts
+            model.get([""things"", [2, 4]]).subscribe(noOp, done, partDone);
+            model.get([""things"", [0, 4, 5]]).subscribe(noOp, done, partDone);
+        })",82,91,snuts
+/test/integration/dedupe.spec.js,NonFunctionalStatement,"{'startLine':7,'endLine':7}",Unknown,,,snuts
+/test/integration/call.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/lru/lru.splice.overwrite.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
 /test/lru/lru.splice.expired.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/lru/lru.promote.set.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
@@ -1411,6 +1210,314 @@ file,type,line,method,methodStart,methodEnd,source
         expect(curr.value).toEqual(['videos', '0']);
         expect(curr[__next]).toBeUndefined();
     })",130,172,snuts
+/test/hardlink/hardlink.remove.spec.js,IdenticalTestDescription,"{'startLine':43,'endLine':49}","it('should perform a hard-link with back references _toJSONG.', function(done) {
+            getTest(getPath, '_toJSONG').
+                flatMap(function() {
+                    return setTest(setJSON, '_toJSONG');
+                }).
+                subscribe(noOp, done, done);
+        })",43,49,snuts
+/test/hardlink/hardlink.remove.spec.js,IdenticalTestDescription,"{'startLine':50,'endLine':56}","it('should perform a hard-link with back references toJSON.', function(done) {
+            getTest(getPath, 'toJSON').
+                flatMap(function() {
+                    return setTest(setJSON, 'toJSON');
+                }).
+                subscribe(noOp, done, done);
+        })",50,56,snuts
+/test/hardlink/hardlink.remove.spec.js,NonFunctionalStatement,"{'startLine':13,'endLine':13}",Unknown,,,snuts
+/test/hardlink/hardlink.add.spec.js,IdenticalTestDescription,"{'startLine':37,'endLine':40}","it('should perform a hard-link with back references _toJSONG.', function(done) {
+            setTest(setPath, '_toJSONG').
+                subscribe(noOp, done, done);
+        })",37,40,snuts
+/test/hardlink/hardlink.add.spec.js,IdenticalTestDescription,"{'startLine':41,'endLine':44}","it('should perform a hard-link with back references toJSON.', function(done) {
+            setTest(setPath, 'toJSON').
+                subscribe(noOp, done, done);
+        })",41,44,snuts
+/test/hardlink/hardlink.add.spec.js,IdenticalTestDescription,"{'startLine':51,'endLine':54}","it('should perform a hard-link with back references _toJSONG.', function(done) {
+            setTest(setJSON, '_toJSONG').
+                subscribe(noOp, done, done);
+        })",51,54,snuts
+/test/hardlink/hardlink.add.spec.js,IdenticalTestDescription,"{'startLine':55,'endLine':58}","it('should perform a hard-link with back references toJSON.', function(done) {
+            setTest(setJSON, 'toJSON').
+                subscribe(noOp, done, done);
+        })",55,58,snuts
+/test/hardlink/hardlink.add.spec.js,IdenticalTestDescription,"{'startLine':59,'endLine':62}","it('should perform a hard-link with back references toPathValues.', function(done) {
+            setTest(setJSON, 'toPathValues').
+                subscribe(noOp, done, done);
+        })",59,62,snuts
+/test/hardlink/hardlink.add.spec.js,NonFunctionalStatement,"{'startLine':13,'endLine':13}",Unknown,,,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':68,'endLine':68}","it(
+        ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
+        function() {
+            var onErrorValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function(e) {
+                    onErrorValues.push(e);
+                }
+            );
+            modelResponseObserver.onError(1);
+            modelResponseObserver.onError(2);
+
+            expect(onErrorValues.length).toBe(1);
+            expect(onErrorValues[0]).toBe(1);
+        }
+    )",63,79,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':86,'endLine':86}","it(
+        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function() {},
+                function(value) {
+                    onCompletedValues.push(value);
+                }
+            );
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",81,98,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':87,'endLine':87}","it(
+        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function() {},
+                function(value) {
+                    onCompletedValues.push(value);
+                }
+            );
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",81,98,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':152,'endLine':152}","it(
+        ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
+        function() {
+            var onErrorValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function(e) {
+                    onErrorValues.push(e);
+                }
+            });
+            modelResponseObserver.onError(1);
+            modelResponseObserver.onError(2);
+
+            expect(onErrorValues.length).toBe(1);
+            expect(onErrorValues[0]).toBe(1);
+        }
+    )",147,163,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':170,'endLine':170}","it(
+        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function() {},
+                onCompleted: function(value) {
+                    onCompletedValues.push(value);
+                }
+            });
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",165,182,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':171,'endLine':171}","it(
+        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function() {},
+                onCompleted: function(value) {
+                    onCompletedValues.push(value);
+                }
+            });
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",165,182,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':43,'endLine':43}","it(
+        ""should suppress onNext callback after ModelResponseObserver is onCompleted"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver(function(
+                value
+            ) {
+                onNextValue = value;
+            });
+            modelResponseObserver.onCompleted();
+            modelResponseObserver.onNext(5);
+
+            expect(onNextValue).toBe(undefined);
+        }
+    )",31,45,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':59,'endLine':59}","it(
+        ""should suppress onNext callback after ModelResponseObserver is onError'ed"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver(function(
+                value
+            ) {
+                onNextValue = value;
+            });
+            modelResponseObserver.onError();
+            modelResponseObserver.onNext(5);
+
+            expect(onNextValue).toBe(undefined);
+        }
+    )",47,61,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':76,'endLine':76}","it(
+        ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
+        function() {
+            var onErrorValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function(e) {
+                    onErrorValues.push(e);
+                }
+            );
+            modelResponseObserver.onError(1);
+            modelResponseObserver.onError(2);
+
+            expect(onErrorValues.length).toBe(1);
+            expect(onErrorValues[0]).toBe(1);
+        }
+    )",63,79,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':95,'endLine':95}","it(
+        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function() {},
+                function(value) {
+                    onCompletedValues.push(value);
+                }
+            );
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",81,98,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':96,'endLine':96}","it(
+        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function() {},
+                function(value) {
+                    onCompletedValues.push(value);
+                }
+            );
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",81,98,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':127,'endLine':127}","it(
+        ""should suppress onNext method after ModelResponseObserver is onCompleted"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function(value) {
+                    onNextValue = value;
+                }
+            });
+            modelResponseObserver.onCompleted();
+            modelResponseObserver.onNext(5);
+
+            expect(onNextValue).toBe(undefined);
+        }
+    )",115,129,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':143,'endLine':143}","it(
+        ""should suppress onNext method after ModelResponseObserver is onError'ed"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function(value) {
+                    onNextValue = value;
+                }
+            });
+            modelResponseObserver.onError();
+            modelResponseObserver.onNext(5);
+
+            expect(onNextValue).toBe(undefined);
+        }
+    )",131,145,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':160,'endLine':160}","it(
+        ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
+        function() {
+            var onErrorValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function(e) {
+                    onErrorValues.push(e);
+                }
+            });
+            modelResponseObserver.onError(1);
+            modelResponseObserver.onError(2);
+
+            expect(onErrorValues.length).toBe(1);
+            expect(onErrorValues[0]).toBe(1);
+        }
+    )",147,163,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':179,'endLine':179}","it(
+        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function() {},
+                onCompleted: function(value) {
+                    onCompletedValues.push(value);
+                }
+            });
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",165,182,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':180,'endLine':180}","it(
+        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function() {},
+                onCompleted: function(value) {
+                    onCompletedValues.push(value);
+                }
+            });
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",165,182,snuts
 /test/invalidate/pathSets.spec.js,AnonymousTest,"{'startLine':13,'endLine':30}","it(""directly"", function() {
 
         var lru = new Object();
@@ -1850,113 +1957,6 @@ file,type,line,method,methodStart,methodEnd,source
                 expect(strip(cache)).toEqual(strip({}));
             })",146,165,snuts
 /test/invalidate/invalidate.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
-/test/integration/get.spec.js,GeneralFixture,"{'startLine':15,'endLine':15}","beforeEach(function(done) {
-        app = express();
-        server = app.listen(60002, done);
-        serverUrl = 'http://localhost:60002';
-        model = new falcor.Model({
-            source: new falcor.HttpDataSource(serverUrl + '/model.json')
-        });
-        onNext = jest.fn();
-    })",14,22,snuts
-/test/integration/get.spec.js,GeneralFixture,"{'startLine':16,'endLine':16}","beforeEach(function(done) {
-        app = express();
-        server = app.listen(60002, done);
-        serverUrl = 'http://localhost:60002';
-        model = new falcor.Model({
-            source: new falcor.HttpDataSource(serverUrl + '/model.json')
-        });
-        onNext = jest.fn();
-    })",14,22,snuts
-/test/integration/get.spec.js,GeneralFixture,"{'startLine':17,'endLine':17}","beforeEach(function(done) {
-        app = express();
-        server = app.listen(60002, done);
-        serverUrl = 'http://localhost:60002';
-        model = new falcor.Model({
-            source: new falcor.HttpDataSource(serverUrl + '/model.json')
-        });
-        onNext = jest.fn();
-    })",14,22,snuts
-/test/integration/get.spec.js,NonFunctionalStatement,"{'startLine':8,'endLine':8}",Unknown,,,snuts
-/test/integration/express.spec.js,GeneralFixture,"{'startLine':33,'endLine':33}","beforeEach(function(done) {
-        var app = express();
-        app.use(bodyParser.urlencoded({ extended: false }));
-
-        // Simple middleware to handle get/post
-        app.use('/model.json', FalcorServer.dataSourceRoute(function(req, res) {
-            return new FalcorRouter([
-                {
-                    // match a request for the key ""greeting""
-                    route: ""greeting"",
-                    // respond with a PathValue with the value of ""Hello World.""
-                    get: function() {
-                        return {path:[""greeting""], value: ""Hello World""};
-                    }
-                }
-            ]);
-        }));
-
-        server = app.listen(60001, done);
-    })",15,34,snuts
-/test/integration/express.spec.js,NonFunctionalStatement,"{'startLine':9,'endLine':9}",Unknown,,,snuts
-/test/integration/dedupe.spec.js,AnonymousTest,"{'startLine':71,'endLine':80}","it(""using ranges"", done => {
-            const partDone = after(2, () => {
-                expect(onGet.mock.calls[1][1]).toEqual([[""things"", [0, 3]]]);
-
-                done();
-            });
-
-            model.get([""things"", { from: 1, to: 2 }]).subscribe(noOp, done, partDone);
-            model.get([""things"", { from: 0, to: 3 }]).subscribe(noOp, done, partDone);
-        })",71,80,snuts
-/test/integration/dedupe.spec.js,AnonymousTest,"{'startLine':82,'endLine':91}","it(""using arrays"", done => {
-            const partDone = after(2, () => {
-                expect(onGet.mock.calls[1][1]).toEqual([[""things"", [0, 5]]]);
-
-                done();
-            });
-
-            model.get([""things"", [2, 4]]).subscribe(noOp, done, partDone);
-            model.get([""things"", [0, 4, 5]]).subscribe(noOp, done, partDone);
-        })",82,91,snuts
-/test/integration/dedupe.spec.js,NonFunctionalStatement,"{'startLine':7,'endLine':7}",Unknown,,,snuts
-/test/integration/call.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
-/test/hardlink/hardlink.remove.spec.js,IdenticalTestDescription,"{'startLine':43,'endLine':49}","it('should perform a hard-link with back references _toJSONG.', function(done) {
-            getTest(getPath, '_toJSONG').
-                flatMap(function() {
-                    return setTest(setJSON, '_toJSONG');
-                }).
-                subscribe(noOp, done, done);
-        })",43,49,snuts
-/test/hardlink/hardlink.remove.spec.js,IdenticalTestDescription,"{'startLine':50,'endLine':56}","it('should perform a hard-link with back references toJSON.', function(done) {
-            getTest(getPath, 'toJSON').
-                flatMap(function() {
-                    return setTest(setJSON, 'toJSON');
-                }).
-                subscribe(noOp, done, done);
-        })",50,56,snuts
-/test/hardlink/hardlink.remove.spec.js,NonFunctionalStatement,"{'startLine':13,'endLine':13}",Unknown,,,snuts
-/test/hardlink/hardlink.add.spec.js,IdenticalTestDescription,"{'startLine':37,'endLine':40}","it('should perform a hard-link with back references _toJSONG.', function(done) {
-            setTest(setPath, '_toJSONG').
-                subscribe(noOp, done, done);
-        })",37,40,snuts
-/test/hardlink/hardlink.add.spec.js,IdenticalTestDescription,"{'startLine':41,'endLine':44}","it('should perform a hard-link with back references toJSON.', function(done) {
-            setTest(setPath, 'toJSON').
-                subscribe(noOp, done, done);
-        })",41,44,snuts
-/test/hardlink/hardlink.add.spec.js,IdenticalTestDescription,"{'startLine':51,'endLine':54}","it('should perform a hard-link with back references _toJSONG.', function(done) {
-            setTest(setJSON, '_toJSONG').
-                subscribe(noOp, done, done);
-        })",51,54,snuts
-/test/hardlink/hardlink.add.spec.js,IdenticalTestDescription,"{'startLine':55,'endLine':58}","it('should perform a hard-link with back references toJSON.', function(done) {
-            setTest(setJSON, 'toJSON').
-                subscribe(noOp, done, done);
-        })",55,58,snuts
-/test/hardlink/hardlink.add.spec.js,IdenticalTestDescription,"{'startLine':59,'endLine':62}","it('should perform a hard-link with back references toPathValues.', function(done) {
-            setTest(setJSON, 'toPathValues').
-                subscribe(noOp, done, done);
-        })",59,62,snuts
-/test/hardlink/hardlink.add.spec.js,NonFunctionalStatement,"{'startLine':13,'endLine':13}",Unknown,,,snuts
 /test/get-core/get.cache.spec.js,NonFunctionalStatement,"{'startLine':37,'endLine':37}","it(""serialized cache should not contain internal keys (including $size, on boxedValues)"", function(done) {
         var model = new Model({ cache: cacheGenerator(0, 1) });
 
@@ -5652,7 +5652,6 @@ file,type,line,method,methodStart,methodEnd,source
                         done();
                     });
         })",183,222,snuts
-/test/falcor/invalidate/invalidate.cache-only.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/get/get.pathSyntax.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/falcor/get/get.model.adapter.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
 /test/falcor/get/get.gen.spec.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should get a version', function() {
@@ -6441,6 +6440,7 @@ file,type,line,method,methodStart,methodEnd,source
                 }, done);
         })",64,92,snuts
 /test/falcor/get/get.cache-only.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/falcor/invalidate/invalidate.cache-only.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':65,'endLine':69}","it(""should get a hard error from the DataSource with _treatDataSourceErrorsAsJSONGraphErrors."", function(done) {
         var model = new Model({
             source: new ErrorDataSource(503, ""Timeout""),

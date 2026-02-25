@@ -1,14 +1,15 @@
 it("makes a couple requests where only part of the second request is deduped then disposed", done => {
-    const assertQueueState = (queue, expectedLength, requestIndex) => {
-        expect(queue._requests).toHaveLength(expectedLength);
-        expect(queue._requests[requestIndex].sent).toBe(true);
-        expect(queue._requests[requestIndex].scheduled).toBe(false);
-    };
-
     const scheduler = new ImmediateScheduler();
     const source = new LocalDataSource(Cache(), { wait: 100 });
     const model = new Model({ source });
     const queue = new RequestQueue(model, scheduler);
+
+    const assertRequestState = (requestIndex, expectedLength) => {
+        expect(queue._requests.length).toBe(expectedLength);
+        const request = queue._requests[requestIndex];
+        expect(request.sent).toBe(true);
+        expect(request.scheduled).toBe(false);
+    };
 
     const zip = zipSpy(
         2,
@@ -34,10 +35,10 @@ it("makes a couple requests where only part of the second request is deduped the
     );
 
     queue.get([videos0], [videos0], zip);
-    assertQueueState(queue, 1, 0);
+    assertRequestState(0, 1);
 
     const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
-    assertQueueState(queue, 2, 1);
+    assertRequestState(1, 2);
 
     disposable2();
-})
+});

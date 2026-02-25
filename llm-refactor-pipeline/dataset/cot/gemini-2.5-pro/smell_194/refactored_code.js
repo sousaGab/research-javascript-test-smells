@@ -1,58 +1,60 @@
-describe('basic click events', () => {
-  const template = (onClickHandler) =>
+describe('event handling', () => {
+  const template = (val) =>
     createElement('div', {
       id: 'test',
-      onclick: onClickHandler,
+      onclick: val,
     });
 
-  const clickAllDivs = () => {
-    const divs = container.querySelectorAll('div');
-    for (const div of divs) {
-      div.click();
-    }
-  };
-
-  it('should attach a click event', () => {
-    let wasCalled = false;
+  it('should attach a click event handler', () => {
+    let called = false;
     const handleClick = () => {
-      wasCalled = true;
+      called = true;
     };
 
     render(template(handleClick), container);
-    clickAllDivs();
 
-    expect(wasCalled).toBe(true);
+    const div = container.querySelector('div');
+    div.click();
+
+    expect(called).toBe(true);
   });
 
-  it('should update an existing click event', () => {
-    let firstWasCalled = false;
-    const firstHandleClick = () => {
-      firstWasCalled = true;
+  it('should update a click event handler', () => {
+    let calledFirst = false;
+    const handleFirstClick = () => {
+      calledFirst = true;
     };
 
-    let secondWasCalled = false;
-    const secondHandleClick = () => {
-      secondWasCalled = true;
+    let calledSecond = false;
+    const handleSecondClick = () => {
+      calledSecond = true;
     };
 
-    render(template(firstHandleClick), container);
-    render(template(secondHandleClick), container);
-    clickAllDivs();
+    render(template(handleFirstClick), container);
+    render(template(handleSecondClick), container);
 
-    expect(firstWasCalled).toBe(false);
-    expect(secondWasCalled).toBe(true);
+    const div = container.querySelector('div');
+    div.click();
+
+    expect(calledFirst).toBe(false);
+    expect(calledSecond).toBe(true);
   });
 
-  it('should remove a click event when rendered with null', () => {
-    let wasCalled = false;
+  it('should remove a click event handler when rendered with null', () => {
+    let called = false;
     const handleClick = () => {
-      wasCalled = true;
+      called = true;
     };
 
     render(template(handleClick), container);
     render(null, container);
-    clickAllDivs();
 
-    expect(wasCalled).toBe(false);
+    // After rendering null, the element is removed, so no click can be triggered.
+    const divs = container.querySelectorAll('div');
+    for (const div of divs) {
+      div.click();
+    }
+
+    expect(called).toBe(false);
   });
 });

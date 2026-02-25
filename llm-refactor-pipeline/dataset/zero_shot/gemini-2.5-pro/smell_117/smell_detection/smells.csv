@@ -301,89 +301,72 @@ file,type,line,method,methodStart,methodEnd,source
     })
     expect(response).toEqual(expectedResponse)
   })",356,385,snuts
-/__tests__/integration.js,AnonymousTest,"{'startLine':432,'endLine':513}","test('set-cookie', async () => {
-  const now = new Date(2022, 7, 11, 3, 30, 30);
-  const maxAge = 3000;
-  const expires = new Date(+now + maxAge);
+/__tests__/integration.js,AnonymousTest,"{'startLine':432,'endLine':496}","test('set-cookie', async () => {
+  const now = new Date(2022, 7, 11, 3, 30, 30)
+  const maxAge = 3000
+  const expires = new Date(+now + maxAge)
 
-  jest.useFakeTimers('modern');
-  jest.setSystemTime(now);
+  jest.useFakeTimers('modern')
+  jest.setSystemTime(now)
 
   router.get('/cookie', (req, res) => {
-    res.cookie('Zoo', 'boo', {
-      domain: 'mafoo.com',
-      secure: true,
-      httpOnly: true,
-      sameSite: 'Strict',
-      maxAge
-    });
-    res.cookie('Foo', 'bar', {
-      domain: 'example.com',
-      secure: true,
-      httpOnly: true,
-      sameSite: 'Strict'
-    });
-    res.cookie('Fizz', 'buzz');
-    res.json({});
-  });
+    res.cookie('Zoo', 'boo', { domain: 'mafoo.com', secure: true, httpOnly: true, sameSite: 'Strict', maxAge })
+    res.cookie('Foo', 'bar', { domain: 'example.com', secure: true, httpOnly: true, sameSite: 'Strict' })
+    res.cookie('Fizz', 'buzz')
+    res.json({})
+  })
 
   const event = makeEvent({
     eventSourceName,
     path: '/cookie',
     httpMethod: 'GET'
-  });
-  const response = await serverlessExpressInstance(event);
+  })
+  const response = await serverlessExpressInstance(event)
 
-  jest.useRealTimers();
+  expect(response.statusCode).toBe(200)
+  expect(response.body).toBe('{}')
 
-  const expectedSetCookieHeaders = [
-    `Zoo=boo; Max-Age=3; Domain=mafoo.com; Path=/; Expires=${expires.toUTCString()}; HttpOnly; Secure; SameSite=Strict`,
-    'Foo=bar; Domain=example.com; Path=/; HttpOnly; Secure; SameSite=Strict',
-    'Fizz=buzz; Path=/'
-  ];
+  switch (eventSourceName) {
+    case 'azureHttpFunctionV4':
+    case 'azureHttpFunctionV3':
+      expect(response.cookies).toEqual([
+        {
+          name: 'Zoo',
+          value: 'boo',
+          domain: 'mafoo.com',
+          path: '/',
+          secure: true,
+          httpOnly: true,
+          sameSite: 'Strict',
+          maxAge: maxAge / 1000,
+          expires
+        },
+        {
+          name: 'Foo',
+          value: 'bar',
+          domain: 'example.com',
+          path: '/',
+          secure: true,
+          httpOnly: true,
+          sameSite: 'Strict'
+        },
+        { name: 'Fizz', value: 'buzz', path: '/' }
+      ])
+      break
+    default:
+      const expectedExpires = expires.toUTCString()
+      const expectedSetCookieHeaders = [
+        `Zoo=boo; Max-Age=3; Domain=mafoo.com; Path=/; Expires=${expectedExpires}; HttpOnly; Secure; SameSite=Strict`,
+        'Foo=bar; Domain=example.com; Path=/; HttpOnly; Secure; SameSite=Strict',
+        'Fizz=buzz; Path=/'
+      ]
+      expect(response.multiValueHeaders['set-cookie']).toEqual(expectedSetCookieHeaders)
+      break
+  }
 
-  const getExpectedAzureCookies = () => [{
-    name: 'Zoo',
-    value: 'boo',
-    domain: 'mafoo.com',
-    path: '/',
-    httpOnly: true,
-    secure: true,
-    sameSite: 'Strict',
-    maxAge: maxAge / 1000,
-    expires
-  }, {
-    name: 'Foo',
-    value: 'bar',
-    domain: 'example.com',
-    path: '/',
-    httpOnly: true,
-    secure: true,
-    sameSite: 'Strict'
-  }, {
-    name: 'Fizz',
-    value: 'buzz',
-    path: '/'
-  }, ];
-
-  const isAzure = ['azureHttpFunctionV4', 'azureHttpFunctionV3'].includes(eventSourceName);
-  const expectedCookies = isAzure ? getExpectedAzureCookies() : expectedSetCookieHeaders;
-
-  const expectedResponse = makeResponse({
-    eventSourceName,
-    body: '{}',
-    cookies: expectedCookies,
-    multiValueHeaders: {
-      'set-cookie': expectedSetCookieHeaders,
-      'content-length': ['2'],
-      etag: ['W/""2-vyGp6PvFo4RvsFtPoIWeCReyIC8""']
-    },
-    statusCode: 200
-  });
-
-  expect(response).toEqual(expectedResponse);
-})",432,513,snuts
-/__tests__/integration.js,AnonymousTest,"{'startLine':534,'endLine':567}","test('custom logger', async () => {
+  jest.useRealTimers()
+})",432,496,snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':517,'endLine':550}","test('custom logger', async () => {
       app = express()
       router = express.Router()
       app.use('/', router)
@@ -416,8 +399,8 @@ file,type,line,method,methodStart,methodEnd,source
       // serverlessExpressInstance = serverlessExpress({ app, log: customLogger })
       // await serverlessExpressInstance(event)
       // expect(customLogger.debug.mock.calls.length).toBe(0)
-    })",534,567,snuts
-/__tests__/integration.js,AnonymousTest,"{'startLine':569,'endLine':657}","test('custom levels', () => {
+    })",517,550,snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':552,'endLine':640}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -505,8 +488,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,snuts
-/__tests__/integration.js,AnonymousTest,"{'startLine':697,'endLine':728}","test('legacy/deprecated createServer', async () => {
+    })",552,640,snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':680,'endLine':711}","test('legacy/deprecated createServer', async () => {
     const serverlessExpressMiddleware = require('../src/middleware')
     app = express()
     router = express.Router()
@@ -537,8 +520,8 @@ file,type,line,method,methodStart,methodEnd,source
       statusCode: 200
     })
     expect(response).toEqual(expectedResponse)
-  })",697,728,snuts
-/__tests__/integration.js,AnonymousTest,"{'startLine':730,'endLine':756}","test('legacy/deprecated handler', async () => {
+  })",680,711,snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':713,'endLine':739}","test('legacy/deprecated handler', async () => {
     const serverlessExpressMiddleware = require('../src/middleware')
     router.use(serverlessExpressMiddleware.eventContext())
     router.get('/users', (req, res) => {
@@ -564,8 +547,8 @@ file,type,line,method,methodStart,methodEnd,source
       statusCode: 200
     })
     expect(response).toEqual(expectedResponse)
-  })",730,756,snuts
-/__tests__/integration.js,AnonymousTest,"{'startLine':758,'endLine':784}","test('legacy/deprecated proxy', async () => {
+  })",713,739,snuts
+/__tests__/integration.js,AnonymousTest,"{'startLine':741,'endLine':767}","test('legacy/deprecated proxy', async () => {
     const serverlessExpressMiddleware = require('../src/middleware')
     router.use(serverlessExpressMiddleware.eventContext())
     router.get('/users', (req, res) => {
@@ -591,8 +574,8 @@ file,type,line,method,methodStart,methodEnd,source
       statusCode: 200
     })
     expect(response).toEqual(expectedResponse)
-  })",758,784,snuts
-/__tests__/integration.js,OvercommentedTest,"{'startLine':534,'endLine':567}","test('custom logger', async () => {
+  })",741,767,snuts
+/__tests__/integration.js,OvercommentedTest,"{'startLine':517,'endLine':550}","test('custom logger', async () => {
       app = express()
       router = express.Router()
       app.use('/', router)
@@ -625,8 +608,8 @@ file,type,line,method,methodStart,methodEnd,source
       // serverlessExpressInstance = serverlessExpress({ app, log: customLogger })
       // await serverlessExpressInstance(event)
       // expect(customLogger.debug.mock.calls.length).toBe(0)
-    })",534,567,snuts
-/__tests__/integration.js,SubOptimalAssert,"{'startLine':556,'endLine':556}","test('custom logger', async () => {
+    })",517,550,snuts
+/__tests__/integration.js,SubOptimalAssert,"{'startLine':539,'endLine':539}","test('custom logger', async () => {
       app = express()
       router = express.Router()
       app.use('/', router)
@@ -659,90 +642,8 @@ file,type,line,method,methodStart,methodEnd,source
       // serverlessExpressInstance = serverlessExpress({ app, log: customLogger })
       // await serverlessExpressInstance(event)
       // expect(customLogger.debug.mock.calls.length).toBe(0)
-    })",534,567,snuts
-/__tests__/integration.js,VerboseStatement,"{'startLine':432,'endLine':513}","test('set-cookie', async () => {
-  const now = new Date(2022, 7, 11, 3, 30, 30);
-  const maxAge = 3000;
-  const expires = new Date(+now + maxAge);
-
-  jest.useFakeTimers('modern');
-  jest.setSystemTime(now);
-
-  router.get('/cookie', (req, res) => {
-    res.cookie('Zoo', 'boo', {
-      domain: 'mafoo.com',
-      secure: true,
-      httpOnly: true,
-      sameSite: 'Strict',
-      maxAge
-    });
-    res.cookie('Foo', 'bar', {
-      domain: 'example.com',
-      secure: true,
-      httpOnly: true,
-      sameSite: 'Strict'
-    });
-    res.cookie('Fizz', 'buzz');
-    res.json({});
-  });
-
-  const event = makeEvent({
-    eventSourceName,
-    path: '/cookie',
-    httpMethod: 'GET'
-  });
-  const response = await serverlessExpressInstance(event);
-
-  jest.useRealTimers();
-
-  const expectedSetCookieHeaders = [
-    `Zoo=boo; Max-Age=3; Domain=mafoo.com; Path=/; Expires=${expires.toUTCString()}; HttpOnly; Secure; SameSite=Strict`,
-    'Foo=bar; Domain=example.com; Path=/; HttpOnly; Secure; SameSite=Strict',
-    'Fizz=buzz; Path=/'
-  ];
-
-  const getExpectedAzureCookies = () => [{
-    name: 'Zoo',
-    value: 'boo',
-    domain: 'mafoo.com',
-    path: '/',
-    httpOnly: true,
-    secure: true,
-    sameSite: 'Strict',
-    maxAge: maxAge / 1000,
-    expires
-  }, {
-    name: 'Foo',
-    value: 'bar',
-    domain: 'example.com',
-    path: '/',
-    httpOnly: true,
-    secure: true,
-    sameSite: 'Strict'
-  }, {
-    name: 'Fizz',
-    value: 'buzz',
-    path: '/'
-  }, ];
-
-  const isAzure = ['azureHttpFunctionV4', 'azureHttpFunctionV3'].includes(eventSourceName);
-  const expectedCookies = isAzure ? getExpectedAzureCookies() : expectedSetCookieHeaders;
-
-  const expectedResponse = makeResponse({
-    eventSourceName,
-    body: '{}',
-    cookies: expectedCookies,
-    multiValueHeaders: {
-      'set-cookie': expectedSetCookieHeaders,
-      'content-length': ['2'],
-      etag: ['W/""2-vyGp6PvFo4RvsFtPoIWeCReyIC8""']
-    },
-    statusCode: 200
-  });
-
-  expect(response).toEqual(expectedResponse);
-})",432,513,snuts
-/__tests__/integration.js,VerboseStatement,"{'startLine':569,'endLine':657}","test('custom levels', () => {
+    })",517,550,snuts
+/__tests__/integration.js,VerboseStatement,"{'startLine':552,'endLine':640}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -830,7 +731,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,snuts
+    })",552,640,snuts
 /__tests__/unit.js,Ignored Test,"{'line': 175, 'column': 9, 'index': 5830}","describe.skip('forwardResponse: content-type encoding', () => {
   test('content-type header missing', async (done) => {
     const binaryMimeTypes = []
@@ -1064,7 +965,72 @@ file,type,line,method,methodStart,methodEnd,source
     }
     expect(response).toEqual(expectedResponse)
   })",239,304,steel
-/__tests__/integration.js,Conditional Test Logic,"{'line': 527, 'column': 6, 'index': 15544}","beforeEach(() => {
+/__tests__/integration.js,Conditional Test Logic,"{'line': 457, 'column': 2, 'index': 14100}","test('set-cookie', async () => {
+  const now = new Date(2022, 7, 11, 3, 30, 30)
+  const maxAge = 3000
+  const expires = new Date(+now + maxAge)
+
+  jest.useFakeTimers('modern')
+  jest.setSystemTime(now)
+
+  router.get('/cookie', (req, res) => {
+    res.cookie('Zoo', 'boo', { domain: 'mafoo.com', secure: true, httpOnly: true, sameSite: 'Strict', maxAge })
+    res.cookie('Foo', 'bar', { domain: 'example.com', secure: true, httpOnly: true, sameSite: 'Strict' })
+    res.cookie('Fizz', 'buzz')
+    res.json({})
+  })
+
+  const event = makeEvent({
+    eventSourceName,
+    path: '/cookie',
+    httpMethod: 'GET'
+  })
+  const response = await serverlessExpressInstance(event)
+
+  expect(response.statusCode).toBe(200)
+  expect(response.body).toBe('{}')
+
+  switch (eventSourceName) {
+    case 'azureHttpFunctionV4':
+    case 'azureHttpFunctionV3':
+      expect(response.cookies).toEqual([
+        {
+          name: 'Zoo',
+          value: 'boo',
+          domain: 'mafoo.com',
+          path: '/',
+          secure: true,
+          httpOnly: true,
+          sameSite: 'Strict',
+          maxAge: maxAge / 1000,
+          expires
+        },
+        {
+          name: 'Foo',
+          value: 'bar',
+          domain: 'example.com',
+          path: '/',
+          secure: true,
+          httpOnly: true,
+          sameSite: 'Strict'
+        },
+        { name: 'Fizz', value: 'buzz', path: '/' }
+      ])
+      break
+    default:
+      const expectedExpires = expires.toUTCString()
+      const expectedSetCookieHeaders = [
+        `Zoo=boo; Max-Age=3; Domain=mafoo.com; Path=/; Expires=${expectedExpires}; HttpOnly; Secure; SameSite=Strict`,
+        'Foo=bar; Domain=example.com; Path=/; HttpOnly; Secure; SameSite=Strict',
+        'Fizz=buzz; Path=/'
+      ]
+      expect(response.multiValueHeaders['set-cookie']).toEqual(expectedSetCookieHeaders)
+      break
+  }
+
+  jest.useRealTimers()
+})",432,496,steel
+/__tests__/integration.js,Conditional Test Logic,"{'line': 510, 'column': 6, 'index': 15429}","beforeEach(() => {
       const mockMethods = [
         'error',
         'info',
@@ -1074,10 +1040,10 @@ file,type,line,method,methodStart,methodEnd,source
       ]
 
       for (const method of mockMethods) { mocks.push(jest.spyOn(global.console, method).mockImplementation()) }
-    })",518,528,steel
-/__tests__/integration.js,Conditional Test Logic,"{'line': 531, 'column': 6, 'index': 15686}","afterEach(() => {
+    })",501,511,steel
+/__tests__/integration.js,Conditional Test Logic,"{'line': 514, 'column': 6, 'index': 15571}","afterEach(() => {
       for (const mock of mocks) mock.mockRestore()
-    })",530,532,steel
+    })",513,515,steel
 /__tests__/integration.js,Duplicate Assert,"{'line': 281, 'column': 8, 'index': 8873}","test('GET image', async () => {
     const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
     router.get('/sam', (req, res) => {
@@ -1606,7 +1572,7 @@ file,type,line,method,methodStart,methodEnd,source
     }
     expect(response).toEqual(expectedResponse)
   })",239,304,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 577, 'column': 6, 'index': 17072}","test('custom levels', () => {
+/__tests__/integration.js,Duplicate Assert,"{'line': 560, 'column': 6, 'index': 16957}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -1694,8 +1660,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 578, 'column': 6, 'index': 17129}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 561, 'column': 6, 'index': 17014}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -1783,8 +1749,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 578, 'column': 6, 'index': 17129}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 561, 'column': 6, 'index': 17014}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -1872,8 +1838,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 579, 'column': 6, 'index': 17187}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 562, 'column': 6, 'index': 17072}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -1961,8 +1927,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 579, 'column': 6, 'index': 17187}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 562, 'column': 6, 'index': 17072}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -2050,8 +2016,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 580, 'column': 6, 'index': 17244}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 563, 'column': 6, 'index': 17129}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -2139,8 +2105,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 591, 'column': 6, 'index': 17574}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 574, 'column': 6, 'index': 17459}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -2228,8 +2194,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 591, 'column': 6, 'index': 17574}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 574, 'column': 6, 'index': 17459}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -2317,8 +2283,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 592, 'column': 6, 'index': 17632}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 575, 'column': 6, 'index': 17517}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -2406,8 +2372,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 592, 'column': 6, 'index': 17632}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 575, 'column': 6, 'index': 17517}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -2495,8 +2461,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 593, 'column': 6, 'index': 17689}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 576, 'column': 6, 'index': 17574}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -2584,8 +2550,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 596, 'column': 6, 'index': 17786}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 579, 'column': 6, 'index': 17671}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -2673,8 +2639,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 607, 'column': 6, 'index': 18114}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 590, 'column': 6, 'index': 17999}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -2762,8 +2728,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 607, 'column': 6, 'index': 18114}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 590, 'column': 6, 'index': 17999}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -2851,8 +2817,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 608, 'column': 6, 'index': 18172}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 591, 'column': 6, 'index': 18057}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -2940,8 +2906,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 611, 'column': 6, 'index': 18269}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 594, 'column': 6, 'index': 18154}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -3029,8 +2995,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 614, 'column': 6, 'index': 18364}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 597, 'column': 6, 'index': 18249}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -3118,8 +3084,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 625, 'column': 6, 'index': 18715}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 608, 'column': 6, 'index': 18600}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -3207,8 +3173,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 628, 'column': 6, 'index': 18812}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 611, 'column': 6, 'index': 18697}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -3296,8 +3262,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 631, 'column': 6, 'index': 18907}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 614, 'column': 6, 'index': 18792}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -3385,8 +3351,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 634, 'column': 6, 'index': 19002}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 617, 'column': 6, 'index': 18887}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -3474,8 +3440,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 645, 'column': 6, 'index': 19343}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 628, 'column': 6, 'index': 19228}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -3563,8 +3529,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 648, 'column': 6, 'index': 19440}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 631, 'column': 6, 'index': 19325}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -3652,8 +3618,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 651, 'column': 6, 'index': 19535}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 634, 'column': 6, 'index': 19420}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -3741,8 +3707,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 654, 'column': 6, 'index': 19630}","test('custom levels', () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 637, 'column': 6, 'index': 19515}","test('custom levels', () => {
       const loggerError = serverlessExpressLogger({ level: 'error' })
 
       loggerError.error('error')
@@ -3830,8 +3796,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(global.console.debug).toHaveBeenLastCalledWith({
         message: 'debug5'
       })
-    })",569,657,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 667, 'column': 6, 'index': 20014}","test('lazy print of logger', async () => {
+    })",552,640,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 650, 'column': 6, 'index': 19899}","test('lazy print of logger', async () => {
       const logger = serverlessExpressLogger({ level: 'debug' })
 
       logger.debug('simple message')
@@ -3866,8 +3832,8 @@ file,type,line,method,methodStart,methodEnd,source
           0: ['message']
         }
       )
-    })",659,694,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 673, 'column': 6, 'index': 20149}","test('lazy print of logger', async () => {
+    })",642,677,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 656, 'column': 6, 'index': 20034}","test('lazy print of logger', async () => {
       const logger = serverlessExpressLogger({ level: 'debug' })
 
       logger.debug('simple message')
@@ -3902,8 +3868,8 @@ file,type,line,method,methodStart,methodEnd,source
           0: ['message']
         }
       )
-    })",659,694,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 681, 'column': 6, 'index': 20320}","test('lazy print of logger', async () => {
+    })",642,677,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 664, 'column': 6, 'index': 20205}","test('lazy print of logger', async () => {
       const logger = serverlessExpressLogger({ level: 'debug' })
 
       logger.debug('simple message')
@@ -3938,8 +3904,8 @@ file,type,line,method,methodStart,methodEnd,source
           0: ['message']
         }
       )
-    })",659,694,steel
-/__tests__/integration.js,Duplicate Assert,"{'line': 687, 'column': 6, 'index': 20446}","test('lazy print of logger', async () => {
+    })",642,677,steel
+/__tests__/integration.js,Duplicate Assert,"{'line': 670, 'column': 6, 'index': 20331}","test('lazy print of logger', async () => {
       const logger = serverlessExpressLogger({ level: 'debug' })
 
       logger.debug('simple message')
@@ -3974,7 +3940,7 @@ file,type,line,method,methodStart,methodEnd,source
           0: ['message']
         }
       )
-    })",659,694,steel
+    })",642,677,steel
 /__tests__/integration.js,Ignored Test,"{'line': 423, 'column': 7, 'index': 13127}","test.skip('respondToEventSourceWithError', async () => {
     const response = await serverlessExpressInstance(null)
     expect(response).toEqual({
@@ -4247,7 +4213,72 @@ file,type,line,method,methodStart,methodEnd,source
     }
     expect(response).toEqual(expectedResponse)
   })",239,304,steel
-/__tests__/integration.js,Magic Number,"{'line': 556, 'column': 56, 'index': 16397}","test('custom logger', async () => {
+/__tests__/integration.js,Magic Number,"{'line': 454, 'column': 35, 'index': 14057}","test('set-cookie', async () => {
+  const now = new Date(2022, 7, 11, 3, 30, 30)
+  const maxAge = 3000
+  const expires = new Date(+now + maxAge)
+
+  jest.useFakeTimers('modern')
+  jest.setSystemTime(now)
+
+  router.get('/cookie', (req, res) => {
+    res.cookie('Zoo', 'boo', { domain: 'mafoo.com', secure: true, httpOnly: true, sameSite: 'Strict', maxAge })
+    res.cookie('Foo', 'bar', { domain: 'example.com', secure: true, httpOnly: true, sameSite: 'Strict' })
+    res.cookie('Fizz', 'buzz')
+    res.json({})
+  })
+
+  const event = makeEvent({
+    eventSourceName,
+    path: '/cookie',
+    httpMethod: 'GET'
+  })
+  const response = await serverlessExpressInstance(event)
+
+  expect(response.statusCode).toBe(200)
+  expect(response.body).toBe('{}')
+
+  switch (eventSourceName) {
+    case 'azureHttpFunctionV4':
+    case 'azureHttpFunctionV3':
+      expect(response.cookies).toEqual([
+        {
+          name: 'Zoo',
+          value: 'boo',
+          domain: 'mafoo.com',
+          path: '/',
+          secure: true,
+          httpOnly: true,
+          sameSite: 'Strict',
+          maxAge: maxAge / 1000,
+          expires
+        },
+        {
+          name: 'Foo',
+          value: 'bar',
+          domain: 'example.com',
+          path: '/',
+          secure: true,
+          httpOnly: true,
+          sameSite: 'Strict'
+        },
+        { name: 'Fizz', value: 'buzz', path: '/' }
+      ])
+      break
+    default:
+      const expectedExpires = expires.toUTCString()
+      const expectedSetCookieHeaders = [
+        `Zoo=boo; Max-Age=3; Domain=mafoo.com; Path=/; Expires=${expectedExpires}; HttpOnly; Secure; SameSite=Strict`,
+        'Foo=bar; Domain=example.com; Path=/; HttpOnly; Secure; SameSite=Strict',
+        'Fizz=buzz; Path=/'
+      ]
+      expect(response.multiValueHeaders['set-cookie']).toEqual(expectedSetCookieHeaders)
+      break
+  }
+
+  jest.useRealTimers()
+})",432,496,steel
+/__tests__/integration.js,Magic Number,"{'line': 539, 'column': 56, 'index': 16282}","test('custom logger', async () => {
       app = express()
       router = express.Router()
       app.use('/', router)
@@ -4280,7 +4311,7 @@ file,type,line,method,methodStart,methodEnd,source
       // serverlessExpressInstance = serverlessExpress({ app, log: customLogger })
       // await serverlessExpressInstance(event)
       // expect(customLogger.debug.mock.calls.length).toBe(0)
-    })",534,567,steel
+    })",517,550,steel
 /__tests__/integration.js,Mystery Guest,"{'column': 25, 'line': 252}","test('GET image', async () => {
     const samLogoPath = path.join(jestHelpersPath, 'sam-logo.png')
     router.get('/sam', (req, res) => {

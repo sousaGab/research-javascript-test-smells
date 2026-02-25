@@ -712,333 +712,6 @@ file,type,line,method,methodStart,methodEnd,source
 /test/Model.spec.js,SubOptimalAssert,"{'startLine':68,'endLine':68}","it(""should construct a new Model when calling the falcor module function"", () => {
         expect(falcor() instanceof falcor.Model).toBe(true);
     })",67,69,snuts
-/test/set/edge-cases.spec.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","it(""set blows away the cache."", function() {
-        var model = new Model({});
-        var get = [[""genreList"", 1, 0, ""summary""]];
-
-        // this mimicks the server setting cycle from the router.
-        var set = [
-            {
-                jsonGraph: {""genreList"": {
-                    ""0"": { ""$type"": $path, ""value"": [""lists"", ""abcd""] },
-                    ""1"": { ""$type"": $path, ""value"": [""lists"", ""my-list""] }
-                }},
-                paths: [['genreList', {to:1}, 0, 'summary']]
-            },
-            {
-                jsonGraph: {""lists"": {
-                    ""abcd"": { ""0"": { ""$type"": $path, ""value"": [""videos"", 1234] } },
-                    ""my-list"": { ""$type"": $path, ""value"": [""lists"", ""1x5x""] }
-                }},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            },
-            {
-                jsonGraph: {""lists"": {""1x5x"": {
-                    ""0"": { ""$type"": $path, ""value"": [""videos"", 553] }
-                }}},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            },
-            {
-                jsonGraph: {""videos"": {""553"": {""summary"": {
-                    ""$size"": 10,
-                    ""$type"": $atom,
-                    ""value"": {
-                        ""title"": ""Running Man"",
-                        ""url"": ""/movies/553""
-                    }
-                }}}},
-                paths: [[""genreList"", 1, 0, ""summary""]]
-            }
-        ];
-
-        set.forEach(function(s, i) {
-            model._setJSONGs(model, [s]);
-            if (i === 2) {
-                expect(model._root.cache.lists).toBeDefined();
-            }
-        });
-
-        model._getPathValuesAsPathMap(model, get, function(x) {
-            expect(x).toEqual({ json: { genreList: { 1: { 0: { summary: {
-                    ""title"": ""Running Man"",
-                    ""url"": ""/movies/553""
-                } } } } }
-            });
-        });
-    })",57,110,snuts
-/test/set/edge-cases.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':68,'endLine':68}","it(
-        ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
-        function() {
-            var onErrorValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function(e) {
-                    onErrorValues.push(e);
-                }
-            );
-            modelResponseObserver.onError(1);
-            modelResponseObserver.onError(2);
-
-            expect(onErrorValues.length).toBe(1);
-            expect(onErrorValues[0]).toBe(1);
-        }
-    )",63,79,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':86,'endLine':86}","it(
-        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function() {},
-                function(value) {
-                    onCompletedValues.push(value);
-                }
-            );
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",81,98,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':87,'endLine':87}","it(
-        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function() {},
-                function(value) {
-                    onCompletedValues.push(value);
-                }
-            );
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",81,98,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':152,'endLine':152}","it(
-        ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
-        function() {
-            var onErrorValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function(e) {
-                    onErrorValues.push(e);
-                }
-            });
-            modelResponseObserver.onError(1);
-            modelResponseObserver.onError(2);
-
-            expect(onErrorValues.length).toBe(1);
-            expect(onErrorValues[0]).toBe(1);
-        }
-    )",147,163,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':170,'endLine':170}","it(
-        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function() {},
-                onCompleted: function(value) {
-                    onCompletedValues.push(value);
-                }
-            });
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",165,182,snuts
-/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':171,'endLine':171}","it(
-        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function() {},
-                onCompleted: function(value) {
-                    onCompletedValues.push(value);
-                }
-            });
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",165,182,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':43,'endLine':43}","it(
-        ""should suppress onNext callback after ModelResponseObserver is onCompleted"",
-        function() {
-            var onNextValue;
-            var modelResponseObserver = new ModelResponseObserver(function(
-                value
-            ) {
-                onNextValue = value;
-            });
-            modelResponseObserver.onCompleted();
-            modelResponseObserver.onNext(5);
-
-            expect(onNextValue).toBe(undefined);
-        }
-    )",31,45,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':59,'endLine':59}","it(
-        ""should suppress onNext callback after ModelResponseObserver is onError'ed"",
-        function() {
-            var onNextValue;
-            var modelResponseObserver = new ModelResponseObserver(function(
-                value
-            ) {
-                onNextValue = value;
-            });
-            modelResponseObserver.onError();
-            modelResponseObserver.onNext(5);
-
-            expect(onNextValue).toBe(undefined);
-        }
-    )",47,61,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':76,'endLine':76}","it(
-        ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
-        function() {
-            var onErrorValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function(e) {
-                    onErrorValues.push(e);
-                }
-            );
-            modelResponseObserver.onError(1);
-            modelResponseObserver.onError(2);
-
-            expect(onErrorValues.length).toBe(1);
-            expect(onErrorValues[0]).toBe(1);
-        }
-    )",63,79,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':95,'endLine':95}","it(
-        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function() {},
-                function(value) {
-                    onCompletedValues.push(value);
-                }
-            );
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",81,98,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':96,'endLine':96}","it(
-        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver(
-                function() {},
-                function() {},
-                function(value) {
-                    onCompletedValues.push(value);
-                }
-            );
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",81,98,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':127,'endLine':127}","it(
-        ""should suppress onNext method after ModelResponseObserver is onCompleted"",
-        function() {
-            var onNextValue;
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function(value) {
-                    onNextValue = value;
-                }
-            });
-            modelResponseObserver.onCompleted();
-            modelResponseObserver.onNext(5);
-
-            expect(onNextValue).toBe(undefined);
-        }
-    )",115,129,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':143,'endLine':143}","it(
-        ""should suppress onNext method after ModelResponseObserver is onError'ed"",
-        function() {
-            var onNextValue;
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function(value) {
-                    onNextValue = value;
-                }
-            });
-            modelResponseObserver.onError();
-            modelResponseObserver.onNext(5);
-
-            expect(onNextValue).toBe(undefined);
-        }
-    )",131,145,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':160,'endLine':160}","it(
-        ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
-        function() {
-            var onErrorValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function(e) {
-                    onErrorValues.push(e);
-                }
-            });
-            modelResponseObserver.onError(1);
-            modelResponseObserver.onError(2);
-
-            expect(onErrorValues.length).toBe(1);
-            expect(onErrorValues[0]).toBe(1);
-        }
-    )",147,163,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':179,'endLine':179}","it(
-        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function() {},
-                onCompleted: function(value) {
-                    onCompletedValues.push(value);
-                }
-            });
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",165,182,snuts
-/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':180,'endLine':180}","it(
-        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
-        function() {
-            var onCompletedValues = [];
-            var modelResponseObserver = new ModelResponseObserver({
-                onNext: function() {},
-                onError: function() {},
-                onCompleted: function(value) {
-                    onCompletedValues.push(value);
-                }
-            });
-            modelResponseObserver.onCompleted(1);
-            modelResponseObserver.onCompleted(2);
-
-            expect(onCompletedValues.length).toBe(1);
-            expect(onCompletedValues[0]).toBe(undefined);
-        }
-    )",165,182,snuts
 /test/lru/lru.splice.overwrite.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
 /test/lru/lru.splice.expired.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/lru/lru.promote.set.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
@@ -1138,14 +811,13 @@ file,type,line,method,methodStart,methodEnd,source
         expect(current.value).toBe('I am 1');
         expect(current[__prev]).toBe(undefined);
     })",105,128,snuts
-/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':130,'endLine':155}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,IdenticalTestDescription,"{'startLine':130,'endLine':154}","it('should promote references on a get.', function() {
     var model = new Model({
         cache: cacheGenerator(0, 1)
     });
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -1163,7 +835,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,snuts
+})",130,154,snuts
 /test/lru/lru.promote.get.spec.js,SubOptimalAssert,"{'startLine':98,'endLine':98}","it('should promote the get item to the head toJSON.', function() {
         var model = new Model();
         model.set({json: {1: 'I am 1'}}).subscribe();
@@ -1351,14 +1023,13 @@ file,type,line,method,methodStart,methodEnd,source
         expect(current.value).toBe('I am 1');
         expect(current[__prev]).toBe(undefined);
     })",105,128,snuts
-/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':130,'endLine':155}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,VerboseStatement,"{'startLine':130,'endLine':154}","it('should promote references on a get.', function() {
     var model = new Model({
         cache: cacheGenerator(0, 1)
     });
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -1376,7 +1047,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,snuts
+})",130,154,snuts
 /test/invalidate/pathSets.spec.js,AnonymousTest,"{'startLine':13,'endLine':30}","it(""directly"", function() {
 
         var lru = new Object();
@@ -1887,6 +1558,333 @@ file,type,line,method,methodStart,methodEnd,source
         })",82,91,snuts
 /test/integration/dedupe.spec.js,NonFunctionalStatement,"{'startLine':7,'endLine':7}",Unknown,,,snuts
 /test/integration/call.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
+/test/set/edge-cases.spec.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","it(""set blows away the cache."", function() {
+        var model = new Model({});
+        var get = [[""genreList"", 1, 0, ""summary""]];
+
+        // this mimicks the server setting cycle from the router.
+        var set = [
+            {
+                jsonGraph: {""genreList"": {
+                    ""0"": { ""$type"": $path, ""value"": [""lists"", ""abcd""] },
+                    ""1"": { ""$type"": $path, ""value"": [""lists"", ""my-list""] }
+                }},
+                paths: [['genreList', {to:1}, 0, 'summary']]
+            },
+            {
+                jsonGraph: {""lists"": {
+                    ""abcd"": { ""0"": { ""$type"": $path, ""value"": [""videos"", 1234] } },
+                    ""my-list"": { ""$type"": $path, ""value"": [""lists"", ""1x5x""] }
+                }},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            },
+            {
+                jsonGraph: {""lists"": {""1x5x"": {
+                    ""0"": { ""$type"": $path, ""value"": [""videos"", 553] }
+                }}},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            },
+            {
+                jsonGraph: {""videos"": {""553"": {""summary"": {
+                    ""$size"": 10,
+                    ""$type"": $atom,
+                    ""value"": {
+                        ""title"": ""Running Man"",
+                        ""url"": ""/movies/553""
+                    }
+                }}}},
+                paths: [[""genreList"", 1, 0, ""summary""]]
+            }
+        ];
+
+        set.forEach(function(s, i) {
+            model._setJSONGs(model, [s]);
+            if (i === 2) {
+                expect(model._root.cache.lists).toBeDefined();
+            }
+        });
+
+        model._getPathValuesAsPathMap(model, get, function(x) {
+            expect(x).toEqual({ json: { genreList: { 1: { 0: { summary: {
+                    ""title"": ""Running Man"",
+                    ""url"": ""/movies/553""
+                } } } } }
+            });
+        });
+    })",57,110,snuts
+/test/set/edge-cases.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':68,'endLine':68}","it(
+        ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
+        function() {
+            var onErrorValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function(e) {
+                    onErrorValues.push(e);
+                }
+            );
+            modelResponseObserver.onError(1);
+            modelResponseObserver.onError(2);
+
+            expect(onErrorValues.length).toBe(1);
+            expect(onErrorValues[0]).toBe(1);
+        }
+    )",63,79,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':86,'endLine':86}","it(
+        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function() {},
+                function(value) {
+                    onCompletedValues.push(value);
+                }
+            );
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",81,98,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':87,'endLine':87}","it(
+        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function() {},
+                function(value) {
+                    onCompletedValues.push(value);
+                }
+            );
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",81,98,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':152,'endLine':152}","it(
+        ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
+        function() {
+            var onErrorValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function(e) {
+                    onErrorValues.push(e);
+                }
+            });
+            modelResponseObserver.onError(1);
+            modelResponseObserver.onError(2);
+
+            expect(onErrorValues.length).toBe(1);
+            expect(onErrorValues[0]).toBe(1);
+        }
+    )",147,163,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':170,'endLine':170}","it(
+        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function() {},
+                onCompleted: function(value) {
+                    onCompletedValues.push(value);
+                }
+            });
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",165,182,snuts
+/test/response/ModelResponseObserver.spec.js,NonFunctionalStatement,"{'startLine':171,'endLine':171}","it(
+        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function() {},
+                onCompleted: function(value) {
+                    onCompletedValues.push(value);
+                }
+            });
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",165,182,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':43,'endLine':43}","it(
+        ""should suppress onNext callback after ModelResponseObserver is onCompleted"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver(function(
+                value
+            ) {
+                onNextValue = value;
+            });
+            modelResponseObserver.onCompleted();
+            modelResponseObserver.onNext(5);
+
+            expect(onNextValue).toBe(undefined);
+        }
+    )",31,45,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':59,'endLine':59}","it(
+        ""should suppress onNext callback after ModelResponseObserver is onError'ed"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver(function(
+                value
+            ) {
+                onNextValue = value;
+            });
+            modelResponseObserver.onError();
+            modelResponseObserver.onNext(5);
+
+            expect(onNextValue).toBe(undefined);
+        }
+    )",47,61,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':76,'endLine':76}","it(
+        ""should call onError callback max 1 time when no matter how many times onError is called on ModelResponseObserver"",
+        function() {
+            var onErrorValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function(e) {
+                    onErrorValues.push(e);
+                }
+            );
+            modelResponseObserver.onError(1);
+            modelResponseObserver.onError(2);
+
+            expect(onErrorValues.length).toBe(1);
+            expect(onErrorValues[0]).toBe(1);
+        }
+    )",63,79,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':95,'endLine':95}","it(
+        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function() {},
+                function(value) {
+                    onCompletedValues.push(value);
+                }
+            );
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",81,98,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':96,'endLine':96}","it(
+        ""should call onCompleted callback max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver(
+                function() {},
+                function() {},
+                function(value) {
+                    onCompletedValues.push(value);
+                }
+            );
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",81,98,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':127,'endLine':127}","it(
+        ""should suppress onNext method after ModelResponseObserver is onCompleted"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function(value) {
+                    onNextValue = value;
+                }
+            });
+            modelResponseObserver.onCompleted();
+            modelResponseObserver.onNext(5);
+
+            expect(onNextValue).toBe(undefined);
+        }
+    )",115,129,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':143,'endLine':143}","it(
+        ""should suppress onNext method after ModelResponseObserver is onError'ed"",
+        function() {
+            var onNextValue;
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function(value) {
+                    onNextValue = value;
+                }
+            });
+            modelResponseObserver.onError();
+            modelResponseObserver.onNext(5);
+
+            expect(onNextValue).toBe(undefined);
+        }
+    )",131,145,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':160,'endLine':160}","it(
+        ""should call onError method max 1 time when no matter how many times onError is called on ModelResponseObserver"",
+        function() {
+            var onErrorValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function(e) {
+                    onErrorValues.push(e);
+                }
+            });
+            modelResponseObserver.onError(1);
+            modelResponseObserver.onError(2);
+
+            expect(onErrorValues.length).toBe(1);
+            expect(onErrorValues[0]).toBe(1);
+        }
+    )",147,163,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':179,'endLine':179}","it(
+        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function() {},
+                onCompleted: function(value) {
+                    onCompletedValues.push(value);
+                }
+            });
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",165,182,snuts
+/test/response/ModelResponseObserver.spec.js,SubOptimalAssert,"{'startLine':180,'endLine':180}","it(
+        ""should call onCompleted method max 1 time when no matter how many times onCompleted is called on ModelResponseObserver"",
+        function() {
+            var onCompletedValues = [];
+            var modelResponseObserver = new ModelResponseObserver({
+                onNext: function() {},
+                onError: function() {},
+                onCompleted: function(value) {
+                    onCompletedValues.push(value);
+                }
+            });
+            modelResponseObserver.onCompleted(1);
+            modelResponseObserver.onCompleted(2);
+
+            expect(onCompletedValues.length).toBe(1);
+            expect(onCompletedValues[0]).toBe(undefined);
+        }
+    )",165,182,snuts
 /test/hardlink/hardlink.remove.spec.js,IdenticalTestDescription,"{'startLine':43,'endLine':49}","it('should perform a hard-link with back references _toJSONG.', function(done) {
             getTest(getPath, '_toJSONG').
                 flatMap(function() {
@@ -1941,6 +1939,1460 @@ file,type,line,method,methodStart,methodEnd,source
 /test/falcor/operations.spec.js,SubOptimalAssert,"{'startLine':32,'endLine':32}","it('should return undefined when undefined is passed into falcor.keys', function() {
         expect(falcor.keys()).toBe(undefined);
     })",31,33,snuts
+/test/internal/request/complement.spec.js,IdenticalTestDescription,"{'startLine':80,'endLine':92}","it(""returns the complement and intersection consisting of paths than can be partially deduped"", () => {
+            const partialMatchingRequestedPath = [""videos"", 123, [""title"", ""boxart""]];
+            const partialMatchingOptimizedPath = [""some"", ""weird"", ""long"", ""ref"", 456, [""title"", ""boxart""]];
+            const pathTree = { some: { weird: { long: { ref: { 456: { title: null } } } } } };
+
+            expect(
+                findPartialIntersections(partialMatchingRequestedPath, partialMatchingOptimizedPath, pathTree)
+            ).toEqual([
+                [[""videos"", 123, ""title""]],
+                [[""some"", ""weird"", ""long"", ""ref"", 456, ""boxart""]],
+                [[""videos"", 123, ""boxart""]]
+            ]);
+        })",80,92,snuts
+/test/internal/request/RequestQueue.get.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':57,'endLine':57}","it(""makes a couple requests and have them batched together"", done => {
+        const scheduler = new TimeoutScheduler(1); // To allow batching
+        const source = new LocalDataSource(Cache());
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(2, callCount => {
+            expect(callCount).toBe(2);
+            expect(queue._requests.length).toBe(0);
+
+            const onNext = jest.fn();
+            toObservable(model.withoutDataSource().get(videos0, videos1))
+                .doAction(onNext, noOp, () => {
+                    expect(strip(onNext.mock.calls[0][0])).toEqual({
+                        json: {
+                            videos: {
+                                0: {
+                                    title: ""Video 0""
+                                },
+                                1: {
+                                    title: ""Video 1""
+                                }
+                            }
+                        }
+                    });
+                })
+                .subscribe(noOp, done, done);
+        });
+
+        queue.get([videos0], [videos0], zip);
+        queue.get([videos1], [videos1], zip);
+
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(false);
+        expect(queue._requests[0].scheduled).toBe(true);
+    })",49,84,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':81,'endLine':81}","it(""makes a couple requests and have them batched together"", done => {
+        const scheduler = new TimeoutScheduler(1); // To allow batching
+        const source = new LocalDataSource(Cache());
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(2, callCount => {
+            expect(callCount).toBe(2);
+            expect(queue._requests.length).toBe(0);
+
+            const onNext = jest.fn();
+            toObservable(model.withoutDataSource().get(videos0, videos1))
+                .doAction(onNext, noOp, () => {
+                    expect(strip(onNext.mock.calls[0][0])).toEqual({
+                        json: {
+                            videos: {
+                                0: {
+                                    title: ""Video 0""
+                                },
+                                1: {
+                                    title: ""Video 1""
+                                }
+                            }
+                        }
+                    });
+                })
+                .subscribe(noOp, done, done);
+        });
+
+        queue.get([videos0], [videos0], zip);
+        queue.get([videos1], [videos1], zip);
+
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(false);
+        expect(queue._requests[0].scheduled).toBe(true);
+    })",49,84,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':94,'endLine':94}","it(""makes a couple requests where the second argument is deduped"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(2, callCount => {
+            expect(callCount).toBe(2);
+            expect(queue._requests.length).toBe(0);
+
+            const onNext = jest.fn();
+            toObservable(model.withoutDataSource().get(videos0, videos1))
+                .doAction(onNext, noOp, () => {
+                    expect(strip(onNext.mock.calls[0][0])).toEqual({
+                        json: {
+                            videos: {
+                                0: {
+                                    title: ""Video 0""
+                                }
+                            }
+                        }
+                    });
+                })
+                .subscribe(noOp, done, done);
+        });
+
+        queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+    })",86,121,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':113,'endLine':113}","it(""makes a couple requests where the second argument is deduped"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(2, callCount => {
+            expect(callCount).toBe(2);
+            expect(queue._requests.length).toBe(0);
+
+            const onNext = jest.fn();
+            toObservable(model.withoutDataSource().get(videos0, videos1))
+                .doAction(onNext, noOp, () => {
+                    expect(strip(onNext.mock.calls[0][0])).toEqual({
+                        json: {
+                            videos: {
+                                0: {
+                                    title: ""Video 0""
+                                }
+                            }
+                        }
+                    });
+                })
+                .subscribe(noOp, done, done);
+        });
+
+        queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+    })",86,121,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':118,'endLine':118}","it(""makes a couple requests where the second argument is deduped"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(2, callCount => {
+            expect(callCount).toBe(2);
+            expect(queue._requests.length).toBe(0);
+
+            const onNext = jest.fn();
+            toObservable(model.withoutDataSource().get(videos0, videos1))
+                .doAction(onNext, noOp, () => {
+                    expect(strip(onNext.mock.calls[0][0])).toEqual({
+                        json: {
+                            videos: {
+                                0: {
+                                    title: ""Video 0""
+                                }
+                            }
+                        }
+                    });
+                })
+                .subscribe(noOp, done, done);
+        });
+
+        queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+    })",86,121,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':156,'endLine':156}","it(""makes a couple requests where only part of the second request is deduped then first request is disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(1);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(strip(onNext.mock.calls[0][0])).toEqual({
+                            json: {
+                                videos: {
+                                    0: {
+                                        title: ""Video 0""
+                                    },
+                                    1: {
+                                        title: ""Video 1""
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        const disposable = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        queue.get([videos0, videos1], [videos0, videos1], zip);
+        expect(queue._requests.length).toBe(2);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[1].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+        expect(queue._requests[1].scheduled).toBe(false);
+
+        disposable();
+    })",123,168,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':161,'endLine':161}","it(""makes a couple requests where only part of the second request is deduped then first request is disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(1);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(strip(onNext.mock.calls[0][0])).toEqual({
+                            json: {
+                                videos: {
+                                    0: {
+                                        title: ""Video 0""
+                                    },
+                                    1: {
+                                        title: ""Video 1""
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        const disposable = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        queue.get([videos0, videos1], [videos0, videos1], zip);
+        expect(queue._requests.length).toBe(2);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[1].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+        expect(queue._requests[1].scheduled).toBe(false);
+
+        disposable();
+    })",123,168,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':200,'endLine':200}","it(""makes a couple requests where the second request is deduped and the first is disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(1);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(strip(onNext.mock.calls[0][0])).toEqual({
+                            json: {
+                                videos: {
+                                    0: {
+                                        title: ""Video 0""
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        const disposable = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        disposable();
+    })",170,210,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':205,'endLine':205}","it(""makes a couple requests where the second request is deduped and the first is disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(1);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(strip(onNext.mock.calls[0][0])).toEqual({
+                            json: {
+                                videos: {
+                                    0: {
+                                        title: ""Video 0""
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        const disposable = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        disposable();
+    })",170,210,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':234,'endLine':234}","it(""makes a couple requests where the second argument is deduped and all the requests are disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(0);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(onNext).toHaveBeenCalledTimes(1);
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        const disposable = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        const disposable2 = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        disposable();
+        disposable2();
+    })",212,245,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':239,'endLine':239}","it(""makes a couple requests where the second argument is deduped and all the requests are disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(0);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(onNext).toHaveBeenCalledTimes(1);
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        const disposable = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        const disposable2 = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        disposable();
+        disposable2();
+    })",212,245,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':277,'endLine':277}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(1);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(strip(onNext.mock.calls[0][0])).toEqual({
+                            json: {
+                                videos: {
+                                    0: {
+                                        title: ""Video 0""
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
+        expect(queue._requests.length).toBe(2);
+        expect(queue._requests[1].sent).toBe(true);
+        expect(queue._requests[1].scheduled).toBe(false);
+
+        disposable2();
+    })",247,287,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':282,'endLine':282}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(1);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(strip(onNext.mock.calls[0][0])).toEqual({
+                            json: {
+                                videos: {
+                                    0: {
+                                        title: ""Video 0""
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
+        expect(queue._requests.length).toBe(2);
+        expect(queue._requests[1].sent).toBe(true);
+        expect(queue._requests[1].scheduled).toBe(false);
+
+        disposable2();
+    })",247,287,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':311,'endLine':311}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(0);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(onNext).toHaveBeenCalledTimes(1);
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        const disposable = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
+        expect(queue._requests.length).toBe(2);
+        expect(queue._requests[1].sent).toBe(true);
+        expect(queue._requests[1].scheduled).toBe(false);
+
+        disposable();
+        disposable2();
+    })",289,322,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':316,'endLine':316}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(0);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(onNext).toHaveBeenCalledTimes(1);
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        const disposable = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
+        expect(queue._requests.length).toBe(2);
+        expect(queue._requests[1].sent).toBe(true);
+        expect(queue._requests[1].scheduled).toBe(false);
+
+        disposable();
+        disposable2();
+    })",289,322,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':333,'endLine':333}","it(""does not dedupe requests when request deduplication is disabled"", done => {
+        const scheduler = new ImmediateScheduler();
+        const dsGetSpy = jest.fn();
+        const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
+        const model = new Model({ source, disableRequestDeduplication: true });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(2, callCount => {
+            expect(callCount).toBe(2);
+            expect(queue._requests.length).toBe(0);
+
+            expect(dsGetSpy).toHaveBeenCalledTimes(2);
+
+            // Paths should still be collapsed
+            expect(dsGetSpy).toHaveBeenNthCalledWith(1, expect.anything(), [[""videos"", { from: 0, to: 1 }, ""title""]], undefined);
+            expect(dsGetSpy).toHaveBeenNthCalledWith(2, expect.anything(), [[""videos"", { from: 1, to: 2 }, ""title""]], undefined);
+
+            done();
+        });
+
+        queue.get([videos0, videos1], [videos0, videos1], zip);
+        queue.get([videos1, videos2], [videos1, videos2], zip);
+    })",324,346,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':357,'endLine':357}","it(""does not collapse paths when path collapse is disabled"", done => {
+        const scheduler = new ImmediateScheduler();
+        const dsGetSpy = jest.fn();
+        const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
+        const model = new Model({ source, disablePathCollapse: true });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(2, callCount => {
+            expect(callCount).toBe(2);
+            expect(queue._requests.length).toBe(0);
+
+            // Requests should still be deduplicated
+            expect(dsGetSpy).toHaveBeenCalledTimes(2);
+            expect(dsGetSpy).toHaveBeenNthCalledWith(1, expect.anything(), [videos0, videos1], undefined);
+            expect(dsGetSpy).toHaveBeenNthCalledWith(2, expect.anything(), [videos2], undefined);
+
+            done();
+        });
+
+        queue.get([videos0, videos1], [videos0, videos1], zip);
+        queue.get([videos1, videos2], [videos1, videos2], zip);
+    })",348,369,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':381,'endLine':381}","it(""does not collapse paths or dedupe requests"", done => {
+            const scheduler = new ImmediateScheduler();
+            const dsGetSpy = jest.fn();
+            const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
+            const model = new Model({ source, disablePathCollapse: true, disableRequestDeduplication: true });
+            const queue = new RequestQueue(model, scheduler);
+
+            const zip = zipSpy(2, callCount => {
+                expect(callCount).toBe(2);
+                expect(queue._requests.length).toBe(0);
+
+                // No path collapse, no request dedupe
+                expect(dsGetSpy).toHaveBeenCalledTimes(2);
+                expect(dsGetSpy).toHaveBeenNthCalledWith(1, expect.anything(), [videos0, videos1], undefined);
+                expect(dsGetSpy).toHaveBeenNthCalledWith(2, expect.anything(), [videos1, videos2], undefined);
+
+                done();
+            });
+
+            queue.get([videos0, videos1], [videos0, videos1], zip);
+            queue.get([videos1, videos2], [videos1, videos2], zip);
+        })",372,393,snuts
+/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':404,'endLine':404}","it(""combines batched paths without collapse"", done => {
+            const scheduler = new TimeoutScheduler(1); // To allow batching
+            const dsGetSpy = jest.fn();
+            const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
+            const model = new Model({ source, disablePathCollapse: true, disableRequestDeduplication: true });
+            const queue = new RequestQueue(model, scheduler);
+
+            const zip = zipSpy(2, callCount => {
+                expect(callCount).toBe(2);
+                expect(queue._requests.length).toBe(0);
+
+                expect(dsGetSpy).toHaveBeenCalledTimes(1);
+                expect(dsGetSpy).toHaveBeenNthCalledWith(1, expect.anything(), [videos0, videos1, videos1, videos2], undefined);
+
+                done();
+            });
+
+            queue.get([videos0, videos1], [videos0, videos1], zip);
+            queue.get([videos1, videos2], [videos1, videos2], zip);
+        })",395,414,snuts
+/test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':123,'endLine':168}","it(""makes a couple requests where only part of the second request is deduped then first request is disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(1);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(strip(onNext.mock.calls[0][0])).toEqual({
+                            json: {
+                                videos: {
+                                    0: {
+                                        title: ""Video 0""
+                                    },
+                                    1: {
+                                        title: ""Video 1""
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        const disposable = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        queue.get([videos0, videos1], [videos0, videos1], zip);
+        expect(queue._requests.length).toBe(2);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[1].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+        expect(queue._requests[1].scheduled).toBe(false);
+
+        disposable();
+    })",123,168,snuts
+/test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':170,'endLine':210}","it(""makes a couple requests where the second request is deduped and the first is disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(1);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(strip(onNext.mock.calls[0][0])).toEqual({
+                            json: {
+                                videos: {
+                                    0: {
+                                        title: ""Video 0""
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        const disposable = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        disposable();
+    })",170,210,snuts
+/test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':212,'endLine':245}","it(""makes a couple requests where the second argument is deduped and all the requests are disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(0);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(onNext).toHaveBeenCalledTimes(1);
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        const disposable = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        const disposable2 = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        disposable();
+        disposable2();
+    })",212,245,snuts
+/test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':247,'endLine':287}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(1);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(strip(onNext.mock.calls[0][0])).toEqual({
+                            json: {
+                                videos: {
+                                    0: {
+                                        title: ""Video 0""
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
+        expect(queue._requests.length).toBe(2);
+        expect(queue._requests[1].sent).toBe(true);
+        expect(queue._requests[1].scheduled).toBe(false);
+
+        disposable2();
+    })",247,287,snuts
+/test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':289,'endLine':322}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
+        const scheduler = new ImmediateScheduler();
+        const source = new LocalDataSource(Cache(), { wait: 100 });
+        const model = new Model({ source });
+        const queue = new RequestQueue(model, scheduler);
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                expect(callCount).toBe(0);
+
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(onNext).toHaveBeenCalledTimes(1);
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        const disposable = queue.get([videos0], [videos0], zip);
+        expect(queue._requests.length).toBe(1);
+        expect(queue._requests[0].sent).toBe(true);
+        expect(queue._requests[0].scheduled).toBe(false);
+
+        const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
+        expect(queue._requests.length).toBe(2);
+        expect(queue._requests[1].sent).toBe(true);
+        expect(queue._requests[1].scheduled).toBe(false);
+
+        disposable();
+        disposable2();
+    })",289,322,snuts
+/test/internal/request/GetRequest.spec.js,ConditionalTestLogic,"{'startLine':21,'endLine':27}","it(""unsubscribing should cancel DataSource request (sync scheduler)."", () => {
+        let unsubscribeSpy;
+        const subscribeSpy = jest.fn((observerOrOnNext, onError, onCompleted) => {
+            const handle = setTimeout(() => {
+                const response = {
+                    jsonGraph: {
+                        list: {
+                            1: { name: ""another test"" }
+                        }
+                    },
+                    paths: [""list"", 1, ""name""]
+                };
+
+                if (typeof observerOrOnNext === ""function"") {
+                    observerOrOnNext(response);
+                    onCompleted();
+                } else {
+                    observerOrOnNext.onNext(response);
+                    observerOrOnNext.onCompleted();
+                }
+            });
+
+            unsubscribeSpy = jest.fn(() => {
+                clearTimeout(handle);
+            });
+
+            return {
+                dispose: unsubscribeSpy
+            };
+        });
+
+        const model = new Model({
+            cache: {
+                list: {
+                    0: { name: ""test"" }
+                }
+            },
+            source: {
+                get() {
+                    return {
+                        subscribe: subscribeSpy
+                    };
+                }
+            }
+        });
+
+        const onNext = jest.fn();
+        const onError = jest.fn();
+        const onCompleted = jest.fn();
+
+        const subscription = model.get(""list[0,1].name"").subscribe(onNext, onError, onCompleted);
+
+        subscription.dispose();
+
+        expect(subscribeSpy).toHaveBeenCalledTimes(1);
+        expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
+        expect(onNext).not.toHaveBeenCalled();
+        expect(onError).not.toHaveBeenCalled();
+        expect(onCompleted).not.toHaveBeenCalled();
+    })",8,67,snuts
+/test/internal/request/GetRequest.spec.js,ConditionalTestLogic,"{'startLine':81,'endLine':87}","it(""unsubscribing should cancel DataSource request (async scheduler, unsubscribed immediate)."", () => {
+        const subscribeSpy = jest.fn((observerOrOnNext, onError, onCompleted) => {
+            setTimeout(() => {
+                const response = {
+                    jsonGraph: {
+                        list: {
+                            1: { name: ""another test"" }
+                        }
+                    },
+                    paths: [""list"", 1, ""name""]
+                };
+
+                if (typeof observerOrOnNext === ""function"") {
+                    observerOrOnNext(response);
+                    onCompleted();
+                } else {
+                    observerOrOnNext.onNext(response);
+                    observerOrOnNext.onCompleted();
+                }
+            });
+
+            // No need to have a spy, if subscribe is called, we fail.
+            return {
+                dispose() {}
+            };
+        });
+
+        const model = new Model({
+            scheduler: new TimeoutScheduler(1),
+            cache: {
+                list: {
+                    0: { name: ""test"" }
+                }
+            },
+            source: {
+                get() {
+                    return {
+                        subscribe: subscribeSpy
+                    };
+                }
+            }
+        });
+
+        const onNext = jest.fn();
+        const onError = jest.fn();
+        const onCompleted = jest.fn();
+
+        const subscription = model.get(""list[0,1].name"").subscribe(onNext, onError, onCompleted);
+
+        subscription.dispose();
+
+        expect(subscribeSpy).not.toHaveBeenCalled();
+        expect(onNext).not.toHaveBeenCalled();
+        expect(onError).not.toHaveBeenCalled();
+        expect(onCompleted).not.toHaveBeenCalled();
+    })",69,124,snuts
+/test/internal/request/GetRequest.spec.js,ConditionalTestLogic,"{'startLine':139,'endLine':145}","it(""unsubscribing should cancel DataSource request (async scheduler, unsubscribed after subscribe)."", done => {
+        let unsubscribeSpy;
+        const subscribeSpy = jest.fn((observerOrOnNext, onError, onCompleted) => {
+            const handle = setTimeout(() => {
+                const response = {
+                    jsonGraph: {
+                        list: {
+                            1: { name: ""another test"" }
+                        }
+                    },
+                    paths: [""list"", 1, ""name""]
+                };
+
+                if (typeof observerOrOnNext === ""function"") {
+                    observerOrOnNext(response);
+                    onCompleted();
+                } else {
+                    observerOrOnNext.onNext(response);
+                    observerOrOnNext.onCompleted();
+                }
+            }, 100000);
+
+            unsubscribeSpy = jest.fn(() => {
+                clearTimeout(handle);
+            });
+
+            return {
+                dispose: unsubscribeSpy
+            };
+        });
+
+        const model = new Model({
+            cache: {
+                list: {
+                    0: { name: ""test"" }
+                }
+            },
+            source: {
+                get() {
+                    return {
+                        subscribe: subscribeSpy
+                    };
+                }
+            }
+        });
+
+        const onNext = jest.fn();
+        const onError = jest.fn();
+        const onCompleted = jest.fn();
+
+        const subscription = model.get(""list[0,1].name"").subscribe(onNext, onError, onCompleted);
+
+        function waitOrExpect() {
+            if (!unsubscribeSpy) {
+                setTimeout(waitOrExpect, 0);
+                return;
+            }
+            subscription.dispose();
+
+            expect(subscribeSpy).toHaveBeenCalledTimes(1);
+            expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
+            expect(onNext).not.toHaveBeenCalled();
+            expect(onError).not.toHaveBeenCalled();
+            expect(onCompleted).not.toHaveBeenCalled();
+
+            done();
+        }
+
+        waitOrExpect();
+    })",126,195,snuts
+/test/internal/request/GetRequest.spec.js,ConditionalTestLogic,"{'startLine':179,'endLine':182}","it(""unsubscribing should cancel DataSource request (async scheduler, unsubscribed after subscribe)."", done => {
+        let unsubscribeSpy;
+        const subscribeSpy = jest.fn((observerOrOnNext, onError, onCompleted) => {
+            const handle = setTimeout(() => {
+                const response = {
+                    jsonGraph: {
+                        list: {
+                            1: { name: ""another test"" }
+                        }
+                    },
+                    paths: [""list"", 1, ""name""]
+                };
+
+                if (typeof observerOrOnNext === ""function"") {
+                    observerOrOnNext(response);
+                    onCompleted();
+                } else {
+                    observerOrOnNext.onNext(response);
+                    observerOrOnNext.onCompleted();
+                }
+            }, 100000);
+
+            unsubscribeSpy = jest.fn(() => {
+                clearTimeout(handle);
+            });
+
+            return {
+                dispose: unsubscribeSpy
+            };
+        });
+
+        const model = new Model({
+            cache: {
+                list: {
+                    0: { name: ""test"" }
+                }
+            },
+            source: {
+                get() {
+                    return {
+                        subscribe: subscribeSpy
+                    };
+                }
+            }
+        });
+
+        const onNext = jest.fn();
+        const onError = jest.fn();
+        const onCompleted = jest.fn();
+
+        const subscription = model.get(""list[0,1].name"").subscribe(onNext, onError, onCompleted);
+
+        function waitOrExpect() {
+            if (!unsubscribeSpy) {
+                setTimeout(waitOrExpect, 0);
+                return;
+            }
+            subscription.dispose();
+
+            expect(subscribeSpy).toHaveBeenCalledTimes(1);
+            expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
+            expect(onNext).not.toHaveBeenCalled();
+            expect(onError).not.toHaveBeenCalled();
+            expect(onCompleted).not.toHaveBeenCalled();
+
+            done();
+        }
+
+        waitOrExpect();
+    })",126,195,snuts
+/test/internal/request/GetRequest.spec.js,NonFunctionalStatement,"{'startLine':92,'endLine':92}","it(""unsubscribing should cancel DataSource request (async scheduler, unsubscribed immediate)."", () => {
+        const subscribeSpy = jest.fn((observerOrOnNext, onError, onCompleted) => {
+            setTimeout(() => {
+                const response = {
+                    jsonGraph: {
+                        list: {
+                            1: { name: ""another test"" }
+                        }
+                    },
+                    paths: [""list"", 1, ""name""]
+                };
+
+                if (typeof observerOrOnNext === ""function"") {
+                    observerOrOnNext(response);
+                    onCompleted();
+                } else {
+                    observerOrOnNext.onNext(response);
+                    observerOrOnNext.onCompleted();
+                }
+            });
+
+            // No need to have a spy, if subscribe is called, we fail.
+            return {
+                dispose() {}
+            };
+        });
+
+        const model = new Model({
+            scheduler: new TimeoutScheduler(1),
+            cache: {
+                list: {
+                    0: { name: ""test"" }
+                }
+            },
+            source: {
+                get() {
+                    return {
+                        subscribe: subscribeSpy
+                    };
+                }
+            }
+        });
+
+        const onNext = jest.fn();
+        const onError = jest.fn();
+        const onCompleted = jest.fn();
+
+        const subscription = model.get(""list[0,1].name"").subscribe(onNext, onError, onCompleted);
+
+        subscription.dispose();
+
+        expect(subscribeSpy).not.toHaveBeenCalled();
+        expect(onNext).not.toHaveBeenCalled();
+        expect(onError).not.toHaveBeenCalled();
+        expect(onCompleted).not.toHaveBeenCalled();
+    })",69,124,snuts
+/test/internal/request/GetRequest.batch.spec.js,ConditionalTestLogic,"{'startLine':34,'endLine':36}","it(""should make a request to the dataSource with an immediate scheduler"", done => {
+        let inlineBoolean = true;
+        const scheduler = new ImmediateScheduler();
+        const getSpy = jest.fn();
+        const source = new LocalDataSource(Cache(), {
+            onGet: getSpy
+        });
+        const model = new Model({ source });
+        const request = new GetRequest(scheduler, {
+            removeRequest() {},
+            model
+        });
+
+        request.batch([videos0], [videos0], (err, data) => {
+            if (err) {
+                done(err);
+            }
+
+            const onNext = jest.fn();
+            toObservable(model.withoutDataSource().get(videos0))
+                .doAction(onNext, noOp, () => {
+                    expect(inlineBoolean).toBe(true);
+                    expect(getSpy).toHaveBeenCalledTimes(1);
+                    expect(getSpy.mock.calls[0][1]).toEqual([videos0]);
+                    expect(onNext).toHaveBeenCalledTimes(1);
+                    expect(strip(onNext.mock.calls[0][0])).toEqual({
+                        json: {
+                            videos: {
+                                0: {
+                                    title: ""Video 0""
+                                }
+                            }
+                        }
+                    });
+                })
+                .subscribe(noOp, done, done);
+        });
+        inlineBoolean = false;
+    })",20,58,snuts
+/test/internal/request/GetRequest.batch.spec.js,ConditionalTestLogic,"{'startLine':73,'endLine':75}","it(""should make a request to the dataSource with an async scheduler."", done => {
+        let inlineBoolean = true;
+        const scheduler = new TimeoutScheduler(1);
+        const getSpy = jest.fn();
+        const source = new LocalDataSource(Cache(), {
+            onGet: getSpy
+        });
+        const model = new Model({ source });
+        const request = new GetRequest(scheduler, {
+            removeRequest() {},
+            model
+        });
+        const callback = jest.fn((err, data) => {
+            if (err) {
+                done(err);
+            }
+
+            const onNext = jest.fn();
+            toObservable(model.withoutDataSource().get(videos0))
+                .doAction(onNext, noOp, () => {
+                    expect(inlineBoolean).toBe(false);
+                    expect(getSpy).toHaveBeenCalledTimes(1);
+                    expect(getSpy.mock.calls[0][1]).toEqual([videos0]);
+                    expect(onNext).toHaveBeenCalledTimes(1);
+                    expect(strip(onNext.mock.calls[0][0])).toEqual({
+                        json: {
+                            videos: {
+                                0: {
+                                    title: ""Video 0""
+                                }
+                            }
+                        }
+                    });
+                })
+                .subscribe(noOp, done, done);
+        });
+
+        request.batch([videos0], [videos0], callback);
+        inlineBoolean = false;
+    })",60,99,snuts
+/test/internal/request/GetRequest.batch.spec.js,NonFunctionalStatement,"{'startLine':11,'endLine':11}",Unknown,,,snuts
+/test/internal/request/GetRequest.batch.spec.js,NonFunctionalStatement,"{'startLine':29,'endLine':29}","it(""should make a request to the dataSource with an immediate scheduler"", done => {
+        let inlineBoolean = true;
+        const scheduler = new ImmediateScheduler();
+        const getSpy = jest.fn();
+        const source = new LocalDataSource(Cache(), {
+            onGet: getSpy
+        });
+        const model = new Model({ source });
+        const request = new GetRequest(scheduler, {
+            removeRequest() {},
+            model
+        });
+
+        request.batch([videos0], [videos0], (err, data) => {
+            if (err) {
+                done(err);
+            }
+
+            const onNext = jest.fn();
+            toObservable(model.withoutDataSource().get(videos0))
+                .doAction(onNext, noOp, () => {
+                    expect(inlineBoolean).toBe(true);
+                    expect(getSpy).toHaveBeenCalledTimes(1);
+                    expect(getSpy.mock.calls[0][1]).toEqual([videos0]);
+                    expect(onNext).toHaveBeenCalledTimes(1);
+                    expect(strip(onNext.mock.calls[0][0])).toEqual({
+                        json: {
+                            videos: {
+                                0: {
+                                    title: ""Video 0""
+                                }
+                            }
+                        }
+                    });
+                })
+                .subscribe(noOp, done, done);
+        });
+        inlineBoolean = false;
+    })",20,58,snuts
+/test/internal/request/GetRequest.batch.spec.js,NonFunctionalStatement,"{'startLine':69,'endLine':69}","it(""should make a request to the dataSource with an async scheduler."", done => {
+        let inlineBoolean = true;
+        const scheduler = new TimeoutScheduler(1);
+        const getSpy = jest.fn();
+        const source = new LocalDataSource(Cache(), {
+            onGet: getSpy
+        });
+        const model = new Model({ source });
+        const request = new GetRequest(scheduler, {
+            removeRequest() {},
+            model
+        });
+        const callback = jest.fn((err, data) => {
+            if (err) {
+                done(err);
+            }
+
+            const onNext = jest.fn();
+            toObservable(model.withoutDataSource().get(videos0))
+                .doAction(onNext, noOp, () => {
+                    expect(inlineBoolean).toBe(false);
+                    expect(getSpy).toHaveBeenCalledTimes(1);
+                    expect(getSpy.mock.calls[0][1]).toEqual([videos0]);
+                    expect(onNext).toHaveBeenCalledTimes(1);
+                    expect(strip(onNext.mock.calls[0][0])).toEqual({
+                        json: {
+                            videos: {
+                                0: {
+                                    title: ""Video 0""
+                                }
+                            }
+                        }
+                    });
+                })
+                .subscribe(noOp, done, done);
+        });
+
+        request.batch([videos0], [videos0], callback);
+        inlineBoolean = false;
+    })",60,99,snuts
+/test/internal/request/GetRequest.batch.spec.js,NonFunctionalStatement,"{'startLine':109,'endLine':109}","it(""should batch some requests together."", done => {
+        const scheduler = new TimeoutScheduler(1);
+        const getSpy = jest.fn();
+        const source = new LocalDataSource(Cache(), {
+            onGet: getSpy
+        });
+        const model = new Model({ source });
+        const request = new GetRequest(scheduler, {
+            removeRequest() {},
+            model
+        });
+
+        const zip = zipSpy(2, callCount => {
+            expect(callCount).toBe(2);
+            const onNext = jest.fn();
+            toObservable(model.withoutDataSource().get(videos0, videos1))
+                .doAction(onNext, noOp, () => {
+                    expect(strip(onNext.mock.calls[0][0])).toEqual({
+                        json: {
+                            videos: {
+                                0: {
+                                    title: ""Video 0""
+                                },
+                                1: {
+                                    title: ""Video 1""
+                                }
+                            }
+                        }
+                    });
+                })
+                .subscribe(noOp, done, done);
+        });
+
+        request.batch([videos0], [videos0], zip);
+        request.batch([videos1], [videos1], zip);
+    })",101,136,snuts
+/test/internal/request/GetRequest.batch.spec.js,NonFunctionalStatement,"{'startLine':146,'endLine':146}","it(""should batch some requests together and dispose the first one."", done => {
+        const scheduler = new TimeoutScheduler(1);
+        const getSpy = jest.fn();
+        const source = new LocalDataSource(Cache(), {
+            onGet: getSpy
+        });
+        const model = new Model({ source });
+        const request = new GetRequest(scheduler, {
+            removeRequest() {},
+            model
+        });
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(callCount).toBe(1);
+                        expect(strip(onNext.mock.calls[0][0])).toEqual({
+                            json: {
+                                videos: {
+                                    1: {
+                                        title: ""Video 1""
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+        const disposable = request.batch([videos0], [videos0], zip);
+        request.batch([videos1], [videos1], zip);
+
+        disposable();
+    })",138,175,snuts
+/test/internal/request/GetRequest.batch.spec.js,NonFunctionalStatement,"{'startLine':185,'endLine':185}","it(""should batch some requests together and dispose the second one."", done => {
+        const scheduler = new TimeoutScheduler(1);
+        const getSpy = jest.fn();
+        const source = new LocalDataSource(Cache(), {
+            onGet: getSpy
+        });
+        const model = new Model({ source });
+        const request = new GetRequest(scheduler, {
+            removeRequest() {},
+            model
+        });
+
+        const zip = zipSpy(
+            2,
+            callCount => {
+                const onNext = jest.fn();
+                toObservable(model.withoutDataSource().get(videos0, videos1))
+                    .doAction(onNext, noOp, () => {
+                        expect(callCount).toBe(1);
+                        expect(strip(onNext.mock.calls[0][0])).toEqual({
+                            json: {
+                                videos: {
+                                    0: {
+                                        title: ""Video 0""
+                                    }
+                                }
+                            }
+                        });
+                    })
+                    .subscribe(noOp, done, done);
+            },
+            300
+        );
+
+        request.batch([videos0], [videos0], zip);
+        const disposable = request.batch([videos1], [videos1], zip);
+
+        disposable();
+    })",177,215,snuts
+/test/internal/request/GetRequest.add.spec.js,NonFunctionalStatement,"{'startLine':10,'endLine':10}",Unknown,,,snuts
 /test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':24,'endLine':40}","it(""directly"", function() {
 
         var cache = {};
@@ -3757,1460 +5209,6 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",220,239,snuts
-/test/internal/request/complement.spec.js,IdenticalTestDescription,"{'startLine':80,'endLine':92}","it(""returns the complement and intersection consisting of paths than can be partially deduped"", () => {
-            const partialMatchingRequestedPath = [""videos"", 123, [""title"", ""boxart""]];
-            const partialMatchingOptimizedPath = [""some"", ""weird"", ""long"", ""ref"", 456, [""title"", ""boxart""]];
-            const pathTree = { some: { weird: { long: { ref: { 456: { title: null } } } } } };
-
-            expect(
-                findPartialIntersections(partialMatchingRequestedPath, partialMatchingOptimizedPath, pathTree)
-            ).toEqual([
-                [[""videos"", 123, ""title""]],
-                [[""some"", ""weird"", ""long"", ""ref"", 456, ""boxart""]],
-                [[""videos"", 123, ""boxart""]]
-            ]);
-        })",80,92,snuts
-/test/internal/request/RequestQueue.get.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':57,'endLine':57}","it(""makes a couple requests and have them batched together"", done => {
-        const scheduler = new TimeoutScheduler(1); // To allow batching
-        const source = new LocalDataSource(Cache());
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(2, callCount => {
-            expect(callCount).toBe(2);
-            expect(queue._requests.length).toBe(0);
-
-            const onNext = jest.fn();
-            toObservable(model.withoutDataSource().get(videos0, videos1))
-                .doAction(onNext, noOp, () => {
-                    expect(strip(onNext.mock.calls[0][0])).toEqual({
-                        json: {
-                            videos: {
-                                0: {
-                                    title: ""Video 0""
-                                },
-                                1: {
-                                    title: ""Video 1""
-                                }
-                            }
-                        }
-                    });
-                })
-                .subscribe(noOp, done, done);
-        });
-
-        queue.get([videos0], [videos0], zip);
-        queue.get([videos1], [videos1], zip);
-
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(false);
-        expect(queue._requests[0].scheduled).toBe(true);
-    })",49,84,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':81,'endLine':81}","it(""makes a couple requests and have them batched together"", done => {
-        const scheduler = new TimeoutScheduler(1); // To allow batching
-        const source = new LocalDataSource(Cache());
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(2, callCount => {
-            expect(callCount).toBe(2);
-            expect(queue._requests.length).toBe(0);
-
-            const onNext = jest.fn();
-            toObservable(model.withoutDataSource().get(videos0, videos1))
-                .doAction(onNext, noOp, () => {
-                    expect(strip(onNext.mock.calls[0][0])).toEqual({
-                        json: {
-                            videos: {
-                                0: {
-                                    title: ""Video 0""
-                                },
-                                1: {
-                                    title: ""Video 1""
-                                }
-                            }
-                        }
-                    });
-                })
-                .subscribe(noOp, done, done);
-        });
-
-        queue.get([videos0], [videos0], zip);
-        queue.get([videos1], [videos1], zip);
-
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(false);
-        expect(queue._requests[0].scheduled).toBe(true);
-    })",49,84,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':94,'endLine':94}","it(""makes a couple requests where the second argument is deduped"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(2, callCount => {
-            expect(callCount).toBe(2);
-            expect(queue._requests.length).toBe(0);
-
-            const onNext = jest.fn();
-            toObservable(model.withoutDataSource().get(videos0, videos1))
-                .doAction(onNext, noOp, () => {
-                    expect(strip(onNext.mock.calls[0][0])).toEqual({
-                        json: {
-                            videos: {
-                                0: {
-                                    title: ""Video 0""
-                                }
-                            }
-                        }
-                    });
-                })
-                .subscribe(noOp, done, done);
-        });
-
-        queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-    })",86,121,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':113,'endLine':113}","it(""makes a couple requests where the second argument is deduped"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(2, callCount => {
-            expect(callCount).toBe(2);
-            expect(queue._requests.length).toBe(0);
-
-            const onNext = jest.fn();
-            toObservable(model.withoutDataSource().get(videos0, videos1))
-                .doAction(onNext, noOp, () => {
-                    expect(strip(onNext.mock.calls[0][0])).toEqual({
-                        json: {
-                            videos: {
-                                0: {
-                                    title: ""Video 0""
-                                }
-                            }
-                        }
-                    });
-                })
-                .subscribe(noOp, done, done);
-        });
-
-        queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-    })",86,121,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':118,'endLine':118}","it(""makes a couple requests where the second argument is deduped"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(2, callCount => {
-            expect(callCount).toBe(2);
-            expect(queue._requests.length).toBe(0);
-
-            const onNext = jest.fn();
-            toObservable(model.withoutDataSource().get(videos0, videos1))
-                .doAction(onNext, noOp, () => {
-                    expect(strip(onNext.mock.calls[0][0])).toEqual({
-                        json: {
-                            videos: {
-                                0: {
-                                    title: ""Video 0""
-                                }
-                            }
-                        }
-                    });
-                })
-                .subscribe(noOp, done, done);
-        });
-
-        queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-    })",86,121,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':156,'endLine':156}","it(""makes a couple requests where only part of the second request is deduped then first request is disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(1);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(strip(onNext.mock.calls[0][0])).toEqual({
-                            json: {
-                                videos: {
-                                    0: {
-                                        title: ""Video 0""
-                                    },
-                                    1: {
-                                        title: ""Video 1""
-                                    }
-                                }
-                            }
-                        });
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        const disposable = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        queue.get([videos0, videos1], [videos0, videos1], zip);
-        expect(queue._requests.length).toBe(2);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[1].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-        expect(queue._requests[1].scheduled).toBe(false);
-
-        disposable();
-    })",123,168,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':161,'endLine':161}","it(""makes a couple requests where only part of the second request is deduped then first request is disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(1);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(strip(onNext.mock.calls[0][0])).toEqual({
-                            json: {
-                                videos: {
-                                    0: {
-                                        title: ""Video 0""
-                                    },
-                                    1: {
-                                        title: ""Video 1""
-                                    }
-                                }
-                            }
-                        });
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        const disposable = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        queue.get([videos0, videos1], [videos0, videos1], zip);
-        expect(queue._requests.length).toBe(2);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[1].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-        expect(queue._requests[1].scheduled).toBe(false);
-
-        disposable();
-    })",123,168,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':200,'endLine':200}","it(""makes a couple requests where the second request is deduped and the first is disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(1);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(strip(onNext.mock.calls[0][0])).toEqual({
-                            json: {
-                                videos: {
-                                    0: {
-                                        title: ""Video 0""
-                                    }
-                                }
-                            }
-                        });
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        const disposable = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        disposable();
-    })",170,210,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':205,'endLine':205}","it(""makes a couple requests where the second request is deduped and the first is disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(1);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(strip(onNext.mock.calls[0][0])).toEqual({
-                            json: {
-                                videos: {
-                                    0: {
-                                        title: ""Video 0""
-                                    }
-                                }
-                            }
-                        });
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        const disposable = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        disposable();
-    })",170,210,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':234,'endLine':234}","it(""makes a couple requests where the second argument is deduped and all the requests are disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(0);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(onNext).toHaveBeenCalledTimes(1);
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        const disposable = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        const disposable2 = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        disposable();
-        disposable2();
-    })",212,245,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':239,'endLine':239}","it(""makes a couple requests where the second argument is deduped and all the requests are disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(0);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(onNext).toHaveBeenCalledTimes(1);
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        const disposable = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        const disposable2 = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        disposable();
-        disposable2();
-    })",212,245,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':277,'endLine':277}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(1);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(strip(onNext.mock.calls[0][0])).toEqual({
-                            json: {
-                                videos: {
-                                    0: {
-                                        title: ""Video 0""
-                                    }
-                                }
-                            }
-                        });
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
-        expect(queue._requests.length).toBe(2);
-        expect(queue._requests[1].sent).toBe(true);
-        expect(queue._requests[1].scheduled).toBe(false);
-
-        disposable2();
-    })",247,287,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':282,'endLine':282}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(1);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(strip(onNext.mock.calls[0][0])).toEqual({
-                            json: {
-                                videos: {
-                                    0: {
-                                        title: ""Video 0""
-                                    }
-                                }
-                            }
-                        });
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
-        expect(queue._requests.length).toBe(2);
-        expect(queue._requests[1].sent).toBe(true);
-        expect(queue._requests[1].scheduled).toBe(false);
-
-        disposable2();
-    })",247,287,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':311,'endLine':311}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(0);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(onNext).toHaveBeenCalledTimes(1);
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        const disposable = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
-        expect(queue._requests.length).toBe(2);
-        expect(queue._requests[1].sent).toBe(true);
-        expect(queue._requests[1].scheduled).toBe(false);
-
-        disposable();
-        disposable2();
-    })",289,322,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':316,'endLine':316}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(0);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(onNext).toHaveBeenCalledTimes(1);
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        const disposable = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
-        expect(queue._requests.length).toBe(2);
-        expect(queue._requests[1].sent).toBe(true);
-        expect(queue._requests[1].scheduled).toBe(false);
-
-        disposable();
-        disposable2();
-    })",289,322,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':333,'endLine':333}","it(""does not dedupe requests when request deduplication is disabled"", done => {
-        const scheduler = new ImmediateScheduler();
-        const dsGetSpy = jest.fn();
-        const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
-        const model = new Model({ source, disableRequestDeduplication: true });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(2, callCount => {
-            expect(callCount).toBe(2);
-            expect(queue._requests.length).toBe(0);
-
-            expect(dsGetSpy).toHaveBeenCalledTimes(2);
-
-            // Paths should still be collapsed
-            expect(dsGetSpy).toHaveBeenNthCalledWith(1, expect.anything(), [[""videos"", { from: 0, to: 1 }, ""title""]], undefined);
-            expect(dsGetSpy).toHaveBeenNthCalledWith(2, expect.anything(), [[""videos"", { from: 1, to: 2 }, ""title""]], undefined);
-
-            done();
-        });
-
-        queue.get([videos0, videos1], [videos0, videos1], zip);
-        queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",324,346,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':357,'endLine':357}","it(""does not collapse paths when path collapse is disabled"", done => {
-        const scheduler = new ImmediateScheduler();
-        const dsGetSpy = jest.fn();
-        const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
-        const model = new Model({ source, disablePathCollapse: true });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(2, callCount => {
-            expect(callCount).toBe(2);
-            expect(queue._requests.length).toBe(0);
-
-            // Requests should still be deduplicated
-            expect(dsGetSpy).toHaveBeenCalledTimes(2);
-            expect(dsGetSpy).toHaveBeenNthCalledWith(1, expect.anything(), [videos0, videos1], undefined);
-            expect(dsGetSpy).toHaveBeenNthCalledWith(2, expect.anything(), [videos2], undefined);
-
-            done();
-        });
-
-        queue.get([videos0, videos1], [videos0, videos1], zip);
-        queue.get([videos1, videos2], [videos1, videos2], zip);
-    })",348,369,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':381,'endLine':381}","it(""does not collapse paths or dedupe requests"", done => {
-            const scheduler = new ImmediateScheduler();
-            const dsGetSpy = jest.fn();
-            const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
-            const model = new Model({ source, disablePathCollapse: true, disableRequestDeduplication: true });
-            const queue = new RequestQueue(model, scheduler);
-
-            const zip = zipSpy(2, callCount => {
-                expect(callCount).toBe(2);
-                expect(queue._requests.length).toBe(0);
-
-                // No path collapse, no request dedupe
-                expect(dsGetSpy).toHaveBeenCalledTimes(2);
-                expect(dsGetSpy).toHaveBeenNthCalledWith(1, expect.anything(), [videos0, videos1], undefined);
-                expect(dsGetSpy).toHaveBeenNthCalledWith(2, expect.anything(), [videos1, videos2], undefined);
-
-                done();
-            });
-
-            queue.get([videos0, videos1], [videos0, videos1], zip);
-            queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",372,393,snuts
-/test/internal/request/RequestQueue.get.spec.js,SubOptimalAssert,"{'startLine':404,'endLine':404}","it(""combines batched paths without collapse"", done => {
-            const scheduler = new TimeoutScheduler(1); // To allow batching
-            const dsGetSpy = jest.fn();
-            const source = new LocalDataSource(Cache(), { wait: 100, onGet: dsGetSpy });
-            const model = new Model({ source, disablePathCollapse: true, disableRequestDeduplication: true });
-            const queue = new RequestQueue(model, scheduler);
-
-            const zip = zipSpy(2, callCount => {
-                expect(callCount).toBe(2);
-                expect(queue._requests.length).toBe(0);
-
-                expect(dsGetSpy).toHaveBeenCalledTimes(1);
-                expect(dsGetSpy).toHaveBeenNthCalledWith(1, expect.anything(), [videos0, videos1, videos1, videos2], undefined);
-
-                done();
-            });
-
-            queue.get([videos0, videos1], [videos0, videos1], zip);
-            queue.get([videos1, videos2], [videos1, videos2], zip);
-        })",395,414,snuts
-/test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':123,'endLine':168}","it(""makes a couple requests where only part of the second request is deduped then first request is disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(1);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(strip(onNext.mock.calls[0][0])).toEqual({
-                            json: {
-                                videos: {
-                                    0: {
-                                        title: ""Video 0""
-                                    },
-                                    1: {
-                                        title: ""Video 1""
-                                    }
-                                }
-                            }
-                        });
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        const disposable = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        queue.get([videos0, videos1], [videos0, videos1], zip);
-        expect(queue._requests.length).toBe(2);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[1].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-        expect(queue._requests[1].scheduled).toBe(false);
-
-        disposable();
-    })",123,168,snuts
-/test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':170,'endLine':210}","it(""makes a couple requests where the second request is deduped and the first is disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(1);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(strip(onNext.mock.calls[0][0])).toEqual({
-                            json: {
-                                videos: {
-                                    0: {
-                                        title: ""Video 0""
-                                    }
-                                }
-                            }
-                        });
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        const disposable = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        disposable();
-    })",170,210,snuts
-/test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':212,'endLine':245}","it(""makes a couple requests where the second argument is deduped and all the requests are disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(0);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(onNext).toHaveBeenCalledTimes(1);
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        const disposable = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        const disposable2 = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        disposable();
-        disposable2();
-    })",212,245,snuts
-/test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':247,'endLine':287}","it(""makes a couple requests where only part of the second request is deduped then disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(1);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(strip(onNext.mock.calls[0][0])).toEqual({
-                            json: {
-                                videos: {
-                                    0: {
-                                        title: ""Video 0""
-                                    }
-                                }
-                            }
-                        });
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
-        expect(queue._requests.length).toBe(2);
-        expect(queue._requests[1].sent).toBe(true);
-        expect(queue._requests[1].scheduled).toBe(false);
-
-        disposable2();
-    })",247,287,snuts
-/test/internal/request/RequestQueue.get.spec.js,VerboseStatement,"{'startLine':289,'endLine':322}","it(""makes a couple requests where only part of the second request is deduped then both are disposed"", done => {
-        const scheduler = new ImmediateScheduler();
-        const source = new LocalDataSource(Cache(), { wait: 100 });
-        const model = new Model({ source });
-        const queue = new RequestQueue(model, scheduler);
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                expect(callCount).toBe(0);
-
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(onNext).toHaveBeenCalledTimes(1);
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        const disposable = queue.get([videos0], [videos0], zip);
-        expect(queue._requests.length).toBe(1);
-        expect(queue._requests[0].sent).toBe(true);
-        expect(queue._requests[0].scheduled).toBe(false);
-
-        const disposable2 = queue.get([videos0, videos1], [videos0, videos1], zip);
-        expect(queue._requests.length).toBe(2);
-        expect(queue._requests[1].sent).toBe(true);
-        expect(queue._requests[1].scheduled).toBe(false);
-
-        disposable();
-        disposable2();
-    })",289,322,snuts
-/test/internal/request/GetRequest.spec.js,ConditionalTestLogic,"{'startLine':21,'endLine':27}","it(""unsubscribing should cancel DataSource request (sync scheduler)."", () => {
-        let unsubscribeSpy;
-        const subscribeSpy = jest.fn((observerOrOnNext, onError, onCompleted) => {
-            const handle = setTimeout(() => {
-                const response = {
-                    jsonGraph: {
-                        list: {
-                            1: { name: ""another test"" }
-                        }
-                    },
-                    paths: [""list"", 1, ""name""]
-                };
-
-                if (typeof observerOrOnNext === ""function"") {
-                    observerOrOnNext(response);
-                    onCompleted();
-                } else {
-                    observerOrOnNext.onNext(response);
-                    observerOrOnNext.onCompleted();
-                }
-            });
-
-            unsubscribeSpy = jest.fn(() => {
-                clearTimeout(handle);
-            });
-
-            return {
-                dispose: unsubscribeSpy
-            };
-        });
-
-        const model = new Model({
-            cache: {
-                list: {
-                    0: { name: ""test"" }
-                }
-            },
-            source: {
-                get() {
-                    return {
-                        subscribe: subscribeSpy
-                    };
-                }
-            }
-        });
-
-        const onNext = jest.fn();
-        const onError = jest.fn();
-        const onCompleted = jest.fn();
-
-        const subscription = model.get(""list[0,1].name"").subscribe(onNext, onError, onCompleted);
-
-        subscription.dispose();
-
-        expect(subscribeSpy).toHaveBeenCalledTimes(1);
-        expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
-        expect(onNext).not.toHaveBeenCalled();
-        expect(onError).not.toHaveBeenCalled();
-        expect(onCompleted).not.toHaveBeenCalled();
-    })",8,67,snuts
-/test/internal/request/GetRequest.spec.js,ConditionalTestLogic,"{'startLine':81,'endLine':87}","it(""unsubscribing should cancel DataSource request (async scheduler, unsubscribed immediate)."", () => {
-        const subscribeSpy = jest.fn((observerOrOnNext, onError, onCompleted) => {
-            setTimeout(() => {
-                const response = {
-                    jsonGraph: {
-                        list: {
-                            1: { name: ""another test"" }
-                        }
-                    },
-                    paths: [""list"", 1, ""name""]
-                };
-
-                if (typeof observerOrOnNext === ""function"") {
-                    observerOrOnNext(response);
-                    onCompleted();
-                } else {
-                    observerOrOnNext.onNext(response);
-                    observerOrOnNext.onCompleted();
-                }
-            });
-
-            // No need to have a spy, if subscribe is called, we fail.
-            return {
-                dispose() {}
-            };
-        });
-
-        const model = new Model({
-            scheduler: new TimeoutScheduler(1),
-            cache: {
-                list: {
-                    0: { name: ""test"" }
-                }
-            },
-            source: {
-                get() {
-                    return {
-                        subscribe: subscribeSpy
-                    };
-                }
-            }
-        });
-
-        const onNext = jest.fn();
-        const onError = jest.fn();
-        const onCompleted = jest.fn();
-
-        const subscription = model.get(""list[0,1].name"").subscribe(onNext, onError, onCompleted);
-
-        subscription.dispose();
-
-        expect(subscribeSpy).not.toHaveBeenCalled();
-        expect(onNext).not.toHaveBeenCalled();
-        expect(onError).not.toHaveBeenCalled();
-        expect(onCompleted).not.toHaveBeenCalled();
-    })",69,124,snuts
-/test/internal/request/GetRequest.spec.js,ConditionalTestLogic,"{'startLine':139,'endLine':145}","it(""unsubscribing should cancel DataSource request (async scheduler, unsubscribed after subscribe)."", done => {
-        let unsubscribeSpy;
-        const subscribeSpy = jest.fn((observerOrOnNext, onError, onCompleted) => {
-            const handle = setTimeout(() => {
-                const response = {
-                    jsonGraph: {
-                        list: {
-                            1: { name: ""another test"" }
-                        }
-                    },
-                    paths: [""list"", 1, ""name""]
-                };
-
-                if (typeof observerOrOnNext === ""function"") {
-                    observerOrOnNext(response);
-                    onCompleted();
-                } else {
-                    observerOrOnNext.onNext(response);
-                    observerOrOnNext.onCompleted();
-                }
-            }, 100000);
-
-            unsubscribeSpy = jest.fn(() => {
-                clearTimeout(handle);
-            });
-
-            return {
-                dispose: unsubscribeSpy
-            };
-        });
-
-        const model = new Model({
-            cache: {
-                list: {
-                    0: { name: ""test"" }
-                }
-            },
-            source: {
-                get() {
-                    return {
-                        subscribe: subscribeSpy
-                    };
-                }
-            }
-        });
-
-        const onNext = jest.fn();
-        const onError = jest.fn();
-        const onCompleted = jest.fn();
-
-        const subscription = model.get(""list[0,1].name"").subscribe(onNext, onError, onCompleted);
-
-        function waitOrExpect() {
-            if (!unsubscribeSpy) {
-                setTimeout(waitOrExpect, 0);
-                return;
-            }
-            subscription.dispose();
-
-            expect(subscribeSpy).toHaveBeenCalledTimes(1);
-            expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
-            expect(onNext).not.toHaveBeenCalled();
-            expect(onError).not.toHaveBeenCalled();
-            expect(onCompleted).not.toHaveBeenCalled();
-
-            done();
-        }
-
-        waitOrExpect();
-    })",126,195,snuts
-/test/internal/request/GetRequest.spec.js,ConditionalTestLogic,"{'startLine':179,'endLine':182}","it(""unsubscribing should cancel DataSource request (async scheduler, unsubscribed after subscribe)."", done => {
-        let unsubscribeSpy;
-        const subscribeSpy = jest.fn((observerOrOnNext, onError, onCompleted) => {
-            const handle = setTimeout(() => {
-                const response = {
-                    jsonGraph: {
-                        list: {
-                            1: { name: ""another test"" }
-                        }
-                    },
-                    paths: [""list"", 1, ""name""]
-                };
-
-                if (typeof observerOrOnNext === ""function"") {
-                    observerOrOnNext(response);
-                    onCompleted();
-                } else {
-                    observerOrOnNext.onNext(response);
-                    observerOrOnNext.onCompleted();
-                }
-            }, 100000);
-
-            unsubscribeSpy = jest.fn(() => {
-                clearTimeout(handle);
-            });
-
-            return {
-                dispose: unsubscribeSpy
-            };
-        });
-
-        const model = new Model({
-            cache: {
-                list: {
-                    0: { name: ""test"" }
-                }
-            },
-            source: {
-                get() {
-                    return {
-                        subscribe: subscribeSpy
-                    };
-                }
-            }
-        });
-
-        const onNext = jest.fn();
-        const onError = jest.fn();
-        const onCompleted = jest.fn();
-
-        const subscription = model.get(""list[0,1].name"").subscribe(onNext, onError, onCompleted);
-
-        function waitOrExpect() {
-            if (!unsubscribeSpy) {
-                setTimeout(waitOrExpect, 0);
-                return;
-            }
-            subscription.dispose();
-
-            expect(subscribeSpy).toHaveBeenCalledTimes(1);
-            expect(unsubscribeSpy).toHaveBeenCalledTimes(1);
-            expect(onNext).not.toHaveBeenCalled();
-            expect(onError).not.toHaveBeenCalled();
-            expect(onCompleted).not.toHaveBeenCalled();
-
-            done();
-        }
-
-        waitOrExpect();
-    })",126,195,snuts
-/test/internal/request/GetRequest.spec.js,NonFunctionalStatement,"{'startLine':92,'endLine':92}","it(""unsubscribing should cancel DataSource request (async scheduler, unsubscribed immediate)."", () => {
-        const subscribeSpy = jest.fn((observerOrOnNext, onError, onCompleted) => {
-            setTimeout(() => {
-                const response = {
-                    jsonGraph: {
-                        list: {
-                            1: { name: ""another test"" }
-                        }
-                    },
-                    paths: [""list"", 1, ""name""]
-                };
-
-                if (typeof observerOrOnNext === ""function"") {
-                    observerOrOnNext(response);
-                    onCompleted();
-                } else {
-                    observerOrOnNext.onNext(response);
-                    observerOrOnNext.onCompleted();
-                }
-            });
-
-            // No need to have a spy, if subscribe is called, we fail.
-            return {
-                dispose() {}
-            };
-        });
-
-        const model = new Model({
-            scheduler: new TimeoutScheduler(1),
-            cache: {
-                list: {
-                    0: { name: ""test"" }
-                }
-            },
-            source: {
-                get() {
-                    return {
-                        subscribe: subscribeSpy
-                    };
-                }
-            }
-        });
-
-        const onNext = jest.fn();
-        const onError = jest.fn();
-        const onCompleted = jest.fn();
-
-        const subscription = model.get(""list[0,1].name"").subscribe(onNext, onError, onCompleted);
-
-        subscription.dispose();
-
-        expect(subscribeSpy).not.toHaveBeenCalled();
-        expect(onNext).not.toHaveBeenCalled();
-        expect(onError).not.toHaveBeenCalled();
-        expect(onCompleted).not.toHaveBeenCalled();
-    })",69,124,snuts
-/test/internal/request/GetRequest.batch.spec.js,ConditionalTestLogic,"{'startLine':34,'endLine':36}","it(""should make a request to the dataSource with an immediate scheduler"", done => {
-        let inlineBoolean = true;
-        const scheduler = new ImmediateScheduler();
-        const getSpy = jest.fn();
-        const source = new LocalDataSource(Cache(), {
-            onGet: getSpy
-        });
-        const model = new Model({ source });
-        const request = new GetRequest(scheduler, {
-            removeRequest() {},
-            model
-        });
-
-        request.batch([videos0], [videos0], (err, data) => {
-            if (err) {
-                done(err);
-            }
-
-            const onNext = jest.fn();
-            toObservable(model.withoutDataSource().get(videos0))
-                .doAction(onNext, noOp, () => {
-                    expect(inlineBoolean).toBe(true);
-                    expect(getSpy).toHaveBeenCalledTimes(1);
-                    expect(getSpy.mock.calls[0][1]).toEqual([videos0]);
-                    expect(onNext).toHaveBeenCalledTimes(1);
-                    expect(strip(onNext.mock.calls[0][0])).toEqual({
-                        json: {
-                            videos: {
-                                0: {
-                                    title: ""Video 0""
-                                }
-                            }
-                        }
-                    });
-                })
-                .subscribe(noOp, done, done);
-        });
-        inlineBoolean = false;
-    })",20,58,snuts
-/test/internal/request/GetRequest.batch.spec.js,ConditionalTestLogic,"{'startLine':73,'endLine':75}","it(""should make a request to the dataSource with an async scheduler."", done => {
-        let inlineBoolean = true;
-        const scheduler = new TimeoutScheduler(1);
-        const getSpy = jest.fn();
-        const source = new LocalDataSource(Cache(), {
-            onGet: getSpy
-        });
-        const model = new Model({ source });
-        const request = new GetRequest(scheduler, {
-            removeRequest() {},
-            model
-        });
-        const callback = jest.fn((err, data) => {
-            if (err) {
-                done(err);
-            }
-
-            const onNext = jest.fn();
-            toObservable(model.withoutDataSource().get(videos0))
-                .doAction(onNext, noOp, () => {
-                    expect(inlineBoolean).toBe(false);
-                    expect(getSpy).toHaveBeenCalledTimes(1);
-                    expect(getSpy.mock.calls[0][1]).toEqual([videos0]);
-                    expect(onNext).toHaveBeenCalledTimes(1);
-                    expect(strip(onNext.mock.calls[0][0])).toEqual({
-                        json: {
-                            videos: {
-                                0: {
-                                    title: ""Video 0""
-                                }
-                            }
-                        }
-                    });
-                })
-                .subscribe(noOp, done, done);
-        });
-
-        request.batch([videos0], [videos0], callback);
-        inlineBoolean = false;
-    })",60,99,snuts
-/test/internal/request/GetRequest.batch.spec.js,NonFunctionalStatement,"{'startLine':11,'endLine':11}",Unknown,,,snuts
-/test/internal/request/GetRequest.batch.spec.js,NonFunctionalStatement,"{'startLine':29,'endLine':29}","it(""should make a request to the dataSource with an immediate scheduler"", done => {
-        let inlineBoolean = true;
-        const scheduler = new ImmediateScheduler();
-        const getSpy = jest.fn();
-        const source = new LocalDataSource(Cache(), {
-            onGet: getSpy
-        });
-        const model = new Model({ source });
-        const request = new GetRequest(scheduler, {
-            removeRequest() {},
-            model
-        });
-
-        request.batch([videos0], [videos0], (err, data) => {
-            if (err) {
-                done(err);
-            }
-
-            const onNext = jest.fn();
-            toObservable(model.withoutDataSource().get(videos0))
-                .doAction(onNext, noOp, () => {
-                    expect(inlineBoolean).toBe(true);
-                    expect(getSpy).toHaveBeenCalledTimes(1);
-                    expect(getSpy.mock.calls[0][1]).toEqual([videos0]);
-                    expect(onNext).toHaveBeenCalledTimes(1);
-                    expect(strip(onNext.mock.calls[0][0])).toEqual({
-                        json: {
-                            videos: {
-                                0: {
-                                    title: ""Video 0""
-                                }
-                            }
-                        }
-                    });
-                })
-                .subscribe(noOp, done, done);
-        });
-        inlineBoolean = false;
-    })",20,58,snuts
-/test/internal/request/GetRequest.batch.spec.js,NonFunctionalStatement,"{'startLine':69,'endLine':69}","it(""should make a request to the dataSource with an async scheduler."", done => {
-        let inlineBoolean = true;
-        const scheduler = new TimeoutScheduler(1);
-        const getSpy = jest.fn();
-        const source = new LocalDataSource(Cache(), {
-            onGet: getSpy
-        });
-        const model = new Model({ source });
-        const request = new GetRequest(scheduler, {
-            removeRequest() {},
-            model
-        });
-        const callback = jest.fn((err, data) => {
-            if (err) {
-                done(err);
-            }
-
-            const onNext = jest.fn();
-            toObservable(model.withoutDataSource().get(videos0))
-                .doAction(onNext, noOp, () => {
-                    expect(inlineBoolean).toBe(false);
-                    expect(getSpy).toHaveBeenCalledTimes(1);
-                    expect(getSpy.mock.calls[0][1]).toEqual([videos0]);
-                    expect(onNext).toHaveBeenCalledTimes(1);
-                    expect(strip(onNext.mock.calls[0][0])).toEqual({
-                        json: {
-                            videos: {
-                                0: {
-                                    title: ""Video 0""
-                                }
-                            }
-                        }
-                    });
-                })
-                .subscribe(noOp, done, done);
-        });
-
-        request.batch([videos0], [videos0], callback);
-        inlineBoolean = false;
-    })",60,99,snuts
-/test/internal/request/GetRequest.batch.spec.js,NonFunctionalStatement,"{'startLine':109,'endLine':109}","it(""should batch some requests together."", done => {
-        const scheduler = new TimeoutScheduler(1);
-        const getSpy = jest.fn();
-        const source = new LocalDataSource(Cache(), {
-            onGet: getSpy
-        });
-        const model = new Model({ source });
-        const request = new GetRequest(scheduler, {
-            removeRequest() {},
-            model
-        });
-
-        const zip = zipSpy(2, callCount => {
-            expect(callCount).toBe(2);
-            const onNext = jest.fn();
-            toObservable(model.withoutDataSource().get(videos0, videos1))
-                .doAction(onNext, noOp, () => {
-                    expect(strip(onNext.mock.calls[0][0])).toEqual({
-                        json: {
-                            videos: {
-                                0: {
-                                    title: ""Video 0""
-                                },
-                                1: {
-                                    title: ""Video 1""
-                                }
-                            }
-                        }
-                    });
-                })
-                .subscribe(noOp, done, done);
-        });
-
-        request.batch([videos0], [videos0], zip);
-        request.batch([videos1], [videos1], zip);
-    })",101,136,snuts
-/test/internal/request/GetRequest.batch.spec.js,NonFunctionalStatement,"{'startLine':146,'endLine':146}","it(""should batch some requests together and dispose the first one."", done => {
-        const scheduler = new TimeoutScheduler(1);
-        const getSpy = jest.fn();
-        const source = new LocalDataSource(Cache(), {
-            onGet: getSpy
-        });
-        const model = new Model({ source });
-        const request = new GetRequest(scheduler, {
-            removeRequest() {},
-            model
-        });
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(callCount).toBe(1);
-                        expect(strip(onNext.mock.calls[0][0])).toEqual({
-                            json: {
-                                videos: {
-                                    1: {
-                                        title: ""Video 1""
-                                    }
-                                }
-                            }
-                        });
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-        const disposable = request.batch([videos0], [videos0], zip);
-        request.batch([videos1], [videos1], zip);
-
-        disposable();
-    })",138,175,snuts
-/test/internal/request/GetRequest.batch.spec.js,NonFunctionalStatement,"{'startLine':185,'endLine':185}","it(""should batch some requests together and dispose the second one."", done => {
-        const scheduler = new TimeoutScheduler(1);
-        const getSpy = jest.fn();
-        const source = new LocalDataSource(Cache(), {
-            onGet: getSpy
-        });
-        const model = new Model({ source });
-        const request = new GetRequest(scheduler, {
-            removeRequest() {},
-            model
-        });
-
-        const zip = zipSpy(
-            2,
-            callCount => {
-                const onNext = jest.fn();
-                toObservable(model.withoutDataSource().get(videos0, videos1))
-                    .doAction(onNext, noOp, () => {
-                        expect(callCount).toBe(1);
-                        expect(strip(onNext.mock.calls[0][0])).toEqual({
-                            json: {
-                                videos: {
-                                    0: {
-                                        title: ""Video 0""
-                                    }
-                                }
-                            }
-                        });
-                    })
-                    .subscribe(noOp, done, done);
-            },
-            300
-        );
-
-        request.batch([videos0], [videos0], zip);
-        const disposable = request.batch([videos1], [videos1], zip);
-
-        disposable();
-    })",177,215,snuts
-/test/internal/request/GetRequest.add.spec.js,NonFunctionalStatement,"{'startLine':10,'endLine':10}",Unknown,,,snuts
 /test/falcor/set/set.pathSyntax.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/falcor/set/set.dataSource-only.spec.js,ConditionalTestLogic,"{'startLine':160,'endLine':188}","it(""should report paths progressively."", done => {
         const onSet = function(source, tmpGraph, jsonGraphFromSet) {
@@ -5618,6 +5616,254 @@ file,type,line,method,methodStart,methodEnd,source
                         done();
                     });
         })",183,222,snuts
+/test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':65,'endLine':69}","it(""should get a hard error from the DataSource with _treatDataSourceErrorsAsJSONGraphErrors."", function(done) {
+        var model = new Model({
+            source: new ErrorDataSource(503, ""Timeout""),
+            _treatDataSourceErrorsAsJSONGraphErrors: true
+        });
+        var onNext = jest.fn();
+        toObservable(model.
+            get([""test"", {to: 5}, ""summary""])).
+            doAction(onNext, function(err) {
+                expect(onNext).toHaveBeenCalledTimes(1);
+                expect(clean(onNext.mock.calls[0][0])).toEqual({
+                    json: {
+                        test: {
+                            0: {},
+                            1: {},
+                            2: {},
+                            3: {},
+                            4: {},
+                            5: {}
+                        }
+                    }
+                });
+                expect(err.length).toBe(6);
+                // not in boxValue mode
+                var expected = {
+                    path: [],
+                    value: {
+                        status: 503,
+                        message: ""Timeout""
+                    }
+                };
+                err.forEach(function(e, i) {
+                    expected.path = [""test"", i, ""summary""];
+                    expect(e).toEqual(expected);
+                });
+            }).
+            subscribe(noOp,
+            function(e) {
+                if (isAssertionError(e)) {
+                    done(e);
+                } else {
+                    done();
+                }
+            },
+            function() {
+                done('Should not onComplete');
+            });
+    })",27,74,snuts
+/test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':96,'endLine':100}","it(""should get a hard error from the DataSource."", function(done) {
+        var model = new Model({
+            source: new ErrorDataSource(503, ""Timeout"")
+        });
+        toObservable(model.
+            get([""test"", {to: 5}, ""summary""])).
+            doAction(noOp, function(err) {
+                // not in boxValue mode
+                var expected = {
+                    $type: ""error"",
+                    value: {
+                        status: 503,
+                        message: ""Timeout""
+                    }
+                };
+
+                expect(err).toEqual(expected);
+            }).
+            subscribe(noOp,
+            function(e) {
+                if (isAssertionError(e)) {
+                    done(e);
+                } else {
+                    done();
+                }
+            },
+            function() {
+                done('Should not onComplete');
+            });
+    })",76,105,snuts
+/test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':323,'endLine':325}","it('should allow for dataSources to immediately throw an error (set)', function(done) {
+        var routes = {
+            set: function() {
+                return thisVarDoesNotExistAndThatsAFact;
+            }
+        };
+        var model = new falcor.Model({ source: routes });
+        var onNext = jest.fn();
+        var onError = jest.fn();
+        toObservable(model.
+            set({
+                paths: [['titlesById', 242, 'rating']],
+                jsonGraph: {
+                    titlesById: {
+                        242: {
+                            rating: 5
+                        }
+                    }
+                }
+            })).
+            doAction(onNext, onError).
+            doAction(noOp, function() {
+                expect(onNext).not.toHaveBeenCalled();
+                expect(onError).toHaveBeenCalledTimes(1);
+                expect(onError.mock.calls[0][0].name).toBe(InvalidSourceError.name);
+            }).
+            subscribe(noOp, function(e) {
+                if (isAssertionError(e)) {
+                    return done(e);
+                }
+                return done();
+            }, done.bind(null, new Error('should not complete')));
+    })",296,328,snuts
+/test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':351,'endLine':353}","it('should allow for dataSources to immediately throw an error (get)', function(done) {
+        var routes = {
+            get: function() {
+                return thisVarDoesNotExistAndThatsAFact;
+            }
+        };
+        var model = new falcor.Model({ source: routes });
+        var onNext = jest.fn();
+        var onError = jest.fn();
+        toObservable(model.
+            get(['path', 'to', 'value'])).
+            doAction(onNext, function(e) {
+                expect(onNext).toHaveBeenCalledTimes(1);
+                expect(clean(onNext.mock.calls[0][0])).toEqual({
+                    json: {
+
+                    }
+                })
+                expect(e.name).toBe(InvalidSourceError.name);
+            }).
+            subscribe(noOp, function(e) {
+                if (isAssertionError(e)) {
+                    return done(e);
+                }
+                return done();
+            }, done.bind(null, new Error('should not complete')));
+    })",330,356,snuts
+/test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':374,'endLine':376}","it('should allow for dataSources to immediately throw an error (call)', function(done) {
+        var routes = {
+            call: function() {
+                return thisVarDoesNotExistAndThatsAFact;
+            }
+        };
+        var model = new falcor.Model({ source: routes });
+        var onNext = jest.fn();
+        toObservable(model.
+            call(['videos', 1234, 'rating'], 5)).
+            doAction(onNext).
+            doAction(noOp, function(err) {
+                expect(onNext).not.toHaveBeenCalled();
+                expect(err.name).toBe(InvalidSourceError.name);
+            }).
+            subscribe(noOp, function(e) {
+                if (isAssertionError(e)) {
+                    return done(e);
+                }
+                return done();
+            }, done.bind(null, new Error('should not complete')));
+    })",358,379,snuts
+/test/falcor/error/error.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
+/test/falcor/error/error.spec.js,SubOptimalAssert,"{'startLine':49,'endLine':49}","it(""should get a hard error from the DataSource with _treatDataSourceErrorsAsJSONGraphErrors."", function(done) {
+        var model = new Model({
+            source: new ErrorDataSource(503, ""Timeout""),
+            _treatDataSourceErrorsAsJSONGraphErrors: true
+        });
+        var onNext = jest.fn();
+        toObservable(model.
+            get([""test"", {to: 5}, ""summary""])).
+            doAction(onNext, function(err) {
+                expect(onNext).toHaveBeenCalledTimes(1);
+                expect(clean(onNext.mock.calls[0][0])).toEqual({
+                    json: {
+                        test: {
+                            0: {},
+                            1: {},
+                            2: {},
+                            3: {},
+                            4: {},
+                            5: {}
+                        }
+                    }
+                });
+                expect(err.length).toBe(6);
+                // not in boxValue mode
+                var expected = {
+                    path: [],
+                    value: {
+                        status: 503,
+                        message: ""Timeout""
+                    }
+                };
+                err.forEach(function(e, i) {
+                    expected.path = [""test"", i, ""summary""];
+                    expect(e).toEqual(expected);
+                });
+            }).
+            subscribe(noOp,
+            function(e) {
+                if (isAssertionError(e)) {
+                    done(e);
+                } else {
+                    done();
+                }
+            },
+            function() {
+                done('Should not onComplete');
+            });
+    })",27,74,snuts
+/test/falcor/error/error.spec.js,SubOptimalAssert,"{'startLine':129,'endLine':129}","it(""should get a hard error from the DataSource with some data found in the cache with _treatDataSourceErrorsAsJSONGraphErrors."", function(done) {
+        var model = new Model({
+            _treatDataSourceErrorsAsJSONGraphErrors: true,
+            source: new ErrorDataSource(503, ""Timeout""),
+            cache: {
+                test: {
+                    0: {
+                        summary: ""in cache""
+                    },
+                    5: {
+                        summary: ""in cache""
+                    }
+                }
+            }
+        });
+        var onNext = jest.fn();
+        toObservable(model.
+            get([""test"", {to: 5}, ""summary""])).
+            doAction(onNext, function(err) {
+
+                // Ensure onNext is called correctly
+                expect(onNext).toHaveBeenCalledTimes(1);
+                expect(err.length).toBe(4);
+                // not in boxValue mode
+                var expected = {
+                    path: [],
+                    value: {
+                        status: 503,
+                        message: ""Timeout""
+                    }
+                };
+                err.forEach(function(e, i) {
+                    expected.path = [""test"", i + 1, ""summary""];
+                    expect(e).toEqual(expected);
+                });
+            }).
+            subscribe(noOp, doneOnError(done), errorOnCompleted(done));
+    })",107,144,snuts
+/test/falcor/call/call.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/falcor/invalidate/invalidate.cache-only.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /test/falcor/get/get.pathSyntax.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
 /test/falcor/get/get.model.adapter.spec.js,NonFunctionalStatement,"{'startLine':3,'endLine':3}",Unknown,,,snuts
@@ -6407,253 +6653,6 @@ file,type,line,method,methodStart,methodEnd,source
                 }, done);
         })",64,92,snuts
 /test/falcor/get/get.cache-only.spec.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
-/test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':65,'endLine':69}","it(""should get a hard error from the DataSource with _treatDataSourceErrorsAsJSONGraphErrors."", function(done) {
-        var model = new Model({
-            source: new ErrorDataSource(503, ""Timeout""),
-            _treatDataSourceErrorsAsJSONGraphErrors: true
-        });
-        var onNext = jest.fn();
-        toObservable(model.
-            get([""test"", {to: 5}, ""summary""])).
-            doAction(onNext, function(err) {
-                expect(onNext).toHaveBeenCalledTimes(1);
-                expect(clean(onNext.mock.calls[0][0])).toEqual({
-                    json: {
-                        test: {
-                            0: {},
-                            1: {},
-                            2: {},
-                            3: {},
-                            4: {},
-                            5: {}
-                        }
-                    }
-                });
-                expect(err.length).toBe(6);
-                // not in boxValue mode
-                var expected = {
-                    path: [],
-                    value: {
-                        status: 503,
-                        message: ""Timeout""
-                    }
-                };
-                err.forEach(function(e, i) {
-                    expected.path = [""test"", i, ""summary""];
-                    expect(e).toEqual(expected);
-                });
-            }).
-            subscribe(noOp,
-            function(e) {
-                if (isAssertionError(e)) {
-                    done(e);
-                } else {
-                    done();
-                }
-            },
-            function() {
-                done('Should not onComplete');
-            });
-    })",27,74,snuts
-/test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':96,'endLine':100}","it(""should get a hard error from the DataSource."", function(done) {
-        var model = new Model({
-            source: new ErrorDataSource(503, ""Timeout"")
-        });
-        toObservable(model.
-            get([""test"", {to: 5}, ""summary""])).
-            doAction(noOp, function(err) {
-                // not in boxValue mode
-                var expected = {
-                    $type: ""error"",
-                    value: {
-                        status: 503,
-                        message: ""Timeout""
-                    }
-                };
-
-                expect(err).toEqual(expected);
-            }).
-            subscribe(noOp,
-            function(e) {
-                if (isAssertionError(e)) {
-                    done(e);
-                } else {
-                    done();
-                }
-            },
-            function() {
-                done('Should not onComplete');
-            });
-    })",76,105,snuts
-/test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':323,'endLine':325}","it('should allow for dataSources to immediately throw an error (set)', function(done) {
-        var routes = {
-            set: function() {
-                return thisVarDoesNotExistAndThatsAFact;
-            }
-        };
-        var model = new falcor.Model({ source: routes });
-        var onNext = jest.fn();
-        var onError = jest.fn();
-        toObservable(model.
-            set({
-                paths: [['titlesById', 242, 'rating']],
-                jsonGraph: {
-                    titlesById: {
-                        242: {
-                            rating: 5
-                        }
-                    }
-                }
-            })).
-            doAction(onNext, onError).
-            doAction(noOp, function() {
-                expect(onNext).not.toHaveBeenCalled();
-                expect(onError).toHaveBeenCalledTimes(1);
-                expect(onError.mock.calls[0][0].name).toBe(InvalidSourceError.name);
-            }).
-            subscribe(noOp, function(e) {
-                if (isAssertionError(e)) {
-                    return done(e);
-                }
-                return done();
-            }, done.bind(null, new Error('should not complete')));
-    })",296,328,snuts
-/test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':351,'endLine':353}","it('should allow for dataSources to immediately throw an error (get)', function(done) {
-        var routes = {
-            get: function() {
-                return thisVarDoesNotExistAndThatsAFact;
-            }
-        };
-        var model = new falcor.Model({ source: routes });
-        var onNext = jest.fn();
-        var onError = jest.fn();
-        toObservable(model.
-            get(['path', 'to', 'value'])).
-            doAction(onNext, function(e) {
-                expect(onNext).toHaveBeenCalledTimes(1);
-                expect(clean(onNext.mock.calls[0][0])).toEqual({
-                    json: {
-
-                    }
-                })
-                expect(e.name).toBe(InvalidSourceError.name);
-            }).
-            subscribe(noOp, function(e) {
-                if (isAssertionError(e)) {
-                    return done(e);
-                }
-                return done();
-            }, done.bind(null, new Error('should not complete')));
-    })",330,356,snuts
-/test/falcor/error/error.spec.js,ConditionalTestLogic,"{'startLine':374,'endLine':376}","it('should allow for dataSources to immediately throw an error (call)', function(done) {
-        var routes = {
-            call: function() {
-                return thisVarDoesNotExistAndThatsAFact;
-            }
-        };
-        var model = new falcor.Model({ source: routes });
-        var onNext = jest.fn();
-        toObservable(model.
-            call(['videos', 1234, 'rating'], 5)).
-            doAction(onNext).
-            doAction(noOp, function(err) {
-                expect(onNext).not.toHaveBeenCalled();
-                expect(err.name).toBe(InvalidSourceError.name);
-            }).
-            subscribe(noOp, function(e) {
-                if (isAssertionError(e)) {
-                    return done(e);
-                }
-                return done();
-            }, done.bind(null, new Error('should not complete')));
-    })",358,379,snuts
-/test/falcor/error/error.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
-/test/falcor/error/error.spec.js,SubOptimalAssert,"{'startLine':49,'endLine':49}","it(""should get a hard error from the DataSource with _treatDataSourceErrorsAsJSONGraphErrors."", function(done) {
-        var model = new Model({
-            source: new ErrorDataSource(503, ""Timeout""),
-            _treatDataSourceErrorsAsJSONGraphErrors: true
-        });
-        var onNext = jest.fn();
-        toObservable(model.
-            get([""test"", {to: 5}, ""summary""])).
-            doAction(onNext, function(err) {
-                expect(onNext).toHaveBeenCalledTimes(1);
-                expect(clean(onNext.mock.calls[0][0])).toEqual({
-                    json: {
-                        test: {
-                            0: {},
-                            1: {},
-                            2: {},
-                            3: {},
-                            4: {},
-                            5: {}
-                        }
-                    }
-                });
-                expect(err.length).toBe(6);
-                // not in boxValue mode
-                var expected = {
-                    path: [],
-                    value: {
-                        status: 503,
-                        message: ""Timeout""
-                    }
-                };
-                err.forEach(function(e, i) {
-                    expected.path = [""test"", i, ""summary""];
-                    expect(e).toEqual(expected);
-                });
-            }).
-            subscribe(noOp,
-            function(e) {
-                if (isAssertionError(e)) {
-                    done(e);
-                } else {
-                    done();
-                }
-            },
-            function() {
-                done('Should not onComplete');
-            });
-    })",27,74,snuts
-/test/falcor/error/error.spec.js,SubOptimalAssert,"{'startLine':129,'endLine':129}","it(""should get a hard error from the DataSource with some data found in the cache with _treatDataSourceErrorsAsJSONGraphErrors."", function(done) {
-        var model = new Model({
-            _treatDataSourceErrorsAsJSONGraphErrors: true,
-            source: new ErrorDataSource(503, ""Timeout""),
-            cache: {
-                test: {
-                    0: {
-                        summary: ""in cache""
-                    },
-                    5: {
-                        summary: ""in cache""
-                    }
-                }
-            }
-        });
-        var onNext = jest.fn();
-        toObservable(model.
-            get([""test"", {to: 5}, ""summary""])).
-            doAction(onNext, function(err) {
-
-                // Ensure onNext is called correctly
-                expect(onNext).toHaveBeenCalledTimes(1);
-                expect(err.length).toBe(4);
-                // not in boxValue mode
-                var expected = {
-                    path: [],
-                    value: {
-                        status: 503,
-                        message: ""Timeout""
-                    }
-                };
-                err.forEach(function(e, i) {
-                    expected.path = [""test"", i + 1, ""summary""];
-                    expect(e).toEqual(expected);
-                });
-            }).
-            subscribe(noOp, doneOnError(done), errorOnCompleted(done));
-    })",107,144,snuts
 /test/falcor/deref/deref.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/falcor/deref/deref.hasValidParentReference.spec.js,OvercommentedTest,"{'startLine':115,'endLine':183}","it('should set and exceed maxSize and maintain correct deref and hasValidParentReference becomes false.', function() {
         var cache = cacheGenerator(0, 30);
@@ -6833,7 +6832,6 @@ file,type,line,method,methodStart,methodEnd,source
             });
     })",12,49,snuts
 /test/falcor/deref/deref.errors.spec.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
-/test/falcor/call/call.spec.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/getTestRunner.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/testRunner.js,NonFunctionalStatement,"{'startLine':7,'endLine':7}",Unknown,,,snuts
 /test/data/ErrorDataSource.js,NonFunctionalStatement,"{'startLine':4,'endLine':4}",Unknown,,,snuts
@@ -6849,10 +6847,10 @@ file,type,line,method,methodStart,methodEnd,source
 /performance/tests/request/request-queue.js,NonFunctionalStatement,"{'startLine':82,'endLine':82}",Unknown,,,snuts
 /performance/tests/request/request-queue.js,NonFunctionalStatement,"{'startLine':87,'endLine':87}",Unknown,,,snuts
 /performance/tests/request/request-queue.js,NonFunctionalStatement,"{'startLine':88,'endLine':88}",Unknown,,,snuts
+/performance/tests/deref/index.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /performance/tests/get/get.perf.js,NonFunctionalStatement,"{'startLine':6,'endLine':6}",Unknown,,,snuts
 /performance/tests/get/get.perf.js,NonFunctionalStatement,"{'startLine':60,'endLine':61}",Unknown,,,snuts
 /performance/tests/get/get.core.perf.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
-/performance/tests/deref/index.js,NonFunctionalStatement,"{'startLine':5,'endLine':5}",Unknown,,,snuts
 /test/Model.spec.js,Conditional Test Logic,"{'line': 116, 'column': 32, 'index': 3654}","it(""unsubscribing should cancel DataSource request."", (done) => {
         let onNextCalled = 0,
             onErrorCalled = 0,
@@ -41004,14 +41002,13 @@ file,type,line,method,methodStart,methodEnd,source
         expect(current.value).toBe('I am 1');
         expect(current[__prev]).toBe(undefined);
     })",105,128,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 140, 'column': 4, 'index': 5317}","it('should promote references on a get.', function() {
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 139, 'column': 4, 'index': 5288}","it('should promote references on a get.', function() {
     var model = new Model({
         cache: cacheGenerator(0, 1)
     });
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -41029,15 +41026,14 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 141, 'column': 4, 'index': 5352}","it('should promote references on a get.', function() {
+})",130,154,steel
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 140, 'column': 4, 'index': 5323}","it('should promote references on a get.', function() {
     var model = new Model({
         cache: cacheGenerator(0, 1)
     });
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -41055,15 +41051,14 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 144, 'column': 4, 'index': 5426}","it('should promote references on a get.', function() {
+})",130,154,steel
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 143, 'column': 4, 'index': 5397}","it('should promote references on a get.', function() {
     var model = new Model({
         cache: cacheGenerator(0, 1)
     });
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -41081,15 +41076,14 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 145, 'column': 4, 'index': 5466}","it('should promote references on a get.', function() {
+})",130,154,steel
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 144, 'column': 4, 'index': 5437}","it('should promote references on a get.', function() {
     var model = new Model({
         cache: cacheGenerator(0, 1)
     });
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -41107,15 +41101,14 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 148, 'column': 4, 'index': 5545}","it('should promote references on a get.', function() {
+})",130,154,steel
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 147, 'column': 4, 'index': 5516}","it('should promote references on a get.', function() {
     var model = new Model({
         cache: cacheGenerator(0, 1)
     });
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -41133,15 +41126,14 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 149, 'column': 4, 'index': 5584}","it('should promote references on a get.', function() {
+})",130,154,steel
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 148, 'column': 4, 'index': 5555}","it('should promote references on a get.', function() {
     var model = new Model({
         cache: cacheGenerator(0, 1)
     });
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -41159,15 +41151,14 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 152, 'column': 4, 'index': 5653}","it('should promote references on a get.', function() {
+})",130,154,steel
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 151, 'column': 4, 'index': 5624}","it('should promote references on a get.', function() {
     var model = new Model({
         cache: cacheGenerator(0, 1)
     });
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -41185,15 +41176,14 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,steel
-/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 153, 'column': 4, 'index': 5691}","it('should promote references on a get.', function() {
+})",130,154,steel
+/test/lru/lru.promote.get.spec.js,Duplicate Assert,"{'line': 152, 'column': 4, 'index': 5662}","it('should promote references on a get.', function() {
     var model = new Model({
         cache: cacheGenerator(0, 1)
     });
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -41211,7 +41201,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,steel
+})",130,154,steel
 /test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 2, 'column': 0, 'index': 38}",Unknown,,,steel
 /test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 5, 'column': 0, 'index': 129}",Unknown,,,steel
 /test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 6, 'column': 0, 'index': 188}",Unknown,,,steel
@@ -41465,7 +41455,6 @@ file,type,line,method,methodStart,methodEnd,source
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -41483,15 +41472,14 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,steel
-/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 138, 'column': 4, 'index': 5260}","it('should promote references on a get.', function() {
+})",130,154,steel
+/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 137, 'column': 4, 'index': 5231}","it('should promote references on a get.', function() {
     var model = new Model({
         cache: cacheGenerator(0, 1)
     });
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -41509,15 +41497,14 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,steel
-/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 139, 'column': 4, 'index': 5288}","it('should promote references on a get.', function() {
+})",130,154,steel
+/test/lru/lru.promote.get.spec.js,Global Variable,"{'line': 138, 'column': 4, 'index': 5259}","it('should promote references on a get.', function() {
     var model = new Model({
         cache: cacheGenerator(0, 1)
     });
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -41535,7 +41522,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,steel
+})",130,154,steel
 /test/lru/lru.promote.get.spec.js,Lazy Test,"{'line': 38, 'column': 19, 'index': 1578}","it('should promote references on a get.', function() {
         var model = new Model({
             cache: cacheGenerator(0, 1)
@@ -41586,7 +41573,6 @@ file,type,line,method,methodStart,methodEnd,source
 
     model.get(['lolomo', 0]).subscribe();
 
-    // new order to the list
     var root = model._root;
     var curr = root[__head];
     expect(curr[__key]).toBe('0');
@@ -41604,7 +41590,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(curr[__key]).toBe('item');
     expect(curr.value).toEqual(['videos', '0']);
     expect(curr[__next]).toBeUndefined();
-})",130,155,steel
+})",130,154,steel
 /test/invalidate/pathSets.spec.js,Eager Test,"{'line': 19, 'column': 8, 'index': 604}","it(""directly"", function() {
 
         var lru = new Object();

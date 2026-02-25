@@ -1,5 +1,5 @@
 describe('getBreakpointsUp', () => {
-  it('should return the correct list of breakpoint names', () => {
+  it('should return the correct list of breakpoints', () => {
     expect(getBreakpointsUp()).toEqual(['', 'sm', 'md', 'lg', 'xl']);
   });
 

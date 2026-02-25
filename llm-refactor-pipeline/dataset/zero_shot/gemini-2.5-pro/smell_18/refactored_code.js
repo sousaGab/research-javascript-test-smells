@@ -1,10 +1,10 @@
 it('when strings are thrown as errors', async () => {
-          const ASYNC_OPERATION_TIMEOUT = 500;
           const FAILURE_EXIT_CODE = 1;
+          const LOG_WRITE_DELAY_MS = 500;
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
           process.emit('uncaughtException', expectedMessage);
-          await new Promise(resolve => setTimeout(resolve, ASYNC_OPERATION_TIMEOUT));
+          await new Promise(resolve => setTimeout(resolve, LOG_WRITE_DELAY_MS));
 
           expect(processExitSpy).toHaveBeenCalledTimes(1);
           expect(processExitSpy).toHaveBeenCalledWith(FAILURE_EXIT_CODE);

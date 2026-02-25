@@ -1,4 +1,4 @@
-it("should set a value on a simple path", function() {
+it("should set a simple value from a path map into the cache", function() {
 
     var cache = {};
     var version = 0;
@@ -14,4 +14,4 @@ it("should set a value on a simple path", function() {
             }
         }
     }));
-})
+});

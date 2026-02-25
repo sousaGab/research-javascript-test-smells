@@ -1,3 +1,3 @@
 it('throws exception if no type given', () => {
-  expect(() => new BvEvent()).toThrow()
-})
+    expect(() => new BvEvent()).toThrow()
+  })

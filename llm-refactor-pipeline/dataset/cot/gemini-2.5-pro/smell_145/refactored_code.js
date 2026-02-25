@@ -1,26 +1,28 @@
 it('should switch sorting order when clicking multiple times', function (done) {
-      var sortRun = 0;
-      var sortCompleteHandler = function () {
+      let sortRun = 0;
+      const sortButton = $('#sort-name');
+
+      list.on('sortComplete', function () {
         sortRun++;
         if (sortRun === 1) {
-          expect($('#sort-name').hasClass('asc')).toBe(true);
-          expect($('#sort-name').hasClass('desc')).toBe(false);
-          fireClick($('#sort-name')[0]);
+          expect(sortButton.hasClass('asc')).toBe(true);
+          expect(sortButton.hasClass('desc')).toBe(false);
+          fireClick(sortButton[0]); // Trigger the second click
         } else if (sortRun === 2) {
-          expect($('#sort-name').hasClass('asc')).toBe(false);
-          expect($('#sort-name').hasClass('desc')).toBe(true);
-          fireClick($('#sort-name')[0]);
+          expect(sortButton.hasClass('asc')).toBe(false);
+          expect(sortButton.hasClass('desc')).toBe(true);
+          fireClick(sortButton[0]); // Trigger the third click
         } else if (sortRun === 3) {
-          expect($('#sort-name').hasClass('asc')).toBe(true);
-          expect($('#sort-name').hasClass('desc')).toBe(false);
-          list.off('sortComplete', sortCompleteHandler);
+          expect(sortButton.hasClass('asc')).toBe(true);
+          expect(sortButton.hasClass('desc')).toBe(false);
           done();
         }
-      };
+      });
 
-      list.on('sortComplete', sortCompleteHandler);
+      // Initial state assertion
+      expect(sortButton.hasClass('asc')).toBe(false);
+      expect(sortButton.hasClass('desc')).toBe(false);
 
-      expect($('#sort-name').hasClass('asc')).toBe(false);
-      expect($('#sort-name').hasClass('desc')).toBe(false);
-      fireClick($('#sort-name')[0]);
+      // Trigger the first click
+      fireClick(sortButton[0]);
     });

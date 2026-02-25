@@ -1,6 +1,10 @@
-test('tracks prop changes in a component with hooks', () => {
-  const ComponentWithHooks = ({a}) => {
-    const [currentState] = React.useState({b: 'b'});
+test('tracks component updates caused by props changes', () => {
+  const ComponentWithHooks = ({
+    a
+  }) => {
+    const [currentState] = React.useState({
+      b: 'b'
+    });
 
     return (
       <div>hi! {a} {currentState.b}</div>
@@ -9,7 +13,9 @@ test('tracks prop changes in a component with hooks', () => {
 
   ComponentWithHooks.whyDidYouRender = true;
 
-  const {rerender} = rtl.render(
+  const {
+    rerender
+  } = rtl.render(
     <ComponentWithHooks a={1}/>
   );
   rerender(
@@ -28,4 +34,4 @@ test('tracks prop changes in a component with hooks', () => {
     hookDifferences: false,
     ownerDifferences: false,
   });
-});
+})

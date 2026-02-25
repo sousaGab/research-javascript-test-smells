@@ -1,12 +1,13 @@
 it('when strings are thrown as errors', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
           const LOG_WRITE_DELAY_MS = 500;
+          const EXPECTED_EXIT_CALL_COUNT = 1;
           const FAILURE_EXIT_CODE = 1;
 
           process.emit('uncaughtException', expectedMessage);
           await new Promise(resolve => setTimeout(resolve, LOG_WRITE_DELAY_MS));
 
-          expect(processExitSpy).toHaveBeenCalledTimes(1);
+          expect(processExitSpy).toHaveBeenCalledTimes(EXPECTED_EXIT_CALL_COUNT);
           expect(processExitSpy).toHaveBeenCalledWith(FAILURE_EXIT_CODE);
 
           // Read the log file and verify its contents

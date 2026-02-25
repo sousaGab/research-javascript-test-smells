@@ -632,7 +632,7 @@ file,type,line,method,methodStart,methodEnd,source
       assume(logger.exceptions.handlers.size).equals(2);
       assume(process.listeners('uncaughtException').length).equals(0);
     })",37,50,snuts
-/test/unit/winston/log-exception.test.js,GeneralFixture,"{'startLine':96,'endLine':103}","beforeEach(function () {
+/test/unit/winston/log-exception.test.js,GeneralFixture,"{'startLine':99,'endLine':106}","beforeEach(function () {
           filePath = path.join(testLogFixturesPath, 'unhandled-exception.log');
           processExitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
           logger = winston.createLogger({
@@ -644,12 +644,62 @@ file,type,line,method,methodStart,methodEnd,source
             ]
           });
           logger.exceptions.handle();
-        })",93,105,snuts
-/test/unit/winston/log-exception.test.js,NonFunctionalStatement,"{'startLine':82,'endLine':82}","beforeEach(function () {
+        })",96,108,snuts
+/test/unit/winston/log-exception.test.js,ConditionalTestLogic,"{'startLine':61,'endLine':63}","it('Custom exitOnError function does not exit', function (done) {
+    const child = spawn('node', [path.join(testHelperScriptsPath, 'exit-on-error.js')]);
+    const stdout = [];
+
+    child.stdout.setEncoding('utf8');
+
+    child.on('exit', (code, signal) => {
+      // If the process exits on its own (i.e., not killed by our test), it's a failure.
+      if (signal !== 'SIGTERM') {
+        done(new Error(`Process exited unexpectedly with code: ${code}`));
+      }
+    });
+
+    child.stdout.on('data', function (line) {
+      stdout.push(line);
+      // Once we receive the expected output, we know the process has passed
+      // the error point without crashing. Now we can run our assertions.
+      if (stdout.join('').includes('Ignore this error')) {
+        assume(child.killed).false();
+        assume(stdout).deep.equals(['Ignore this error']);
+        child.kill();
+        done();
+      }
+    });
+  })",53,77,snuts
+/test/unit/winston/log-exception.test.js,ConditionalTestLogic,"{'startLine':70,'endLine':75}","it('Custom exitOnError function does not exit', function (done) {
+    const child = spawn('node', [path.join(testHelperScriptsPath, 'exit-on-error.js')]);
+    const stdout = [];
+
+    child.stdout.setEncoding('utf8');
+
+    child.on('exit', (code, signal) => {
+      // If the process exits on its own (i.e., not killed by our test), it's a failure.
+      if (signal !== 'SIGTERM') {
+        done(new Error(`Process exited unexpectedly with code: ${code}`));
+      }
+    });
+
+    child.stdout.on('data', function (line) {
+      stdout.push(line);
+      // Once we receive the expected output, we know the process has passed
+      // the error point without crashing. Now we can run our assertions.
+      if (stdout.join('').includes('Ignore this error')) {
+        assume(child.killed).false();
+        assume(stdout).deep.equals(['Ignore this error']);
+        child.kill();
+        done();
+      }
+    });
+  })",53,77,snuts
+/test/unit/winston/log-exception.test.js,NonFunctionalStatement,"{'startLine':85,'endLine':85}","beforeEach(function () {
       filePath = path.join(testLogFixturesPath, 'unhandled-exception.log');
       processExitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
-    })",80,83,snuts
-/test/unit/winston/log-exception.test.js,NonFunctionalStatement,"{'startLine':95,'endLine':95}","beforeEach(function () {
+    })",83,86,snuts
+/test/unit/winston/log-exception.test.js,NonFunctionalStatement,"{'startLine':98,'endLine':98}","beforeEach(function () {
           filePath = path.join(testLogFixturesPath, 'unhandled-exception.log');
           processExitSpy = jest.spyOn(process, 'exit').mockImplementation(() => {});
           logger = winston.createLogger({
@@ -661,7 +711,7 @@ file,type,line,method,methodStart,methodEnd,source
             ]
           });
           logger.exceptions.handle();
-        })",93,105,snuts
+        })",96,108,snuts
 /test/unit/winston/exception-stream.test.js,GeneralFixture,"{'startLine':49,'endLine':54}","beforeEach(function () {
       transportLogCalls = [];
       fakeTransport = {
@@ -2320,7 +2370,57 @@ file,type,line,method,methodStart,methodEnd,source
         assume(logger.transports.length).equals(1);
         assume(logger.transports[0]).equals(consoleTransport);
       })",97,109,steel
-/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 113, 'column': 10, 'index': 3697}","it('when strings are thrown as errors', async () => {
+/test/unit/winston/log-exception.test.js,Conditional Test Logic,"{'line': 61, 'column': 6, 'index': 2069}","it('Custom exitOnError function does not exit', function (done) {
+    const child = spawn('node', [path.join(testHelperScriptsPath, 'exit-on-error.js')]);
+    const stdout = [];
+
+    child.stdout.setEncoding('utf8');
+
+    child.on('exit', (code, signal) => {
+      // If the process exits on its own (i.e., not killed by our test), it's a failure.
+      if (signal !== 'SIGTERM') {
+        done(new Error(`Process exited unexpectedly with code: ${code}`));
+      }
+    });
+
+    child.stdout.on('data', function (line) {
+      stdout.push(line);
+      // Once we receive the expected output, we know the process has passed
+      // the error point without crashing. Now we can run our assertions.
+      if (stdout.join('').includes('Ignore this error')) {
+        assume(child.killed).false();
+        assume(stdout).deep.equals(['Ignore this error']);
+        child.kill();
+        done();
+      }
+    });
+  })",53,77,steel
+/test/unit/winston/log-exception.test.js,Conditional Test Logic,"{'line': 70, 'column': 6, 'index': 2417}","it('Custom exitOnError function does not exit', function (done) {
+    const child = spawn('node', [path.join(testHelperScriptsPath, 'exit-on-error.js')]);
+    const stdout = [];
+
+    child.stdout.setEncoding('utf8');
+
+    child.on('exit', (code, signal) => {
+      // If the process exits on its own (i.e., not killed by our test), it's a failure.
+      if (signal !== 'SIGTERM') {
+        done(new Error(`Process exited unexpectedly with code: ${code}`));
+      }
+    });
+
+    child.stdout.on('data', function (line) {
+      stdout.push(line);
+      // Once we receive the expected output, we know the process has passed
+      // the error point without crashing. Now we can run our assertions.
+      if (stdout.join('').includes('Ignore this error')) {
+        assume(child.killed).false();
+        assume(stdout).deep.equals(['Ignore this error']);
+        child.kill();
+        done();
+      }
+    });
+  })",53,77,steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 116, 'column': 10, 'index': 3947}","it('when strings are thrown as errors', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
           process.emit('uncaughtException', expectedMessage);
@@ -2339,8 +2439,8 @@ file,type,line,method,methodStart,methodEnd,source
           helpers.assertOsInfo(data.os);
           helpers.assertTrace(data.trace);
           assume(data.message).includes('uncaughtException: ' + expectedMessage);
-        })",107,126,steel
-/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 114, 'column': 10, 'index': 3756}","it('when strings are thrown as errors', async () => {
+        })",110,129,steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 117, 'column': 10, 'index': 4006}","it('when strings are thrown as errors', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
           process.emit('uncaughtException', expectedMessage);
@@ -2359,8 +2459,8 @@ file,type,line,method,methodStart,methodEnd,source
           helpers.assertOsInfo(data.os);
           helpers.assertTrace(data.trace);
           assume(data.message).includes('uncaughtException: ' + expectedMessage);
-        })",107,126,steel
-/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 134, 'column': 10, 'index': 4586}","it('with a custom winston.Logger instance', async () => {
+        })",110,129,steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 137, 'column': 10, 'index': 4836}","it('with a custom winston.Logger instance', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
           process.emit('uncaughtException', expectedMessage);
@@ -2379,8 +2479,8 @@ file,type,line,method,methodStart,methodEnd,source
           helpers.assertOsInfo(data.os);
           helpers.assertTrace(data.trace);
           assume(data.message).includes('uncaughtException: ' + expectedMessage);
-        })",128,147,steel
-/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 135, 'column': 10, 'index': 4645}","it('with a custom winston.Logger instance', async () => {
+        })",131,150,steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 138, 'column': 10, 'index': 4895}","it('with a custom winston.Logger instance', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
           process.emit('uncaughtException', expectedMessage);
@@ -2399,8 +2499,8 @@ file,type,line,method,methodStart,methodEnd,source
           helpers.assertOsInfo(data.os);
           helpers.assertTrace(data.trace);
           assume(data.message).includes('uncaughtException: ' + expectedMessage);
-        })",128,147,steel
-/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 162, 'column': 8, 'index': 5637}","it('with the default winston logger', async () => {
+        })",131,150,steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 165, 'column': 8, 'index': 5887}","it('with the default winston logger', async () => {
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
         winston.exceptions.handle([
           new winston.transports.File({
@@ -2425,8 +2525,8 @@ file,type,line,method,methodStart,methodEnd,source
         helpers.assertOsInfo(data.os);
         helpers.assertTrace(data.trace);
         assume(data.message).includes('uncaughtException: ' + expectedMessage);
-      })",150,175,steel
-/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 163, 'column': 8, 'index': 5694}","it('with the default winston logger', async () => {
+      })",153,178,steel
+/test/unit/winston/log-exception.test.js,Duplicate Assert,"{'line': 166, 'column': 8, 'index': 5944}","it('with the default winston logger', async () => {
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
         winston.exceptions.handle([
           new winston.transports.File({
@@ -2451,7 +2551,7 @@ file,type,line,method,methodStart,methodEnd,source
         helpers.assertOsInfo(data.os);
         helpers.assertTrace(data.trace);
         assume(data.message).includes('uncaughtException: ' + expectedMessage);
-      })",150,175,steel
+      })",153,178,steel
 /test/unit/winston/log-exception.test.js,Global Variable,"{'line': 24, 'column': 6, 'index': 764}","it('does not log to any transports', function (done) {
       var logFile = path.join(testLogFixturesPath, 'unhandle-exception.log');
 
@@ -2479,7 +2579,7 @@ file,type,line,method,methodStart,methodEnd,source
       assume(logger.exceptions.handlers.size).equals(2);
       assume(process.listeners('uncaughtException').length).equals(0);
     })",37,50,steel
-/test/unit/winston/log-exception.test.js,Magic Number,"{'line': 114, 'column': 54, 'index': 3800}","it('when strings are thrown as errors', async () => {
+/test/unit/winston/log-exception.test.js,Magic Number,"{'line': 117, 'column': 54, 'index': 4050}","it('when strings are thrown as errors', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
           process.emit('uncaughtException', expectedMessage);
@@ -2498,8 +2598,8 @@ file,type,line,method,methodStart,methodEnd,source
           helpers.assertOsInfo(data.os);
           helpers.assertTrace(data.trace);
           assume(data.message).includes('uncaughtException: ' + expectedMessage);
-        })",107,126,steel
-/test/unit/winston/log-exception.test.js,Magic Number,"{'line': 135, 'column': 54, 'index': 4689}","it('with a custom winston.Logger instance', async () => {
+        })",110,129,steel
+/test/unit/winston/log-exception.test.js,Magic Number,"{'line': 138, 'column': 54, 'index': 4939}","it('with a custom winston.Logger instance', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
           process.emit('uncaughtException', expectedMessage);
@@ -2518,8 +2618,8 @@ file,type,line,method,methodStart,methodEnd,source
           helpers.assertOsInfo(data.os);
           helpers.assertTrace(data.trace);
           assume(data.message).includes('uncaughtException: ' + expectedMessage);
-        })",128,147,steel
-/test/unit/winston/log-exception.test.js,Magic Number,"{'line': 163, 'column': 52, 'index': 5738}","it('with the default winston logger', async () => {
+        })",131,150,steel
+/test/unit/winston/log-exception.test.js,Magic Number,"{'line': 166, 'column': 52, 'index': 5988}","it('with the default winston logger', async () => {
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
         winston.exceptions.handle([
           new winston.transports.File({
@@ -2544,7 +2644,7 @@ file,type,line,method,methodStart,methodEnd,source
         helpers.assertOsInfo(data.os);
         helpers.assertTrace(data.trace);
         assume(data.message).includes('uncaughtException: ' + expectedMessage);
-      })",150,175,steel
+      })",153,178,steel
 /test/unit/winston/log-exception.test.js,Mystery Guest,"{'column': 10, 'line': 30}","it('does not log to any transports', function (done) {
       var logFile = path.join(testLogFixturesPath, 'unhandle-exception.log');
 
@@ -2558,7 +2658,7 @@ file,type,line,method,methodStart,methodEnd,source
           });
         });
     })",23,35,steel
-/test/unit/winston/log-exception.test.js,Sleepy Test,"{'line': 111, 'column': 39, 'index': 3659}","it('when strings are thrown as errors', async () => {
+/test/unit/winston/log-exception.test.js,Sleepy Test,"{'line': 114, 'column': 39, 'index': 3909}","it('when strings are thrown as errors', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
           process.emit('uncaughtException', expectedMessage);
@@ -2577,8 +2677,8 @@ file,type,line,method,methodStart,methodEnd,source
           helpers.assertOsInfo(data.os);
           helpers.assertTrace(data.trace);
           assume(data.message).includes('uncaughtException: ' + expectedMessage);
-        })",107,126,steel
-/test/unit/winston/log-exception.test.js,Sleepy Test,"{'line': 132, 'column': 39, 'index': 4548}","it('with a custom winston.Logger instance', async () => {
+        })",110,129,steel
+/test/unit/winston/log-exception.test.js,Sleepy Test,"{'line': 135, 'column': 39, 'index': 4798}","it('with a custom winston.Logger instance', async () => {
           const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
           process.emit('uncaughtException', expectedMessage);
@@ -2597,8 +2697,8 @@ file,type,line,method,methodStart,methodEnd,source
           helpers.assertOsInfo(data.os);
           helpers.assertTrace(data.trace);
           assume(data.message).includes('uncaughtException: ' + expectedMessage);
-        })",128,147,steel
-/test/unit/winston/log-exception.test.js,Sleepy Test,"{'line': 160, 'column': 37, 'index': 5601}","it('with the default winston logger', async () => {
+        })",131,150,steel
+/test/unit/winston/log-exception.test.js,Sleepy Test,"{'line': 163, 'column': 37, 'index': 5851}","it('with the default winston logger', async () => {
         const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
         winston.exceptions.handle([
           new winston.transports.File({
@@ -2623,7 +2723,7 @@ file,type,line,method,methodStart,methodEnd,source
         helpers.assertOsInfo(data.os);
         helpers.assertTrace(data.trace);
         assume(data.message).includes('uncaughtException: ' + expectedMessage);
-      })",150,175,steel
+      })",153,178,steel
 /test/unit/winston/log-exception.test.js,Unknown Test,"{'column': 4, 'line': 23}","it('does not log to any transports', function (done) {
       var logFile = path.join(testLogFixturesPath, 'unhandle-exception.log');
 
@@ -2657,22 +2757,25 @@ file,type,line,method,methodStart,methodEnd,source
 
     child.stdout.setEncoding('utf8');
 
-    const prematureExitHandler = (code) => {
-      done(new Error(`Process exited prematurely with code ${code}`));
-    };
-    child.once('exit', prematureExitHandler);
-
-    child.stdout.once('data', function (line) {
-      stdout.push(line);
-      child.removeListener('exit', prematureExitHandler);
-
-      assume(child.killed).false();
-      assume(stdout).deep.equals(['Ignore this error']);
-
-      child.kill();
-      done();
+    child.on('exit', (code, signal) => {
+      // If the process exits on its own (i.e., not killed by our test), it's a failure.
+      if (signal !== 'SIGTERM') {
+        done(new Error(`Process exited unexpectedly with code: ${code}`));
+      }
     });
-  })",53,74,steel
+
+    child.stdout.on('data', function (line) {
+      stdout.push(line);
+      // Once we receive the expected output, we know the process has passed
+      // the error point without crashing. Now we can run our assertions.
+      if (stdout.join('').includes('Ignore this error')) {
+        assume(child.killed).false();
+        assume(stdout).deep.equals(['Ignore this error']);
+        child.kill();
+        done();
+      }
+    });
+  })",53,77,steel
 /test/unit/winston/exception-stream.test.js,Global Variable,"{'line': 26, 'column': 4, 'index': 738}","it('has expected methods', function () {
     var filename = path.join(testLogFixturesPath, 'exception-stream.log');
     var transport = new winston.transports.File({ filename });

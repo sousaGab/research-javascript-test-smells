@@ -1,4 +1,4 @@
-test('should forward errors emitted on the file object', (done) => {
+test('should forward an error event', (done) => {
   const error = new Error('test');
   file.on('error', (err) => {
     expect(err).toBe(error);

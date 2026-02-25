@@ -1204,35 +1204,6 @@ file,type,line,method,methodStart,methodEnd,source
       var items = list.get('name', 'jonny')
       expect(items.length).toBe(0)
     })",142,145,snuts
-/__test__/add-get-remove.test.js,VerboseStatement,"{'startLine':177,'endLine':205}","it('should remove eight items', function () {
-      const NAME_TO_REMOVE = 'Jonny';
-      const ADDED_JONNYS_COUNT = 7;
-      const ADDED_OTHERS_COUNT = 2;
-
-      // Assuming one pre-existing item from setup, which is also a 'Jonny'
-      const PRE_EXISTING_JONNY_COUNT = 1;
-
-      const TOTAL_ITEMS_TO_REMOVE = ADDED_JONNYS_COUNT + PRE_EXISTING_JONNY_COUNT;
-      const TOTAL_ITEMS_AT_START = TOTAL_ITEMS_TO_REMOVE + ADDED_OTHERS_COUNT;
-      const REMAINING_ITEMS_COUNT = ADDED_OTHERS_COUNT;
-
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: 'Sven' });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: 'Jonas' });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
-
-      expect(list.items.length).toEqual(TOTAL_ITEMS_AT_START);
-
-      var removedCount = list.remove('name', NAME_TO_REMOVE);
-
-      expect(removedCount).toEqual(TOTAL_ITEMS_TO_REMOVE);
-      expect(list.items.length).toEqual(REMAINING_ITEMS_COUNT);
-    })",177,205,snuts
 /__test__/utils.get-by-class.test.js,Global Variable,"{'line': 4, 'column': 2, 'index': 96}","describe('GetByClass', function () {
   var el
 
@@ -11984,6 +11955,30 @@ file,type,line,method,methodStart,methodEnd,source
       $('#parse-list .search').val('jon')
       fireKeyup($('#parse-list .search')[0])
     })",186,192,steel
+/__test__/add-get-remove.test.js,Conditional Test Logic,"{'line': 186, 'column': 6, 'index': 5309}","it('should remove eight items', function () {
+      const NAME_TO_REMOVE = 'Jonny';
+      const EXPECTED_REMOVED_COUNT = 8;
+      const EXPECTED_REMAINING_COUNT = 2;
+      const TOTAL_INITIAL_ITEMS = EXPECTED_REMOVED_COUNT + EXPECTED_REMAINING_COUNT;
+
+      // Arrange: The original test implies one item with the name 'Jonny' already exists.
+      // We add 7 more to reach the total of 8.
+      const jonnysToAdd = EXPECTED_REMOVED_COUNT - 1;
+      for (let i = 0; i < jonnysToAdd; i++) {
+        list.add({ name: NAME_TO_REMOVE });
+      }
+      list.add({ name: 'Sven' });
+      list.add({ name: 'Jonas' });
+
+      expect(list.items.length).toEqual(TOTAL_INITIAL_ITEMS);
+
+      // Act
+      const removedCount = list.remove('name', NAME_TO_REMOVE);
+
+      // Assert
+      expect(removedCount).toEqual(EXPECTED_REMOVED_COUNT);
+      expect(list.items.length).toEqual(EXPECTED_REMAINING_COUNT);
+    })",177,200,steel
 /__test__/add-get-remove.test.js,Duplicate Assert,"{'line': 158, 'column': 6, 'index': 4220}","it('should remove one item', function () {
       list.add({ name: 'Jonas' })
       expect(list.items.length).toEqual(2)
@@ -11998,64 +11993,54 @@ file,type,line,method,methodStart,methodEnd,source
       expect(count).toEqual(1)
       expect(list.items.length).toEqual(1)
     })",156,162,steel
-/__test__/add-get-remove.test.js,Duplicate Assert,"{'line': 199, 'column': 6, 'index': 5723}","it('should remove eight items', function () {
+/__test__/add-get-remove.test.js,Duplicate Assert,"{'line': 192, 'column': 6, 'index': 5477}","it('should remove eight items', function () {
       const NAME_TO_REMOVE = 'Jonny';
-      const ADDED_JONNYS_COUNT = 7;
-      const ADDED_OTHERS_COUNT = 2;
+      const EXPECTED_REMOVED_COUNT = 8;
+      const EXPECTED_REMAINING_COUNT = 2;
+      const TOTAL_INITIAL_ITEMS = EXPECTED_REMOVED_COUNT + EXPECTED_REMAINING_COUNT;
 
-      // Assuming one pre-existing item from setup, which is also a 'Jonny'
-      const PRE_EXISTING_JONNY_COUNT = 1;
-
-      const TOTAL_ITEMS_TO_REMOVE = ADDED_JONNYS_COUNT + PRE_EXISTING_JONNY_COUNT;
-      const TOTAL_ITEMS_AT_START = TOTAL_ITEMS_TO_REMOVE + ADDED_OTHERS_COUNT;
-      const REMAINING_ITEMS_COUNT = ADDED_OTHERS_COUNT;
-
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
+      // Arrange: The original test implies one item with the name 'Jonny' already exists.
+      // We add 7 more to reach the total of 8.
+      const jonnysToAdd = EXPECTED_REMOVED_COUNT - 1;
+      for (let i = 0; i < jonnysToAdd; i++) {
+        list.add({ name: NAME_TO_REMOVE });
+      }
       list.add({ name: 'Sven' });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
       list.add({ name: 'Jonas' });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
 
-      expect(list.items.length).toEqual(TOTAL_ITEMS_AT_START);
+      expect(list.items.length).toEqual(TOTAL_INITIAL_ITEMS);
 
-      var removedCount = list.remove('name', NAME_TO_REMOVE);
+      // Act
+      const removedCount = list.remove('name', NAME_TO_REMOVE);
 
-      expect(removedCount).toEqual(TOTAL_ITEMS_TO_REMOVE);
-      expect(list.items.length).toEqual(REMAINING_ITEMS_COUNT);
-    })",177,205,steel
-/__test__/add-get-remove.test.js,Duplicate Assert,"{'line': 204, 'column': 6, 'index': 5909}","it('should remove eight items', function () {
+      // Assert
+      expect(removedCount).toEqual(EXPECTED_REMOVED_COUNT);
+      expect(list.items.length).toEqual(EXPECTED_REMAINING_COUNT);
+    })",177,200,steel
+/__test__/add-get-remove.test.js,Duplicate Assert,"{'line': 199, 'column': 6, 'index': 5694}","it('should remove eight items', function () {
       const NAME_TO_REMOVE = 'Jonny';
-      const ADDED_JONNYS_COUNT = 7;
-      const ADDED_OTHERS_COUNT = 2;
+      const EXPECTED_REMOVED_COUNT = 8;
+      const EXPECTED_REMAINING_COUNT = 2;
+      const TOTAL_INITIAL_ITEMS = EXPECTED_REMOVED_COUNT + EXPECTED_REMAINING_COUNT;
 
-      // Assuming one pre-existing item from setup, which is also a 'Jonny'
-      const PRE_EXISTING_JONNY_COUNT = 1;
-
-      const TOTAL_ITEMS_TO_REMOVE = ADDED_JONNYS_COUNT + PRE_EXISTING_JONNY_COUNT;
-      const TOTAL_ITEMS_AT_START = TOTAL_ITEMS_TO_REMOVE + ADDED_OTHERS_COUNT;
-      const REMAINING_ITEMS_COUNT = ADDED_OTHERS_COUNT;
-
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
+      // Arrange: The original test implies one item with the name 'Jonny' already exists.
+      // We add 7 more to reach the total of 8.
+      const jonnysToAdd = EXPECTED_REMOVED_COUNT - 1;
+      for (let i = 0; i < jonnysToAdd; i++) {
+        list.add({ name: NAME_TO_REMOVE });
+      }
       list.add({ name: 'Sven' });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
       list.add({ name: 'Jonas' });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
 
-      expect(list.items.length).toEqual(TOTAL_ITEMS_AT_START);
+      expect(list.items.length).toEqual(TOTAL_INITIAL_ITEMS);
 
-      var removedCount = list.remove('name', NAME_TO_REMOVE);
+      // Act
+      const removedCount = list.remove('name', NAME_TO_REMOVE);
 
-      expect(removedCount).toEqual(TOTAL_ITEMS_TO_REMOVE);
-      expect(list.items.length).toEqual(REMAINING_ITEMS_COUNT);
-    })",177,205,steel
+      // Assert
+      expect(removedCount).toEqual(EXPECTED_REMOVED_COUNT);
+      expect(list.items.length).toEqual(EXPECTED_REMAINING_COUNT);
+    })",177,200,steel
 /__test__/add-get-remove.test.js,Global Variable,"{'line': 4, 'column': 2, 'index': 84}","describe('Add, get, remove', function () {
   var list
 
@@ -12232,35 +12217,30 @@ file,type,line,method,methodStart,methodEnd,source
 
     it('should remove eight items', function () {
       const NAME_TO_REMOVE = 'Jonny';
-      const ADDED_JONNYS_COUNT = 7;
-      const ADDED_OTHERS_COUNT = 2;
+      const EXPECTED_REMOVED_COUNT = 8;
+      const EXPECTED_REMAINING_COUNT = 2;
+      const TOTAL_INITIAL_ITEMS = EXPECTED_REMOVED_COUNT + EXPECTED_REMAINING_COUNT;
 
-      // Assuming one pre-existing item from setup, which is also a 'Jonny'
-      const PRE_EXISTING_JONNY_COUNT = 1;
-
-      const TOTAL_ITEMS_TO_REMOVE = ADDED_JONNYS_COUNT + PRE_EXISTING_JONNY_COUNT;
-      const TOTAL_ITEMS_AT_START = TOTAL_ITEMS_TO_REMOVE + ADDED_OTHERS_COUNT;
-      const REMAINING_ITEMS_COUNT = ADDED_OTHERS_COUNT;
-
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
+      // Arrange: The original test implies one item with the name 'Jonny' already exists.
+      // We add 7 more to reach the total of 8.
+      const jonnysToAdd = EXPECTED_REMOVED_COUNT - 1;
+      for (let i = 0; i < jonnysToAdd; i++) {
+        list.add({ name: NAME_TO_REMOVE });
+      }
       list.add({ name: 'Sven' });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
       list.add({ name: 'Jonas' });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
 
-      expect(list.items.length).toEqual(TOTAL_ITEMS_AT_START);
+      expect(list.items.length).toEqual(TOTAL_INITIAL_ITEMS);
 
-      var removedCount = list.remove('name', NAME_TO_REMOVE);
+      // Act
+      const removedCount = list.remove('name', NAME_TO_REMOVE);
 
-      expect(removedCount).toEqual(TOTAL_ITEMS_TO_REMOVE);
-      expect(list.items.length).toEqual(REMAINING_ITEMS_COUNT);
+      // Assert
+      expect(removedCount).toEqual(EXPECTED_REMOVED_COUNT);
+      expect(list.items.length).toEqual(EXPECTED_REMAINING_COUNT);
     });
   })
-})",3,207,steel
+})",3,202,steel
 /__test__/add-get-remove.test.js,Global Variable,"{'line': 29, 'column': 6, 'index': 690}","it('should add async items', function (done) {
       var itemsToAdd = [
         { name: 'Sven' },
@@ -12402,35 +12382,6 @@ file,type,line,method,methodStart,methodEnd,source
       expect(count).toBe(1)
       expect(list.items.length).toEqual(0)
     })",169,175,steel
-/__test__/add-get-remove.test.js,Global Variable,"{'line': 201, 'column': 6, 'index': 5787}","it('should remove eight items', function () {
-      const NAME_TO_REMOVE = 'Jonny';
-      const ADDED_JONNYS_COUNT = 7;
-      const ADDED_OTHERS_COUNT = 2;
-
-      // Assuming one pre-existing item from setup, which is also a 'Jonny'
-      const PRE_EXISTING_JONNY_COUNT = 1;
-
-      const TOTAL_ITEMS_TO_REMOVE = ADDED_JONNYS_COUNT + PRE_EXISTING_JONNY_COUNT;
-      const TOTAL_ITEMS_AT_START = TOTAL_ITEMS_TO_REMOVE + ADDED_OTHERS_COUNT;
-      const REMAINING_ITEMS_COUNT = ADDED_OTHERS_COUNT;
-
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: 'Sven' });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: 'Jonas' });
-      list.add({ name: NAME_TO_REMOVE });
-      list.add({ name: NAME_TO_REMOVE });
-
-      expect(list.items.length).toEqual(TOTAL_ITEMS_AT_START);
-
-      var removedCount = list.remove('name', NAME_TO_REMOVE);
-
-      expect(removedCount).toEqual(TOTAL_ITEMS_TO_REMOVE);
-      expect(list.items.length).toEqual(REMAINING_ITEMS_COUNT);
-    })",177,205,steel
 /__test__/add-get-remove.test.js,Magic Number,"{'line': 22, 'column': 40, 'index': 468}","it('should add one item', function () {
       list.add({ name: 'Jonas' })
       expect(list.items.length).toEqual(2)

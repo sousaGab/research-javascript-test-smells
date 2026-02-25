@@ -1,4 +1,4 @@
-it('should remove a single class', function () {
+it('should remove a single existing class from an element', function () {
     el.setAttribute('class', 'show')
     expect(el.getAttribute('class')).toBe('show')
     classes(el).remove('show')

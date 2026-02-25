@@ -22,16 +22,15 @@ it("extracts minW, maxW, minH, maxH from data-grid", () => {
   );
 
   const [layout] = onLayoutChange.mock.calls[0];
-  const item = layout.find(l => l.i === "test");
-
-  // Assert that the layout item exists and contains the correct properties,
-  // removing the need for conditional logic.
-  expect(item).toEqual(
-    expect.objectContaining({
-      minW: 1,
-      maxW: 4,
-      minH: 1,
-      maxH: 3
-    })
+  expect(layout).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        i: "test",
+        minW: 1,
+        maxW: 4,
+        minH: 1,
+        maxH: 3
+      })
+    ])
   );
 });

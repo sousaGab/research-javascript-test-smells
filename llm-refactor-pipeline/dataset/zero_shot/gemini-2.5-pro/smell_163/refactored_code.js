@@ -19,8 +19,6 @@ it("isDraggable:false in data-grid prevents dragging that item", () => {
   );
 
   const item = container.querySelector(".react-grid-item");
-  // An explicit assertion that the element exists is better than conditional logic.
-  // The test will now fail if the item isn't rendered, which is the desired behavior.
   expect(item).not.toBeNull();
 
   fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });

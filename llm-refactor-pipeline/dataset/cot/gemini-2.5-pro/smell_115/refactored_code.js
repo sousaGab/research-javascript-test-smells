@@ -9,20 +9,17 @@ it('default levels', function () {
   assume(logger.getHighestLogLevel()).equals(4);
   assume(logger.isLevelEnabled).is.a('function');
 
-  const levelStates = {
-    error: true,
-    warn: true,
-    info: true,
-    verbose: true,
-    debug: false,
-    silly: false
+  const enabledLevels = ['error', 'warn', 'info', 'verbose'];
+  const disabledLevels = ['debug', 'silly'];
+
+  const assertLevel = (level, shouldBeEnabled) => {
+    const helperMethodName = `is${level.charAt(0).toUpperCase() + level.slice(1)}Enabled`;
+
+    assume(logger[helperMethodName]).is.a('function');
+    assume(logger.isLevelEnabled(level)).equals(shouldBeEnabled);
+    assume(logger[helperMethodName]()).equals(shouldBeEnabled);
   };
 
-  Object.entries(levelStates).forEach(([level, shouldBeEnabled]) => {
-    const helperName = `is${level.charAt(0).toUpperCase() + level.slice(1)}Enabled`;
-
-    assume(logger[helperName]).is.a('function');
-    assume(logger.isLevelEnabled(level)).equals(shouldBeEnabled);
-    assume(logger[helperName]()).equals(shouldBeEnabled);
-  });
+  enabledLevels.forEach(level => assertLevel(level, true));
+  disabledLevels.forEach(level => assertLevel(level, false));
 });

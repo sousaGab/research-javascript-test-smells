@@ -1,4 +1,4 @@
-it("should re-emit favicon and assets from a loader if watch is active", () => {
+it("should re-emit favicon and assets from a loader if watch is active", async () => {
   const template = path.join(
     __dirname,
     "./fixtures/html-template-with-image.html",
@@ -13,7 +13,7 @@ it("should re-emit favicon and assets from a loader if watch is active", () => {
     module: {
       rules: [{
         test: /\.html$/,
-        loader: "html-loader",
+        loader: "html-loader"
       }, ],
     },
     plugins: [
@@ -32,44 +32,36 @@ it("should re-emit favicon and assets from a loader if watch is active", () => {
   const expectedAssets = ["logo.png", "main.js", "favicon.ico", "index.html"];
 
   const assertAssetsAndErrors = (stats) => {
-    const assetNames = Object.keys(stats.compilation.assets);
-    expect(assetNames).toEqual(expect.arrayContaining(expectedAssets));
+    expect(Object.keys(stats.compilation.assets)).toEqual(
+      expect.arrayContaining(expectedAssets),
+    );
     expect(stats.compilation.errors).toEqual([]);
     expect(stats.compilation.warnings).toEqual([]);
   };
 
-  return (
-    compiler
-    .startWatching()
+  try {
+    const initialStats = await compiler.startWatching();
+    assertAssetsAndErrors(initialStats);
+
+    // Change the js file and compile again
+    fs.writeFileSync(
+      jsFileTempPath,
+      "module.exports = function calc(a, b){ return a - b };",
+    );
+    const secondStats = await compiler.waitForWatchRunComplete();
+    assertAssetsAndErrors(secondStats);
+
     // Change the template file and compile again
-    .then((stats) => {
-      assertAssetsAndErrors(stats);
+    fs.writeFileSync(
+      template,
+      templateContent.replace(/Some unique text/, "Some other unique text"),
+    );
+    const thirdStats = await compiler.waitForWatchRunComplete();
+    assertAssetsAndErrors(thirdStats);
 
-      fs.writeFileSync(
-        jsFileTempPath,
-        "module.exports = function calc(a, b){ return a - b };",
-      );
-
-      return compiler.waitForWatchRunComplete();
-    })
-    .then((stats) => {
-      assertAssetsAndErrors(stats);
-
-      fs.writeFileSync(
-        template,
-        templateContent.replace(
-          /Some unique text/,
-          "Some other unique text",
-        ),
-      );
-
-      return compiler.waitForWatchRunComplete();
-    })
-    .then((stats) => {
-      assertAssetsAndErrors(stats);
-
-      fs.writeFileSync(template, templateContent);
-    })
-    .then(() => compiler.stopWatching())
-  );
+    // Restore original template
+    fs.writeFileSync(template, templateContent);
+  } finally {
+    await compiler.stopWatching();
+  }
 });

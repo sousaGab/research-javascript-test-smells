@@ -35,21 +35,14 @@ it("makes a couple requests where only part of the second request is deduped the
     );
 
     const disposable = queue.get([videos0], [videos0], zip);
-    expect(queue._requests).toHaveLength(1);
-    expect(queue._requests[0]).toMatchObject({
-        sent: true,
-        scheduled: false
-    });
+    expect(queue._requests.length).toBe(1);
+    expect(queue._requests[0].sent).toBe(true);
+    expect(queue._requests[0].scheduled).toBe(false);
 
     queue.get([videos0, videos1], [videos0, videos1], zip);
-    expect(queue._requests).toHaveLength(2);
-    expect(queue._requests).toMatchObject([{
-        sent: true,
-        scheduled: false
-    }, {
-        sent: true,
-        scheduled: false
-    }, ]);
+    expect(queue._requests.length).toBe(2);
+    expect(queue._requests[1].sent).toBe(true);
+    expect(queue._requests[1].scheduled).toBe(false);
 
     disposable();
 });

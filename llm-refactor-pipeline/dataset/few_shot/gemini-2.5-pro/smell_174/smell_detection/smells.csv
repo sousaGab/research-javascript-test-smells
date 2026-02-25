@@ -1975,6 +1975,557 @@ file,type,line,method,methodStart,methodEnd,source
 /test/falcor/operations.spec.js,SubOptimalAssert,"{'startLine':32,'endLine':32}","it('should return undefined when undefined is passed into falcor.keys', function() {
         expect(falcor.keys()).toBe(undefined);
     })",31,33,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':24,'endLine':40}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+            $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+        ]);
+
+        expect(strip(cache)).toEqual(strip({
+            movies: {
+                ""pulp-fiction"": {
+                    ""title"": $atom(""Pulp Fiction"")
+                }
+            }
+        }));
+    })",24,40,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':167,'endLine':184}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",167,184,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':218,'endLine':248}","it(""to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue(""grid[0][0..2].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",218,248,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':249,'endLine':276}","it(""from:1, to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue(""grid[0][1..2].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",249,276,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':277,'endLine':307}","it(""length:3"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue([""grid"", 0, {length: 3}, ""director""], ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",277,307,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':308,'endLine':335}","it(""from:1, length:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue([""grid"", 0, {from: 1, length: 2}, ""director""], ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",308,335,snuts
+/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':336,'endLine':366}","it(""[length:3]"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
+                        $pathValue([""grid"", 0, [{length: 3}], ""director""], ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",336,366,snuts
+/test/set/pathValues/primitive.spec.js,IdenticalTestDescription,"{'startLine':167,'endLine':184}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
+                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
+                    }
+                }));
+            })",167,184,snuts
+/test/set/pathValues/expired.spec.js,SubOptimalAssert,"{'startLine':27,'endLine':27}","it(""converts a negative $expires value to an absolute time"", function() {
+
+        var cache = {};
+        var version = 0;
+
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue(""grid"", $ref(""grids['id']"")),
+                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: -1000
+                }))
+            ]
+        );
+        var value = cache.grids.id[0];
+        var expires = value.$expires;
+
+        expect(expires > Date.now()).toBe(true);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } }
+        }));
+    })",11,32,snuts
+/test/set/pathValues/expired.spec.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it(""sets through an immediately expired reference"", function() {
+
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setPathValues(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathValue(""grid"", $ref(""grids['id']"")),
+                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: 0
+                })),
+                $pathValue(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",34,56,snuts
+/test/set/pathValues/expired.spec.js,SubOptimalAssert,"{'startLine':75,'endLine':75}","it(""sets through an already expired reference"", function() {
+
+        var startTime = Date.now();
+        var cache = {};
+        var version = 0;
+        var expired = [];
+
+        setPathValues(
+            getModel({ cache: cache, expired: expired, version: version++ }), [
+                $pathValue(""grid"", $ref(""grids['id']"")),
+                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
+                    $expires: startTime - 10
+                })),
+                $pathValue(""grid[0][0].title"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(expired.length).toBe(1);
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
+        }));
+    })",58,80,snuts
+/test/set/pathValues/branch.spec.js,AnonymousTest,"{'startLine':49,'endLine':63}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathValue(""movies['pulp-fiction']"", ""Pulp Fiction"")
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $atom(""Pulp Fiction"") }
+        }));
+    })",49,63,snuts
+/test/set/pathValues/branch.spec.js,AnonymousTest,"{'startLine':95,'endLine':109}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathValue(""movies['pulp-fiction']"", $error(""oops""))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",95,109,snuts
+/test/set/pathValues/branch.spec.js,IdenticalTestDescription,"{'startLine':95,'endLine':109}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
+                $pathValue(""movies['pulp-fiction']"", $error(""oops""))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",95,109,snuts
+/test/set/pathValues/branch.spec.js,IdenticalTestDescription,"{'startLine':111,'endLine':136}","it(""through a reference with a null last key"", function() {
+
+        var cache = {};
+        var version = 0;
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue(""grid"", $ref(""grids['id']"")),
+                $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
+            ]
+        );
+
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue([""grid"", 0, 0, null], $error(""oops""))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            grid: $ref(""grids['id']""),
+            grids: { id: { 0: $ref(""lists['id']"") } },
+            lists: { id: { 0: $ref(""movies['pulp-fiction']"") } },
+            movies: { ""pulp-fiction"": $error(""oops"") }
+        }));
+    })",111,136,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':11,'endLine':35}","it(""directly"", function() {
+
+        var cache = {};
+        var version = 0;
+
+        setPathValues(
+            getModel({ cache: cache, version: version++ }), [
+                $pathValue(""movies['pulp-fiction'].summary"", $atom({
+                    title: ""Pulp Fiction"",
+                    url: ""/movies/id/pulp-fiction""
+                }))
+            ]
+        );
+
+        expect(strip(cache)).toEqual(strip({
+            movies: {
+                ""pulp-fiction"": {
+                    ""summary"": $atom({
+                        title: ""Pulp Fiction"",
+                        url: ""/movies/id/pulp-fiction""
+                    })
+                }
+            }
+        }));
+    })",11,35,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':227,'endLine':244}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", [""Crime"", ""Drama"", ""Thriller""])
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",227,244,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':278,'endLine':308}","it(""to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue(""grid[0][0..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",278,308,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':309,'endLine':336}","it(""from:1, to:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue(""grid[0][1..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",309,336,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':337,'endLine':367}","it(""length:3"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue([""grid"", 0, {length: 3}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",337,367,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':368,'endLine':395}","it(""from:1, length:2"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue([""grid"", 0, {from: 1, length: 2}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",368,395,snuts
+/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':396,'endLine':426}","it(""[length:3]"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""grid"", $ref(""grids['id']"")),
+                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
+                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
+                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
+                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
+                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
+                        $pathValue([""grid"", 0, [{length: 3}], ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    grid: $ref(""grids['id']""),
+                    grids: { id: { 0: $ref(""lists['id']"") } },
+                    lists: { id: {
+                        0: $ref(""movies['pulp-fiction']""),
+                        1: $ref(""movies['kill-bill-1']""),
+                        2: $ref(""movies['reservior-dogs']"") }
+                    },
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",396,426,snuts
+/test/set/pathValues/atom.spec.js,IdenticalTestDescription,"{'startLine':227,'endLine':244}","it(""directly"", function() {
+
+                var cache = {};
+                var version = 0;
+                setPathValues(
+                    getModel({ cache: cache, version: version++ }), [
+                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", [""Crime"", ""Drama"", ""Thriller""])
+                    ]
+                );
+
+                expect(strip(cache)).toEqual(strip({
+                    movies: {
+                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
+                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
+                    }
+                }));
+            })",227,244,snuts
 /test/set/pathMaps/primitive.spec.js,AnonymousTest,"{'startLine':25,'endLine':41}","it(""directly"", function() {
 
         var cache = {};
@@ -3240,557 +3791,6 @@ file,type,line,method,methodStart,methodEnd,source
                     }
                 }));
             })",220,239,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':24,'endLine':40}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-            $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-        ]);
-
-        expect(strip(cache)).toEqual(strip({
-            movies: {
-                ""pulp-fiction"": {
-                    ""title"": $atom(""Pulp Fiction"")
-                }
-            }
-        }));
-    })",24,40,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':167,'endLine':184}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",167,184,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':218,'endLine':248}","it(""to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue(""grid[0][0..2].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",218,248,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':249,'endLine':276}","it(""from:1, to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue(""grid[0][1..2].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",249,276,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':277,'endLine':307}","it(""length:3"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue([""grid"", 0, {length: 3}, ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",277,307,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':308,'endLine':335}","it(""from:1, length:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue([""grid"", 0, {from: 1, length: 2}, ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",308,335,snuts
-/test/set/pathValues/primitive.spec.js,AnonymousTest,"{'startLine':336,'endLine':366}","it(""[length:3]"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].director"", $atom()),
-                        $pathValue([""grid"", 0, [{length: 3}], ""director""], ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",336,366,snuts
-/test/set/pathValues/primitive.spec.js,IdenticalTestDescription,"{'startLine':167,'endLine':184}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].director"", ""Quentin Tarantino"")
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""kill-bill-1"": { ""director"": $atom(""Quentin Tarantino"") },
-                        ""reservior-dogs"": { ""director"": $atom(""Quentin Tarantino"") }
-                    }
-                }));
-            })",167,184,snuts
-/test/set/pathValues/expired.spec.js,SubOptimalAssert,"{'startLine':27,'endLine':27}","it(""converts a negative $expires value to an absolute time"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue(""grid"", $ref(""grids['id']"")),
-                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: -1000
-                }))
-            ]
-        );
-        var value = cache.grids.id[0];
-        var expires = value.$expires;
-
-        expect(expires > Date.now()).toBe(true);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } }
-        }));
-    })",11,32,snuts
-/test/set/pathValues/expired.spec.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it(""sets through an immediately expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathValues(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathValue(""grid"", $ref(""grids['id']"")),
-                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: 0
-                })),
-                $pathValue(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",34,56,snuts
-/test/set/pathValues/expired.spec.js,SubOptimalAssert,"{'startLine':75,'endLine':75}","it(""sets through an already expired reference"", function() {
-
-        var startTime = Date.now();
-        var cache = {};
-        var version = 0;
-        var expired = [];
-
-        setPathValues(
-            getModel({ cache: cache, expired: expired, version: version++ }), [
-                $pathValue(""grid"", $ref(""grids['id']"")),
-                $pathValue(""grids['id'][0]"", $ref(""lists['id']"", {
-                    $expires: startTime - 10
-                })),
-                $pathValue(""grid[0][0].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(expired.length).toBe(1);
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: { 0: { title: $atom(""Pulp Fiction"") } } } }
-        }));
-    })",58,80,snuts
-/test/set/pathValues/branch.spec.js,AnonymousTest,"{'startLine':49,'endLine':63}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathValue(""movies['pulp-fiction']"", ""Pulp Fiction"")
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $atom(""Pulp Fiction"") }
-        }));
-    })",49,63,snuts
-/test/set/pathValues/branch.spec.js,AnonymousTest,"{'startLine':95,'endLine':109}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathValue(""movies['pulp-fiction']"", $error(""oops""))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",95,109,snuts
-/test/set/pathValues/branch.spec.js,IdenticalTestDescription,"{'startLine':95,'endLine':109}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction""),
-                $pathValue(""movies['pulp-fiction']"", $error(""oops""))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",95,109,snuts
-/test/set/pathValues/branch.spec.js,IdenticalTestDescription,"{'startLine':111,'endLine':136}","it(""through a reference with a null last key"", function() {
-
-        var cache = {};
-        var version = 0;
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue(""grid"", $ref(""grids['id']"")),
-                $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                $pathValue(""movies['pulp-fiction'].title"", ""Pulp Fiction"")
-            ]
-        );
-
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue([""grid"", 0, 0, null], $error(""oops""))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            grid: $ref(""grids['id']""),
-            grids: { id: { 0: $ref(""lists['id']"") } },
-            lists: { id: { 0: $ref(""movies['pulp-fiction']"") } },
-            movies: { ""pulp-fiction"": $error(""oops"") }
-        }));
-    })",111,136,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':11,'endLine':35}","it(""directly"", function() {
-
-        var cache = {};
-        var version = 0;
-
-        setPathValues(
-            getModel({ cache: cache, version: version++ }), [
-                $pathValue(""movies['pulp-fiction'].summary"", $atom({
-                    title: ""Pulp Fiction"",
-                    url: ""/movies/id/pulp-fiction""
-                }))
-            ]
-        );
-
-        expect(strip(cache)).toEqual(strip({
-            movies: {
-                ""pulp-fiction"": {
-                    ""summary"": $atom({
-                        title: ""Pulp Fiction"",
-                        url: ""/movies/id/pulp-fiction""
-                    })
-                }
-            }
-        }));
-    })",11,35,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':227,'endLine':244}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", [""Crime"", ""Drama"", ""Thriller""])
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",227,244,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':278,'endLine':308}","it(""to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue(""grid[0][0..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",278,308,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':309,'endLine':336}","it(""from:1, to:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue(""grid[0][1..2].genres"", $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",309,336,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':337,'endLine':367}","it(""length:3"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue([""grid"", 0, {length: 3}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",337,367,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':368,'endLine':395}","it(""from:1, length:2"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue([""grid"", 0, {from: 1, length: 2}, ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",368,395,snuts
-/test/set/pathValues/atom.spec.js,AnonymousTest,"{'startLine':396,'endLine':426}","it(""[length:3]"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""grid"", $ref(""grids['id']"")),
-                        $pathValue(""grids['id'][0]"", $ref(""lists['id']"")),
-                        $pathValue(""lists['id'][0]"", $ref(""movies['pulp-fiction']"")),
-                        $pathValue(""lists['id'][1]"", $ref(""movies['kill-bill-1']"")),
-                        $pathValue(""lists['id'][2]"", $ref(""movies['reservior-dogs']"")),
-                        $pathValue(""movies['kill-bill-1'].genres"", $atom()),
-                        $pathValue([""grid"", 0, [{length: 3}], ""genres""], $atom([""Crime"", ""Drama"", ""Thriller""]))
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    grid: $ref(""grids['id']""),
-                    grids: { id: { 0: $ref(""lists['id']"") } },
-                    lists: { id: {
-                        0: $ref(""movies['pulp-fiction']""),
-                        1: $ref(""movies['kill-bill-1']""),
-                        2: $ref(""movies['reservior-dogs']"") }
-                    },
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",396,426,snuts
-/test/set/pathValues/atom.spec.js,IdenticalTestDescription,"{'startLine':227,'endLine':244}","it(""directly"", function() {
-
-                var cache = {};
-                var version = 0;
-                setPathValues(
-                    getModel({ cache: cache, version: version++ }), [
-                        $pathValue(""movies['pulp-fiction', 'kill-bill-1', 'reservior-dogs'].genres"", [""Crime"", ""Drama"", ""Thriller""])
-                    ]
-                );
-
-                expect(strip(cache)).toEqual(strip({
-                    movies: {
-                        ""pulp-fiction"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""kill-bill-1"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) },
-                        ""reservior-dogs"": { ""genres"": $atom([""Crime"", ""Drama"", ""Thriller""]) }
-                    }
-                }));
-            })",227,244,snuts
 /test/internal/request/complement.spec.js,IdenticalTestDescription,"{'startLine':80,'endLine':92}","it(""returns the complement and intersection consisting of paths than can be partially deduped"", () => {
             const partialMatchingRequestedPath = [""videos"", 123, [""title"", ""boxart""]];
             const partialMatchingOptimizedPath = [""some"", ""weird"", ""long"", ""ref"", 456, [""title"", ""boxart""]];
@@ -72434,7 +72434,7 @@ file,type,line,method,methodStart,methodEnd,source
                 }
             });
     })",166,194,steel
-/test/falcor/get/get.dataSource-only.spec.js,Conditional Test Logic,"{'line': 407, 'column': 16, 'index': 14560}","it(""should onError a MaxRetryExceededError when data source is sync."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Conditional Test Logic,"{'line': 407, 'column': 16, 'index': 14694}","it(""should onError a MaxRetryExceededError when data source is sync."", done => {
         const model = new Model({ source: new LocalDataSource({}) });
         toObservable(model.
             get([""videos"", 0, ""title""])).
@@ -72448,7 +72448,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",399,412,steel
-/test/falcor/get/get.dataSource-only.spec.js,Conditional Test Logic,"{'line': 422, 'column': 16, 'index': 15194}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Conditional Test Logic,"{'line': 422, 'column': 16, 'index': 15328}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
         const model = new Model({ source: asyncifyDataSource(new LocalDataSource({})) });
         toObservable(model.
             get([""videos"", 0, ""title""])).
@@ -72462,7 +72462,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",414,427,steel
-/test/falcor/get/get.dataSource-only.spec.js,Conditional Test Logic,"{'line': 456, 'column': 16, 'index': 16398}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Conditional Test Logic,"{'line': 456, 'column': 16, 'index': 16532}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({})),
             cache: {
@@ -72495,7 +72495,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",429,461,steel
-/test/falcor/get/get.dataSource-only.spec.js,Conditional Test Logic,"{'line': 478, 'column': 16, 'index': 17190}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Conditional Test Logic,"{'line': 478, 'column': 16, 'index': 17324}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
         const onGet = jest.fn();
         const model = new Model({
             maxRetries: 5,
@@ -72514,7 +72514,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",463,481,steel
-/test/falcor/get/get.dataSource-only.spec.js,Duplicate Assert,"{'line': 496, 'column': 16, 'index': 17854}","it(""passes the attempt count to the DataSource"", () => {
+/test/falcor/get/get.dataSource-only.spec.js,Duplicate Assert,"{'line': 496, 'column': 16, 'index': 17988}","it(""passes the attempt count to the DataSource"", () => {
         const onGet = jest.fn();
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({}, { onGet }))
@@ -72533,7 +72533,7 @@ file,type,line,method,methodStart,methodEnd,source
                 expect(onGet).toHaveBeenNthCalledWith(3, expect.anything(), [path], 3);
             });
     })",483,501,steel
-/test/falcor/get/get.dataSource-only.spec.js,Duplicate Assert,"{'line': 497, 'column': 16, 'index': 17910}","it(""passes the attempt count to the DataSource"", () => {
+/test/falcor/get/get.dataSource-only.spec.js,Duplicate Assert,"{'line': 497, 'column': 16, 'index': 18044}","it(""passes the attempt count to the DataSource"", () => {
         const onGet = jest.fn();
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({}, { onGet }))
@@ -72552,7 +72552,7 @@ file,type,line,method,methodStart,methodEnd,source
                 expect(onGet).toHaveBeenNthCalledWith(3, expect.anything(), [path], 3);
             });
     })",483,501,steel
-/test/falcor/get/get.dataSource-only.spec.js,Duplicate Assert,"{'line': 498, 'column': 16, 'index': 17998}","it(""passes the attempt count to the DataSource"", () => {
+/test/falcor/get/get.dataSource-only.spec.js,Duplicate Assert,"{'line': 498, 'column': 16, 'index': 18132}","it(""passes the attempt count to the DataSource"", () => {
         const onGet = jest.fn();
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({}, { onGet }))
@@ -72571,7 +72571,7 @@ file,type,line,method,methodStart,methodEnd,source
                 expect(onGet).toHaveBeenNthCalledWith(3, expect.anything(), [path], 3);
             });
     })",483,501,steel
-/test/falcor/get/get.dataSource-only.spec.js,Duplicate Assert,"{'line': 499, 'column': 16, 'index': 18086}","it(""passes the attempt count to the DataSource"", () => {
+/test/falcor/get/get.dataSource-only.spec.js,Duplicate Assert,"{'line': 499, 'column': 16, 'index': 18220}","it(""passes the attempt count to the DataSource"", () => {
         const onGet = jest.fn();
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({}, { onGet }))
@@ -72713,50 +72713,50 @@ file,type,line,method,methodStart,methodEnd,source
     const source = new LocalDataSource(cacheGenerator(0, 2), {
         onGet
     });
-    const model = new Model({
-        source
-    }).batch();
+    const model = new Model({ source }).batch();
     const onNext = jest.fn();
+    const onError = jest.fn();
     const onComplete = jest.fn();
 
     const disposable = toObservable(model.
         get([""videos"", 0, ""title""])).
-    doAction(onNext, noOp, onComplete).
-    subscribe(noOp);
+        subscribe(onNext, onError, onComplete);
 
     disposable.dispose();
 
+    // Wait for a short period to ensure no async operations complete post-disposal
     await new Promise(resolve => setTimeout(resolve, 200));
 
     expect(onNext).not.toHaveBeenCalled();
     expect(onGet).not.toHaveBeenCalled();
     expect(onComplete).not.toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
 })",251,274,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 262, 'column': 23, 'index': 9643}","it(""should be able to dispose of getRequests."", async () => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 261, 'column': 23, 'index': 9662}","it(""should be able to dispose of getRequests."", async () => {
     const onGet = jest.fn();
     const source = new LocalDataSource(cacheGenerator(0, 2), {
         onGet
     });
-    const model = new Model({
-        source
-    }).batch();
+    const model = new Model({ source }).batch();
     const onNext = jest.fn();
+    const onError = jest.fn();
     const onComplete = jest.fn();
 
     const disposable = toObservable(model.
         get([""videos"", 0, ""title""])).
-    doAction(onNext, noOp, onComplete).
-    subscribe(noOp);
+        subscribe(onNext, onError, onComplete);
 
     disposable.dispose();
 
+    // Wait for a short period to ensure no async operations complete post-disposal
     await new Promise(resolve => setTimeout(resolve, 200));
 
     expect(onNext).not.toHaveBeenCalled();
     expect(onGet).not.toHaveBeenCalled();
     expect(onComplete).not.toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
 })",251,274,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 278, 'column': 43, 'index': 10123}","it(""should ignore response-stuffed paths."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 278, 'column': 43, 'index': 10257}","it(""should ignore response-stuffed paths."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -72788,7 +72788,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",276,307,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 284, 'column': 28, 'index': 10316}","it(""should ignore response-stuffed paths."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 284, 'column': 28, 'index': 10450}","it(""should ignore response-stuffed paths."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -72820,7 +72820,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",276,307,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 291, 'column': 8, 'index': 10560}","it(""should ignore response-stuffed paths."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 291, 'column': 8, 'index': 10694}","it(""should ignore response-stuffed paths."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -72852,7 +72852,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",276,307,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 311, 'column': 43, 'index': 11138}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 311, 'column': 43, 'index': 11272}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -72890,7 +72890,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",309,346,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 323, 'column': 28, 'index': 11536}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 323, 'column': 28, 'index': 11670}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -72928,7 +72928,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",309,346,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 330, 'column': 8, 'index': 11780}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 330, 'column': 8, 'index': 11914}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -72966,7 +72966,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",309,346,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 349, 'column': 43, 'index': 12353}","it(""should throw when server paths are missing and _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 349, 'column': 43, 'index': 12487}","it(""should throw when server paths are missing and _useServerPaths == true."", done => {
         const source = new LocalDataSource(cacheGenerator(0, 2));
         const model = new Model({ source, _useServerPaths: true }).batch(1);
         toObservable(model.
@@ -72976,7 +72976,7 @@ file,type,line,method,methodStart,methodEnd,source
                 done();
             });
     })",348,357,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 351, 'column': 8, 'index': 12461}","it(""should throw when server paths are missing and _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 351, 'column': 8, 'index': 12595}","it(""should throw when server paths are missing and _useServerPaths == true."", done => {
         const source = new LocalDataSource(cacheGenerator(0, 2));
         const model = new Model({ source, _useServerPaths: true }).batch(1);
         toObservable(model.
@@ -72986,7 +72986,7 @@ file,type,line,method,methodStart,methodEnd,source
                 done();
             });
     })",348,357,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 361, 'column': 43, 'index': 12884}","it(""should be able to dispose one of two get requests.."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 361, 'column': 43, 'index': 13018}","it(""should be able to dispose one of two get requests.."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet
@@ -73026,7 +73026,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",359,398,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 366, 'column': 27, 'index': 13052}","it(""should be able to dispose one of two get requests.."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 366, 'column': 27, 'index': 13186}","it(""should be able to dispose one of two get requests.."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet
@@ -73066,7 +73066,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",359,398,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 373, 'column': 8, 'index': 13330}","it(""should be able to dispose one of two get requests.."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 373, 'column': 8, 'index': 13464}","it(""should be able to dispose one of two get requests.."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet
@@ -73106,7 +73106,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",359,398,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 401, 'column': 8, 'index': 14298}","it(""should onError a MaxRetryExceededError when data source is sync."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 401, 'column': 8, 'index': 14432}","it(""should onError a MaxRetryExceededError when data source is sync."", done => {
         const model = new Model({ source: new LocalDataSource({}) });
         toObservable(model.
             get([""videos"", 0, ""title""])).
@@ -73120,7 +73120,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",399,412,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 407, 'column': 20, 'index': 14564}","it(""should onError a MaxRetryExceededError when data source is sync."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 407, 'column': 20, 'index': 14698}","it(""should onError a MaxRetryExceededError when data source is sync."", done => {
         const model = new Model({ source: new LocalDataSource({}) });
         toObservable(model.
             get([""videos"", 0, ""title""])).
@@ -73134,7 +73134,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",399,412,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 415, 'column': 42, 'index': 14876}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 415, 'column': 42, 'index': 15010}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
         const model = new Model({ source: asyncifyDataSource(new LocalDataSource({})) });
         toObservable(model.
             get([""videos"", 0, ""title""])).
@@ -73148,7 +73148,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",414,427,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 416, 'column': 8, 'index': 14932}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 416, 'column': 8, 'index': 15066}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
         const model = new Model({ source: asyncifyDataSource(new LocalDataSource({})) });
         toObservable(model.
             get([""videos"", 0, ""title""])).
@@ -73162,7 +73162,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",414,427,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 422, 'column': 20, 'index': 15198}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 422, 'column': 20, 'index': 15332}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
         const model = new Model({ source: asyncifyDataSource(new LocalDataSource({})) });
         toObservable(model.
             get([""videos"", 0, ""title""])).
@@ -73176,7 +73176,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",414,427,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 431, 'column': 20, 'index': 15521}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 431, 'column': 20, 'index': 15655}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({})),
             cache: {
@@ -73209,7 +73209,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",429,461,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 446, 'column': 8, 'index': 15939}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 446, 'column': 8, 'index': 16073}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({})),
             cache: {
@@ -73242,7 +73242,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",429,461,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 456, 'column': 20, 'index': 16402}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 456, 'column': 20, 'index': 16536}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({})),
             cache: {
@@ -73275,7 +73275,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",429,461,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 467, 'column': 20, 'index': 16781}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 467, 'column': 20, 'index': 16915}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
         const onGet = jest.fn();
         const model = new Model({
             maxRetries: 5,
@@ -73294,7 +73294,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",463,481,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 471, 'column': 8, 'index': 16884}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 471, 'column': 8, 'index': 17018}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
         const onGet = jest.fn();
         const model = new Model({
             maxRetries: 5,
@@ -73313,7 +73313,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",463,481,steel
-/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 478, 'column': 20, 'index': 17194}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Eager Test,"{'line': 478, 'column': 20, 'index': 17328}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
         const onGet = jest.fn();
         const model = new Model({
             maxRetries: 5,
@@ -73388,7 +73388,7 @@ file,type,line,method,methodStart,methodEnd,source
                 }
             });
     })",166,194,steel
-/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 287, 'column': 16, 'index': 10437}","it(""should ignore response-stuffed paths."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 287, 'column': 16, 'index': 10571}","it(""should ignore response-stuffed paths."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -73420,7 +73420,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",276,307,steel
-/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 300, 'column': 12, 'index': 10776}","it(""should ignore response-stuffed paths."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 300, 'column': 12, 'index': 10910}","it(""should ignore response-stuffed paths."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -73452,7 +73452,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",276,307,steel
-/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 326, 'column': 16, 'index': 11657}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 326, 'column': 16, 'index': 11791}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -73490,7 +73490,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",309,346,steel
-/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 339, 'column': 12, 'index': 11996}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 339, 'column': 12, 'index': 12130}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -73528,7 +73528,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",309,346,steel
-/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 369, 'column': 16, 'index': 13173}","it(""should be able to dispose one of two get requests.."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 369, 'column': 16, 'index': 13307}","it(""should be able to dispose one of two get requests.."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet
@@ -73568,7 +73568,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",359,398,steel
-/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 380, 'column': 12, 'index': 13528}","it(""should be able to dispose one of two get requests.."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 380, 'column': 12, 'index': 13662}","it(""should be able to dispose one of two get requests.."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet
@@ -73608,7 +73608,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",359,398,steel
-/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 493, 'column': 16, 'index': 17683}","it(""passes the attempt count to the DataSource"", () => {
+/test/falcor/get/get.dataSource-only.spec.js,Exception Handling,"{'line': 493, 'column': 16, 'index': 17817}","it(""passes the attempt count to the DataSource"", () => {
         const onGet = jest.fn();
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({}, { onGet }))
@@ -73886,50 +73886,50 @@ file,type,line,method,methodStart,methodEnd,source
     const source = new LocalDataSource(cacheGenerator(0, 2), {
         onGet
     });
-    const model = new Model({
-        source
-    }).batch();
+    const model = new Model({ source }).batch();
     const onNext = jest.fn();
+    const onError = jest.fn();
     const onComplete = jest.fn();
 
     const disposable = toObservable(model.
         get([""videos"", 0, ""title""])).
-    doAction(onNext, noOp, onComplete).
-    subscribe(noOp);
+        subscribe(onNext, onError, onComplete);
 
     disposable.dispose();
 
+    // Wait for a short period to ensure no async operations complete post-disposal
     await new Promise(resolve => setTimeout(resolve, 200));
 
     expect(onNext).not.toHaveBeenCalled();
     expect(onGet).not.toHaveBeenCalled();
     expect(onComplete).not.toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
 })",251,274,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 262, 'column': 23, 'index': 9643}","it(""should be able to dispose of getRequests."", async () => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 261, 'column': 23, 'index': 9662}","it(""should be able to dispose of getRequests."", async () => {
     const onGet = jest.fn();
     const source = new LocalDataSource(cacheGenerator(0, 2), {
         onGet
     });
-    const model = new Model({
-        source
-    }).batch();
+    const model = new Model({ source }).batch();
     const onNext = jest.fn();
+    const onError = jest.fn();
     const onComplete = jest.fn();
 
     const disposable = toObservable(model.
         get([""videos"", 0, ""title""])).
-    doAction(onNext, noOp, onComplete).
-    subscribe(noOp);
+        subscribe(onNext, onError, onComplete);
 
     disposable.dispose();
 
+    // Wait for a short period to ensure no async operations complete post-disposal
     await new Promise(resolve => setTimeout(resolve, 200));
 
     expect(onNext).not.toHaveBeenCalled();
     expect(onGet).not.toHaveBeenCalled();
     expect(onComplete).not.toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
 })",251,274,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 278, 'column': 43, 'index': 10123}","it(""should ignore response-stuffed paths."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 278, 'column': 43, 'index': 10257}","it(""should ignore response-stuffed paths."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -73961,7 +73961,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",276,307,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 284, 'column': 28, 'index': 10316}","it(""should ignore response-stuffed paths."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 284, 'column': 28, 'index': 10450}","it(""should ignore response-stuffed paths."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -73993,7 +73993,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",276,307,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 311, 'column': 43, 'index': 11138}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 311, 'column': 43, 'index': 11272}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -74031,7 +74031,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",309,346,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 323, 'column': 28, 'index': 11536}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 323, 'column': 28, 'index': 11670}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -74069,7 +74069,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",309,346,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 349, 'column': 43, 'index': 12353}","it(""should throw when server paths are missing and _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 349, 'column': 43, 'index': 12487}","it(""should throw when server paths are missing and _useServerPaths == true."", done => {
         const source = new LocalDataSource(cacheGenerator(0, 2));
         const model = new Model({ source, _useServerPaths: true }).batch(1);
         toObservable(model.
@@ -74079,7 +74079,7 @@ file,type,line,method,methodStart,methodEnd,source
                 done();
             });
     })",348,357,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 351, 'column': 8, 'index': 12461}","it(""should throw when server paths are missing and _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 351, 'column': 8, 'index': 12595}","it(""should throw when server paths are missing and _useServerPaths == true."", done => {
         const source = new LocalDataSource(cacheGenerator(0, 2));
         const model = new Model({ source, _useServerPaths: true }).batch(1);
         toObservable(model.
@@ -74089,7 +74089,7 @@ file,type,line,method,methodStart,methodEnd,source
                 done();
             });
     })",348,357,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 361, 'column': 43, 'index': 12884}","it(""should be able to dispose one of two get requests.."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 361, 'column': 43, 'index': 13018}","it(""should be able to dispose one of two get requests.."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet
@@ -74129,7 +74129,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",359,398,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 366, 'column': 27, 'index': 13052}","it(""should be able to dispose one of two get requests.."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 366, 'column': 27, 'index': 13186}","it(""should be able to dispose one of two get requests.."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet
@@ -74169,7 +74169,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",359,398,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 401, 'column': 8, 'index': 14298}","it(""should onError a MaxRetryExceededError when data source is sync."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 401, 'column': 8, 'index': 14432}","it(""should onError a MaxRetryExceededError when data source is sync."", done => {
         const model = new Model({ source: new LocalDataSource({}) });
         toObservable(model.
             get([""videos"", 0, ""title""])).
@@ -74183,7 +74183,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",399,412,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 407, 'column': 20, 'index': 14564}","it(""should onError a MaxRetryExceededError when data source is sync."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 407, 'column': 20, 'index': 14698}","it(""should onError a MaxRetryExceededError when data source is sync."", done => {
         const model = new Model({ source: new LocalDataSource({}) });
         toObservable(model.
             get([""videos"", 0, ""title""])).
@@ -74197,7 +74197,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",399,412,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 415, 'column': 42, 'index': 14876}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 415, 'column': 42, 'index': 15010}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
         const model = new Model({ source: asyncifyDataSource(new LocalDataSource({})) });
         toObservable(model.
             get([""videos"", 0, ""title""])).
@@ -74211,7 +74211,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",414,427,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 416, 'column': 8, 'index': 14932}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 416, 'column': 8, 'index': 15066}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
         const model = new Model({ source: asyncifyDataSource(new LocalDataSource({})) });
         toObservable(model.
             get([""videos"", 0, ""title""])).
@@ -74225,7 +74225,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",414,427,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 422, 'column': 20, 'index': 15198}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 422, 'column': 20, 'index': 15332}","it(""should onError a MaxRetryExceededError when data source is async."", done => {
         const model = new Model({ source: asyncifyDataSource(new LocalDataSource({})) });
         toObservable(model.
             get([""videos"", 0, ""title""])).
@@ -74239,7 +74239,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",414,427,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 431, 'column': 20, 'index': 15521}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 431, 'column': 20, 'index': 15655}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({})),
             cache: {
@@ -74272,7 +74272,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",429,461,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 446, 'column': 8, 'index': 15939}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 446, 'column': 8, 'index': 16073}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({})),
             cache: {
@@ -74305,7 +74305,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",429,461,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 456, 'column': 20, 'index': 16402}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 456, 'column': 20, 'index': 16536}","it(""should return missing optimized paths with MaxRetryExceededError"", done => {
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({})),
             cache: {
@@ -74338,7 +74338,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",429,461,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 467, 'column': 20, 'index': 16781}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 467, 'column': 20, 'index': 16915}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
         const onGet = jest.fn();
         const model = new Model({
             maxRetries: 5,
@@ -74357,7 +74357,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",463,481,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 471, 'column': 8, 'index': 16884}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 471, 'column': 8, 'index': 17018}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
         const onGet = jest.fn();
         const model = new Model({
             maxRetries: 5,
@@ -74376,7 +74376,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",463,481,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 478, 'column': 20, 'index': 17194}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 478, 'column': 20, 'index': 17328}","it(""should throw MaxRetryExceededError after retrying said times"", done => {
         const onGet = jest.fn();
         const model = new Model({
             maxRetries: 5,
@@ -74395,7 +74395,7 @@ file,type,line,method,methodStart,methodEnd,source
                 return done();
             }, done.bind(null, new Error(""should not complete"")));
     })",463,481,steel
-/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 486, 'column': 20, 'index': 17490}","it(""passes the attempt count to the DataSource"", () => {
+/test/falcor/get/get.dataSource-only.spec.js,Lazy Test,"{'line': 486, 'column': 20, 'index': 17624}","it(""passes the attempt count to the DataSource"", () => {
         const onGet = jest.fn();
         const model = new Model({
             source: asyncifyDataSource(new LocalDataSource({}, { onGet }))
@@ -74469,31 +74469,31 @@ file,type,line,method,methodStart,methodEnd,source
             }).
             subscribe(noOp, done, done);
     })",195,249,steel
-/test/falcor/get/get.dataSource-only.spec.js,Sleepy Test,"{'line': 269, 'column': 33, 'index': 9823}","it(""should be able to dispose of getRequests."", async () => {
+/test/falcor/get/get.dataSource-only.spec.js,Sleepy Test,"{'line': 268, 'column': 33, 'index': 9913}","it(""should be able to dispose of getRequests."", async () => {
     const onGet = jest.fn();
     const source = new LocalDataSource(cacheGenerator(0, 2), {
         onGet
     });
-    const model = new Model({
-        source
-    }).batch();
+    const model = new Model({ source }).batch();
     const onNext = jest.fn();
+    const onError = jest.fn();
     const onComplete = jest.fn();
 
     const disposable = toObservable(model.
         get([""videos"", 0, ""title""])).
-    doAction(onNext, noOp, onComplete).
-    subscribe(noOp);
+        subscribe(onNext, onError, onComplete);
 
     disposable.dispose();
 
+    // Wait for a short period to ensure no async operations complete post-disposal
     await new Promise(resolve => setTimeout(resolve, 200));
 
     expect(onNext).not.toHaveBeenCalled();
     expect(onGet).not.toHaveBeenCalled();
     expect(onComplete).not.toHaveBeenCalled();
+    expect(onError).not.toHaveBeenCalled();
 })",251,274,steel
-/test/falcor/get/get.dataSource-only.spec.js,Sleepy Test,"{'line': 295, 'column': 8, 'index': 10666}","it(""should ignore response-stuffed paths."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Sleepy Test,"{'line': 295, 'column': 8, 'index': 10800}","it(""should ignore response-stuffed paths."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -74525,7 +74525,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",276,307,steel
-/test/falcor/get/get.dataSource-only.spec.js,Sleepy Test,"{'line': 299, 'column': 8, 'index': 10745}","it(""should ignore response-stuffed paths."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Sleepy Test,"{'line': 299, 'column': 8, 'index': 10879}","it(""should ignore response-stuffed paths."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -74557,7 +74557,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",276,307,steel
-/test/falcor/get/get.dataSource-only.spec.js,Sleepy Test,"{'line': 334, 'column': 8, 'index': 11886}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Sleepy Test,"{'line': 334, 'column': 8, 'index': 12020}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -74595,7 +74595,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",309,346,steel
-/test/falcor/get/get.dataSource-only.spec.js,Sleepy Test,"{'line': 338, 'column': 8, 'index': 11965}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Sleepy Test,"{'line': 338, 'column': 8, 'index': 12099}","it(""should honor response-stuffed paths with _useServerPaths == true."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet,
@@ -74633,7 +74633,7 @@ file,type,line,method,methodStart,methodEnd,source
             return done();
         }, 200);
     })",309,346,steel
-/test/falcor/get/get.dataSource-only.spec.js,Sleepy Test,"{'line': 379, 'column': 8, 'index': 13497}","it(""should be able to dispose one of two get requests.."", done => {
+/test/falcor/get/get.dataSource-only.spec.js,Sleepy Test,"{'line': 379, 'column': 8, 'index': 13631}","it(""should be able to dispose one of two get requests.."", done => {
         const onGet = jest.fn();
         const source = new LocalDataSource(cacheGenerator(0, 2), {
             onGet

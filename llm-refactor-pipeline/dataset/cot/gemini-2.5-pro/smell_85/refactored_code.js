@@ -1,19 +1,21 @@
 it('should not exceed the max files', async function () {
-      const transport = new winston.transports.File({
-        ...defaultTransportOptions,
-        maxsize: 2024,
-        maxFiles: 3,
-        lazy: true
-      });
+  const maxFiles = 3;
+  const smallMaxSizeToForceRotation = 2024;
+  const transport = new winston.transports.File({
+    ...defaultTransportOptions,
+    maxsize: smallMaxSizeToForceRotation,
+    maxFiles: maxFiles,
+    lazy: true
+  });
 
-      const logCountToExceedMaxFiles = 7;
-      for (let i = 0; i < logCountToExceedMaxFiles; i++) {
-        await logToTransport(transport);
-      }
+  const logCyclesToExceedMaxFiles = 7;
+  for (let i = 0; i < logCyclesToExceedMaxFiles; i++) {
+    await logToTransport(transport);
+  }
 
-      await new Promise(resolve => setTimeout(resolve, 5000));
+  await new Promise(resolve => setTimeout(resolve, 5000));
 
-      assertFileExists('testarchive.log');
-      assertFileExists('testarchive1.log');
-      assertFileDoesNotExist('testarchive3.log');
-    }, 10000)
+  assertFileExists('testarchive.log');
+  assertFileExists('testarchive1.log');
+  assertFileDoesNotExist('testarchive3.log');
+}, 10000);

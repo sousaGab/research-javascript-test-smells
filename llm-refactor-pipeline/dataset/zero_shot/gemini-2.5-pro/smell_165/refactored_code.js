@@ -24,10 +24,9 @@ it("extracts minW, maxW, minH, maxH from data-grid", () => {
   const [layout] = onLayoutChange.mock.calls[0];
   const item = layout.find(l => l.i === "test");
 
-  expect(item).toMatchObject({
-    minW: 1,
-    maxW: 4,
-    minH: 1,
-    maxH: 3
-  });
+  expect(item).toBeDefined();
+  expect(item.minW).toBe(1);
+  expect(item.maxW).toBe(4);
+  expect(item.minH).toBe(1);
+  expect(item.maxH).toBe(3);
 });

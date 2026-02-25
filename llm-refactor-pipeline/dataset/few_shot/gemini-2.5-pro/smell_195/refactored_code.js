@@ -11,6 +11,5 @@ test('when configureOutput after copyInheritedSettings then original unchanged',
 
   copy.configureOutput({ getOutHelpWidth: () => NEW_WIDTH });
   expect(copy.configureOutput().getOutHelpWidth()).toBe(NEW_WIDTH);
-
   expect(program.configureOutput().getOutHelpWidth()).toBe(ORIGINAL_WIDTH);
 });

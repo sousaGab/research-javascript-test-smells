@@ -1,15 +1,15 @@
 it('prevents the request from completing', done => {
-      const onRequest = sinon.spy()
+  const onRequest = sinon.spy()
 
-      nock('http://example.test').get('/').delayConnection(100).reply(200, 'OK')
+  nock('http://example.test').get('/').delayConnection(100).reply(200, 'OK')
 
-      const req = http.get('http://example.test', onRequest)
+  const req = http.get('http://example.test', onRequest)
 
-      req.on('error', err => {
-        expect(err.code).to.equal('ECONNRESET') // Nock aborts with this code
-        expect(onRequest).not.to.have.been.called()
-        done()
-      })
+  req.on('error', err => {
+    expect(err.code).to.equal('ECONNABORTED')
+    expect(onRequest).not.to.have.been.called()
+    done()
+  })
 
-      setImmediate(nock.abortPendingRequests)
-    })
+  setImmediate(nock.abortPendingRequests)
+})

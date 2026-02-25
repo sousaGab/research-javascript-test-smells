@@ -3351,144 +3351,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(tree.queryRange(2, 4)).toBe(8);
     expect(tree.queryRange(6, 9)).toBe(11);
   })",16,63,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,ConditionalTestLogic,"{'startLine':221,'endLine':223}","it('should be possible to use objects as node values', () => {
-    const nodeValueComparatorCallback = (a, b) => {
-      const normalizedA = a || { value: null };
-      const normalizedB = b || { value: null };
-
-      if (normalizedA.value === normalizedB.value) {
-        return 0;
-      }
-
-      return normalizedA.value < normalizedB.value ? -1 : 1;
-    };
-
-    const obj1 = { key: 'obj1', value: 1, toString: () => 'obj1' };
-    const obj2 = { key: 'obj2', value: 2, toString: () => 'obj2' };
-    const obj3 = { key: 'obj3', value: 3, toString: () => 'obj3' };
-
-    const bstNode = new BinarySearchTreeNode(obj2, nodeValueComparatorCallback);
-    bstNode.insert(obj1);
-
-    expect(bstNode.toString()).toBe('obj1,obj2');
-    expect(bstNode.contains(obj1)).toBe(true);
-    expect(bstNode.contains(obj3)).toBe(false);
-
-    bstNode.insert(obj3);
-
-    expect(bstNode.toString()).toBe('obj1,obj2,obj3');
-    expect(bstNode.contains(obj3)).toBe(true);
-
-    expect(bstNode.findMin().value).toEqual(obj1);
-  })",216,245,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':21,'endLine':54}","it('should insert nodes in correct order', () => {
-    const bstNode = new BinarySearchTreeNode(2);
-    const insertedNode1 = bstNode.insert(1);
-
-    expect(insertedNode1.value).toBe(1);
-    expect(bstNode.toString()).toBe('1,2');
-    expect(bstNode.contains(1)).toBe(true);
-    expect(bstNode.contains(3)).toBe(false);
-
-    const insertedNode2 = bstNode.insert(3);
-
-    expect(insertedNode2.value).toBe(3);
-    expect(bstNode.toString()).toBe('1,2,3');
-    expect(bstNode.contains(3)).toBe(true);
-    expect(bstNode.contains(4)).toBe(false);
-
-    bstNode.insert(7);
-
-    expect(bstNode.toString()).toBe('1,2,3,7');
-    expect(bstNode.contains(7)).toBe(true);
-    expect(bstNode.contains(8)).toBe(false);
-
-    bstNode.insert(4);
-
-    expect(bstNode.toString()).toBe('1,2,3,4,7');
-    expect(bstNode.contains(4)).toBe(true);
-    expect(bstNode.contains(8)).toBe(false);
-
-    bstNode.insert(6);
-
-    expect(bstNode.toString()).toBe('1,2,3,4,6,7');
-    expect(bstNode.contains(6)).toBe(true);
-    expect(bstNode.contains(8)).toBe(false);
-  })",21,54,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':84,'endLine':103}","it('should be possible to attach meta information to binary search tree nodes', () => {
-    const node = new BinarySearchTreeNode(10);
-
-    node.insert(20);
-    const node1 = node.insert(30);
-    node.insert(5);
-    node.insert(40);
-    const node2 = node.insert(1);
-
-    node.meta.set('color', 'red');
-    node1.meta.set('color', 'black');
-    node2.meta.set('color', 'white');
-
-    expect(node.meta.get('color')).toBe('red');
-
-    expect(node.findMin()).not.toBeNull();
-    expect(node.findMin().value).toBe(1);
-    expect(node.findMin().meta.get('color')).toBe('white');
-    expect(node.find(30).meta.get('color')).toBe('black');
-  })",84,103,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':157,'endLine':186}","it('should remove nodes with two children', () => {
-    const bstRootNode = new BinarySearchTreeNode();
-
-    bstRootNode.insert(10);
-    bstRootNode.insert(20);
-    bstRootNode.insert(5);
-    bstRootNode.insert(30);
-    bstRootNode.insert(15);
-    bstRootNode.insert(25);
-
-    expect(bstRootNode.toString()).toBe('5,10,15,20,25,30');
-    expect(bstRootNode.find(20).left.value).toBe(15);
-    expect(bstRootNode.find(20).right.value).toBe(30);
-
-    bstRootNode.remove(20);
-    expect(bstRootNode.toString()).toBe('5,10,15,25,30');
-
-    bstRootNode.remove(15);
-    expect(bstRootNode.toString()).toBe('5,10,25,30');
-
-    bstRootNode.remove(10);
-    expect(bstRootNode.toString()).toBe('5,25,30');
-    expect(bstRootNode.value).toBe(25);
-
-    bstRootNode.remove(25);
-    expect(bstRootNode.toString()).toBe('5,30');
-
-    bstRootNode.remove(5);
-    expect(bstRootNode.toString()).toBe('30');
-  })",157,186,snuts
-/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTree.test.js,ConditionalTestLogic,"{'startLine':60,'endLine':62}","it('should insert object values', () => {
-    const nodeValueCompareFunction = (a, b) => {
-      const normalizedA = a || { value: null };
-      const normalizedB = b || { value: null };
-
-      if (normalizedA.value === normalizedB.value) {
-        return 0;
-      }
-
-      return normalizedA.value < normalizedB.value ? -1 : 1;
-    };
-
-    const obj1 = { key: 'obj1', value: 1, toString: () => 'obj1' };
-    const obj2 = { key: 'obj2', value: 2, toString: () => 'obj2' };
-    const obj3 = { key: 'obj3', value: 3, toString: () => 'obj3' };
-
-    const bst = new BinarySearchTree(nodeValueCompareFunction);
-
-    bst.insert(obj2);
-    bst.insert(obj3);
-    bst.insert(obj1);
-
-    expect(bst.toString()).toBe('obj1,obj2,obj3');
-  })",55,78,snuts
 /src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,IdenticalTestDescription,"{'startLine':211,'endLine':231}","it('should do left right rotation and keeping left right node safe', () => {
     const tree = new AvlTree();
 
@@ -3739,6 +3601,457 @@ file,type,line,method,methodStart,methodEnd,source
     expect(tree.root.height).toBe(2);
     expect(tree.root.balanceFactor).toBe(0);
   })",271,302,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,ConditionalTestLogic,"{'startLine':221,'endLine':223}","it('should be possible to use objects as node values', () => {
+    const nodeValueComparatorCallback = (a, b) => {
+      const normalizedA = a || { value: null };
+      const normalizedB = b || { value: null };
+
+      if (normalizedA.value === normalizedB.value) {
+        return 0;
+      }
+
+      return normalizedA.value < normalizedB.value ? -1 : 1;
+    };
+
+    const obj1 = { key: 'obj1', value: 1, toString: () => 'obj1' };
+    const obj2 = { key: 'obj2', value: 2, toString: () => 'obj2' };
+    const obj3 = { key: 'obj3', value: 3, toString: () => 'obj3' };
+
+    const bstNode = new BinarySearchTreeNode(obj2, nodeValueComparatorCallback);
+    bstNode.insert(obj1);
+
+    expect(bstNode.toString()).toBe('obj1,obj2');
+    expect(bstNode.contains(obj1)).toBe(true);
+    expect(bstNode.contains(obj3)).toBe(false);
+
+    bstNode.insert(obj3);
+
+    expect(bstNode.toString()).toBe('obj1,obj2,obj3');
+    expect(bstNode.contains(obj3)).toBe(true);
+
+    expect(bstNode.findMin().value).toEqual(obj1);
+  })",216,245,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':21,'endLine':54}","it('should insert nodes in correct order', () => {
+    const bstNode = new BinarySearchTreeNode(2);
+    const insertedNode1 = bstNode.insert(1);
+
+    expect(insertedNode1.value).toBe(1);
+    expect(bstNode.toString()).toBe('1,2');
+    expect(bstNode.contains(1)).toBe(true);
+    expect(bstNode.contains(3)).toBe(false);
+
+    const insertedNode2 = bstNode.insert(3);
+
+    expect(insertedNode2.value).toBe(3);
+    expect(bstNode.toString()).toBe('1,2,3');
+    expect(bstNode.contains(3)).toBe(true);
+    expect(bstNode.contains(4)).toBe(false);
+
+    bstNode.insert(7);
+
+    expect(bstNode.toString()).toBe('1,2,3,7');
+    expect(bstNode.contains(7)).toBe(true);
+    expect(bstNode.contains(8)).toBe(false);
+
+    bstNode.insert(4);
+
+    expect(bstNode.toString()).toBe('1,2,3,4,7');
+    expect(bstNode.contains(4)).toBe(true);
+    expect(bstNode.contains(8)).toBe(false);
+
+    bstNode.insert(6);
+
+    expect(bstNode.toString()).toBe('1,2,3,4,6,7');
+    expect(bstNode.contains(6)).toBe(true);
+    expect(bstNode.contains(8)).toBe(false);
+  })",21,54,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':84,'endLine':103}","it('should be possible to attach meta information to binary search tree nodes', () => {
+    const node = new BinarySearchTreeNode(10);
+
+    node.insert(20);
+    const node1 = node.insert(30);
+    node.insert(5);
+    node.insert(40);
+    const node2 = node.insert(1);
+
+    node.meta.set('color', 'red');
+    node1.meta.set('color', 'black');
+    node2.meta.set('color', 'white');
+
+    expect(node.meta.get('color')).toBe('red');
+
+    expect(node.findMin()).not.toBeNull();
+    expect(node.findMin().value).toBe(1);
+    expect(node.findMin().meta.get('color')).toBe('white');
+    expect(node.find(30).meta.get('color')).toBe('black');
+  })",84,103,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTreeNode.test.js,VerboseStatement,"{'startLine':157,'endLine':186}","it('should remove nodes with two children', () => {
+    const bstRootNode = new BinarySearchTreeNode();
+
+    bstRootNode.insert(10);
+    bstRootNode.insert(20);
+    bstRootNode.insert(5);
+    bstRootNode.insert(30);
+    bstRootNode.insert(15);
+    bstRootNode.insert(25);
+
+    expect(bstRootNode.toString()).toBe('5,10,15,20,25,30');
+    expect(bstRootNode.find(20).left.value).toBe(15);
+    expect(bstRootNode.find(20).right.value).toBe(30);
+
+    bstRootNode.remove(20);
+    expect(bstRootNode.toString()).toBe('5,10,15,25,30');
+
+    bstRootNode.remove(15);
+    expect(bstRootNode.toString()).toBe('5,10,25,30');
+
+    bstRootNode.remove(10);
+    expect(bstRootNode.toString()).toBe('5,25,30');
+    expect(bstRootNode.value).toBe(25);
+
+    bstRootNode.remove(25);
+    expect(bstRootNode.toString()).toBe('5,30');
+
+    bstRootNode.remove(5);
+    expect(bstRootNode.toString()).toBe('30');
+  })",157,186,snuts
+/src/data-structures/tree/binary-search-tree/__test__/BinarySearchTree.test.js,ConditionalTestLogic,"{'startLine':60,'endLine':62}","it('should insert object values', () => {
+    const nodeValueCompareFunction = (a, b) => {
+      const normalizedA = a || { value: null };
+      const normalizedB = b || { value: null };
+
+      if (normalizedA.value === normalizedB.value) {
+        return 0;
+      }
+
+      return normalizedA.value < normalizedB.value ? -1 : 1;
+    };
+
+    const obj1 = { key: 'obj1', value: 1, toString: () => 'obj1' };
+    const obj2 = { key: 'obj2', value: 2, toString: () => 'obj2' };
+    const obj3 = { key: 'obj3', value: 3, toString: () => 'obj3' };
+
+    const bst = new BinarySearchTree(nodeValueCompareFunction);
+
+    bst.insert(obj2);
+    bst.insert(obj3);
+    bst.insert(obj1);
+
+    expect(bst.toString()).toBe('obj1,obj2,obj3');
+  })",55,78,snuts
+/src/algorithms/uncategorized/rain-terraces/__test__/dpRainTerraces.test.js,VerboseStatement,"{'startLine':4,'endLine':20}","it('should find the amount of water collected after raining', () => {
+    expect(dpRainTerraces([1])).toBe(0);
+    expect(dpRainTerraces([1, 0])).toBe(0);
+    expect(dpRainTerraces([0, 1])).toBe(0);
+    expect(dpRainTerraces([0, 1, 0])).toBe(0);
+    expect(dpRainTerraces([0, 1, 0, 0])).toBe(0);
+    expect(dpRainTerraces([0, 1, 0, 0, 1, 0])).toBe(2);
+    expect(dpRainTerraces([0, 2, 0, 0, 1, 0])).toBe(2);
+    expect(dpRainTerraces([2, 0, 2])).toBe(2);
+    expect(dpRainTerraces([2, 0, 5])).toBe(2);
+    expect(dpRainTerraces([3, 0, 0, 2, 0, 4])).toBe(10);
+    expect(dpRainTerraces([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1])).toBe(6);
+    expect(dpRainTerraces([1, 1, 1, 1, 1])).toBe(0);
+    expect(dpRainTerraces([1, 2, 3, 4, 5])).toBe(0);
+    expect(dpRainTerraces([4, 1, 3, 1, 2, 1, 2, 1])).toBe(4);
+    expect(dpRainTerraces([0, 2, 4, 3, 4, 2, 4, 0, 8, 7, 0])).toBe(7);
+  })",4,20,snuts
+/src/algorithms/uncategorized/rain-terraces/__test__/bfRainTerraces.test.js,VerboseStatement,"{'startLine':4,'endLine':20}","it('should find the amount of water collected after raining', () => {
+    expect(bfRainTerraces([1])).toBe(0);
+    expect(bfRainTerraces([1, 0])).toBe(0);
+    expect(bfRainTerraces([0, 1])).toBe(0);
+    expect(bfRainTerraces([0, 1, 0])).toBe(0);
+    expect(bfRainTerraces([0, 1, 0, 0])).toBe(0);
+    expect(bfRainTerraces([0, 1, 0, 0, 1, 0])).toBe(2);
+    expect(bfRainTerraces([0, 2, 0, 0, 1, 0])).toBe(2);
+    expect(bfRainTerraces([2, 0, 2])).toBe(2);
+    expect(bfRainTerraces([2, 0, 5])).toBe(2);
+    expect(bfRainTerraces([3, 0, 0, 2, 0, 4])).toBe(10);
+    expect(bfRainTerraces([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1])).toBe(6);
+    expect(bfRainTerraces([1, 1, 1, 1, 1])).toBe(0);
+    expect(bfRainTerraces([1, 2, 3, 4, 5])).toBe(0);
+    expect(bfRainTerraces([4, 1, 3, 1, 2, 1, 2, 1])).toBe(4);
+    expect(bfRainTerraces([0, 2, 4, 3, 4, 2, 4, 0, 8, 7, 0])).toBe(7);
+  })",4,20,snuts
+/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should not hae solution for 3 queens', () => {
+    const solutions = nQueens(3);
+    expect(solutions.length).toBe(0);
+  })",4,7,snuts
+/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':11,'endLine':11}","it('should solve n-queens problem for 4 queens', () => {
+    const solutions = nQueens(4);
+    expect(solutions.length).toBe(2);
+
+    // First solution.
+    expect(solutions[0][0].toString()).toBe('0,1');
+    expect(solutions[0][1].toString()).toBe('1,3');
+    expect(solutions[0][2].toString()).toBe('2,0');
+    expect(solutions[0][3].toString()).toBe('3,2');
+
+    // Second solution (mirrored).
+    expect(solutions[1][0].toString()).toBe('0,2');
+    expect(solutions[1][1].toString()).toBe('1,0');
+    expect(solutions[1][2].toString()).toBe('2,3');
+    expect(solutions[1][3].toString()).toBe('3,1');
+  })",9,24,snuts
+/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':28,'endLine':28}","it('should solve n-queens problem for 6 queens', () => {
+    const solutions = nQueens(6);
+    expect(solutions.length).toBe(4);
+
+    // First solution.
+    expect(solutions[0][0].toString()).toBe('0,1');
+    expect(solutions[0][1].toString()).toBe('1,3');
+    expect(solutions[0][2].toString()).toBe('2,5');
+    expect(solutions[0][3].toString()).toBe('3,0');
+    expect(solutions[0][4].toString()).toBe('4,2');
+    expect(solutions[0][5].toString()).toBe('5,4');
+  })",26,37,snuts
+/src/algorithms/uncategorized/knight-tour/__test__/knightTour.test.js,SubOptimalAssert,"{'startLine':7,'endLine':7}","it('should not find solution on 3x3 board', () => {
+    const moves = knightTour(3);
+
+    expect(moves.length).toBe(0);
+  })",4,8,snuts
+/src/algorithms/uncategorized/knight-tour/__test__/knightTour.test.js,SubOptimalAssert,"{'startLine':13,'endLine':13}","it('should find one solution to do knight tour on 5x5 board', () => {
+    const moves = knightTour(5);
+
+    expect(moves.length).toBe(25);
+
+    expect(moves).toEqual([
+      [0, 0],
+      [1, 2],
+      [2, 0],
+      [0, 1],
+      [1, 3],
+      [3, 4],
+      [2, 2],
+      [4, 1],
+      [3, 3],
+      [1, 4],
+      [0, 2],
+      [1, 0],
+      [3, 1],
+      [4, 3],
+      [2, 4],
+      [0, 3],
+      [1, 1],
+      [3, 0],
+      [4, 2],
+      [2, 1],
+      [4, 0],
+      [3, 2],
+      [4, 4],
+      [2, 3],
+      [0, 4],
+    ]);
+  })",10,42,snuts
+/src/algorithms/uncategorized/hanoi-tower/__test__/hanoiTower.test.js,VerboseStatement,"{'startLine':5,'endLine':37}","it('should solve tower of hanoi puzzle with 2 discs', () => {
+    const moveCallback = jest.fn();
+    const numberOfDiscs = 2;
+
+    const fromPole = new Stack();
+    const withPole = new Stack();
+    const toPole = new Stack();
+
+    hanoiTower({
+      numberOfDiscs,
+      moveCallback,
+      fromPole,
+      withPole,
+      toPole,
+    });
+
+    expect(moveCallback).toHaveBeenCalledTimes((2 ** numberOfDiscs) - 1);
+
+    expect(fromPole.toArray()).toEqual([]);
+    expect(toPole.toArray()).toEqual([1, 2]);
+
+    expect(moveCallback.mock.calls[0][0]).toBe(1);
+    expect(moveCallback.mock.calls[0][1]).toEqual([1, 2]);
+    expect(moveCallback.mock.calls[0][2]).toEqual([]);
+
+    expect(moveCallback.mock.calls[1][0]).toBe(2);
+    expect(moveCallback.mock.calls[1][1]).toEqual([2]);
+    expect(moveCallback.mock.calls[1][2]).toEqual([]);
+
+    expect(moveCallback.mock.calls[2][0]).toBe(1);
+    expect(moveCallback.mock.calls[2][1]).toEqual([1]);
+    expect(moveCallback.mock.calls[2][2]).toEqual([2]);
+  })",5,37,snuts
+/src/algorithms/uncategorized/best-time-to-buy-sell-stocks/__tests__/peakvalleyBestTimeToBuySellStocks.test.js,VerboseStatement,"{'startLine':4,'endLine':47}","it('should find the best time to buy and sell stocks', () => {
+    let visit;
+
+    expect(peakvalleyBestTimeToBuySellStocks([1, 5])).toEqual(4);
+
+    visit = jest.fn();
+    expect(peakvalleyBestTimeToBuySellStocks([1], visit)).toEqual(0);
+    expect(visit).toHaveBeenCalledTimes(1);
+
+    visit = jest.fn();
+    expect(peakvalleyBestTimeToBuySellStocks([1, 5], visit)).toEqual(4);
+    expect(visit).toHaveBeenCalledTimes(2);
+
+    visit = jest.fn();
+    expect(peakvalleyBestTimeToBuySellStocks([5, 1], visit)).toEqual(0);
+    expect(visit).toHaveBeenCalledTimes(2);
+
+    visit = jest.fn();
+    expect(peakvalleyBestTimeToBuySellStocks([1, 5, 10], visit)).toEqual(9);
+    expect(visit).toHaveBeenCalledTimes(3);
+
+    visit = jest.fn();
+    expect(peakvalleyBestTimeToBuySellStocks([10, 1, 5, 20, 15, 21], visit)).toEqual(25);
+    expect(visit).toHaveBeenCalledTimes(6);
+
+    visit = jest.fn();
+    expect(peakvalleyBestTimeToBuySellStocks([7, 1, 5, 3, 6, 4], visit)).toEqual(7);
+    expect(visit).toHaveBeenCalledTimes(6);
+
+    visit = jest.fn();
+    expect(peakvalleyBestTimeToBuySellStocks([1, 2, 3, 4, 5], visit)).toEqual(4);
+    expect(visit).toHaveBeenCalledTimes(5);
+
+    visit = jest.fn();
+    expect(peakvalleyBestTimeToBuySellStocks([7, 6, 4, 3, 1], visit)).toEqual(0);
+    expect(visit).toHaveBeenCalledTimes(5);
+
+    visit = jest.fn();
+    expect(peakvalleyBestTimeToBuySellStocks(
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      visit,
+    )).toEqual(19);
+    expect(visit).toHaveBeenCalledTimes(20);
+  })",4,47,snuts
+/src/algorithms/uncategorized/best-time-to-buy-sell-stocks/__tests__/dqBestTimeToBuySellStocks.test.js,VerboseStatement,"{'startLine':4,'endLine':47}","it('should find the best time to buy and sell stocks', () => {
+    let visit;
+
+    expect(dqBestTimeToBuySellStocks([1, 5])).toEqual(4);
+
+    visit = jest.fn();
+    expect(dqBestTimeToBuySellStocks([1], visit)).toEqual(0);
+    expect(visit).toHaveBeenCalledTimes(3);
+
+    visit = jest.fn();
+    expect(dqBestTimeToBuySellStocks([1, 5], visit)).toEqual(4);
+    expect(visit).toHaveBeenCalledTimes(7);
+
+    visit = jest.fn();
+    expect(dqBestTimeToBuySellStocks([5, 1], visit)).toEqual(0);
+    expect(visit).toHaveBeenCalledTimes(7);
+
+    visit = jest.fn();
+    expect(dqBestTimeToBuySellStocks([1, 5, 10], visit)).toEqual(9);
+    expect(visit).toHaveBeenCalledTimes(15);
+
+    visit = jest.fn();
+    expect(dqBestTimeToBuySellStocks([10, 1, 5, 20, 15, 21], visit)).toEqual(25);
+    expect(visit).toHaveBeenCalledTimes(127);
+
+    visit = jest.fn();
+    expect(dqBestTimeToBuySellStocks([7, 1, 5, 3, 6, 4], visit)).toEqual(7);
+    expect(visit).toHaveBeenCalledTimes(127);
+
+    visit = jest.fn();
+    expect(dqBestTimeToBuySellStocks([1, 2, 3, 4, 5], visit)).toEqual(4);
+    expect(visit).toHaveBeenCalledTimes(63);
+
+    visit = jest.fn();
+    expect(dqBestTimeToBuySellStocks([7, 6, 4, 3, 1], visit)).toEqual(0);
+    expect(visit).toHaveBeenCalledTimes(63);
+
+    visit = jest.fn();
+    expect(dqBestTimeToBuySellStocks(
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      visit,
+    )).toEqual(19);
+    expect(visit).toHaveBeenCalledTimes(2097151);
+  })",4,47,snuts
+/src/algorithms/uncategorized/best-time-to-buy-sell-stocks/__tests__/dpBestTimeToBuySellStocks.test.js,VerboseStatement,"{'startLine':4,'endLine':47}","it('should find the best time to buy and sell stocks', () => {
+    let visit;
+
+    expect(dpBestTimeToBuySellStocks([1, 5])).toEqual(4);
+
+    visit = jest.fn();
+    expect(dpBestTimeToBuySellStocks([1], visit)).toEqual(0);
+    expect(visit).toHaveBeenCalledTimes(1);
+
+    visit = jest.fn();
+    expect(dpBestTimeToBuySellStocks([1, 5], visit)).toEqual(4);
+    expect(visit).toHaveBeenCalledTimes(2);
+
+    visit = jest.fn();
+    expect(dpBestTimeToBuySellStocks([5, 1], visit)).toEqual(0);
+    expect(visit).toHaveBeenCalledTimes(2);
+
+    visit = jest.fn();
+    expect(dpBestTimeToBuySellStocks([1, 5, 10], visit)).toEqual(9);
+    expect(visit).toHaveBeenCalledTimes(3);
+
+    visit = jest.fn();
+    expect(dpBestTimeToBuySellStocks([10, 1, 5, 20, 15, 21], visit)).toEqual(25);
+    expect(visit).toHaveBeenCalledTimes(6);
+
+    visit = jest.fn();
+    expect(dpBestTimeToBuySellStocks([7, 1, 5, 3, 6, 4], visit)).toEqual(7);
+    expect(visit).toHaveBeenCalledTimes(6);
+
+    visit = jest.fn();
+    expect(dpBestTimeToBuySellStocks([1, 2, 3, 4, 5], visit)).toEqual(4);
+    expect(visit).toHaveBeenCalledTimes(5);
+
+    visit = jest.fn();
+    expect(dpBestTimeToBuySellStocks([7, 6, 4, 3, 1], visit)).toEqual(0);
+    expect(visit).toHaveBeenCalledTimes(5);
+
+    visit = jest.fn();
+    expect(dpBestTimeToBuySellStocks(
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      visit,
+    )).toEqual(19);
+    expect(visit).toHaveBeenCalledTimes(20);
+  })",4,47,snuts
+/src/algorithms/uncategorized/best-time-to-buy-sell-stocks/__tests__/accumulatorBestTimeToBuySellStocks.test.js,VerboseStatement,"{'startLine':4,'endLine':47}","it('should find the best time to buy and sell stocks', () => {
+    let visit;
+
+    expect(accumulatorBestTimeToBuySellStocks([1, 5])).toEqual(4);
+
+    visit = jest.fn();
+    expect(accumulatorBestTimeToBuySellStocks([1], visit)).toEqual(0);
+    expect(visit).toHaveBeenCalledTimes(1);
+
+    visit = jest.fn();
+    expect(accumulatorBestTimeToBuySellStocks([1, 5], visit)).toEqual(4);
+    expect(visit).toHaveBeenCalledTimes(2);
+
+    visit = jest.fn();
+    expect(accumulatorBestTimeToBuySellStocks([5, 1], visit)).toEqual(0);
+    expect(visit).toHaveBeenCalledTimes(2);
+
+    visit = jest.fn();
+    expect(accumulatorBestTimeToBuySellStocks([1, 5, 10], visit)).toEqual(9);
+    expect(visit).toHaveBeenCalledTimes(3);
+
+    visit = jest.fn();
+    expect(accumulatorBestTimeToBuySellStocks([10, 1, 5, 20, 15, 21], visit)).toEqual(25);
+    expect(visit).toHaveBeenCalledTimes(6);
+
+    visit = jest.fn();
+    expect(accumulatorBestTimeToBuySellStocks([7, 1, 5, 3, 6, 4], visit)).toEqual(7);
+    expect(visit).toHaveBeenCalledTimes(6);
+
+    visit = jest.fn();
+    expect(accumulatorBestTimeToBuySellStocks([1, 2, 3, 4, 5], visit)).toEqual(4);
+    expect(visit).toHaveBeenCalledTimes(5);
+
+    visit = jest.fn();
+    expect(accumulatorBestTimeToBuySellStocks([7, 6, 4, 3, 1], visit)).toEqual(0);
+    expect(visit).toHaveBeenCalledTimes(5);
+
+    visit = jest.fn();
+    expect(accumulatorBestTimeToBuySellStocks(
+      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
+      visit,
+    )).toEqual(19);
+    expect(visit).toHaveBeenCalledTimes(20);
+  })",4,47,snuts
 /src/algorithms/tree/depth-first-search/__test__/depthFirstSearch.test.js,OvercommentedTest,"{'startLine':55,'endLine':101}","it('allow users to redefine node visiting logic', () => {
     const nodeA = new BinaryTreeNode('A');
     const nodeB = new BinaryTreeNode('B');
@@ -4080,319 +4393,6 @@ file,type,line,method,methodStart,methodEnd,source
     // Needs to substitute the first 5 chars: INTEN by EXECU
     expect(levenshteinDistance('intention', 'execution')).toBe(5);
   })",4,28,snuts
-/src/algorithms/uncategorized/rain-terraces/__test__/dpRainTerraces.test.js,VerboseStatement,"{'startLine':4,'endLine':20}","it('should find the amount of water collected after raining', () => {
-    expect(dpRainTerraces([1])).toBe(0);
-    expect(dpRainTerraces([1, 0])).toBe(0);
-    expect(dpRainTerraces([0, 1])).toBe(0);
-    expect(dpRainTerraces([0, 1, 0])).toBe(0);
-    expect(dpRainTerraces([0, 1, 0, 0])).toBe(0);
-    expect(dpRainTerraces([0, 1, 0, 0, 1, 0])).toBe(2);
-    expect(dpRainTerraces([0, 2, 0, 0, 1, 0])).toBe(2);
-    expect(dpRainTerraces([2, 0, 2])).toBe(2);
-    expect(dpRainTerraces([2, 0, 5])).toBe(2);
-    expect(dpRainTerraces([3, 0, 0, 2, 0, 4])).toBe(10);
-    expect(dpRainTerraces([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1])).toBe(6);
-    expect(dpRainTerraces([1, 1, 1, 1, 1])).toBe(0);
-    expect(dpRainTerraces([1, 2, 3, 4, 5])).toBe(0);
-    expect(dpRainTerraces([4, 1, 3, 1, 2, 1, 2, 1])).toBe(4);
-    expect(dpRainTerraces([0, 2, 4, 3, 4, 2, 4, 0, 8, 7, 0])).toBe(7);
-  })",4,20,snuts
-/src/algorithms/uncategorized/rain-terraces/__test__/bfRainTerraces.test.js,VerboseStatement,"{'startLine':4,'endLine':20}","it('should find the amount of water collected after raining', () => {
-    expect(bfRainTerraces([1])).toBe(0);
-    expect(bfRainTerraces([1, 0])).toBe(0);
-    expect(bfRainTerraces([0, 1])).toBe(0);
-    expect(bfRainTerraces([0, 1, 0])).toBe(0);
-    expect(bfRainTerraces([0, 1, 0, 0])).toBe(0);
-    expect(bfRainTerraces([0, 1, 0, 0, 1, 0])).toBe(2);
-    expect(bfRainTerraces([0, 2, 0, 0, 1, 0])).toBe(2);
-    expect(bfRainTerraces([2, 0, 2])).toBe(2);
-    expect(bfRainTerraces([2, 0, 5])).toBe(2);
-    expect(bfRainTerraces([3, 0, 0, 2, 0, 4])).toBe(10);
-    expect(bfRainTerraces([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1])).toBe(6);
-    expect(bfRainTerraces([1, 1, 1, 1, 1])).toBe(0);
-    expect(bfRainTerraces([1, 2, 3, 4, 5])).toBe(0);
-    expect(bfRainTerraces([4, 1, 3, 1, 2, 1, 2, 1])).toBe(4);
-    expect(bfRainTerraces([0, 2, 4, 3, 4, 2, 4, 0, 8, 7, 0])).toBe(7);
-  })",4,20,snuts
-/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should not hae solution for 3 queens', () => {
-    const solutions = nQueens(3);
-    expect(solutions.length).toBe(0);
-  })",4,7,snuts
-/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':11,'endLine':11}","it('should solve n-queens problem for 4 queens', () => {
-    const solutions = nQueens(4);
-    expect(solutions.length).toBe(2);
-
-    // First solution.
-    expect(solutions[0][0].toString()).toBe('0,1');
-    expect(solutions[0][1].toString()).toBe('1,3');
-    expect(solutions[0][2].toString()).toBe('2,0');
-    expect(solutions[0][3].toString()).toBe('3,2');
-
-    // Second solution (mirrored).
-    expect(solutions[1][0].toString()).toBe('0,2');
-    expect(solutions[1][1].toString()).toBe('1,0');
-    expect(solutions[1][2].toString()).toBe('2,3');
-    expect(solutions[1][3].toString()).toBe('3,1');
-  })",9,24,snuts
-/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':28,'endLine':28}","it('should solve n-queens problem for 6 queens', () => {
-    const solutions = nQueens(6);
-    expect(solutions.length).toBe(4);
-
-    // First solution.
-    expect(solutions[0][0].toString()).toBe('0,1');
-    expect(solutions[0][1].toString()).toBe('1,3');
-    expect(solutions[0][2].toString()).toBe('2,5');
-    expect(solutions[0][3].toString()).toBe('3,0');
-    expect(solutions[0][4].toString()).toBe('4,2');
-    expect(solutions[0][5].toString()).toBe('5,4');
-  })",26,37,snuts
-/src/algorithms/uncategorized/knight-tour/__test__/knightTour.test.js,SubOptimalAssert,"{'startLine':7,'endLine':7}","it('should not find solution on 3x3 board', () => {
-    const moves = knightTour(3);
-
-    expect(moves.length).toBe(0);
-  })",4,8,snuts
-/src/algorithms/uncategorized/knight-tour/__test__/knightTour.test.js,SubOptimalAssert,"{'startLine':13,'endLine':13}","it('should find one solution to do knight tour on 5x5 board', () => {
-    const moves = knightTour(5);
-
-    expect(moves.length).toBe(25);
-
-    expect(moves).toEqual([
-      [0, 0],
-      [1, 2],
-      [2, 0],
-      [0, 1],
-      [1, 3],
-      [3, 4],
-      [2, 2],
-      [4, 1],
-      [3, 3],
-      [1, 4],
-      [0, 2],
-      [1, 0],
-      [3, 1],
-      [4, 3],
-      [2, 4],
-      [0, 3],
-      [1, 1],
-      [3, 0],
-      [4, 2],
-      [2, 1],
-      [4, 0],
-      [3, 2],
-      [4, 4],
-      [2, 3],
-      [0, 4],
-    ]);
-  })",10,42,snuts
-/src/algorithms/uncategorized/hanoi-tower/__test__/hanoiTower.test.js,VerboseStatement,"{'startLine':5,'endLine':37}","it('should solve tower of hanoi puzzle with 2 discs', () => {
-    const moveCallback = jest.fn();
-    const numberOfDiscs = 2;
-
-    const fromPole = new Stack();
-    const withPole = new Stack();
-    const toPole = new Stack();
-
-    hanoiTower({
-      numberOfDiscs,
-      moveCallback,
-      fromPole,
-      withPole,
-      toPole,
-    });
-
-    expect(moveCallback).toHaveBeenCalledTimes((2 ** numberOfDiscs) - 1);
-
-    expect(fromPole.toArray()).toEqual([]);
-    expect(toPole.toArray()).toEqual([1, 2]);
-
-    expect(moveCallback.mock.calls[0][0]).toBe(1);
-    expect(moveCallback.mock.calls[0][1]).toEqual([1, 2]);
-    expect(moveCallback.mock.calls[0][2]).toEqual([]);
-
-    expect(moveCallback.mock.calls[1][0]).toBe(2);
-    expect(moveCallback.mock.calls[1][1]).toEqual([2]);
-    expect(moveCallback.mock.calls[1][2]).toEqual([]);
-
-    expect(moveCallback.mock.calls[2][0]).toBe(1);
-    expect(moveCallback.mock.calls[2][1]).toEqual([1]);
-    expect(moveCallback.mock.calls[2][2]).toEqual([2]);
-  })",5,37,snuts
-/src/algorithms/uncategorized/best-time-to-buy-sell-stocks/__tests__/peakvalleyBestTimeToBuySellStocks.test.js,VerboseStatement,"{'startLine':4,'endLine':47}","it('should find the best time to buy and sell stocks', () => {
-    let visit;
-
-    expect(peakvalleyBestTimeToBuySellStocks([1, 5])).toEqual(4);
-
-    visit = jest.fn();
-    expect(peakvalleyBestTimeToBuySellStocks([1], visit)).toEqual(0);
-    expect(visit).toHaveBeenCalledTimes(1);
-
-    visit = jest.fn();
-    expect(peakvalleyBestTimeToBuySellStocks([1, 5], visit)).toEqual(4);
-    expect(visit).toHaveBeenCalledTimes(2);
-
-    visit = jest.fn();
-    expect(peakvalleyBestTimeToBuySellStocks([5, 1], visit)).toEqual(0);
-    expect(visit).toHaveBeenCalledTimes(2);
-
-    visit = jest.fn();
-    expect(peakvalleyBestTimeToBuySellStocks([1, 5, 10], visit)).toEqual(9);
-    expect(visit).toHaveBeenCalledTimes(3);
-
-    visit = jest.fn();
-    expect(peakvalleyBestTimeToBuySellStocks([10, 1, 5, 20, 15, 21], visit)).toEqual(25);
-    expect(visit).toHaveBeenCalledTimes(6);
-
-    visit = jest.fn();
-    expect(peakvalleyBestTimeToBuySellStocks([7, 1, 5, 3, 6, 4], visit)).toEqual(7);
-    expect(visit).toHaveBeenCalledTimes(6);
-
-    visit = jest.fn();
-    expect(peakvalleyBestTimeToBuySellStocks([1, 2, 3, 4, 5], visit)).toEqual(4);
-    expect(visit).toHaveBeenCalledTimes(5);
-
-    visit = jest.fn();
-    expect(peakvalleyBestTimeToBuySellStocks([7, 6, 4, 3, 1], visit)).toEqual(0);
-    expect(visit).toHaveBeenCalledTimes(5);
-
-    visit = jest.fn();
-    expect(peakvalleyBestTimeToBuySellStocks(
-      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-      visit,
-    )).toEqual(19);
-    expect(visit).toHaveBeenCalledTimes(20);
-  })",4,47,snuts
-/src/algorithms/uncategorized/best-time-to-buy-sell-stocks/__tests__/dqBestTimeToBuySellStocks.test.js,VerboseStatement,"{'startLine':4,'endLine':47}","it('should find the best time to buy and sell stocks', () => {
-    let visit;
-
-    expect(dqBestTimeToBuySellStocks([1, 5])).toEqual(4);
-
-    visit = jest.fn();
-    expect(dqBestTimeToBuySellStocks([1], visit)).toEqual(0);
-    expect(visit).toHaveBeenCalledTimes(3);
-
-    visit = jest.fn();
-    expect(dqBestTimeToBuySellStocks([1, 5], visit)).toEqual(4);
-    expect(visit).toHaveBeenCalledTimes(7);
-
-    visit = jest.fn();
-    expect(dqBestTimeToBuySellStocks([5, 1], visit)).toEqual(0);
-    expect(visit).toHaveBeenCalledTimes(7);
-
-    visit = jest.fn();
-    expect(dqBestTimeToBuySellStocks([1, 5, 10], visit)).toEqual(9);
-    expect(visit).toHaveBeenCalledTimes(15);
-
-    visit = jest.fn();
-    expect(dqBestTimeToBuySellStocks([10, 1, 5, 20, 15, 21], visit)).toEqual(25);
-    expect(visit).toHaveBeenCalledTimes(127);
-
-    visit = jest.fn();
-    expect(dqBestTimeToBuySellStocks([7, 1, 5, 3, 6, 4], visit)).toEqual(7);
-    expect(visit).toHaveBeenCalledTimes(127);
-
-    visit = jest.fn();
-    expect(dqBestTimeToBuySellStocks([1, 2, 3, 4, 5], visit)).toEqual(4);
-    expect(visit).toHaveBeenCalledTimes(63);
-
-    visit = jest.fn();
-    expect(dqBestTimeToBuySellStocks([7, 6, 4, 3, 1], visit)).toEqual(0);
-    expect(visit).toHaveBeenCalledTimes(63);
-
-    visit = jest.fn();
-    expect(dqBestTimeToBuySellStocks(
-      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-      visit,
-    )).toEqual(19);
-    expect(visit).toHaveBeenCalledTimes(2097151);
-  })",4,47,snuts
-/src/algorithms/uncategorized/best-time-to-buy-sell-stocks/__tests__/dpBestTimeToBuySellStocks.test.js,VerboseStatement,"{'startLine':4,'endLine':47}","it('should find the best time to buy and sell stocks', () => {
-    let visit;
-
-    expect(dpBestTimeToBuySellStocks([1, 5])).toEqual(4);
-
-    visit = jest.fn();
-    expect(dpBestTimeToBuySellStocks([1], visit)).toEqual(0);
-    expect(visit).toHaveBeenCalledTimes(1);
-
-    visit = jest.fn();
-    expect(dpBestTimeToBuySellStocks([1, 5], visit)).toEqual(4);
-    expect(visit).toHaveBeenCalledTimes(2);
-
-    visit = jest.fn();
-    expect(dpBestTimeToBuySellStocks([5, 1], visit)).toEqual(0);
-    expect(visit).toHaveBeenCalledTimes(2);
-
-    visit = jest.fn();
-    expect(dpBestTimeToBuySellStocks([1, 5, 10], visit)).toEqual(9);
-    expect(visit).toHaveBeenCalledTimes(3);
-
-    visit = jest.fn();
-    expect(dpBestTimeToBuySellStocks([10, 1, 5, 20, 15, 21], visit)).toEqual(25);
-    expect(visit).toHaveBeenCalledTimes(6);
-
-    visit = jest.fn();
-    expect(dpBestTimeToBuySellStocks([7, 1, 5, 3, 6, 4], visit)).toEqual(7);
-    expect(visit).toHaveBeenCalledTimes(6);
-
-    visit = jest.fn();
-    expect(dpBestTimeToBuySellStocks([1, 2, 3, 4, 5], visit)).toEqual(4);
-    expect(visit).toHaveBeenCalledTimes(5);
-
-    visit = jest.fn();
-    expect(dpBestTimeToBuySellStocks([7, 6, 4, 3, 1], visit)).toEqual(0);
-    expect(visit).toHaveBeenCalledTimes(5);
-
-    visit = jest.fn();
-    expect(dpBestTimeToBuySellStocks(
-      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-      visit,
-    )).toEqual(19);
-    expect(visit).toHaveBeenCalledTimes(20);
-  })",4,47,snuts
-/src/algorithms/uncategorized/best-time-to-buy-sell-stocks/__tests__/accumulatorBestTimeToBuySellStocks.test.js,VerboseStatement,"{'startLine':4,'endLine':47}","it('should find the best time to buy and sell stocks', () => {
-    let visit;
-
-    expect(accumulatorBestTimeToBuySellStocks([1, 5])).toEqual(4);
-
-    visit = jest.fn();
-    expect(accumulatorBestTimeToBuySellStocks([1], visit)).toEqual(0);
-    expect(visit).toHaveBeenCalledTimes(1);
-
-    visit = jest.fn();
-    expect(accumulatorBestTimeToBuySellStocks([1, 5], visit)).toEqual(4);
-    expect(visit).toHaveBeenCalledTimes(2);
-
-    visit = jest.fn();
-    expect(accumulatorBestTimeToBuySellStocks([5, 1], visit)).toEqual(0);
-    expect(visit).toHaveBeenCalledTimes(2);
-
-    visit = jest.fn();
-    expect(accumulatorBestTimeToBuySellStocks([1, 5, 10], visit)).toEqual(9);
-    expect(visit).toHaveBeenCalledTimes(3);
-
-    visit = jest.fn();
-    expect(accumulatorBestTimeToBuySellStocks([10, 1, 5, 20, 15, 21], visit)).toEqual(25);
-    expect(visit).toHaveBeenCalledTimes(6);
-
-    visit = jest.fn();
-    expect(accumulatorBestTimeToBuySellStocks([7, 1, 5, 3, 6, 4], visit)).toEqual(7);
-    expect(visit).toHaveBeenCalledTimes(6);
-
-    visit = jest.fn();
-    expect(accumulatorBestTimeToBuySellStocks([1, 2, 3, 4, 5], visit)).toEqual(4);
-    expect(visit).toHaveBeenCalledTimes(5);
-
-    visit = jest.fn();
-    expect(accumulatorBestTimeToBuySellStocks([7, 6, 4, 3, 1], visit)).toEqual(0);
-    expect(visit).toHaveBeenCalledTimes(5);
-
-    visit = jest.fn();
-    expect(accumulatorBestTimeToBuySellStocks(
-      [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
-      visit,
-    )).toEqual(19);
-    expect(visit).toHaveBeenCalledTimes(20);
-  })",4,47,snuts
 /src/algorithms/sets/permutations/__test__/permutateWithoutRepetitions.test.js,SubOptimalAssert,"{'startLine':12,'endLine':12}","it('should permutate string', () => {
     const permutations1 = permutateWithoutRepetitions(['A']);
     expect(permutations1).toEqual([
@@ -5269,24 +5269,6 @@ file,type,line,method,methodStart,methodEnd,source
 
     expect(combinations.length).toBe(expectedNumberOfCombinations);
   })",5,58,snuts
-/src/algorithms/search/binary-search/__test__/binarySearch.test.js,ConditionalTestLogic,"{'startLine':24,'endLine':24}","it('should search object in sorted array', () => {
-    const sortedArrayOfObjects = [
-      { key: 1, value: 'value1' },
-      { key: 2, value: 'value2' },
-      { key: 3, value: 'value3' },
-    ];
-
-    const comparator = (a, b) => {
-      if (a.key === b.key) return 0;
-      return a.key < b.key ? -1 : 1;
-    };
-
-    expect(binarySearch([], { key: 1 }, comparator)).toBe(-1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
-    expect(binarySearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
-  })",16,33,snuts
 /src/algorithms/search/linear-search/__test__/linearSearch.test.js,ConditionalTestLogic,"{'startLine':22,'endLine':24}","it('should search through objects as well', () => {
     const comparatorCallback = (a, b) => {
       if (a.key === b.key) {
@@ -5307,6 +5289,78 @@ file,type,line,method,methodStart,methodEnd,source
     expect(linearSearch(array, { key: 5 }, comparatorCallback)).toEqual([0]);
     expect(linearSearch(array, { key: 6 }, comparatorCallback)).toEqual([1, 3]);
   })",20,39,snuts
+/src/algorithms/search/jump-search/__test__/jumpSearch.test.js,ConditionalTestLogic,"{'startLine':29,'endLine':29}","it('should search object in sorted array', () => {
+    const sortedArrayOfObjects = [
+      { key: 1, value: 'value1' },
+      { key: 2, value: 'value2' },
+      { key: 3, value: 'value3' },
+    ];
+
+    const comparator = (a, b) => {
+      if (a.key === b.key) return 0;
+      return a.key < b.key ? -1 : 1;
+    };
+
+    expect(jumpSearch([], { key: 1 }, comparator)).toBe(-1);
+    expect(jumpSearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
+    expect(jumpSearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
+    expect(jumpSearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
+    expect(jumpSearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
+  })",21,38,snuts
+/src/algorithms/search/jump-search/__test__/jumpSearch.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should search for an element in sorted array', () => {
+    expect(jumpSearch([], 1)).toBe(-1);
+    expect(jumpSearch([1], 2)).toBe(-1);
+    expect(jumpSearch([1], 1)).toBe(0);
+    expect(jumpSearch([1, 2], 1)).toBe(0);
+    expect(jumpSearch([1, 2], 1)).toBe(0);
+    expect(jumpSearch([1, 1, 1], 1)).toBe(0);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 2)).toBe(1);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 0)).toBe(-1);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 0)).toBe(-1);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 7)).toBe(-1);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 5)).toBe(2);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 20)).toBe(4);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 30)).toBe(7);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 48)).toBe(8);
+  })",4,19,snuts
+/src/algorithms/search/interpolation-search/__test__/interpolationSearch.test.js,VerboseStatement,"{'startLine':4,'endLine':23}","it('should search elements in sorted array of numbers', () => {
+    expect(interpolationSearch([], 1)).toBe(-1);
+    expect(interpolationSearch([1], 1)).toBe(0);
+    expect(interpolationSearch([1], 0)).toBe(-1);
+    expect(interpolationSearch([1, 1], 1)).toBe(0);
+    expect(interpolationSearch([1, 2], 1)).toBe(0);
+    expect(interpolationSearch([1, 2], 2)).toBe(1);
+    expect(interpolationSearch([10, 20, 30, 40, 50], 40)).toBe(3);
+    expect(interpolationSearch([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 14)).toBe(13);
+    expect(interpolationSearch([1, 6, 7, 8, 12, 13, 14, 19, 21, 23, 24, 24, 24, 300], 24)).toBe(10);
+    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 600)).toBe(-1);
+    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 1)).toBe(0);
+    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 2)).toBe(1);
+    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 3)).toBe(2);
+    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 700)).toBe(3);
+    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 800)).toBe(4);
+    expect(interpolationSearch([0, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 1200)).toBe(5);
+    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 19000], 800)).toBe(4);
+    expect(interpolationSearch([0, 10, 11, 12, 13, 14, 15], 10)).toBe(1);
+  })",4,23,snuts
+/src/algorithms/search/binary-search/__test__/binarySearch.test.js,ConditionalTestLogic,"{'startLine':24,'endLine':24}","it('should search object in sorted array', () => {
+    const sortedArrayOfObjects = [
+      { key: 1, value: 'value1' },
+      { key: 2, value: 'value2' },
+      { key: 3, value: 'value3' },
+    ];
+
+    const comparator = (a, b) => {
+      if (a.key === b.key) return 0;
+      return a.key < b.key ? -1 : 1;
+    };
+
+    expect(binarySearch([], { key: 1 }, comparator)).toBe(-1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
+    expect(binarySearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
+  })",16,33,snuts
 /src/algorithms/ml/knn/__test__/knn.test.js,IdenticalTestDescription,"{'startLine':24,'endLine':29}","it('should throw an error on not giving classification vector', () => {
     const inconsistent = () => {
       kNN([[1, 1]], [1], [1]);
@@ -5337,26 +5391,6 @@ file,type,line,method,methodStart,methodEnd,source
     expectedClass = 2;
     expect(kNN(dataSet, labels, toClassify, 5)).toBe(expectedClass);
   })",31,54,snuts
-/src/algorithms/search/interpolation-search/__test__/interpolationSearch.test.js,VerboseStatement,"{'startLine':4,'endLine':23}","it('should search elements in sorted array of numbers', () => {
-    expect(interpolationSearch([], 1)).toBe(-1);
-    expect(interpolationSearch([1], 1)).toBe(0);
-    expect(interpolationSearch([1], 0)).toBe(-1);
-    expect(interpolationSearch([1, 1], 1)).toBe(0);
-    expect(interpolationSearch([1, 2], 1)).toBe(0);
-    expect(interpolationSearch([1, 2], 2)).toBe(1);
-    expect(interpolationSearch([10, 20, 30, 40, 50], 40)).toBe(3);
-    expect(interpolationSearch([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], 14)).toBe(13);
-    expect(interpolationSearch([1, 6, 7, 8, 12, 13, 14, 19, 21, 23, 24, 24, 24, 300], 24)).toBe(10);
-    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 600)).toBe(-1);
-    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 1)).toBe(0);
-    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 2)).toBe(1);
-    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 3)).toBe(2);
-    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 700)).toBe(3);
-    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 800)).toBe(4);
-    expect(interpolationSearch([0, 2, 3, 700, 800, 1200, 1300, 1400, 1900], 1200)).toBe(5);
-    expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 19000], 800)).toBe(4);
-    expect(interpolationSearch([0, 10, 11, 12, 13, 14, 15], 10)).toBe(1);
-  })",4,23,snuts
 /src/algorithms/math/square-root/__test__/squareRoot.test.js,IdenticalTestDescription,"{'startLine':65,'endLine':68}","it('should correctly calculate square root for integers with custom tolerance', () => {
     expect(squareRoot(4.5, 10)).toBe(2.1213203436);
     expect(squareRoot(217.534, 10)).toBe(14.7490338667);
@@ -5460,40 +5494,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(isPowerOfTwo(1024)).toBe(true);
     expect(isPowerOfTwo(1023)).toBe(false);
   })",4,22,snuts
-/src/algorithms/search/jump-search/__test__/jumpSearch.test.js,ConditionalTestLogic,"{'startLine':29,'endLine':29}","it('should search object in sorted array', () => {
-    const sortedArrayOfObjects = [
-      { key: 1, value: 'value1' },
-      { key: 2, value: 'value2' },
-      { key: 3, value: 'value3' },
-    ];
-
-    const comparator = (a, b) => {
-      if (a.key === b.key) return 0;
-      return a.key < b.key ? -1 : 1;
-    };
-
-    expect(jumpSearch([], { key: 1 }, comparator)).toBe(-1);
-    expect(jumpSearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
-    expect(jumpSearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
-    expect(jumpSearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
-    expect(jumpSearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
-  })",21,38,snuts
-/src/algorithms/search/jump-search/__test__/jumpSearch.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should search for an element in sorted array', () => {
-    expect(jumpSearch([], 1)).toBe(-1);
-    expect(jumpSearch([1], 2)).toBe(-1);
-    expect(jumpSearch([1], 1)).toBe(0);
-    expect(jumpSearch([1, 2], 1)).toBe(0);
-    expect(jumpSearch([1, 2], 1)).toBe(0);
-    expect(jumpSearch([1, 1, 1], 1)).toBe(0);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 2)).toBe(1);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 0)).toBe(-1);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 0)).toBe(-1);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 7)).toBe(-1);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 5)).toBe(2);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 20)).toBe(4);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 30)).toBe(7);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 48)).toBe(8);
-  })",4,19,snuts
 /src/algorithms/math/fibonacci/__test__/fibonacciNth.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should calculate fibonacci correctly', () => {
     expect(fibonacciNth(1)).toBe(1);
     expect(fibonacciNth(2)).toBe(1);
@@ -70288,84 +70288,75 @@ file,type,line,method,methodStart,methodEnd,source
     expect(knuthMorrisPratt('abcxabcdabxaabcdabcabcdabcdabcy', 'abcdabca')).toBe(12);
     expect(knuthMorrisPratt('abcxabcdabxaabaabaaaabcdabcdabcy', 'aabaabaaa')).toBe(11);
   })",4,14,steel
-/src/algorithms/statistics/weighted-random/__test__/weightedRandom.test.js,Conditional Test Logic,"{'line': 35, 'column': 2, 'index': 1590}","it('should select items randomly according to their weights', () => {
-  const numberOfSelections = 1000;
+/src/algorithms/statistics/weighted-random/__test__/weightedRandom.test.js,Conditional Test Logic,"{'line': 35, 'column': 2, 'index': 1582}","it('should correctly do random selection based on weights', () => {
+  const numberOfAttempts = 1000;
   const acceptableErrorMargin = 50;
 
   const items = ['a', 'b', 'c'];
   const weights = [0.1, 0.3, 0.6];
 
-  const selectionCounts = new Array(items.length).fill(0);
-  for (let i = 0; i < numberOfSelections; i += 1) {
-    const {
-      index
-    } = weightedRandom(items, weights);
-    selectionCounts[index] += 1;
+  const selectionCounts = Array(items.length).fill(0);
+  for (let i = 0; i < numberOfAttempts; i += 1) {
+    const randomItem = weightedRandom(items, weights);
+    selectionCounts[randomItem.index] += 1;
   }
 
   weights.forEach((weight, index) => {
+    const expectedCount = numberOfAttempts * weight;
     const actualCount = selectionCounts[index];
-    const expectedCount = numberOfSelections * weight;
-
     const lowerBound = expectedCount - acceptableErrorMargin;
     const upperBound = expectedCount + acceptableErrorMargin;
 
     expect(actualCount).toBeGreaterThan(lowerBound);
     expect(actualCount).toBeLessThan(upperBound);
   });
-})",27,52,steel
-/src/algorithms/statistics/weighted-random/__test__/weightedRandom.test.js,Duplicate Assert,"{'line': 49, 'column': 4, 'index': 2014}","it('should select items randomly according to their weights', () => {
-  const numberOfSelections = 1000;
+})",27,49,steel
+/src/algorithms/statistics/weighted-random/__test__/weightedRandom.test.js,Duplicate Assert,"{'line': 46, 'column': 4, 'index': 2003}","it('should correctly do random selection based on weights', () => {
+  const numberOfAttempts = 1000;
   const acceptableErrorMargin = 50;
 
   const items = ['a', 'b', 'c'];
   const weights = [0.1, 0.3, 0.6];
 
-  const selectionCounts = new Array(items.length).fill(0);
-  for (let i = 0; i < numberOfSelections; i += 1) {
-    const {
-      index
-    } = weightedRandom(items, weights);
-    selectionCounts[index] += 1;
+  const selectionCounts = Array(items.length).fill(0);
+  for (let i = 0; i < numberOfAttempts; i += 1) {
+    const randomItem = weightedRandom(items, weights);
+    selectionCounts[randomItem.index] += 1;
   }
 
   weights.forEach((weight, index) => {
+    const expectedCount = numberOfAttempts * weight;
     const actualCount = selectionCounts[index];
-    const expectedCount = numberOfSelections * weight;
-
     const lowerBound = expectedCount - acceptableErrorMargin;
     const upperBound = expectedCount + acceptableErrorMargin;
 
     expect(actualCount).toBeGreaterThan(lowerBound);
     expect(actualCount).toBeLessThan(upperBound);
   });
-})",27,52,steel
-/src/algorithms/statistics/weighted-random/__test__/weightedRandom.test.js,Duplicate Assert,"{'line': 50, 'column': 4, 'index': 2067}","it('should select items randomly according to their weights', () => {
-  const numberOfSelections = 1000;
+})",27,49,steel
+/src/algorithms/statistics/weighted-random/__test__/weightedRandom.test.js,Duplicate Assert,"{'line': 47, 'column': 4, 'index': 2056}","it('should correctly do random selection based on weights', () => {
+  const numberOfAttempts = 1000;
   const acceptableErrorMargin = 50;
 
   const items = ['a', 'b', 'c'];
   const weights = [0.1, 0.3, 0.6];
 
-  const selectionCounts = new Array(items.length).fill(0);
-  for (let i = 0; i < numberOfSelections; i += 1) {
-    const {
-      index
-    } = weightedRandom(items, weights);
-    selectionCounts[index] += 1;
+  const selectionCounts = Array(items.length).fill(0);
+  for (let i = 0; i < numberOfAttempts; i += 1) {
+    const randomItem = weightedRandom(items, weights);
+    selectionCounts[randomItem.index] += 1;
   }
 
   weights.forEach((weight, index) => {
+    const expectedCount = numberOfAttempts * weight;
     const actualCount = selectionCounts[index];
-    const expectedCount = numberOfSelections * weight;
-
     const lowerBound = expectedCount - acceptableErrorMargin;
     const upperBound = expectedCount + acceptableErrorMargin;
 
     expect(actualCount).toBeGreaterThan(lowerBound);
     expect(actualCount).toBeLessThan(upperBound);
   });
-})",27,52,steel
+})",27,49,steel
 /src/algorithms/sorting/shell-sort/__test__/ShellSort.test.js,Unknown Test,"{'column': 2, 'line': 17}","it('should sort array', () => {
     SortTester.testSort(ShellSort);
   })",17,19,steel

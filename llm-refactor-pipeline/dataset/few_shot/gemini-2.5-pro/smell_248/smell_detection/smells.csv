@@ -7,22 +7,24 @@ file,type,line,method,methodStart,methodEnd,source
       /Nock: No match for request/,
     )
   })",66,73,snuts
-/tests/test_fetch.js,IdenticalTestDescription,"{'startLine':155,'endLine':169}","it('should not mess the Headers object', async () => {
+/tests/test_fetch.js,IdenticalTestDescription,"{'startLine':155,'endLine':171}","it('should not mess the Headers object', async () => {
     const scope = nock('https://api.test.com', {
       reqheaders: { 'Content-Type': 'application/json' },
     })
       .get('/data')
       .times(2)
-      .reply(200)
+      .reply(200);
 
-    const headers = new Headers({ 'Content-Type': 'application/json' })
+    const headers = new Headers({ 'Content-Type': 'application/json' });
 
-    await fetch('https://api.test.com/data', { headers })
-    await fetch('https://api.test.com/data', { headers })
+    const res1 = await fetch('https://api.test.com/data', { headers });
+    const res2 = await fetch('https://api.test.com/data', { headers });
 
-    expect(scope.isDone()).toBe(true)
-  })",155,169,snuts
-/tests/test_fetch.js,VerboseStatement,"{'startLine':570,'endLine':606}","it('records and replays deflated nocks correctly', async () => {
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(200);
+    expect(scope.isDone()).toBe(true);
+  })",155,171,snuts
+/tests/test_fetch.js,VerboseStatement,"{'startLine':572,'endLine':608}","it('records and replays deflated nocks correctly', async () => {
       const exampleText = '<html><body>example</body></html>'
 
       const { origin } = await startHttpServer((request, response) => {
@@ -58,7 +60,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(response1.headers.get('content-encoding')).to.equal('deflate')
 
       nocks.forEach(nock => nock.done())
-    })",570,606,snuts
+    })",572,608,snuts
 /tests/test_destroy.js,NonFunctionalStatement,"{'startLine':45,'endLine':45}","it('should not emit an response if destroyed first', done => {
     nock('http://example.test').get('/').reply()
 
@@ -2071,7 +2073,7 @@ file,type,line,method,methodStart,methodEnd,source
   req.write(compressedMessage)
   req.end()
 })",37,60,steel
-/tests/test_fetch.js,Conditional Test Logic,"{'line': 338, 'column': 8, 'index': 10476}","beforeEach(async () => {
+/tests/test_fetch.js,Conditional Test Logic,"{'line': 340, 'column': 8, 'index': 10578}","beforeEach(async () => {
       const server = await startHttpServer((request, response) => {
         if (request.url === '/redirected') {
           response.writeHead(200).end('redirected')
@@ -2081,8 +2083,8 @@ file,type,line,method,methodStart,methodEnd,source
       })
 
       origin = server.origin
-    })",336,346,steel
-/tests/test_fetch.js,Duplicate Assert,"{'line': 591, 'column': 6, 'index': 18644}","it('records and replays deflated nocks correctly', async () => {
+    })",338,348,steel
+/tests/test_fetch.js,Duplicate Assert,"{'line': 593, 'column': 6, 'index': 18746}","it('records and replays deflated nocks correctly', async () => {
       const exampleText = '<html><body>example</body></html>'
 
       const { origin } = await startHttpServer((request, response) => {
@@ -2118,8 +2120,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(response1.headers.get('content-encoding')).to.equal('deflate')
 
       nocks.forEach(nock => nock.done())
-    })",570,606,steel
-/tests/test_fetch.js,Duplicate Assert,"{'line': 603, 'column': 6, 'index': 19026}","it('records and replays deflated nocks correctly', async () => {
+    })",572,608,steel
+/tests/test_fetch.js,Duplicate Assert,"{'line': 605, 'column': 6, 'index': 19128}","it('records and replays deflated nocks correctly', async () => {
       const exampleText = '<html><body>example</body></html>'
 
       const { origin } = await startHttpServer((request, response) => {
@@ -2155,8 +2157,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(response1.headers.get('content-encoding')).to.equal('deflate')
 
       nocks.forEach(nock => nock.done())
-    })",570,606,steel
-/tests/test_fetch.js,Exception Handling,"{'line': 301, 'column': 10, 'index': 9351}","it('should throw error if wrong encoding is used', async () => {
+    })",572,608,steel
+/tests/test_fetch.js,Exception Handling,"{'line': 303, 'column': 10, 'index': 9453}","it('should throw error if wrong encoding is used', async () => {
       const message = 'Lorem ipsum dolor sit amet'
       const compressed = zlib.gzipSync(message)
 
@@ -2177,8 +2179,8 @@ file,type,line,method,methodStart,methodEnd,source
           expect(e.message).to.contain('Decompression failed')
           scope.done()
         })
-    })",286,307,steel
-/tests/test_fetch.js,Ignored Test,"{'line': 310, 'column': 7, 'index': 9622}","it.skip('should throw error if encoding is used with uncompressed body', async () => {
+    })",288,309,steel
+/tests/test_fetch.js,Ignored Test,"{'line': 312, 'column': 7, 'index': 9724}","it.skip('should throw error if encoding is used with uncompressed body', async () => {
       const message = 'Lorem ipsum dolor sit amet'
 
       const scope = nock('http://example.test')
@@ -2198,8 +2200,8 @@ file,type,line,method,methodStart,methodEnd,source
           expect(e.message).to.contain('Decompression failed')
           scope.done()
         })
-    })",310,330,steel
-/tests/test_fetch.js,Ignored Test,"{'line': 530, 'column': 7, 'index': 16652}","it.skip('records and replays gzipped nocks correctly', async () => {
+    })",312,332,steel
+/tests/test_fetch.js,Ignored Test,"{'line': 532, 'column': 7, 'index': 16754}","it.skip('records and replays gzipped nocks correctly', async () => {
       const exampleText = '<html><body>example</body></html>'
 
       const { origin } = await startHttpServer((request, response) => {
@@ -2237,7 +2239,41 @@ file,type,line,method,methodStart,methodEnd,source
       expect(response1.headers.get('content-encoding')).to.equal('gzip, br')
 
       nocks.forEach(nock => nock.done())
-    })",530,568,steel
+    })",532,570,steel
+/tests/test_fetch.js,Magic Number,"{'line': 168, 'column': 29, 'index': 4828}","it('should not mess the Headers object', async () => {
+    const scope = nock('https://api.test.com', {
+      reqheaders: { 'Content-Type': 'application/json' },
+    })
+      .get('/data')
+      .times(2)
+      .reply(200);
+
+    const headers = new Headers({ 'Content-Type': 'application/json' });
+
+    const res1 = await fetch('https://api.test.com/data', { headers });
+    const res2 = await fetch('https://api.test.com/data', { headers });
+
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(200);
+    expect(scope.isDone()).toBe(true);
+  })",155,171,steel
+/tests/test_fetch.js,Magic Number,"{'line': 169, 'column': 29, 'index': 4863}","it('should not mess the Headers object', async () => {
+    const scope = nock('https://api.test.com', {
+      reqheaders: { 'Content-Type': 'application/json' },
+    })
+      .get('/data')
+      .times(2)
+      .reply(200);
+
+    const headers = new Headers({ 'Content-Type': 'application/json' });
+
+    const res1 = await fetch('https://api.test.com/data', { headers });
+    const res2 = await fetch('https://api.test.com/data', { headers });
+
+    expect(res1.status).toBe(200);
+    expect(res2.status).toBe(200);
+    expect(scope.isDone()).toBe(true);
+  })",155,171,steel
 /tests/test_fetch.js,Unknown Test,"{'column': 2, 'line': 66}","it('no match', async () => {
     nock('http://example.test').get('/').reply()
 
@@ -2278,7 +2314,7 @@ file,type,line,method,methodStart,methodEnd,source
     await fetch('https://api.test.com/data', { headers })
     await fetch('https://api.test.com/data', { headers })
   })",140,152,steel
-/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 395}","it('should throws a network error on a redirect for a request with ""error"" redirect mode', async () => {
+/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 397}","it('should throws a network error on a redirect for a request with ""error"" redirect mode', async () => {
       nock(origin)
         .get('/')
         .reply(302, '', { Location: `${origin}/redirected` })
@@ -2287,8 +2323,8 @@ file,type,line,method,methodStart,methodEnd,source
         fetch(origin, { redirect: 'error' }),
         /Failed to fetch/,
       )
-    })",395,404,steel
-/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 406}","it('should throws a network error on a non-303 redirect with a body', async () => {
+    })",397,406,steel
+/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 408}","it('should throws a network error on a non-303 redirect with a body', async () => {
       nock(origin)
         .post('/')
         .reply(302, '', { Location: `${origin}/redirected` })
@@ -2297,19 +2333,19 @@ file,type,line,method,methodStart,methodEnd,source
         fetch(origin, { method: 'POST', body: 'Hello' }),
         /Failed to fetch/,
       )
-    })",406,415,steel
-/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 417}","it('should throws a network error on redirects to a non-HTTP scheme', async () => {
+    })",408,417,steel
+/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 419}","it('should throws a network error on redirects to a non-HTTP scheme', async () => {
       nock(origin).get('/').reply(302, '', { Location: `wss://localhost` })
 
       await assertRejects(fetch(origin), /Failed to fetch/)
-    })",417,421,steel
-/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 423}","it('should throws on a redirect with credentials for a ""cors"" request', async () => {
+    })",419,423,steel
+/tests/test_fetch.js,Unknown Test,"{'column': 4, 'line': 425}","it('should throws on a redirect with credentials for a ""cors"" request', async () => {
       nock(origin)
         .get('/')
         .reply(302, '', { Location: `http://user:password@localhost` })
 
       await assertRejects(fetch(origin, { mode: 'cors' }), /Failed to fetch/)
-    })",423,429,steel
+    })",425,431,steel
 /tests/test_destroy.js,Sleepy Test,"{'line': 51, 'column': 4, 'index': 1362}","it('should not emit an response if destroyed first', done => {
     nock('http://example.test').get('/').reply()
 

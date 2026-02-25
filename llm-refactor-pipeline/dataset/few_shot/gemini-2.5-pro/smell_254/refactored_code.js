@@ -1,13 +1,14 @@
 it('should be triggered before and after filter', function (done) {
-      let filterStartFired = false;
+      const events = []
       list.on('filterStart', function () {
-        filterStartFired = true;
-      });
+        events.push('filterStart')
+      })
       list.on('filterComplete', function () {
-        expect(filterStartFired).toBe(true);
-        done();
-      });
+        events.push('filterComplete')
+        expect(events).toEqual(['filterStart', 'filterComplete'])
+        done()
+      })
       list.filter(function () {
-        return true;
-      });
-    });
+        return true
+      })
+    })

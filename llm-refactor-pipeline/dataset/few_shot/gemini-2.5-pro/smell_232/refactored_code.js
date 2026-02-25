@@ -8,12 +8,16 @@ it('$bvModal.msgBoxOk() works', async () => {
     attachTo: document.body
   })
 
-  const promise = wrapper.vm.$bvModal.msgBoxOk('message', {
+  const bvModal = wrapper.vm.$bvModal
+  expect(bvModal.msgBoxOk).toBeInstanceOf(Function)
+
+  // Should get a promise as result
+  const p = bvModal.msgBoxOk('message', {
     static: true,
     id: 'test2',
     title: 'title'
   })
-  expect(promise).toBeInstanceOf(Promise)
+  expect(p).toBeInstanceOf(Promise)
 
   await waitNT(wrapper.vm)
   await waitRAF()
@@ -22,18 +26,21 @@ it('$bvModal.msgBoxOk() works', async () => {
   await waitNT(wrapper.vm)
   await waitRAF()
 
+  // Find the modal
   const modal = document.querySelector('#test2')
   expect(modal).not.toBeNull()
   const $modal = createWrapper(modal)
   expect($modal.element.tagName).toBe('DIV')
 
+  // Find the OK button and click it
+  expect($modal.findAll('button').length).toBe(1)
   const $button = $modal.find('button')
-  expect($button.exists()).toBe(true)
-  expect($button.text()).toBe('OK')
-
+  expect($button.text()).toEqual('OK')
   await $button.trigger('click')
 
-  await expect(promise).resolves.toBe(true)
+  // Promise should now resolve
+  const result = await p
+  expect(result).toBe(true)
 
   await waitNT(wrapper.vm)
   await waitRAF()
@@ -42,5 +49,6 @@ it('$bvModal.msgBoxOk() works', async () => {
   await waitNT(wrapper.vm)
   await waitRAF()
 
+  // Modal should be gone from DOM
   expect(document.querySelector('#test2')).toBeNull()
 })

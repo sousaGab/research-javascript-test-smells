@@ -5,13 +5,15 @@ it('with the default winston logger', async () => {
     handleExceptions: true
   });
 
-  const finished = new Promise(resolve => transport.on('finish', resolve));
+  const exceptionLogged = new Promise(resolve => {
+    transport.on('finish', resolve);
+  });
 
   winston.exceptions.handle([transport]);
 
   process.emit('uncaughtException', expectedMessage);
 
-  await finished;
+  await exceptionLogged;
 
   expect(processExitSpy).toHaveBeenCalledTimes(1);
   expect(processExitSpy).toHaveBeenCalledWith(1);
@@ -28,4 +30,4 @@ it('with the default winston logger', async () => {
   helpers.assertOsInfo(data.os);
   helpers.assertTrace(data.trace);
   assume(data.message).includes('uncaughtException: ' + expectedMessage);
-})
+});

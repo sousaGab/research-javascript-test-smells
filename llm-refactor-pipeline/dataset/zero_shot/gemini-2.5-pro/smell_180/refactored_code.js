@@ -4,9 +4,13 @@ test('dispatches complete action when discard throws an exception', async () => 
     throw new Error();
   };
   const { action, config, dispatch } = setup({ effect, discard });
-  const { rollback } = action.meta.offline;
 
-  await send(action, dispatch, config);
+  const promise = send(action, dispatch, config);
+
+  const { rollback } = action.meta.offline;
+  expect.assertions(2);
+
+  await promise;
 
   expect(dispatch).toBeCalledWith(expect.objectContaining(rollback));
   expect(dispatch).toBeCalledWith(expect.objectContaining(completedMeta));

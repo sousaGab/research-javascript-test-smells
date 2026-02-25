@@ -69,44 +69,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
     expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
   })",25,49,snuts
-/src/data-structures/trie/__test__/Trie.test.js,VerboseStatement,"{'startLine':26,'endLine':63}","it('should delete words from trie', () => {
-    const trie = new Trie();
-
-    trie.addWord('carpet');
-    trie.addWord('car');
-    trie.addWord('cat');
-    trie.addWord('cart');
-    expect(trie.doesWordExist('carpet')).toBe(true);
-    expect(trie.doesWordExist('car')).toBe(true);
-    expect(trie.doesWordExist('cart')).toBe(true);
-    expect(trie.doesWordExist('cat')).toBe(true);
-
-    // Try to delete not-existing word first.
-    trie.deleteWord('carpool');
-    expect(trie.doesWordExist('carpet')).toBe(true);
-    expect(trie.doesWordExist('car')).toBe(true);
-    expect(trie.doesWordExist('cart')).toBe(true);
-    expect(trie.doesWordExist('cat')).toBe(true);
-
-    trie.deleteWord('carpet');
-    expect(trie.doesWordExist('carpet')).toEqual(false);
-    expect(trie.doesWordExist('car')).toEqual(true);
-    expect(trie.doesWordExist('cart')).toBe(true);
-    expect(trie.doesWordExist('cat')).toBe(true);
-
-    trie.deleteWord('cat');
-    expect(trie.doesWordExist('car')).toEqual(true);
-    expect(trie.doesWordExist('cart')).toBe(true);
-    expect(trie.doesWordExist('cat')).toBe(false);
-
-    trie.deleteWord('car');
-    expect(trie.doesWordExist('car')).toEqual(false);
-    expect(trie.doesWordExist('cart')).toBe(true);
-
-    trie.deleteWord('cart');
-    expect(trie.doesWordExist('car')).toEqual(false);
-    expect(trie.doesWordExist('cart')).toBe(false);
-  })",26,63,snuts
 /src/data-structures/tree/__test__/BinaryTreeNode.test.js,VerboseStatement,"{'startLine':76,'endLine':107}","it('should replace child node', () => {
     const leftNode = new BinaryTreeNode(1);
     const rightNode = new BinaryTreeNode(3);
@@ -247,362 +209,44 @@ file,type,line,method,methodStart,methodEnd,source
     expect(child.uncle).toBeDefined();
     expect(child.uncle).toEqual(uncle);
   })",236,259,snuts
-/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':4,'endLine':24}","it('should set and get values to and from the cache', () => {
-    const cache = new LRUCache(100);
-    expect(cache.get('key-1')).toBeUndefined();
-
-    cache.set('key-1', 15);
-    cache.set('key-2', 16);
-    cache.set('key-3', 17);
-    expect(cache.get('key-1')).toBe(15);
-    expect(cache.get('key-2')).toBe(16);
-    expect(cache.get('key-3')).toBe(17);
-    expect(cache.get('key-3')).toBe(17);
-    expect(cache.get('key-2')).toBe(16);
-    expect(cache.get('key-1')).toBe(15);
-
-    cache.set('key-1', 5);
-    cache.set('key-2', 6);
-    cache.set('key-3', 7);
-    expect(cache.get('key-1')).toBe(5);
-    expect(cache.get('key-2')).toBe(6);
-    expect(cache.get('key-3')).toBe(7);
-  })",4,24,snuts
-/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':26,'endLine':45}","it('should evict least recently used items from cache with cache size of 1', () => {
-    const cache = new LRUCache(1);
-    expect(cache.get('key-1')).toBeUndefined();
-
-    cache.set('key-1', 15);
-    expect(cache.get('key-1')).toBe(15);
-
-    cache.set('key-2', 16);
-    expect(cache.get('key-1')).toBeUndefined();
-    expect(cache.get('key-2')).toBe(16);
-
-    cache.set('key-2', 17);
-    expect(cache.get('key-2')).toBe(17);
-
-    cache.set('key-3', 18);
-    cache.set('key-4', 19);
-    expect(cache.get('key-2')).toBeUndefined();
-    expect(cache.get('key-3')).toBeUndefined();
-    expect(cache.get('key-4')).toBe(19);
-  })",26,45,snuts
-/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':47,'endLine':71}","it('should evict least recently used items from cache with cache size of 2', () => {
-    const cache = new LRUCache(2);
-    expect(cache.get('key-21')).toBeUndefined();
-
-    cache.set('key-21', 15);
-    expect(cache.get('key-21')).toBe(15);
-
-    cache.set('key-22', 16);
-    expect(cache.get('key-21')).toBe(15);
-    expect(cache.get('key-22')).toBe(16);
-
-    cache.set('key-22', 17);
-    expect(cache.get('key-22')).toBe(17);
-
-    cache.set('key-23', 18);
-    expect(cache.get('key-21')).toBeUndefined();
-    expect(cache.get('key-22')).toBe(17);
-    expect(cache.get('key-23')).toBe(18);
-
-    cache.set('key-24', 19);
-    expect(cache.get('key-21')).toBeUndefined();
-    expect(cache.get('key-22')).toBeUndefined();
-    expect(cache.get('key-23')).toBe(18);
-    expect(cache.get('key-24')).toBe(19);
-  })",47,71,snuts
-/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':73,'endLine':93}","it('should evict least recently used items from cache with cache size of 3', () => {
-    const cache = new LRUCache(3);
-
-    cache.set('key-1', 1);
-    cache.set('key-2', 2);
-    cache.set('key-3', 3);
-    expect(cache.get('key-1')).toBe(1);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(3);
-
-    cache.set('key-3', 4);
-    expect(cache.get('key-1')).toBe(1);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(4);
-
-    cache.set('key-4', 5);
-    expect(cache.get('key-1')).toBeUndefined();
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(4);
-    expect(cache.get('key-4')).toBe(5);
-  })",73,93,snuts
-/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':121,'endLine':147}","it('should promote the recently accessed item with cache size of 4', () => {
-    const cache = new LRUCache(4);
-
-    cache.set('key-1', 1);
-    cache.set('key-2', 2);
-    cache.set('key-3', 3);
-    cache.set('key-4', 4);
-    expect(cache.get('key-4')).toBe(4);
-    expect(cache.get('key-3')).toBe(3);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-1')).toBe(1);
-
-    cache.set('key-5', 5);
-    expect(cache.get('key-1')).toBe(1);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(3);
-    expect(cache.get('key-4')).toBeUndefined();
-    expect(cache.get('key-5')).toBe(5);
-
-    cache.set('key-6', 6);
-    expect(cache.get('key-1')).toBeUndefined();
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(3);
-    expect(cache.get('key-4')).toBeUndefined();
-    expect(cache.get('key-5')).toBe(5);
-    expect(cache.get('key-6')).toBe(6);
-  })",121,147,snuts
-/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':4,'endLine':24}","it('should set and get values to and from the cache', () => {
-    const cache = new LRUCache(100);
-    expect(cache.get('key-1')).toBeUndefined();
-
-    cache.set('key-1', 15);
-    cache.set('key-2', 16);
-    cache.set('key-3', 17);
-    expect(cache.get('key-1')).toBe(15);
-    expect(cache.get('key-2')).toBe(16);
-    expect(cache.get('key-3')).toBe(17);
-    expect(cache.get('key-3')).toBe(17);
-    expect(cache.get('key-2')).toBe(16);
-    expect(cache.get('key-1')).toBe(15);
-
-    cache.set('key-1', 5);
-    cache.set('key-2', 6);
-    cache.set('key-3', 7);
-    expect(cache.get('key-1')).toBe(5);
-    expect(cache.get('key-2')).toBe(6);
-    expect(cache.get('key-3')).toBe(7);
-  })",4,24,snuts
-/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':26,'endLine':45}","it('should evict least recently used items from cache with cache size of 1', () => {
-    const cache = new LRUCache(1);
-    expect(cache.get('key-1')).toBeUndefined();
-
-    cache.set('key-1', 15);
-    expect(cache.get('key-1')).toBe(15);
-
-    cache.set('key-2', 16);
-    expect(cache.get('key-1')).toBeUndefined();
-    expect(cache.get('key-2')).toBe(16);
-
-    cache.set('key-2', 17);
-    expect(cache.get('key-2')).toBe(17);
-
-    cache.set('key-3', 18);
-    cache.set('key-4', 19);
-    expect(cache.get('key-2')).toBeUndefined();
-    expect(cache.get('key-3')).toBeUndefined();
-    expect(cache.get('key-4')).toBe(19);
-  })",26,45,snuts
-/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':47,'endLine':73}","it('should evict least recently used items from cache with cache size of 2', () => {
-    const cache = new LRUCache(2);
-    expect(cache.get('key-21')).toBeUndefined();
-
-    cache.set('key-21', 15);
-    expect(cache.get('key-21')).toBe(15);
-
-    cache.set('key-22', 16);
-    expect(cache.get('key-21')).toBe(15);
-    expect(cache.get('key-22')).toBe(16);
-
-    cache.set('key-22', 17);
-    expect(cache.get('key-22')).toBe(17);
-
-    cache.set('key-23', 18);
-    expect(cache.size).toBe(2);
-    expect(cache.get('key-21')).toBeUndefined();
-    expect(cache.get('key-22')).toBe(17);
-    expect(cache.get('key-23')).toBe(18);
-
-    cache.set('key-24', 19);
-    expect(cache.size).toBe(2);
-    expect(cache.get('key-21')).toBeUndefined();
-    expect(cache.get('key-22')).toBeUndefined();
-    expect(cache.get('key-23')).toBe(18);
-    expect(cache.get('key-24')).toBe(19);
-  })",47,73,snuts
-/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':75,'endLine':95}","it('should evict least recently used items from cache with cache size of 3', () => {
-    const cache = new LRUCache(3);
-
-    cache.set('key-1', 1);
-    cache.set('key-2', 2);
-    cache.set('key-3', 3);
-    expect(cache.get('key-1')).toBe(1);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(3);
-
-    cache.set('key-3', 4);
-    expect(cache.get('key-1')).toBe(1);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(4);
-
-    cache.set('key-4', 5);
-    expect(cache.get('key-1')).toBeUndefined();
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(4);
-    expect(cache.get('key-4')).toBe(5);
-  })",75,95,snuts
-/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':123,'endLine':149}","it('should promote the recently accessed item with cache size of 4', () => {
-    const cache = new LRUCache(4);
-
-    cache.set('key-1', 1);
-    cache.set('key-2', 2);
-    cache.set('key-3', 3);
-    cache.set('key-4', 4);
-    expect(cache.get('key-4')).toBe(4);
-    expect(cache.get('key-3')).toBe(3);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-1')).toBe(1);
-
-    cache.set('key-5', 5);
-    expect(cache.get('key-1')).toBe(1);
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(3);
-    expect(cache.get('key-4')).toBeUndefined();
-    expect(cache.get('key-5')).toBe(5);
-
-    cache.set('key-6', 6);
-    expect(cache.get('key-1')).toBeUndefined();
-    expect(cache.get('key-2')).toBe(2);
-    expect(cache.get('key-3')).toBe(3);
-    expect(cache.get('key-4')).toBeUndefined();
-    expect(cache.get('key-5')).toBe(5);
-    expect(cache.get('key-6')).toBe(6);
-  })",123,149,snuts
-/src/data-structures/linked-list/__test__/LinkedList.test.js,ConditionalTestLogic,"{'startLine':212,'endLine':214}","it('should find node by means of custom compare function', () => {
-    const comparatorFunction = (a, b) => {
-      if (a.customValue === b.customValue) {
-        return 0;
-      }
-
-      return a.customValue < b.customValue ? -1 : 1;
-    };
-
-    const linkedList = new LinkedList(comparatorFunction);
-
-    linkedList
-      .append({ value: 1, customValue: 'test1' })
-      .append({ value: 2, customValue: 'test2' })
-      .append({ value: 3, customValue: 'test3' });
-
-    const node = linkedList.find({
-      value: { value: 2, customValue: 'test2' },
-    });
-
-    expect(node).toBeDefined();
-    expect(node.value.value).toBe(2);
-    expect(node.value.customValue).toBe('test2');
-    expect(linkedList.find({ value: { value: 2, customValue: 'test5' } })).toBeNull();
-  })",210,234,snuts
-/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':50,'endLine':94}","it('should delete node by value from linked list', () => {
-    const linkedList = new LinkedList();
-
-    expect(linkedList.delete(5)).toBeNull();
-
-    linkedList.append(1);
-    linkedList.append(1);
-    linkedList.append(2);
-    linkedList.append(3);
-    linkedList.append(3);
-    linkedList.append(3);
-    linkedList.append(4);
-    linkedList.append(5);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('5');
-
-    const deletedNode = linkedList.delete(3);
-    expect(deletedNode.value).toBe(3);
-    expect(linkedList.toString()).toBe('1,1,2,4,5');
-
-    linkedList.delete(3);
-    expect(linkedList.toString()).toBe('1,1,2,4,5');
-
-    linkedList.delete(1);
-    expect(linkedList.toString()).toBe('2,4,5');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('5');
-
-    linkedList.delete(5);
-    expect(linkedList.toString()).toBe('2,4');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('4');
-
-    linkedList.delete(4);
-    expect(linkedList.toString()).toBe('2');
-
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    linkedList.delete(2);
-    expect(linkedList.toString()).toBe('');
-  })",50,94,snuts
-/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':96,'endLine':126}","it('should delete linked list tail', () => {
-    const linkedList = new LinkedList();
-
-    linkedList.append(1);
-    linkedList.append(2);
-    linkedList.append(3);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('3');
-
-    const deletedNode1 = linkedList.deleteTail();
-
-    expect(deletedNode1.value).toBe(3);
-    expect(linkedList.toString()).toBe('1,2');
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode2 = linkedList.deleteTail();
-
-    expect(deletedNode2.value).toBe(2);
-    expect(linkedList.toString()).toBe('1');
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('1');
-
-    const deletedNode3 = linkedList.deleteTail();
-
-    expect(deletedNode3.value).toBe(1);
-    expect(linkedList.toString()).toBe('');
-    expect(linkedList.head).toBeNull();
-    expect(linkedList.tail).toBeNull();
-  })",96,126,snuts
-/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':128,'endLine':152}","it('should delete linked list head', () => {
-    const linkedList = new LinkedList();
-
-    expect(linkedList.deleteHead()).toBeNull();
-
-    linkedList.append(1);
-    linkedList.append(2);
-
-    expect(linkedList.head.toString()).toBe('1');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode1 = linkedList.deleteHead();
-
-    expect(deletedNode1.value).toBe(1);
-    expect(linkedList.toString()).toBe('2');
-    expect(linkedList.head.toString()).toBe('2');
-    expect(linkedList.tail.toString()).toBe('2');
-
-    const deletedNode2 = linkedList.deleteHead();
-
-    expect(deletedNode2.value).toBe(2);
-    expect(linkedList.toString()).toBe('');
-    expect(linkedList.head).toBeNull();
-    expect(linkedList.tail).toBeNull();
-  })",128,152,snuts
+/src/data-structures/trie/__test__/Trie.test.js,VerboseStatement,"{'startLine':26,'endLine':63}","it('should delete words from trie', () => {
+    const trie = new Trie();
+
+    trie.addWord('carpet');
+    trie.addWord('car');
+    trie.addWord('cat');
+    trie.addWord('cart');
+    expect(trie.doesWordExist('carpet')).toBe(true);
+    expect(trie.doesWordExist('car')).toBe(true);
+    expect(trie.doesWordExist('cart')).toBe(true);
+    expect(trie.doesWordExist('cat')).toBe(true);
+
+    // Try to delete not-existing word first.
+    trie.deleteWord('carpool');
+    expect(trie.doesWordExist('carpet')).toBe(true);
+    expect(trie.doesWordExist('car')).toBe(true);
+    expect(trie.doesWordExist('cart')).toBe(true);
+    expect(trie.doesWordExist('cat')).toBe(true);
+
+    trie.deleteWord('carpet');
+    expect(trie.doesWordExist('carpet')).toEqual(false);
+    expect(trie.doesWordExist('car')).toEqual(true);
+    expect(trie.doesWordExist('cart')).toBe(true);
+    expect(trie.doesWordExist('cat')).toBe(true);
+
+    trie.deleteWord('cat');
+    expect(trie.doesWordExist('car')).toEqual(true);
+    expect(trie.doesWordExist('cart')).toBe(true);
+    expect(trie.doesWordExist('cat')).toBe(false);
+
+    trie.deleteWord('car');
+    expect(trie.doesWordExist('car')).toEqual(false);
+    expect(trie.doesWordExist('cart')).toBe(true);
+
+    trie.deleteWord('cart');
+    expect(trie.doesWordExist('car')).toEqual(false);
+    expect(trie.doesWordExist('cart')).toBe(false);
+  })",26,63,snuts
 /src/data-structures/heap/__test__/MinHeapAdhoc.test.js,SubOptimalAssert,"{'startLine':8,'endLine':8}","it('should create an empty min heap', () => {
     const minHeap = new MinHeapAdhoc();
 
@@ -1086,6 +730,362 @@ file,type,line,method,methodStart,methodEnd,source
     hashTable.set('d', 'ocean-new');
     expect(hashTable.get('d')).toBe('ocean-new');
   })",20,57,snuts
+/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':4,'endLine':24}","it('should set and get values to and from the cache', () => {
+    const cache = new LRUCache(100);
+    expect(cache.get('key-1')).toBeUndefined();
+
+    cache.set('key-1', 15);
+    cache.set('key-2', 16);
+    cache.set('key-3', 17);
+    expect(cache.get('key-1')).toBe(15);
+    expect(cache.get('key-2')).toBe(16);
+    expect(cache.get('key-3')).toBe(17);
+    expect(cache.get('key-3')).toBe(17);
+    expect(cache.get('key-2')).toBe(16);
+    expect(cache.get('key-1')).toBe(15);
+
+    cache.set('key-1', 5);
+    cache.set('key-2', 6);
+    cache.set('key-3', 7);
+    expect(cache.get('key-1')).toBe(5);
+    expect(cache.get('key-2')).toBe(6);
+    expect(cache.get('key-3')).toBe(7);
+  })",4,24,snuts
+/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':26,'endLine':45}","it('should evict least recently used items from cache with cache size of 1', () => {
+    const cache = new LRUCache(1);
+    expect(cache.get('key-1')).toBeUndefined();
+
+    cache.set('key-1', 15);
+    expect(cache.get('key-1')).toBe(15);
+
+    cache.set('key-2', 16);
+    expect(cache.get('key-1')).toBeUndefined();
+    expect(cache.get('key-2')).toBe(16);
+
+    cache.set('key-2', 17);
+    expect(cache.get('key-2')).toBe(17);
+
+    cache.set('key-3', 18);
+    cache.set('key-4', 19);
+    expect(cache.get('key-2')).toBeUndefined();
+    expect(cache.get('key-3')).toBeUndefined();
+    expect(cache.get('key-4')).toBe(19);
+  })",26,45,snuts
+/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':47,'endLine':71}","it('should evict least recently used items from cache with cache size of 2', () => {
+    const cache = new LRUCache(2);
+    expect(cache.get('key-21')).toBeUndefined();
+
+    cache.set('key-21', 15);
+    expect(cache.get('key-21')).toBe(15);
+
+    cache.set('key-22', 16);
+    expect(cache.get('key-21')).toBe(15);
+    expect(cache.get('key-22')).toBe(16);
+
+    cache.set('key-22', 17);
+    expect(cache.get('key-22')).toBe(17);
+
+    cache.set('key-23', 18);
+    expect(cache.get('key-21')).toBeUndefined();
+    expect(cache.get('key-22')).toBe(17);
+    expect(cache.get('key-23')).toBe(18);
+
+    cache.set('key-24', 19);
+    expect(cache.get('key-21')).toBeUndefined();
+    expect(cache.get('key-22')).toBeUndefined();
+    expect(cache.get('key-23')).toBe(18);
+    expect(cache.get('key-24')).toBe(19);
+  })",47,71,snuts
+/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':73,'endLine':93}","it('should evict least recently used items from cache with cache size of 3', () => {
+    const cache = new LRUCache(3);
+
+    cache.set('key-1', 1);
+    cache.set('key-2', 2);
+    cache.set('key-3', 3);
+    expect(cache.get('key-1')).toBe(1);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(3);
+
+    cache.set('key-3', 4);
+    expect(cache.get('key-1')).toBe(1);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(4);
+
+    cache.set('key-4', 5);
+    expect(cache.get('key-1')).toBeUndefined();
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(4);
+    expect(cache.get('key-4')).toBe(5);
+  })",73,93,snuts
+/src/data-structures/lru-cache/__test__/LRUCacheOnMap.test.js,VerboseStatement,"{'startLine':121,'endLine':147}","it('should promote the recently accessed item with cache size of 4', () => {
+    const cache = new LRUCache(4);
+
+    cache.set('key-1', 1);
+    cache.set('key-2', 2);
+    cache.set('key-3', 3);
+    cache.set('key-4', 4);
+    expect(cache.get('key-4')).toBe(4);
+    expect(cache.get('key-3')).toBe(3);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-1')).toBe(1);
+
+    cache.set('key-5', 5);
+    expect(cache.get('key-1')).toBe(1);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(3);
+    expect(cache.get('key-4')).toBeUndefined();
+    expect(cache.get('key-5')).toBe(5);
+
+    cache.set('key-6', 6);
+    expect(cache.get('key-1')).toBeUndefined();
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(3);
+    expect(cache.get('key-4')).toBeUndefined();
+    expect(cache.get('key-5')).toBe(5);
+    expect(cache.get('key-6')).toBe(6);
+  })",121,147,snuts
+/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':4,'endLine':24}","it('should set and get values to and from the cache', () => {
+    const cache = new LRUCache(100);
+    expect(cache.get('key-1')).toBeUndefined();
+
+    cache.set('key-1', 15);
+    cache.set('key-2', 16);
+    cache.set('key-3', 17);
+    expect(cache.get('key-1')).toBe(15);
+    expect(cache.get('key-2')).toBe(16);
+    expect(cache.get('key-3')).toBe(17);
+    expect(cache.get('key-3')).toBe(17);
+    expect(cache.get('key-2')).toBe(16);
+    expect(cache.get('key-1')).toBe(15);
+
+    cache.set('key-1', 5);
+    cache.set('key-2', 6);
+    cache.set('key-3', 7);
+    expect(cache.get('key-1')).toBe(5);
+    expect(cache.get('key-2')).toBe(6);
+    expect(cache.get('key-3')).toBe(7);
+  })",4,24,snuts
+/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':26,'endLine':45}","it('should evict least recently used items from cache with cache size of 1', () => {
+    const cache = new LRUCache(1);
+    expect(cache.get('key-1')).toBeUndefined();
+
+    cache.set('key-1', 15);
+    expect(cache.get('key-1')).toBe(15);
+
+    cache.set('key-2', 16);
+    expect(cache.get('key-1')).toBeUndefined();
+    expect(cache.get('key-2')).toBe(16);
+
+    cache.set('key-2', 17);
+    expect(cache.get('key-2')).toBe(17);
+
+    cache.set('key-3', 18);
+    cache.set('key-4', 19);
+    expect(cache.get('key-2')).toBeUndefined();
+    expect(cache.get('key-3')).toBeUndefined();
+    expect(cache.get('key-4')).toBe(19);
+  })",26,45,snuts
+/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':47,'endLine':73}","it('should evict least recently used items from cache with cache size of 2', () => {
+    const cache = new LRUCache(2);
+    expect(cache.get('key-21')).toBeUndefined();
+
+    cache.set('key-21', 15);
+    expect(cache.get('key-21')).toBe(15);
+
+    cache.set('key-22', 16);
+    expect(cache.get('key-21')).toBe(15);
+    expect(cache.get('key-22')).toBe(16);
+
+    cache.set('key-22', 17);
+    expect(cache.get('key-22')).toBe(17);
+
+    cache.set('key-23', 18);
+    expect(cache.size).toBe(2);
+    expect(cache.get('key-21')).toBeUndefined();
+    expect(cache.get('key-22')).toBe(17);
+    expect(cache.get('key-23')).toBe(18);
+
+    cache.set('key-24', 19);
+    expect(cache.size).toBe(2);
+    expect(cache.get('key-21')).toBeUndefined();
+    expect(cache.get('key-22')).toBeUndefined();
+    expect(cache.get('key-23')).toBe(18);
+    expect(cache.get('key-24')).toBe(19);
+  })",47,73,snuts
+/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':75,'endLine':95}","it('should evict least recently used items from cache with cache size of 3', () => {
+    const cache = new LRUCache(3);
+
+    cache.set('key-1', 1);
+    cache.set('key-2', 2);
+    cache.set('key-3', 3);
+    expect(cache.get('key-1')).toBe(1);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(3);
+
+    cache.set('key-3', 4);
+    expect(cache.get('key-1')).toBe(1);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(4);
+
+    cache.set('key-4', 5);
+    expect(cache.get('key-1')).toBeUndefined();
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(4);
+    expect(cache.get('key-4')).toBe(5);
+  })",75,95,snuts
+/src/data-structures/lru-cache/__test__/LRUCache.test.js,VerboseStatement,"{'startLine':123,'endLine':149}","it('should promote the recently accessed item with cache size of 4', () => {
+    const cache = new LRUCache(4);
+
+    cache.set('key-1', 1);
+    cache.set('key-2', 2);
+    cache.set('key-3', 3);
+    cache.set('key-4', 4);
+    expect(cache.get('key-4')).toBe(4);
+    expect(cache.get('key-3')).toBe(3);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-1')).toBe(1);
+
+    cache.set('key-5', 5);
+    expect(cache.get('key-1')).toBe(1);
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(3);
+    expect(cache.get('key-4')).toBeUndefined();
+    expect(cache.get('key-5')).toBe(5);
+
+    cache.set('key-6', 6);
+    expect(cache.get('key-1')).toBeUndefined();
+    expect(cache.get('key-2')).toBe(2);
+    expect(cache.get('key-3')).toBe(3);
+    expect(cache.get('key-4')).toBeUndefined();
+    expect(cache.get('key-5')).toBe(5);
+    expect(cache.get('key-6')).toBe(6);
+  })",123,149,snuts
+/src/data-structures/linked-list/__test__/LinkedList.test.js,ConditionalTestLogic,"{'startLine':212,'endLine':214}","it('should find node by means of custom compare function', () => {
+    const comparatorFunction = (a, b) => {
+      if (a.customValue === b.customValue) {
+        return 0;
+      }
+
+      return a.customValue < b.customValue ? -1 : 1;
+    };
+
+    const linkedList = new LinkedList(comparatorFunction);
+
+    linkedList
+      .append({ value: 1, customValue: 'test1' })
+      .append({ value: 2, customValue: 'test2' })
+      .append({ value: 3, customValue: 'test3' });
+
+    const node = linkedList.find({
+      value: { value: 2, customValue: 'test2' },
+    });
+
+    expect(node).toBeDefined();
+    expect(node.value.value).toBe(2);
+    expect(node.value.customValue).toBe('test2');
+    expect(linkedList.find({ value: { value: 2, customValue: 'test5' } })).toBeNull();
+  })",210,234,snuts
+/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':50,'endLine':94}","it('should delete node by value from linked list', () => {
+    const linkedList = new LinkedList();
+
+    expect(linkedList.delete(5)).toBeNull();
+
+    linkedList.append(1);
+    linkedList.append(1);
+    linkedList.append(2);
+    linkedList.append(3);
+    linkedList.append(3);
+    linkedList.append(3);
+    linkedList.append(4);
+    linkedList.append(5);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('5');
+
+    const deletedNode = linkedList.delete(3);
+    expect(deletedNode.value).toBe(3);
+    expect(linkedList.toString()).toBe('1,1,2,4,5');
+
+    linkedList.delete(3);
+    expect(linkedList.toString()).toBe('1,1,2,4,5');
+
+    linkedList.delete(1);
+    expect(linkedList.toString()).toBe('2,4,5');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('5');
+
+    linkedList.delete(5);
+    expect(linkedList.toString()).toBe('2,4');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('4');
+
+    linkedList.delete(4);
+    expect(linkedList.toString()).toBe('2');
+
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    linkedList.delete(2);
+    expect(linkedList.toString()).toBe('');
+  })",50,94,snuts
+/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':96,'endLine':126}","it('should delete linked list tail', () => {
+    const linkedList = new LinkedList();
+
+    linkedList.append(1);
+    linkedList.append(2);
+    linkedList.append(3);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('3');
+
+    const deletedNode1 = linkedList.deleteTail();
+
+    expect(deletedNode1.value).toBe(3);
+    expect(linkedList.toString()).toBe('1,2');
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode2 = linkedList.deleteTail();
+
+    expect(deletedNode2.value).toBe(2);
+    expect(linkedList.toString()).toBe('1');
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('1');
+
+    const deletedNode3 = linkedList.deleteTail();
+
+    expect(deletedNode3.value).toBe(1);
+    expect(linkedList.toString()).toBe('');
+    expect(linkedList.head).toBeNull();
+    expect(linkedList.tail).toBeNull();
+  })",96,126,snuts
+/src/data-structures/linked-list/__test__/LinkedList.test.js,VerboseStatement,"{'startLine':128,'endLine':152}","it('should delete linked list head', () => {
+    const linkedList = new LinkedList();
+
+    expect(linkedList.deleteHead()).toBeNull();
+
+    linkedList.append(1);
+    linkedList.append(2);
+
+    expect(linkedList.head.toString()).toBe('1');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode1 = linkedList.deleteHead();
+
+    expect(deletedNode1.value).toBe(1);
+    expect(linkedList.toString()).toBe('2');
+    expect(linkedList.head.toString()).toBe('2');
+    expect(linkedList.tail.toString()).toBe('2');
+
+    const deletedNode2 = linkedList.deleteHead();
+
+    expect(deletedNode2.value).toBe(2);
+    expect(linkedList.toString()).toBe('');
+    expect(linkedList.head).toBeNull();
+    expect(linkedList.tail).toBeNull();
+  })",128,152,snuts
 /src/data-structures/graph/__test__/GraphVertex.test.js,SubOptimalAssert,"{'startLine':36,'endLine':36}","it('should add edges to vertex and check if it exists', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -2952,6 +2952,50 @@ file,type,line,method,methodStart,methodEnd,source
     expect(bloomFilter.hash2(str2)).toBe(61);
     expect(bloomFilter.hash3(str2)).toBe(10);
   })",26,46,snuts
+/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should build tree for input array #0 with length of power of two', () => {
+    const array = [-1, 2];
+    const segmentTree = new SegmentTree(array, Math.min, Infinity);
+
+    expect(segmentTree.segmentTree).toEqual([-1, -1, 2]);
+    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
+  })",4,10,snuts
+/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':17,'endLine':17}","it('should build tree for input array #1 with length of power of two', () => {
+    const array = [-1, 2, 4, 0];
+    const segmentTree = new SegmentTree(array, Math.min, Infinity);
+
+    expect(segmentTree.segmentTree).toEqual([-1, -1, 0, -1, 2, 4, 0]);
+    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
+  })",12,18,snuts
+/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':25,'endLine':25}","it('should build tree for input array #0 with length not of power of two', () => {
+    const array = [0, 1, 2];
+    const segmentTree = new SegmentTree(array, Math.min, Infinity);
+
+    expect(segmentTree.segmentTree).toEqual([0, 0, 2, 0, 1, null, null]);
+    expect(segmentTree.segmentTree.length).toBe((2 * 4) - 1);
+  })",20,26,snuts
+/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':35,'endLine':35}","it('should build tree for input array #1 with length not of power of two', () => {
+    const array = [-1, 3, 4, 0, 2, 1];
+    const segmentTree = new SegmentTree(array, Math.min, Infinity);
+
+    expect(segmentTree.segmentTree).toEqual([
+      -1, -1, 0, -1, 4, 0, 1, -1, 3, null, null, 0, 2, null, null,
+    ]);
+    expect(segmentTree.segmentTree.length).toBe((2 * 8) - 1);
+  })",28,36,snuts
+/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':43,'endLine':43}","it('should build max array', () => {
+    const array = [-1, 2, 4, 0];
+    const segmentTree = new SegmentTree(array, Math.max, -Infinity);
+
+    expect(segmentTree.segmentTree).toEqual([4, 2, 4, -1, 2, 4, 0]);
+    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
+  })",38,44,snuts
+/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it('should build sum array', () => {
+    const array = [-1, 2, 4, 0];
+    const segmentTree = new SegmentTree(array, (a, b) => (a + b), 0);
+
+    expect(segmentTree.segmentTree).toEqual([5, 1, 4, -1, 2, 4, 0]);
+    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
+  })",46,52,snuts
 /src/data-structures/tree/red-black-tree/__test__/RedBlackTree.test.js,VerboseStatement,"{'startLine':46,'endLine':106}","it('should balance itself when parent is black', () => {
     const tree = new RedBlackTree();
 
@@ -3189,6 +3233,256 @@ file,type,line,method,methodStart,methodEnd,source
     expect(tree.isNodeRed(node3)).toBe(true);
     expect(tree.isNodeRed(node6)).toBe(true);
   })",247,287,snuts
+/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,IdenticalTestDescription,"{'startLine':211,'endLine':231}","it('should do left right rotation and keeping left right node safe', () => {
+    const tree = new AvlTree();
+
+    tree.insert(30);
+    tree.insert(15);
+    tree.insert(40);
+    tree.insert(10);
+    tree.insert(18);
+    tree.insert(35);
+    tree.insert(45);
+    tree.insert(42);
+    tree.insert(47);
+
+    expect(tree.toString()).toBe('10,15,18,30,35,40,42,45,47');
+    expect(tree.root.height).toBe(3);
+
+    tree.insert(43);
+
+    expect(tree.toString()).toBe('10,15,18,30,35,40,42,43,45,47');
+    expect(tree.root.height).toBe(3);
+  })",211,231,snuts
+/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':4,'endLine':27}","it('should do simple left-left rotation', () => {
+    const tree = new AvlTree();
+
+    tree.insert(4);
+    tree.insert(3);
+    tree.insert(2);
+
+    expect(tree.toString()).toBe('2,3,4');
+    expect(tree.root.value).toBe(3);
+    expect(tree.root.height).toBe(1);
+
+    tree.insert(1);
+
+    expect(tree.toString()).toBe('1,2,3,4');
+    expect(tree.root.value).toBe(3);
+    expect(tree.root.height).toBe(2);
+
+    tree.insert(0);
+
+    expect(tree.toString()).toBe('0,1,2,3,4');
+    expect(tree.root.value).toBe(3);
+    expect(tree.root.left.value).toBe(1);
+    expect(tree.root.height).toBe(2);
+  })",4,27,snuts
+/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':29,'endLine':50}","it('should do complex left-left rotation', () => {
+    const tree = new AvlTree();
+
+    tree.insert(30);
+    tree.insert(20);
+    tree.insert(40);
+    tree.insert(10);
+
+    expect(tree.root.value).toBe(30);
+    expect(tree.root.height).toBe(2);
+    expect(tree.toString()).toBe('10,20,30,40');
+
+    tree.insert(25);
+    expect(tree.root.value).toBe(30);
+    expect(tree.root.height).toBe(2);
+    expect(tree.toString()).toBe('10,20,25,30,40');
+
+    tree.insert(5);
+    expect(tree.root.value).toBe(20);
+    expect(tree.root.height).toBe(2);
+    expect(tree.toString()).toBe('5,10,20,25,30,40');
+  })",29,50,snuts
+/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':52,'endLine':75}","it('should do simple right-right rotation', () => {
+    const tree = new AvlTree();
+
+    tree.insert(2);
+    tree.insert(3);
+    tree.insert(4);
+
+    expect(tree.toString()).toBe('2,3,4');
+    expect(tree.root.value).toBe(3);
+    expect(tree.root.height).toBe(1);
+
+    tree.insert(5);
+
+    expect(tree.toString()).toBe('2,3,4,5');
+    expect(tree.root.value).toBe(3);
+    expect(tree.root.height).toBe(2);
+
+    tree.insert(6);
+
+    expect(tree.toString()).toBe('2,3,4,5,6');
+    expect(tree.root.value).toBe(3);
+    expect(tree.root.right.value).toBe(5);
+    expect(tree.root.height).toBe(2);
+  })",52,75,snuts
+/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':77,'endLine':98}","it('should do complex right-right rotation', () => {
+    const tree = new AvlTree();
+
+    tree.insert(30);
+    tree.insert(20);
+    tree.insert(40);
+    tree.insert(50);
+
+    expect(tree.root.value).toBe(30);
+    expect(tree.root.height).toBe(2);
+    expect(tree.toString()).toBe('20,30,40,50');
+
+    tree.insert(35);
+    expect(tree.root.value).toBe(30);
+    expect(tree.root.height).toBe(2);
+    expect(tree.toString()).toBe('20,30,35,40,50');
+
+    tree.insert(55);
+    expect(tree.root.value).toBe(40);
+    expect(tree.root.height).toBe(2);
+    expect(tree.toString()).toBe('20,30,35,40,50,55');
+  })",77,98,snuts
+/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':124,'endLine':165}","it('should create balanced tree: case #1', () => {
+    // @see: https://www.youtube.com/watch?v=rbg7Qf8GkQ4&t=839s
+    const tree = new AvlTree();
+
+    tree.insert(1);
+    tree.insert(2);
+    tree.insert(3);
+
+    expect(tree.root.value).toBe(2);
+    expect(tree.root.height).toBe(1);
+    expect(tree.toString()).toBe('1,2,3');
+
+    tree.insert(6);
+
+    expect(tree.root.value).toBe(2);
+    expect(tree.root.height).toBe(2);
+    expect(tree.toString()).toBe('1,2,3,6');
+
+    tree.insert(15);
+
+    expect(tree.root.value).toBe(2);
+    expect(tree.root.height).toBe(2);
+    expect(tree.toString()).toBe('1,2,3,6,15');
+
+    tree.insert(-2);
+
+    expect(tree.root.value).toBe(2);
+    expect(tree.root.height).toBe(2);
+    expect(tree.toString()).toBe('-2,1,2,3,6,15');
+
+    tree.insert(-5);
+
+    expect(tree.root.value).toBe(2);
+    expect(tree.root.height).toBe(2);
+    expect(tree.toString()).toBe('-5,-2,1,2,3,6,15');
+
+    tree.insert(-8);
+
+    expect(tree.root.value).toBe(2);
+    expect(tree.root.height).toBe(3);
+    expect(tree.toString()).toBe('-8,-5,-2,1,2,3,6,15');
+  })",124,165,snuts
+/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':167,'endLine':187}","it('should create balanced tree: case #2', () => {
+    // @see https://www.youtube.com/watch?v=7m94k2Qhg68
+    const tree = new AvlTree();
+
+    tree.insert(43);
+    tree.insert(18);
+    tree.insert(22);
+    tree.insert(9);
+    tree.insert(21);
+    tree.insert(6);
+
+    expect(tree.root.value).toBe(18);
+    expect(tree.root.height).toBe(2);
+    expect(tree.toString()).toBe('6,9,18,21,22,43');
+
+    tree.insert(8);
+
+    expect(tree.root.value).toBe(18);
+    expect(tree.root.height).toBe(2);
+    expect(tree.toString()).toBe('6,8,9,18,21,22,43');
+  })",167,187,snuts
+/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':189,'endLine':209}","it('should do left right rotation and keeping left right node safe', () => {
+    const tree = new AvlTree();
+
+    tree.insert(30);
+    tree.insert(15);
+    tree.insert(40);
+    tree.insert(10);
+    tree.insert(18);
+    tree.insert(35);
+    tree.insert(45);
+    tree.insert(5);
+    tree.insert(12);
+
+    expect(tree.toString()).toBe('5,10,12,15,18,30,35,40,45');
+    expect(tree.root.height).toBe(3);
+
+    tree.insert(11);
+
+    expect(tree.toString()).toBe('5,10,11,12,15,18,30,35,40,45');
+    expect(tree.root.height).toBe(3);
+  })",189,209,snuts
+/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':211,'endLine':231}","it('should do left right rotation and keeping left right node safe', () => {
+    const tree = new AvlTree();
+
+    tree.insert(30);
+    tree.insert(15);
+    tree.insert(40);
+    tree.insert(10);
+    tree.insert(18);
+    tree.insert(35);
+    tree.insert(45);
+    tree.insert(42);
+    tree.insert(47);
+
+    expect(tree.toString()).toBe('10,15,18,30,35,40,42,45,47');
+    expect(tree.root.height).toBe(3);
+
+    tree.insert(43);
+
+    expect(tree.toString()).toBe('10,15,18,30,35,40,42,43,45,47');
+    expect(tree.root.height).toBe(3);
+  })",211,231,snuts
+/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':271,'endLine':302}","it('should keep balance after removal', () => {
+    const tree = new AvlTree();
+
+    tree.insert(1);
+    tree.insert(2);
+    tree.insert(3);
+    tree.insert(4);
+    tree.insert(5);
+    tree.insert(6);
+    tree.insert(7);
+    tree.insert(8);
+    tree.insert(9);
+
+    expect(tree.toString()).toBe('1,2,3,4,5,6,7,8,9');
+    expect(tree.root.value).toBe(4);
+    expect(tree.root.height).toBe(3);
+    expect(tree.root.balanceFactor).toBe(-1);
+
+    tree.remove(8);
+
+    expect(tree.root.value).toBe(4);
+    expect(tree.root.balanceFactor).toBe(-1);
+
+    tree.remove(9);
+
+    expect(tree.contains(8)).toBeFalsy();
+    expect(tree.contains(9)).toBeFalsy();
+    expect(tree.toString()).toBe('1,2,3,4,5,6,7');
+    expect(tree.root.value).toBe(4);
+    expect(tree.root.height).toBe(2);
+    expect(tree.root.balanceFactor).toBe(0);
+  })",271,302,snuts
 /src/data-structures/tree/fenwick-tree/__test__/FenwickTree.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should create empty fenwick tree of correct size', () => {
     const tree1 = new FenwickTree(5);
     expect(tree1.treeArray.length).toBe(5 + 1);
@@ -3445,300 +3739,6 @@ file,type,line,method,methodStart,methodEnd,source
 
     expect(bst.toString()).toBe('obj1,obj2,obj3');
   })",55,78,snuts
-/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,IdenticalTestDescription,"{'startLine':211,'endLine':231}","it('should do left right rotation and keeping left right node safe', () => {
-    const tree = new AvlTree();
-
-    tree.insert(30);
-    tree.insert(15);
-    tree.insert(40);
-    tree.insert(10);
-    tree.insert(18);
-    tree.insert(35);
-    tree.insert(45);
-    tree.insert(42);
-    tree.insert(47);
-
-    expect(tree.toString()).toBe('10,15,18,30,35,40,42,45,47');
-    expect(tree.root.height).toBe(3);
-
-    tree.insert(43);
-
-    expect(tree.toString()).toBe('10,15,18,30,35,40,42,43,45,47');
-    expect(tree.root.height).toBe(3);
-  })",211,231,snuts
-/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':4,'endLine':27}","it('should do simple left-left rotation', () => {
-    const tree = new AvlTree();
-
-    tree.insert(4);
-    tree.insert(3);
-    tree.insert(2);
-
-    expect(tree.toString()).toBe('2,3,4');
-    expect(tree.root.value).toBe(3);
-    expect(tree.root.height).toBe(1);
-
-    tree.insert(1);
-
-    expect(tree.toString()).toBe('1,2,3,4');
-    expect(tree.root.value).toBe(3);
-    expect(tree.root.height).toBe(2);
-
-    tree.insert(0);
-
-    expect(tree.toString()).toBe('0,1,2,3,4');
-    expect(tree.root.value).toBe(3);
-    expect(tree.root.left.value).toBe(1);
-    expect(tree.root.height).toBe(2);
-  })",4,27,snuts
-/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':29,'endLine':50}","it('should do complex left-left rotation', () => {
-    const tree = new AvlTree();
-
-    tree.insert(30);
-    tree.insert(20);
-    tree.insert(40);
-    tree.insert(10);
-
-    expect(tree.root.value).toBe(30);
-    expect(tree.root.height).toBe(2);
-    expect(tree.toString()).toBe('10,20,30,40');
-
-    tree.insert(25);
-    expect(tree.root.value).toBe(30);
-    expect(tree.root.height).toBe(2);
-    expect(tree.toString()).toBe('10,20,25,30,40');
-
-    tree.insert(5);
-    expect(tree.root.value).toBe(20);
-    expect(tree.root.height).toBe(2);
-    expect(tree.toString()).toBe('5,10,20,25,30,40');
-  })",29,50,snuts
-/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':52,'endLine':75}","it('should do simple right-right rotation', () => {
-    const tree = new AvlTree();
-
-    tree.insert(2);
-    tree.insert(3);
-    tree.insert(4);
-
-    expect(tree.toString()).toBe('2,3,4');
-    expect(tree.root.value).toBe(3);
-    expect(tree.root.height).toBe(1);
-
-    tree.insert(5);
-
-    expect(tree.toString()).toBe('2,3,4,5');
-    expect(tree.root.value).toBe(3);
-    expect(tree.root.height).toBe(2);
-
-    tree.insert(6);
-
-    expect(tree.toString()).toBe('2,3,4,5,6');
-    expect(tree.root.value).toBe(3);
-    expect(tree.root.right.value).toBe(5);
-    expect(tree.root.height).toBe(2);
-  })",52,75,snuts
-/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':77,'endLine':98}","it('should do complex right-right rotation', () => {
-    const tree = new AvlTree();
-
-    tree.insert(30);
-    tree.insert(20);
-    tree.insert(40);
-    tree.insert(50);
-
-    expect(tree.root.value).toBe(30);
-    expect(tree.root.height).toBe(2);
-    expect(tree.toString()).toBe('20,30,40,50');
-
-    tree.insert(35);
-    expect(tree.root.value).toBe(30);
-    expect(tree.root.height).toBe(2);
-    expect(tree.toString()).toBe('20,30,35,40,50');
-
-    tree.insert(55);
-    expect(tree.root.value).toBe(40);
-    expect(tree.root.height).toBe(2);
-    expect(tree.toString()).toBe('20,30,35,40,50,55');
-  })",77,98,snuts
-/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':124,'endLine':165}","it('should create balanced tree: case #1', () => {
-    // @see: https://www.youtube.com/watch?v=rbg7Qf8GkQ4&t=839s
-    const tree = new AvlTree();
-
-    tree.insert(1);
-    tree.insert(2);
-    tree.insert(3);
-
-    expect(tree.root.value).toBe(2);
-    expect(tree.root.height).toBe(1);
-    expect(tree.toString()).toBe('1,2,3');
-
-    tree.insert(6);
-
-    expect(tree.root.value).toBe(2);
-    expect(tree.root.height).toBe(2);
-    expect(tree.toString()).toBe('1,2,3,6');
-
-    tree.insert(15);
-
-    expect(tree.root.value).toBe(2);
-    expect(tree.root.height).toBe(2);
-    expect(tree.toString()).toBe('1,2,3,6,15');
-
-    tree.insert(-2);
-
-    expect(tree.root.value).toBe(2);
-    expect(tree.root.height).toBe(2);
-    expect(tree.toString()).toBe('-2,1,2,3,6,15');
-
-    tree.insert(-5);
-
-    expect(tree.root.value).toBe(2);
-    expect(tree.root.height).toBe(2);
-    expect(tree.toString()).toBe('-5,-2,1,2,3,6,15');
-
-    tree.insert(-8);
-
-    expect(tree.root.value).toBe(2);
-    expect(tree.root.height).toBe(3);
-    expect(tree.toString()).toBe('-8,-5,-2,1,2,3,6,15');
-  })",124,165,snuts
-/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':167,'endLine':187}","it('should create balanced tree: case #2', () => {
-    // @see https://www.youtube.com/watch?v=7m94k2Qhg68
-    const tree = new AvlTree();
-
-    tree.insert(43);
-    tree.insert(18);
-    tree.insert(22);
-    tree.insert(9);
-    tree.insert(21);
-    tree.insert(6);
-
-    expect(tree.root.value).toBe(18);
-    expect(tree.root.height).toBe(2);
-    expect(tree.toString()).toBe('6,9,18,21,22,43');
-
-    tree.insert(8);
-
-    expect(tree.root.value).toBe(18);
-    expect(tree.root.height).toBe(2);
-    expect(tree.toString()).toBe('6,8,9,18,21,22,43');
-  })",167,187,snuts
-/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':189,'endLine':209}","it('should do left right rotation and keeping left right node safe', () => {
-    const tree = new AvlTree();
-
-    tree.insert(30);
-    tree.insert(15);
-    tree.insert(40);
-    tree.insert(10);
-    tree.insert(18);
-    tree.insert(35);
-    tree.insert(45);
-    tree.insert(5);
-    tree.insert(12);
-
-    expect(tree.toString()).toBe('5,10,12,15,18,30,35,40,45');
-    expect(tree.root.height).toBe(3);
-
-    tree.insert(11);
-
-    expect(tree.toString()).toBe('5,10,11,12,15,18,30,35,40,45');
-    expect(tree.root.height).toBe(3);
-  })",189,209,snuts
-/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':211,'endLine':231}","it('should do left right rotation and keeping left right node safe', () => {
-    const tree = new AvlTree();
-
-    tree.insert(30);
-    tree.insert(15);
-    tree.insert(40);
-    tree.insert(10);
-    tree.insert(18);
-    tree.insert(35);
-    tree.insert(45);
-    tree.insert(42);
-    tree.insert(47);
-
-    expect(tree.toString()).toBe('10,15,18,30,35,40,42,45,47');
-    expect(tree.root.height).toBe(3);
-
-    tree.insert(43);
-
-    expect(tree.toString()).toBe('10,15,18,30,35,40,42,43,45,47');
-    expect(tree.root.height).toBe(3);
-  })",211,231,snuts
-/src/data-structures/tree/avl-tree/__test__/AvlTRee.test.js,VerboseStatement,"{'startLine':271,'endLine':302}","it('should keep balance after removal', () => {
-    const tree = new AvlTree();
-
-    tree.insert(1);
-    tree.insert(2);
-    tree.insert(3);
-    tree.insert(4);
-    tree.insert(5);
-    tree.insert(6);
-    tree.insert(7);
-    tree.insert(8);
-    tree.insert(9);
-
-    expect(tree.toString()).toBe('1,2,3,4,5,6,7,8,9');
-    expect(tree.root.value).toBe(4);
-    expect(tree.root.height).toBe(3);
-    expect(tree.root.balanceFactor).toBe(-1);
-
-    tree.remove(8);
-
-    expect(tree.root.value).toBe(4);
-    expect(tree.root.balanceFactor).toBe(-1);
-
-    tree.remove(9);
-
-    expect(tree.contains(8)).toBeFalsy();
-    expect(tree.contains(9)).toBeFalsy();
-    expect(tree.toString()).toBe('1,2,3,4,5,6,7');
-    expect(tree.root.value).toBe(4);
-    expect(tree.root.height).toBe(2);
-    expect(tree.root.balanceFactor).toBe(0);
-  })",271,302,snuts
-/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':9,'endLine':9}","it('should build tree for input array #0 with length of power of two', () => {
-    const array = [-1, 2];
-    const segmentTree = new SegmentTree(array, Math.min, Infinity);
-
-    expect(segmentTree.segmentTree).toEqual([-1, -1, 2]);
-    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
-  })",4,10,snuts
-/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':17,'endLine':17}","it('should build tree for input array #1 with length of power of two', () => {
-    const array = [-1, 2, 4, 0];
-    const segmentTree = new SegmentTree(array, Math.min, Infinity);
-
-    expect(segmentTree.segmentTree).toEqual([-1, -1, 0, -1, 2, 4, 0]);
-    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
-  })",12,18,snuts
-/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':25,'endLine':25}","it('should build tree for input array #0 with length not of power of two', () => {
-    const array = [0, 1, 2];
-    const segmentTree = new SegmentTree(array, Math.min, Infinity);
-
-    expect(segmentTree.segmentTree).toEqual([0, 0, 2, 0, 1, null, null]);
-    expect(segmentTree.segmentTree.length).toBe((2 * 4) - 1);
-  })",20,26,snuts
-/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':35,'endLine':35}","it('should build tree for input array #1 with length not of power of two', () => {
-    const array = [-1, 3, 4, 0, 2, 1];
-    const segmentTree = new SegmentTree(array, Math.min, Infinity);
-
-    expect(segmentTree.segmentTree).toEqual([
-      -1, -1, 0, -1, 4, 0, 1, -1, 3, null, null, 0, 2, null, null,
-    ]);
-    expect(segmentTree.segmentTree.length).toBe((2 * 8) - 1);
-  })",28,36,snuts
-/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':43,'endLine':43}","it('should build max array', () => {
-    const array = [-1, 2, 4, 0];
-    const segmentTree = new SegmentTree(array, Math.max, -Infinity);
-
-    expect(segmentTree.segmentTree).toEqual([4, 2, 4, -1, 2, 4, 0]);
-    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
-  })",38,44,snuts
-/src/data-structures/tree/segment-tree/__test__/SegmentTree.test.js,SubOptimalAssert,"{'startLine':51,'endLine':51}","it('should build sum array', () => {
-    const array = [-1, 2, 4, 0];
-    const segmentTree = new SegmentTree(array, (a, b) => (a + b), 0);
-
-    expect(segmentTree.segmentTree).toEqual([5, 1, 4, -1, 2, 4, 0]);
-    expect(segmentTree.segmentTree.length).toBe((2 * array.length) - 1);
-  })",46,52,snuts
 /src/algorithms/uncategorized/rain-terraces/__test__/dpRainTerraces.test.js,VerboseStatement,"{'startLine':4,'endLine':20}","it('should find the amount of water collected after raining', () => {
     expect(dpRainTerraces([1])).toBe(0);
     expect(dpRainTerraces([1, 0])).toBe(0);
@@ -3773,38 +3773,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(bfRainTerraces([4, 1, 3, 1, 2, 1, 2, 1])).toBe(4);
     expect(bfRainTerraces([0, 2, 4, 3, 4, 2, 4, 0, 8, 7, 0])).toBe(7);
   })",4,20,snuts
-/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should not hae solution for 3 queens', () => {
-    const solutions = nQueens(3);
-    expect(solutions.length).toBe(0);
-  })",4,7,snuts
-/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':11,'endLine':11}","it('should solve n-queens problem for 4 queens', () => {
-    const solutions = nQueens(4);
-    expect(solutions.length).toBe(2);
-
-    // First solution.
-    expect(solutions[0][0].toString()).toBe('0,1');
-    expect(solutions[0][1].toString()).toBe('1,3');
-    expect(solutions[0][2].toString()).toBe('2,0');
-    expect(solutions[0][3].toString()).toBe('3,2');
-
-    // Second solution (mirrored).
-    expect(solutions[1][0].toString()).toBe('0,2');
-    expect(solutions[1][1].toString()).toBe('1,0');
-    expect(solutions[1][2].toString()).toBe('2,3');
-    expect(solutions[1][3].toString()).toBe('3,1');
-  })",9,24,snuts
-/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':28,'endLine':28}","it('should solve n-queens problem for 6 queens', () => {
-    const solutions = nQueens(6);
-    expect(solutions.length).toBe(4);
-
-    // First solution.
-    expect(solutions[0][0].toString()).toBe('0,1');
-    expect(solutions[0][1].toString()).toBe('1,3');
-    expect(solutions[0][2].toString()).toBe('2,5');
-    expect(solutions[0][3].toString()).toBe('3,0');
-    expect(solutions[0][4].toString()).toBe('4,2');
-    expect(solutions[0][5].toString()).toBe('5,4');
-  })",26,37,snuts
 /src/algorithms/uncategorized/knight-tour/__test__/knightTour.test.js,SubOptimalAssert,"{'startLine':7,'endLine':7}","it('should not find solution on 3x3 board', () => {
     const moves = knightTour(3);
 
@@ -4368,6 +4336,38 @@ file,type,line,method,methodStart,methodEnd,source
     expect(regularExpressionMatching('abba', 'a*b*.c')).toBe(false);
     expect(regularExpressionMatching('abba', '.*c')).toBe(false);
   })",4,33,snuts
+/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':6,'endLine':6}","it('should not hae solution for 3 queens', () => {
+    const solutions = nQueens(3);
+    expect(solutions.length).toBe(0);
+  })",4,7,snuts
+/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':11,'endLine':11}","it('should solve n-queens problem for 4 queens', () => {
+    const solutions = nQueens(4);
+    expect(solutions.length).toBe(2);
+
+    // First solution.
+    expect(solutions[0][0].toString()).toBe('0,1');
+    expect(solutions[0][1].toString()).toBe('1,3');
+    expect(solutions[0][2].toString()).toBe('2,0');
+    expect(solutions[0][3].toString()).toBe('3,2');
+
+    // Second solution (mirrored).
+    expect(solutions[1][0].toString()).toBe('0,2');
+    expect(solutions[1][1].toString()).toBe('1,0');
+    expect(solutions[1][2].toString()).toBe('2,3');
+    expect(solutions[1][3].toString()).toBe('3,1');
+  })",9,24,snuts
+/src/algorithms/uncategorized/n-queens/__test__/nQueens.test.js,SubOptimalAssert,"{'startLine':28,'endLine':28}","it('should solve n-queens problem for 6 queens', () => {
+    const solutions = nQueens(6);
+    expect(solutions.length).toBe(4);
+
+    // First solution.
+    expect(solutions[0][0].toString()).toBe('0,1');
+    expect(solutions[0][1].toString()).toBe('1,3');
+    expect(solutions[0][2].toString()).toBe('2,5');
+    expect(solutions[0][3].toString()).toBe('3,0');
+    expect(solutions[0][4].toString()).toBe('4,2');
+    expect(solutions[0][5].toString()).toBe('5,4');
+  })",26,37,snuts
 /src/algorithms/string/levenshtein-distance/__test__/levenshteinDistance.test.js,OvercommentedTest,"{'startLine':4,'endLine':28}","it('should calculate edit distance between two strings', () => {
     expect(levenshteinDistance('', '')).toBe(0);
     expect(levenshteinDistance('a', '')).toBe(1);
@@ -4893,6 +4893,46 @@ file,type,line,method,methodStart,methodEnd,source
     const permutations4 = permutateWithRepetitions(['A', 'B', 'C', 'D']);
     expect(permutations4.length).toBe(4 * 4 * 4 * 4);
   })",4,51,snuts
+/src/algorithms/sets/longest-increasing-subsequence/__test__/dpLongestIncreasingSubsequence.test.js,OvercommentedTest,"{'startLine':4,'endLine':35}","it('should find longest increasing subsequence length', () => {
+    // Should be:
+    // 9 or
+    // 8 or
+    // 7 or
+    // 6 or
+    // ...
+    expect(dpLongestIncreasingSubsequence([
+      9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
+    ])).toBe(1);
+
+    // Should be:
+    // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    expect(dpLongestIncreasingSubsequence([
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+    ])).toBe(10);
+
+    // Should be:
+    // -1, 0, 2, 3
+    expect(dpLongestIncreasingSubsequence([
+      3, 4, -1, 0, 6, 2, 3,
+    ])).toBe(4);
+
+    // Should be:
+    // 0, 2, 6, 9, 11, 15 or
+    // 0, 4, 6, 9, 11, 15 or
+    // 0, 2, 6, 9, 13, 15 or
+    // 0, 4, 6, 9, 13, 15
+    expect(dpLongestIncreasingSubsequence([
+      0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15,
+    ])).toBe(6);
+  })",4,35,snuts
+/src/algorithms/sets/fisher-yates/__test__/fisherYates.test.js,SubOptimalAssert,"{'startLine':15,'endLine':15}","it('should shuffle array randomly', () => {
+    const shuffledArray = fisherYates(sortedArr);
+    const sorter = new QuickSort();
+
+    expect(shuffledArray.length).toBe(sortedArr.length);
+    expect(shuffledArray).not.toEqual(sortedArr);
+    expect(sorter.sort(shuffledArray)).toEqual(sortedArr);
+  })",11,18,snuts
 /src/algorithms/sets/knapsack-problem/__test__/KnapsackItem.test.js,VerboseStatement,"{'startLine':4,'endLine':34}","it('should create knapsack item and count its total weight and value', () => {
     const knapsackItem = new KnapsackItem({ value: 3, weight: 2 });
 
@@ -5075,14 +5115,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
     expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 2');
   })",138,161,snuts
-/src/algorithms/sets/fisher-yates/__test__/fisherYates.test.js,SubOptimalAssert,"{'startLine':15,'endLine':15}","it('should shuffle array randomly', () => {
-    const shuffledArray = fisherYates(sortedArr);
-    const sorter = new QuickSort();
-
-    expect(shuffledArray.length).toBe(sortedArr.length);
-    expect(shuffledArray).not.toEqual(sortedArr);
-    expect(sorter.sort(shuffledArray)).toEqual(sortedArr);
-  })",11,18,snuts
 /src/algorithms/sets/combinations/__test__/combineWithoutRepetitions.test.js,SubOptimalAssert,"{'startLine':59,'endLine':59}","it('should combine string without repetitions', () => {
     expect(combineWithoutRepetitions(['A', 'B'], 3)).toEqual([]);
 
@@ -5331,38 +5363,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(linearSearch(array, { key: 5 }, comparatorCallback)).toEqual([0]);
     expect(linearSearch(array, { key: 6 }, comparatorCallback)).toEqual([1, 3]);
   })",20,39,snuts
-/src/algorithms/sets/longest-increasing-subsequence/__test__/dpLongestIncreasingSubsequence.test.js,OvercommentedTest,"{'startLine':4,'endLine':35}","it('should find longest increasing subsequence length', () => {
-    // Should be:
-    // 9 or
-    // 8 or
-    // 7 or
-    // 6 or
-    // ...
-    expect(dpLongestIncreasingSubsequence([
-      9, 8, 7, 6, 5, 4, 3, 2, 1, 0,
-    ])).toBe(1);
-
-    // Should be:
-    // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-    expect(dpLongestIncreasingSubsequence([
-      0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
-    ])).toBe(10);
-
-    // Should be:
-    // -1, 0, 2, 3
-    expect(dpLongestIncreasingSubsequence([
-      3, 4, -1, 0, 6, 2, 3,
-    ])).toBe(4);
-
-    // Should be:
-    // 0, 2, 6, 9, 11, 15 or
-    // 0, 4, 6, 9, 11, 15 or
-    // 0, 2, 6, 9, 13, 15 or
-    // 0, 4, 6, 9, 13, 15
-    expect(dpLongestIncreasingSubsequence([
-      0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15,
-    ])).toBe(6);
-  })",4,35,snuts
 /src/algorithms/search/jump-search/__test__/jumpSearch.test.js,ConditionalTestLogic,"{'startLine':27,'endLine':27}","it('should search object in sorted array', () => {
     const sortedArrayOfObjects = [
       { key: 1, value: 'value1' },
@@ -5449,6 +5449,27 @@ file,type,line,method,methodStart,methodEnd,source
     expectedClass = 2;
     expect(kNN(dataSet, labels, toClassify, 5)).toBe(expectedClass);
   })",31,54,snuts
+/src/algorithms/math/prime-factors/__test__/primeFactors.test.js,VerboseStatement,"{'startLine':17,'endLine':37}","it('should find prime factors', () => {
+    expect(primeFactors(1)).toEqual([]);
+    expect(primeFactors(2)).toEqual([2]);
+    expect(primeFactors(3)).toEqual([3]);
+    expect(primeFactors(4)).toEqual([2, 2]);
+    expect(primeFactors(14)).toEqual([2, 7]);
+    expect(primeFactors(40)).toEqual([2, 2, 2, 5]);
+    expect(primeFactors(54)).toEqual([2, 3, 3, 3]);
+    expect(primeFactors(100)).toEqual([2, 2, 5, 5]);
+    expect(primeFactors(156)).toEqual([2, 2, 3, 13]);
+    expect(primeFactors(273)).toEqual([3, 7, 13]);
+    expect(primeFactors(300)).toEqual([2, 2, 3, 5, 5]);
+    expect(primeFactors(980)).toEqual([2, 2, 5, 7, 7]);
+    expect(primeFactors(1000)).toEqual([2, 2, 2, 5, 5, 5]);
+    expect(primeFactors(52734)).toEqual([2, 3, 11, 17, 47]);
+    expect(primeFactors(343434)).toEqual([2, 3, 7, 13, 17, 37]);
+    expect(primeFactors(456745)).toEqual([5, 167, 547]);
+    expect(primeFactors(510510)).toEqual([2, 3, 5, 7, 11, 13, 17]);
+    expect(primeFactors(8735463)).toEqual([3, 3, 11, 88237]);
+    expect(primeFactors(873452453)).toEqual([149, 1637, 3581]);
+  })",17,37,snuts
 /src/algorithms/math/square-root/__test__/squareRoot.test.js,IdenticalTestDescription,"{'startLine':65,'endLine':68}","it('should correctly calculate square root for integers with custom tolerance', () => {
     expect(squareRoot(4.5, 10)).toBe(2.1213203436);
     expect(squareRoot(217.534, 10)).toBe(14.7490338667);
@@ -5493,27 +5514,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(squareRoot(473, tolerance)).toBe(21.7485631709);
     expect(squareRoot(14723, tolerance)).toBe(121.3383698588);
   })",24,63,snuts
-/src/algorithms/math/prime-factors/__test__/primeFactors.test.js,VerboseStatement,"{'startLine':17,'endLine':37}","it('should find prime factors', () => {
-    expect(primeFactors(1)).toEqual([]);
-    expect(primeFactors(2)).toEqual([2]);
-    expect(primeFactors(3)).toEqual([3]);
-    expect(primeFactors(4)).toEqual([2, 2]);
-    expect(primeFactors(14)).toEqual([2, 7]);
-    expect(primeFactors(40)).toEqual([2, 2, 2, 5]);
-    expect(primeFactors(54)).toEqual([2, 3, 3, 3]);
-    expect(primeFactors(100)).toEqual([2, 2, 5, 5]);
-    expect(primeFactors(156)).toEqual([2, 2, 3, 13]);
-    expect(primeFactors(273)).toEqual([3, 7, 13]);
-    expect(primeFactors(300)).toEqual([2, 2, 3, 5, 5]);
-    expect(primeFactors(980)).toEqual([2, 2, 5, 7, 7]);
-    expect(primeFactors(1000)).toEqual([2, 2, 2, 5, 5, 5]);
-    expect(primeFactors(52734)).toEqual([2, 3, 11, 17, 47]);
-    expect(primeFactors(343434)).toEqual([2, 3, 7, 13, 17, 37]);
-    expect(primeFactors(456745)).toEqual([5, 167, 547]);
-    expect(primeFactors(510510)).toEqual([2, 3, 5, 7, 11, 13, 17]);
-    expect(primeFactors(8735463)).toEqual([3, 3, 11, 88237]);
-    expect(primeFactors(873452453)).toEqual([149, 1637, 3581]);
-  })",17,37,snuts
 /src/algorithms/math/is-power-of-two/__test__/isPowerOfTwoBitwise.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should check if the number is made by multiplying twos', () => {
     expect(isPowerOfTwoBitwise(-1)).toBe(false);
     expect(isPowerOfTwoBitwise(0)).toBe(false);
@@ -5634,38 +5634,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(euclideanAlgorithm(462, -1071)).toBe(21);
     expect(euclideanAlgorithm(-462, -1071)).toBe(21);
   })",4,25,snuts
-/src/algorithms/math/bits/__test__/isPowerOfTwo.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should detect if the number is power of two', () => {
-    expect(isPowerOfTwo(1)).toBe(true);
-    expect(isPowerOfTwo(2)).toBe(true);
-    expect(isPowerOfTwo(3)).toBe(false);
-    expect(isPowerOfTwo(4)).toBe(true);
-    expect(isPowerOfTwo(5)).toBe(false);
-    expect(isPowerOfTwo(6)).toBe(false);
-    expect(isPowerOfTwo(7)).toBe(false);
-    expect(isPowerOfTwo(8)).toBe(true);
-    expect(isPowerOfTwo(9)).toBe(false);
-    expect(isPowerOfTwo(16)).toBe(true);
-    expect(isPowerOfTwo(23)).toBe(false);
-    expect(isPowerOfTwo(32)).toBe(true);
-    expect(isPowerOfTwo(127)).toBe(false);
-    expect(isPowerOfTwo(128)).toBe(true);
-  })",4,19,snuts
-/src/algorithms/math/bits/__test__/countSetBits.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should return number of set bits', () => {
-    expect(countSetBits(0)).toBe(0);
-    expect(countSetBits(1)).toBe(1);
-    expect(countSetBits(2)).toBe(1);
-    expect(countSetBits(3)).toBe(2);
-    expect(countSetBits(4)).toBe(1);
-    expect(countSetBits(5)).toBe(2);
-    expect(countSetBits(21)).toBe(3);
-    expect(countSetBits(255)).toBe(8);
-    expect(countSetBits(1023)).toBe(10);
-    expect(countSetBits(-1)).toBe(32);
-    expect(countSetBits(-21)).toBe(30);
-    expect(countSetBits(-255)).toBe(25);
-    expect(countSetBits(-1023)).toBe(23);
-    expect(countSetBits(-4294967296)).toBe(0);
-  })",4,19,snuts
 /src/algorithms/math/complex-number/__test__/ComplexNumber.test.js,VerboseStatement,"{'startLine':130,'endLine':180}","it('should return complex number in polar form', () => {
     const complexNumber1 = new ComplexNumber({ re: 3, im: 3 });
     expect(complexNumber1.getPolarForm().radius).toBe(Math.sqrt((3 ** 2) + (3 ** 2)));
@@ -5717,6 +5685,38 @@ file,type,line,method,methodStart,methodEnd,source
     expect(complexNumber10.getPolarForm().phase).toBeCloseTo(0);
     expect(complexNumber10.getPolarForm(false).phase).toBeCloseTo(0);
   })",130,180,snuts
+/src/algorithms/math/bits/__test__/isPowerOfTwo.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should detect if the number is power of two', () => {
+    expect(isPowerOfTwo(1)).toBe(true);
+    expect(isPowerOfTwo(2)).toBe(true);
+    expect(isPowerOfTwo(3)).toBe(false);
+    expect(isPowerOfTwo(4)).toBe(true);
+    expect(isPowerOfTwo(5)).toBe(false);
+    expect(isPowerOfTwo(6)).toBe(false);
+    expect(isPowerOfTwo(7)).toBe(false);
+    expect(isPowerOfTwo(8)).toBe(true);
+    expect(isPowerOfTwo(9)).toBe(false);
+    expect(isPowerOfTwo(16)).toBe(true);
+    expect(isPowerOfTwo(23)).toBe(false);
+    expect(isPowerOfTwo(32)).toBe(true);
+    expect(isPowerOfTwo(127)).toBe(false);
+    expect(isPowerOfTwo(128)).toBe(true);
+  })",4,19,snuts
+/src/algorithms/math/bits/__test__/countSetBits.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should return number of set bits', () => {
+    expect(countSetBits(0)).toBe(0);
+    expect(countSetBits(1)).toBe(1);
+    expect(countSetBits(2)).toBe(1);
+    expect(countSetBits(3)).toBe(2);
+    expect(countSetBits(4)).toBe(1);
+    expect(countSetBits(5)).toBe(2);
+    expect(countSetBits(21)).toBe(3);
+    expect(countSetBits(255)).toBe(8);
+    expect(countSetBits(1023)).toBe(10);
+    expect(countSetBits(-1)).toBe(32);
+    expect(countSetBits(-21)).toBe(30);
+    expect(countSetBits(-255)).toBe(25);
+    expect(countSetBits(-1023)).toBe(23);
+    expect(countSetBits(-4294967296)).toBe(0);
+  })",4,19,snuts
 /src/algorithms/math/binary-floating-point/__tests__/floatAsBinaryString.test.js,IdenticalTestDescription,"{'startLine':14,'endLine':19}","it('should create a binary representation of the floating numbers', () => {
     for (let testCaseIndex = 0; testCaseIndex < testCases64Bits.length; testCaseIndex += 1) {
       const [decimal, binary] = testCases64Bits[testCaseIndex];
@@ -7484,6 +7484,115 @@ file,type,line,method,methodStart,methodEnd,source
     expect(eulerianPathSet[8].getKey()).toBe(vertexG.getKey());
     expect(eulerianPathSet[9].getKey()).toBe(vertexF.getKey());
   })",89,138,snuts
+/src/algorithms/graph/dijkstra/__test__/dijkstra.test.js,VerboseStatement,"{'startLine':7,'endLine':66}","it('should find minimum paths to all vertices for undirected graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+    const vertexH = new GraphVertex('H');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB, 4);
+    const edgeAE = new GraphEdge(vertexA, vertexE, 7);
+    const edgeAC = new GraphEdge(vertexA, vertexC, 3);
+    const edgeBC = new GraphEdge(vertexB, vertexC, 6);
+    const edgeBD = new GraphEdge(vertexB, vertexD, 5);
+    const edgeEC = new GraphEdge(vertexE, vertexC, 8);
+    const edgeED = new GraphEdge(vertexE, vertexD, 2);
+    const edgeDC = new GraphEdge(vertexD, vertexC, 11);
+    const edgeDG = new GraphEdge(vertexD, vertexG, 10);
+    const edgeDF = new GraphEdge(vertexD, vertexF, 2);
+    const edgeFG = new GraphEdge(vertexF, vertexG, 3);
+    const edgeEG = new GraphEdge(vertexE, vertexG, 5);
+
+    const graph = new Graph();
+    graph
+      .addVertex(vertexH)
+      .addEdge(edgeAB)
+      .addEdge(edgeAE)
+      .addEdge(edgeAC)
+      .addEdge(edgeBC)
+      .addEdge(edgeBD)
+      .addEdge(edgeEC)
+      .addEdge(edgeED)
+      .addEdge(edgeDC)
+      .addEdge(edgeDG)
+      .addEdge(edgeDF)
+      .addEdge(edgeFG)
+      .addEdge(edgeEG);
+
+    const { distances, previousVertices } = dijkstra(graph, vertexA);
+
+    expect(distances).toEqual({
+      H: Infinity,
+      A: 0,
+      B: 4,
+      E: 7,
+      C: 3,
+      D: 9,
+      G: 12,
+      F: 11,
+    });
+
+    expect(previousVertices.F.getKey()).toBe('D');
+    expect(previousVertices.D.getKey()).toBe('B');
+    expect(previousVertices.B.getKey()).toBe('A');
+    expect(previousVertices.G.getKey()).toBe('E');
+    expect(previousVertices.C.getKey()).toBe('A');
+    expect(previousVertices.A).toBeNull();
+    expect(previousVertices.H).toBeNull();
+  })",7,66,snuts
+/src/algorithms/graph/dijkstra/__test__/dijkstra.test.js,VerboseStatement,"{'startLine':68,'endLine':116}","it('should find minimum paths to all vertices for directed graph with negative edge weights', () => {
+    const vertexS = new GraphVertex('S');
+    const vertexE = new GraphVertex('E');
+    const vertexA = new GraphVertex('A');
+    const vertexD = new GraphVertex('D');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexH = new GraphVertex('H');
+
+    const edgeSE = new GraphEdge(vertexS, vertexE, 8);
+    const edgeSA = new GraphEdge(vertexS, vertexA, 10);
+    const edgeED = new GraphEdge(vertexE, vertexD, 1);
+    const edgeDA = new GraphEdge(vertexD, vertexA, -4);
+    const edgeDC = new GraphEdge(vertexD, vertexC, -1);
+    const edgeAC = new GraphEdge(vertexA, vertexC, 2);
+    const edgeCB = new GraphEdge(vertexC, vertexB, -2);
+    const edgeBA = new GraphEdge(vertexB, vertexA, 1);
+
+    const graph = new Graph(true);
+    graph
+      .addVertex(vertexH)
+      .addEdge(edgeSE)
+      .addEdge(edgeSA)
+      .addEdge(edgeED)
+      .addEdge(edgeDA)
+      .addEdge(edgeDC)
+      .addEdge(edgeAC)
+      .addEdge(edgeCB)
+      .addEdge(edgeBA);
+
+    const { distances, previousVertices } = dijkstra(graph, vertexS);
+
+    expect(distances).toEqual({
+      H: Infinity,
+      S: 0,
+      A: 5,
+      B: 5,
+      C: 7,
+      D: 9,
+      E: 8,
+    });
+
+    expect(previousVertices.H).toBeNull();
+    expect(previousVertices.S).toBeNull();
+    expect(previousVertices.B.getKey()).toBe('C');
+    expect(previousVertices.C.getKey()).toBe('A');
+    expect(previousVertices.A.getKey()).toBe('D');
+    expect(previousVertices.D.getKey()).toBe('E');
+  })",68,116,snuts
 /src/algorithms/graph/detect-cycle/__test__/detectUndirectedCycleUsingDisjointSet.test.js,VerboseStatement,"{'startLine':7,'endLine':35}","it('should detect undirected cycle', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -8097,224 +8206,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(bridges.length).toBe(1);
     expect(bridges[0].getKey()).toBe(edgeCD.getKey());
   })",168,202,snuts
-/src/algorithms/graph/dijkstra/__test__/dijkstra.test.js,VerboseStatement,"{'startLine':7,'endLine':66}","it('should find minimum paths to all vertices for undirected graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-    const vertexH = new GraphVertex('H');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB, 4);
-    const edgeAE = new GraphEdge(vertexA, vertexE, 7);
-    const edgeAC = new GraphEdge(vertexA, vertexC, 3);
-    const edgeBC = new GraphEdge(vertexB, vertexC, 6);
-    const edgeBD = new GraphEdge(vertexB, vertexD, 5);
-    const edgeEC = new GraphEdge(vertexE, vertexC, 8);
-    const edgeED = new GraphEdge(vertexE, vertexD, 2);
-    const edgeDC = new GraphEdge(vertexD, vertexC, 11);
-    const edgeDG = new GraphEdge(vertexD, vertexG, 10);
-    const edgeDF = new GraphEdge(vertexD, vertexF, 2);
-    const edgeFG = new GraphEdge(vertexF, vertexG, 3);
-    const edgeEG = new GraphEdge(vertexE, vertexG, 5);
-
-    const graph = new Graph();
-    graph
-      .addVertex(vertexH)
-      .addEdge(edgeAB)
-      .addEdge(edgeAE)
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeBD)
-      .addEdge(edgeEC)
-      .addEdge(edgeED)
-      .addEdge(edgeDC)
-      .addEdge(edgeDG)
-      .addEdge(edgeDF)
-      .addEdge(edgeFG)
-      .addEdge(edgeEG);
-
-    const { distances, previousVertices } = dijkstra(graph, vertexA);
-
-    expect(distances).toEqual({
-      H: Infinity,
-      A: 0,
-      B: 4,
-      E: 7,
-      C: 3,
-      D: 9,
-      G: 12,
-      F: 11,
-    });
-
-    expect(previousVertices.F.getKey()).toBe('D');
-    expect(previousVertices.D.getKey()).toBe('B');
-    expect(previousVertices.B.getKey()).toBe('A');
-    expect(previousVertices.G.getKey()).toBe('E');
-    expect(previousVertices.C.getKey()).toBe('A');
-    expect(previousVertices.A).toBeNull();
-    expect(previousVertices.H).toBeNull();
-  })",7,66,snuts
-/src/algorithms/graph/dijkstra/__test__/dijkstra.test.js,VerboseStatement,"{'startLine':68,'endLine':116}","it('should find minimum paths to all vertices for directed graph with negative edge weights', () => {
-    const vertexS = new GraphVertex('S');
-    const vertexE = new GraphVertex('E');
-    const vertexA = new GraphVertex('A');
-    const vertexD = new GraphVertex('D');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexH = new GraphVertex('H');
-
-    const edgeSE = new GraphEdge(vertexS, vertexE, 8);
-    const edgeSA = new GraphEdge(vertexS, vertexA, 10);
-    const edgeED = new GraphEdge(vertexE, vertexD, 1);
-    const edgeDA = new GraphEdge(vertexD, vertexA, -4);
-    const edgeDC = new GraphEdge(vertexD, vertexC, -1);
-    const edgeAC = new GraphEdge(vertexA, vertexC, 2);
-    const edgeCB = new GraphEdge(vertexC, vertexB, -2);
-    const edgeBA = new GraphEdge(vertexB, vertexA, 1);
-
-    const graph = new Graph(true);
-    graph
-      .addVertex(vertexH)
-      .addEdge(edgeSE)
-      .addEdge(edgeSA)
-      .addEdge(edgeED)
-      .addEdge(edgeDA)
-      .addEdge(edgeDC)
-      .addEdge(edgeAC)
-      .addEdge(edgeCB)
-      .addEdge(edgeBA);
-
-    const { distances, previousVertices } = dijkstra(graph, vertexS);
-
-    expect(distances).toEqual({
-      H: Infinity,
-      S: 0,
-      A: 5,
-      B: 5,
-      C: 7,
-      D: 9,
-      E: 8,
-    });
-
-    expect(previousVertices.H).toBeNull();
-    expect(previousVertices.S).toBeNull();
-    expect(previousVertices.B.getKey()).toBe('C');
-    expect(previousVertices.C.getKey()).toBe('A');
-    expect(previousVertices.A.getKey()).toBe('D');
-    expect(previousVertices.D.getKey()).toBe('E');
-  })",68,116,snuts
-/src/algorithms/graph/bellman-ford/__test__/bellmanFord.test.js,VerboseStatement,"{'startLine':7,'endLine':66}","it('should find minimum paths to all vertices for undirected graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-    const vertexH = new GraphVertex('H');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB, 4);
-    const edgeAE = new GraphEdge(vertexA, vertexE, 7);
-    const edgeAC = new GraphEdge(vertexA, vertexC, 3);
-    const edgeBC = new GraphEdge(vertexB, vertexC, 6);
-    const edgeBD = new GraphEdge(vertexB, vertexD, 5);
-    const edgeEC = new GraphEdge(vertexE, vertexC, 8);
-    const edgeED = new GraphEdge(vertexE, vertexD, 2);
-    const edgeDC = new GraphEdge(vertexD, vertexC, 11);
-    const edgeDG = new GraphEdge(vertexD, vertexG, 10);
-    const edgeDF = new GraphEdge(vertexD, vertexF, 2);
-    const edgeFG = new GraphEdge(vertexF, vertexG, 3);
-    const edgeEG = new GraphEdge(vertexE, vertexG, 5);
-
-    const graph = new Graph();
-    graph
-      .addVertex(vertexH)
-      .addEdge(edgeAB)
-      .addEdge(edgeAE)
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeBD)
-      .addEdge(edgeEC)
-      .addEdge(edgeED)
-      .addEdge(edgeDC)
-      .addEdge(edgeDG)
-      .addEdge(edgeDF)
-      .addEdge(edgeFG)
-      .addEdge(edgeEG);
-
-    const { distances, previousVertices } = bellmanFord(graph, vertexA);
-
-    expect(distances).toEqual({
-      H: Infinity,
-      A: 0,
-      B: 4,
-      E: 7,
-      C: 3,
-      D: 9,
-      G: 12,
-      F: 11,
-    });
-
-    expect(previousVertices.F.getKey()).toBe('D');
-    expect(previousVertices.D.getKey()).toBe('B');
-    expect(previousVertices.B.getKey()).toBe('A');
-    expect(previousVertices.G.getKey()).toBe('E');
-    expect(previousVertices.C.getKey()).toBe('A');
-    expect(previousVertices.A).toBeNull();
-    expect(previousVertices.H).toBeNull();
-  })",7,66,snuts
-/src/algorithms/graph/bellman-ford/__test__/bellmanFord.test.js,VerboseStatement,"{'startLine':68,'endLine':116}","it('should find minimum paths to all vertices for directed graph with negative edge weights', () => {
-    const vertexS = new GraphVertex('S');
-    const vertexE = new GraphVertex('E');
-    const vertexA = new GraphVertex('A');
-    const vertexD = new GraphVertex('D');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexH = new GraphVertex('H');
-
-    const edgeSE = new GraphEdge(vertexS, vertexE, 8);
-    const edgeSA = new GraphEdge(vertexS, vertexA, 10);
-    const edgeED = new GraphEdge(vertexE, vertexD, 1);
-    const edgeDA = new GraphEdge(vertexD, vertexA, -4);
-    const edgeDC = new GraphEdge(vertexD, vertexC, -1);
-    const edgeAC = new GraphEdge(vertexA, vertexC, 2);
-    const edgeCB = new GraphEdge(vertexC, vertexB, -2);
-    const edgeBA = new GraphEdge(vertexB, vertexA, 1);
-
-    const graph = new Graph(true);
-    graph
-      .addVertex(vertexH)
-      .addEdge(edgeSE)
-      .addEdge(edgeSA)
-      .addEdge(edgeED)
-      .addEdge(edgeDA)
-      .addEdge(edgeDC)
-      .addEdge(edgeAC)
-      .addEdge(edgeCB)
-      .addEdge(edgeBA);
-
-    const { distances, previousVertices } = bellmanFord(graph, vertexS);
-
-    expect(distances).toEqual({
-      H: Infinity,
-      S: 0,
-      A: 5,
-      B: 5,
-      C: 7,
-      D: 9,
-      E: 8,
-    });
-
-    expect(previousVertices.H).toBeNull();
-    expect(previousVertices.S).toBeNull();
-    expect(previousVertices.B.getKey()).toBe('C');
-    expect(previousVertices.C.getKey()).toBe('A');
-    expect(previousVertices.A.getKey()).toBe('D');
-    expect(previousVertices.D.getKey()).toBe('E');
-  })",68,116,snuts
 /src/algorithms/graph/breadth-first-search/__test__/breadthFirstSearch.test.js,VerboseStatement,"{'startLine':7,'endLine':90}","it('should perform BFS operation on graph', () => {
     const graph = new Graph(true);
 
@@ -8481,6 +8372,115 @@ file,type,line,method,methodStart,methodEnd,source
       expect(params.previousVertex).toEqual(leaveVertexParamsMap[callIndex].previousVertex);
     }
   })",92,173,snuts
+/src/algorithms/graph/bellman-ford/__test__/bellmanFord.test.js,VerboseStatement,"{'startLine':7,'endLine':66}","it('should find minimum paths to all vertices for undirected graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+    const vertexH = new GraphVertex('H');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB, 4);
+    const edgeAE = new GraphEdge(vertexA, vertexE, 7);
+    const edgeAC = new GraphEdge(vertexA, vertexC, 3);
+    const edgeBC = new GraphEdge(vertexB, vertexC, 6);
+    const edgeBD = new GraphEdge(vertexB, vertexD, 5);
+    const edgeEC = new GraphEdge(vertexE, vertexC, 8);
+    const edgeED = new GraphEdge(vertexE, vertexD, 2);
+    const edgeDC = new GraphEdge(vertexD, vertexC, 11);
+    const edgeDG = new GraphEdge(vertexD, vertexG, 10);
+    const edgeDF = new GraphEdge(vertexD, vertexF, 2);
+    const edgeFG = new GraphEdge(vertexF, vertexG, 3);
+    const edgeEG = new GraphEdge(vertexE, vertexG, 5);
+
+    const graph = new Graph();
+    graph
+      .addVertex(vertexH)
+      .addEdge(edgeAB)
+      .addEdge(edgeAE)
+      .addEdge(edgeAC)
+      .addEdge(edgeBC)
+      .addEdge(edgeBD)
+      .addEdge(edgeEC)
+      .addEdge(edgeED)
+      .addEdge(edgeDC)
+      .addEdge(edgeDG)
+      .addEdge(edgeDF)
+      .addEdge(edgeFG)
+      .addEdge(edgeEG);
+
+    const { distances, previousVertices } = bellmanFord(graph, vertexA);
+
+    expect(distances).toEqual({
+      H: Infinity,
+      A: 0,
+      B: 4,
+      E: 7,
+      C: 3,
+      D: 9,
+      G: 12,
+      F: 11,
+    });
+
+    expect(previousVertices.F.getKey()).toBe('D');
+    expect(previousVertices.D.getKey()).toBe('B');
+    expect(previousVertices.B.getKey()).toBe('A');
+    expect(previousVertices.G.getKey()).toBe('E');
+    expect(previousVertices.C.getKey()).toBe('A');
+    expect(previousVertices.A).toBeNull();
+    expect(previousVertices.H).toBeNull();
+  })",7,66,snuts
+/src/algorithms/graph/bellman-ford/__test__/bellmanFord.test.js,VerboseStatement,"{'startLine':68,'endLine':116}","it('should find minimum paths to all vertices for directed graph with negative edge weights', () => {
+    const vertexS = new GraphVertex('S');
+    const vertexE = new GraphVertex('E');
+    const vertexA = new GraphVertex('A');
+    const vertexD = new GraphVertex('D');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexH = new GraphVertex('H');
+
+    const edgeSE = new GraphEdge(vertexS, vertexE, 8);
+    const edgeSA = new GraphEdge(vertexS, vertexA, 10);
+    const edgeED = new GraphEdge(vertexE, vertexD, 1);
+    const edgeDA = new GraphEdge(vertexD, vertexA, -4);
+    const edgeDC = new GraphEdge(vertexD, vertexC, -1);
+    const edgeAC = new GraphEdge(vertexA, vertexC, 2);
+    const edgeCB = new GraphEdge(vertexC, vertexB, -2);
+    const edgeBA = new GraphEdge(vertexB, vertexA, 1);
+
+    const graph = new Graph(true);
+    graph
+      .addVertex(vertexH)
+      .addEdge(edgeSE)
+      .addEdge(edgeSA)
+      .addEdge(edgeED)
+      .addEdge(edgeDA)
+      .addEdge(edgeDC)
+      .addEdge(edgeAC)
+      .addEdge(edgeCB)
+      .addEdge(edgeBA);
+
+    const { distances, previousVertices } = bellmanFord(graph, vertexS);
+
+    expect(distances).toEqual({
+      H: Infinity,
+      S: 0,
+      A: 5,
+      B: 5,
+      C: 7,
+      D: 9,
+      E: 8,
+    });
+
+    expect(previousVertices.H).toBeNull();
+    expect(previousVertices.S).toBeNull();
+    expect(previousVertices.B.getKey()).toBe('C');
+    expect(previousVertices.C.getKey()).toBe('A');
+    expect(previousVertices.A.getKey()).toBe('D');
+    expect(previousVertices.D.getKey()).toBe('E');
+  })",68,116,snuts
 /src/algorithms/graph/articulation-points/__test__/articulationPoints.test.js,SubOptimalAssert,"{'startLine':26,'endLine':26}","it('should find articulation points in simple graph', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');

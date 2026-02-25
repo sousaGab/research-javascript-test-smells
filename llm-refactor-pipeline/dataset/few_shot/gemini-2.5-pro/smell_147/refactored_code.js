@@ -2,18 +2,14 @@ test('remove file object from client and fail to remove from server', done => {
     pond.server = {
         ...server,
         remove: (source, load, error) => {
-            // Immediately call the error callback to simulate a server failure
-            // without an artificial delay.
+            // Fail immediately without a timeout
             error('fail');
         },
     };
 
-    const onremovefile = jest.fn();
-    pond.onremovefile = onremovefile;
-
     pond.onremovefile = (error, file) => {
         expect(error.type).toBe('error');
-        expect(onremovefile).not.toHaveBeenCalled();
+        // File should not be removed on the client if the server call fails
         expect(pond.getFiles().length).toBe(1);
         done();
     };

@@ -17,7 +17,6 @@ it("onDrag provides newItem with updated position during drag", () => {
   const item = container.querySelector(".react-grid-item");
   expect(item).not.toBeNull();
 
-  // item is now guaranteed to be an HTMLElement
   fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
   // Move significantly right and down
   fireEvent.mouseMove(document, { clientX: 400, clientY: 200 });
@@ -30,5 +29,8 @@ it("onDrag provides newItem with updated position during drag", () => {
   expect(newItem.i).toBe("a");
   // Position should have changed
   // $FlowIgnore - test assertion, we know these exist
-  expect(newItem.x !== oldItem.x || newItem.y !== oldItem.y).toBe(true);
+  expect({ x: newItem.x, y: newItem.y }).not.toEqual({
+    x: oldItem.x,
+    y: oldItem.y
+  });
 });

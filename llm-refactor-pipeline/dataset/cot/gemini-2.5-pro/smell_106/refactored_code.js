@@ -1,4 +1,4 @@
-test('should forward emitted errors to its listeners', (done) => {
+test('should propagate emitted errors to its "error" event listeners', (done) => {
     const error = new Error('test');
     file.on('error', (err) => {
       expect(err).toBe(error);

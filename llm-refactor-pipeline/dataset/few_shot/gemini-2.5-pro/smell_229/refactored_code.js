@@ -1,4 +1,4 @@
-test('should not report prop differences on rerender with the same props', () => {
+test('should report no prop, state, hook, or owner differences on re-render with identical props', () => {
   const {rerender} = rtl.render(
     <TestComponent a={1}/>
   );

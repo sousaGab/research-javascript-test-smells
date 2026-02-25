@@ -1,58 +1,49 @@
-it('works when headers are removed on the socket event', async () => {
-  const scope = nock('http://example.test', {
+it('works when headers are removed on the socket event', done => {
+  const apiMock = nock('http://example.test', {
     badheaders: ['authorization'],
   })
     .get('/endpoint')
-    .reply(200)
+    .reply(200);
 
-  const server = http.createServer((request, response) => {
+  const proxyServer = http.createServer((req, res) => {
     const proxyReq = http.request({
       host: 'example.test',
-      path: request.url,
-      headers: request.headers,
-    })
+      path: req.url,
+      headers: req.headers,
+    });
 
     proxyReq.on('socket', () => {
-      proxyReq.removeHeader('authorization')
-      proxyReq.end()
-    })
+      proxyReq.removeHeader('authorization');
+      proxyReq.end();
+    });
 
     proxyReq.on('response', proxyRes => {
-      proxyRes.pipe(response)
-    })
+      proxyRes.pipe(res);
+    });
 
-    proxyReq.on('error', error => {
-      response.writeHead(500)
-      response.end(error.message)
-    })
-  })
+    proxyReq.on('error', done);
+  });
 
-  try {
-    const port = await new Promise((resolve, reject) => {
-      server.on('error', reject)
-      server.listen(() => {
-        resolve(server.address().port)
-      })
-    })
-
-    const res = await new Promise((resolve, reject) => {
-      const req = http.request(
-        {
-          hostname: 'localhost',
-          path: '/endpoint',
-          port,
-          method: 'GET',
-          headers: { authorization: 'blah' },
+  proxyServer
+    .listen(() => {
+      const requestOptions = {
+        hostname: 'localhost',
+        path: '/endpoint',
+        port: proxyServer.address().port,
+        method: 'GET',
+        headers: {
+          authorization: 'some-token'
         },
-        resolve,
-      )
-      req.on('error', reject)
-      req.end()
-    })
+      };
 
-    expect(res.statusCode).to.equal(200)
-    scope.done()
-  } finally {
-    await new Promise(resolve => server.close(resolve))
-  }
-})
+      const clientReq = http.request(requestOptions, res => {
+        expect(res.statusCode).to.equal(200);
+        apiMock.done();
+        proxyServer.close(done);
+      });
+
+      clientReq.on('error', done);
+      clientReq.end();
+    })
+    .on('error', done);
+});

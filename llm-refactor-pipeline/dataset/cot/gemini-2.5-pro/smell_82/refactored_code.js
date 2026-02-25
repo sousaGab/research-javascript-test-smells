@@ -1,4 +1,4 @@
-it('should write to the newest file and older files will be in descending order', async function () {
+it('should write to the newest file and archive older logs in descending order', async function () {
       const transport = new winston.transports.File({
         ...defaultTransportOptions,
         tailable: false

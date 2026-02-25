@@ -1,28 +1,28 @@
 it('with a custom winston.Logger instance', async () => {
-  const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
+          const expectedMessage = 'OMG NEVER DO THIS STRING EXCEPTIONS ARE AWFUL';
 
-  // Assumes `logger` is the winston instance available in the test scope
-  // and that its file transport is the first transport in the array.
-  const transport = logger.transports[0];
-  const logged = new Promise(resolve => transport.once('logged', resolve));
+          const onExit = new Promise(resolve => {
+            // Replace the spy's implementation to resolve the promise when called.
+            // This acts as a signal that the asynchronous logging has completed.
+            processExitSpy.mockImplementation(resolve);
+          });
 
-  process.emit('uncaughtException', expectedMessage);
+          process.emit('uncaughtException', expectedMessage);
 
-  await logged;
+          // Wait for the process.exit spy to be called by the exception handler.
+          await onExit;
 
-  expect(processExitSpy).toHaveBeenCalledTimes(1);
-  expect(processExitSpy).toHaveBeenCalledWith(1);
+          expect(processExitSpy).toHaveBeenCalledTimes(1);
+          expect(processExitSpy).toHaveBeenCalledWith(1);
 
-  // Read the log file and verify its contents
-  const contents = await fsPromise.readFile(filePath, {
-    encoding: 'utf8'
-  });
-  const data = JSON.parse(contents);
+          // Read the log file and verify its contents
+          const contents = await fsPromise.readFile(filePath, { encoding: 'utf8' });
+          const data = JSON.parse(contents);
 
-  // Assert on the log data
-  assume(data).is.an('object');
-  helpers.assertProcessInfo(data.process);
-  helpers.assertOsInfo(data.os);
-  helpers.assertTrace(data.trace);
-  assume(data.message).includes('uncaughtException: ' + expectedMessage);
-})
+          // Assert on the log data
+          assume(data).is.an('object');
+          helpers.assertProcessInfo(data.process);
+          helpers.assertOsInfo(data.os);
+          helpers.assertTrace(data.trace);
+          assume(data.message).includes('uncaughtException: ' + expectedMessage);
+        })

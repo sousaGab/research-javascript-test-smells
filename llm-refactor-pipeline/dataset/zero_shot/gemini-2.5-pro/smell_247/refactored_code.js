@@ -1,13 +1,13 @@
 it('should enable net connect', done => {
-  nock.disableNetConnect()
-  nockBack.setMode('wild')
+      nock.disableNetConnect()
+      nockBack.setMode('wild')
 
-  // In "wild" mode, nock.back enables net connect for the scope of its callback.
-  // We can assert this state directly, which is more explicit than relying on
-  // a network call to not throw an error.
-  nockBack('fixture.json', function (nockDone) {
-    expect(nock.isNetConnectAllowed()).to.be.true
-    nockDone()
-    done()
-  })
-})
+      nockBackWithFixtureLocalhost(err => {
+        if (err) {
+          return done(err)
+        }
+        // Assert that net connect is allowed after nockBack runs in 'wild' mode.
+        expect(nock.isNetConnectAllowed()).to.be.true()
+        done()
+      })
+    })

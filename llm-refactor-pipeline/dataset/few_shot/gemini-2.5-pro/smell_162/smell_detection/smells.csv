@@ -3153,7 +3153,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(args[4]).toBeDefined(); // event
     expect(args[5]).toBeDefined(); // node
   })",65,95,snuts
-/test/spec/backcompat-test.js,OvercommentedTest,"{'startLine':803,'endLine':820}","it(""compact() respects allowOverlap=true"", () => {
+/test/spec/backcompat-test.js,OvercommentedTest,"{'startLine':829,'endLine':846}","it(""compact() respects allowOverlap=true"", () => {
     // Directly test the compact function with overlapping items
     const layout = [
       { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
@@ -3170,7 +3170,7 @@ file,type,line,method,methodStart,methodEnd,source
     const compactedWithoutOverlap = compact(layout, ""vertical"", 12, false);
     // b should be pushed to y=4 (after a ends)
     expect(compactedWithoutOverlap.find(l => l.i === ""b"").y).toBe(4);
-  })",803,820,snuts
+  })",829,846,snuts
 /test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':82,'endLine':84}","it(""onDragStart provides layout, oldItem, newItem, placeholder, event, and node"", () => {
     const onDragStart = jest.fn();
     const layout = [{ i: ""a"", x: 0, y: 0, w: 2, h: 2 }];
@@ -3383,7 +3383,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     expect(onDragStart).not.toHaveBeenCalled();
   })",265,293,snuts
-/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':544,'endLine':548}","it(""onBreakpointChange provides breakpoint name and cols count"", () => {
+/test/spec/backcompat-test.js,ConditionalTestLogic,"{'startLine':570,'endLine':574}","it(""onBreakpointChange provides breakpoint name and cols count"", () => {
     const onBreakpointChange = jest.fn();
 
     render(
@@ -3410,8 +3410,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(breakpoint).toBe(""md"");
       expect(cols).toBe(10);
     }
-  })",522,549,snuts
-/test/spec/backcompat-test.js,SubOptimalAssert,"{'startLine':883,'endLine':883}","it(""includes margin in item positioning"", () => {
+  })",548,575,snuts
+/test/spec/backcompat-test.js,SubOptimalAssert,"{'startLine':909,'endLine':909}","it(""includes margin in item positioning"", () => {
     const { container } = render(
       <ReactGridLayout
         layout={[
@@ -3436,7 +3436,7 @@ file,type,line,method,methodStart,methodEnd,source
       const style = item.getAttribute(""style"") || """";
       expect(style.length).toBeGreaterThan(0);
     });
-  })",865,890,snuts
+  })",891,916,snuts
 /test/spec/utils-test.js,Conditional Test Logic,"{'line': 39, 'column': 2, 'index': 1239}",Unknown,,,steel
 /test/spec/utils-test.js,Conditional Test Logic,"{'line': 85, 'column': 2, 'index': 2115}",Unknown,,,steel
 /test/spec/utils-test.js,Conditional Test Logic,"{'line': 86, 'column': 4, 'index': 2155}",Unknown,,,steel
@@ -12066,7 +12066,7 @@ file,type,line,method,methodStart,methodEnd,source
 
     expect(onDragStart).not.toHaveBeenCalled();
   })",265,293,steel
-/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 544, 'column': 4, 'index': 15582}","it(""onBreakpointChange provides breakpoint name and cols count"", () => {
+/test/spec/backcompat-test.js,Conditional Test Logic,"{'line': 570, 'column': 4, 'index': 15713}","it(""onBreakpointChange provides breakpoint name and cols count"", () => {
     const onBreakpointChange = jest.fn();
 
     render(
@@ -12093,7 +12093,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(breakpoint).toBe(""md"");
       expect(cols).toBe(10);
     }
-  })",522,549,steel
+  })",548,575,steel
 /test/spec/backcompat-test.js,Duplicate Assert,"{'line': 52, 'column': 6, 'index': 1640}","it(""onLayoutChange provides layout with all required fields"", () => {
     const onLayoutChange = jest.fn();
 
@@ -12636,41 +12636,67 @@ file,type,line,method,methodStart,methodEnd,source
     expect(compacted[0].x).toBe(5);
     expect(compacted[0].y).toBe(5);
   })",315,322,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 519, 'column': 44, 'index': 14944}","it(""uses correct layout for current breakpoint"", () => {
-    const onLayoutChange = jest.fn();
+/test/spec/backcompat-test.js,Magic Number,"{'line': 545, 'column': 42, 'index': 15076}","it(""uses correct layout for current breakpoint"", () => {
+  const onLayoutChange = jest.fn();
 
-    const layouts = {
-      lg: [{ i: ""a"", x: 0, y: 0, w: 4, h: 2 }],
-      sm: [{ i: ""a"", x: 0, y: 0, w: 2, h: 2 }]
-    };
+  const layouts = {
+    lg: [{
+      i: ""a"",
+      x: 0,
+      y: 0,
+      w: 4,
+      h: 2
+    }],
+    sm: [{
+      i: ""a"",
+      x: 0,
+      y: 0,
+      w: 2,
+      h: 2
+    }]
+  };
 
-    render(
-      <ResponsiveRGL
-        layouts={layouts}
-        breakpoints={{ lg: 1200, sm: 768 }}
-        cols={{ lg: 12, sm: 6 }}
-        onLayoutChange={onLayoutChange}
-      >
-        <div key=""a"">A</div>
-      </ResponsiveRGL>
-    );
+  render( <
+    ResponsiveRGL layouts = {
+      layouts
+    }
+    breakpoints = {
+      {
+        lg: 1200,
+        sm: 768
+      }
+    }
+    cols = {
+      {
+        lg: 12,
+        sm: 6
+      }
+    }
+    onLayoutChange = {
+      onLayoutChange
+    } >
+    <
+    div key = ""a"" > A < /div> <
+    /ResponsiveRGL>
+  );
 
-    // Trigger resize to small breakpoint
-    act(() => {
-      global.triggerResize(600, 400);
-    });
+  // Trigger resize to small breakpoint
+  act(() => {
+    global.triggerResize(600, 400);
+  });
 
-    // The callback should have been called after the resize
-    expect(onLayoutChange).toHaveBeenCalled();
+  // The handler should have been called after the resize
+  expect(onLayoutChange).toHaveBeenCalled();
 
-    // Get the layout from the last call
-    const calls = onLayoutChange.mock.calls;
-    const [layout] = calls[calls.length - 1];
+  // Find the call after resize
+  const calls = onLayoutChange.mock.calls;
+  const lastCall = calls[calls.length - 1];
+  const [layout] = lastCall;
 
-    // At sm breakpoint, width should be within sm cols
-    expect(layout[0].w).toBeLessThanOrEqual(6);
-  })",487,520,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 547, 'column': 24, 'index': 15714}","it(""onBreakpointChange provides breakpoint name and cols count"", () => {
+  // At sm breakpoint, width should be within sm cols
+  expect(layout[0].w).toBeLessThanOrEqual(6);
+})",487,546,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 573, 'column': 24, 'index': 15845}","it(""onBreakpointChange provides breakpoint name and cols count"", () => {
     const onBreakpointChange = jest.fn();
 
     render(
@@ -12697,8 +12723,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(breakpoint).toBe(""md"");
       expect(cols).toBe(10);
     }
-  })",522,549,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 575, 'column': 36, 'index': 16507}","it(""generates missing breakpoint layouts by interpolation"", () => {
+  })",548,575,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 601, 'column': 36, 'index': 16638}","it(""generates missing breakpoint layouts by interpolation"", () => {
     const onLayoutChange = jest.fn();
 
     // Only provide lg layout
@@ -12724,8 +12750,8 @@ file,type,line,method,methodStart,methodEnd,source
       onLayoutChange.mock.calls[onLayoutChange.mock.calls.length - 1][0];
     expect(lastLayout).toHaveLength(1);
     expect(lastLayout[0].i).toBe(""a"");
-  })",551,577,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 655, 'column': 41, 'index': 18685}","it(""defers ResizeObserver updates via requestAnimationFrame (#1959)"", () => {
+  })",577,603,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 681, 'column': 41, 'index': 18816}","it(""defers ResizeObserver updates via requestAnimationFrame (#1959)"", () => {
     // Track requestAnimationFrame calls
     let rafCallCount = 0;
     const originalRaf = global.requestAnimationFrame;
@@ -12754,8 +12780,8 @@ file,type,line,method,methodStart,methodEnd,source
 
     // Restore
     global.requestAnimationFrame = originalRaf;
-  })",630,659,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 693, 'column': 25, 'index': 19746}","it(""allowOverlap=true with compactType=null preserves overlapping items"", () => {
+  })",656,685,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 719, 'column': 25, 'index': 19877}","it(""allowOverlap=true with compactType=null preserves overlapping items"", () => {
     const onLayoutChange = jest.fn();
 
     // Create layout with intentionally overlapping items
@@ -12789,8 +12815,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(itemA.y).toBe(0);
     expect(itemB.x).toBe(2);
     expect(itemB.y).toBe(2);
-  })",663,697,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 694, 'column': 25, 'index': 19775}","it(""allowOverlap=true with compactType=null preserves overlapping items"", () => {
+  })",689,723,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 720, 'column': 25, 'index': 19906}","it(""allowOverlap=true with compactType=null preserves overlapping items"", () => {
     const onLayoutChange = jest.fn();
 
     // Create layout with intentionally overlapping items
@@ -12824,8 +12850,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(itemA.y).toBe(0);
     expect(itemB.x).toBe(2);
     expect(itemB.y).toBe(2);
-  })",663,697,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 695, 'column': 25, 'index': 19804}","it(""allowOverlap=true with compactType=null preserves overlapping items"", () => {
+  })",689,723,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 721, 'column': 25, 'index': 19935}","it(""allowOverlap=true with compactType=null preserves overlapping items"", () => {
     const onLayoutChange = jest.fn();
 
     // Create layout with intentionally overlapping items
@@ -12859,8 +12885,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(itemA.y).toBe(0);
     expect(itemB.x).toBe(2);
     expect(itemB.y).toBe(2);
-  })",663,697,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 696, 'column': 25, 'index': 19833}","it(""allowOverlap=true with compactType=null preserves overlapping items"", () => {
+  })",689,723,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 722, 'column': 25, 'index': 19964}","it(""allowOverlap=true with compactType=null preserves overlapping items"", () => {
     const onLayoutChange = jest.fn();
 
     // Create layout with intentionally overlapping items
@@ -12894,8 +12920,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(itemA.y).toBe(0);
     expect(itemB.x).toBe(2);
     expect(itemB.y).toBe(2);
-  })",663,697,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 729, 'column': 25, 'index': 20745}","it(""allowOverlap=true with compactType='vertical' preserves overlapping items"", () => {
+  })",689,723,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 755, 'column': 25, 'index': 20876}","it(""allowOverlap=true with compactType='vertical' preserves overlapping items"", () => {
     const onLayoutChange = jest.fn();
 
     // Create layout with overlapping items
@@ -12929,8 +12955,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(itemA.y).toBe(0);
     expect(itemB.x).toBe(2);
     expect(itemB.y).toBe(2); // Should NOT be pushed to y=4
-  })",699,733,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 730, 'column': 25, 'index': 20774}","it(""allowOverlap=true with compactType='vertical' preserves overlapping items"", () => {
+  })",725,759,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 756, 'column': 25, 'index': 20905}","it(""allowOverlap=true with compactType='vertical' preserves overlapping items"", () => {
     const onLayoutChange = jest.fn();
 
     // Create layout with overlapping items
@@ -12964,8 +12990,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(itemA.y).toBe(0);
     expect(itemB.x).toBe(2);
     expect(itemB.y).toBe(2); // Should NOT be pushed to y=4
-  })",699,733,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 731, 'column': 25, 'index': 20803}","it(""allowOverlap=true with compactType='vertical' preserves overlapping items"", () => {
+  })",725,759,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 757, 'column': 25, 'index': 20934}","it(""allowOverlap=true with compactType='vertical' preserves overlapping items"", () => {
     const onLayoutChange = jest.fn();
 
     // Create layout with overlapping items
@@ -12999,8 +13025,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(itemA.y).toBe(0);
     expect(itemB.x).toBe(2);
     expect(itemB.y).toBe(2); // Should NOT be pushed to y=4
-  })",699,733,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 732, 'column': 25, 'index': 20832}","it(""allowOverlap=true with compactType='vertical' preserves overlapping items"", () => {
+  })",725,759,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 758, 'column': 25, 'index': 20963}","it(""allowOverlap=true with compactType='vertical' preserves overlapping items"", () => {
     const onLayoutChange = jest.fn();
 
     // Create layout with overlapping items
@@ -13034,8 +13060,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(itemA.y).toBe(0);
     expect(itemB.x).toBe(2);
     expect(itemB.y).toBe(2); // Should NOT be pushed to y=4
-  })",699,733,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 765, 'column': 25, 'index': 21779}","it(""allowOverlap=true with compactType='horizontal' preserves overlapping items"", () => {
+  })",725,759,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 791, 'column': 25, 'index': 21910}","it(""allowOverlap=true with compactType='horizontal' preserves overlapping items"", () => {
     const onLayoutChange = jest.fn();
 
     // Create layout with overlapping items
@@ -13069,8 +13095,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(itemA.y).toBe(0);
     expect(itemB.x).toBe(2); // Should NOT be pushed to x=4
     expect(itemB.y).toBe(2);
-  })",735,769,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 766, 'column': 25, 'index': 21808}","it(""allowOverlap=true with compactType='horizontal' preserves overlapping items"", () => {
+  })",761,795,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 792, 'column': 25, 'index': 21939}","it(""allowOverlap=true with compactType='horizontal' preserves overlapping items"", () => {
     const onLayoutChange = jest.fn();
 
     // Create layout with overlapping items
@@ -13104,8 +13130,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(itemA.y).toBe(0);
     expect(itemB.x).toBe(2); // Should NOT be pushed to x=4
     expect(itemB.y).toBe(2);
-  })",735,769,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 767, 'column': 25, 'index': 21837}","it(""allowOverlap=true with compactType='horizontal' preserves overlapping items"", () => {
+  })",761,795,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 793, 'column': 25, 'index': 21968}","it(""allowOverlap=true with compactType='horizontal' preserves overlapping items"", () => {
     const onLayoutChange = jest.fn();
 
     // Create layout with overlapping items
@@ -13139,8 +13165,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(itemA.y).toBe(0);
     expect(itemB.x).toBe(2); // Should NOT be pushed to x=4
     expect(itemB.y).toBe(2);
-  })",735,769,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 768, 'column': 25, 'index': 21897}","it(""allowOverlap=true with compactType='horizontal' preserves overlapping items"", () => {
+  })",761,795,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 794, 'column': 25, 'index': 22028}","it(""allowOverlap=true with compactType='horizontal' preserves overlapping items"", () => {
     const onLayoutChange = jest.fn();
 
     // Create layout with overlapping items
@@ -13174,8 +13200,8 @@ file,type,line,method,methodStart,methodEnd,source
     expect(itemA.y).toBe(0);
     expect(itemB.x).toBe(2); // Should NOT be pushed to x=4
     expect(itemB.y).toBe(2);
-  })",735,769,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 812, 'column': 63, 'index': 23257}","it(""compact() respects allowOverlap=true"", () => {
+  })",761,795,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 838, 'column': 63, 'index': 23388}","it(""compact() respects allowOverlap=true"", () => {
     // Directly test the compact function with overlapping items
     const layout = [
       { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
@@ -13192,8 +13218,8 @@ file,type,line,method,methodStart,methodEnd,source
     const compactedWithoutOverlap = compact(layout, ""vertical"", 12, false);
     // b should be pushed to y=4 (after a ends)
     expect(compactedWithoutOverlap.find(l => l.i === ""b"").y).toBe(4);
-  })",803,820,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 819, 'column': 66, 'index': 23683}","it(""compact() respects allowOverlap=true"", () => {
+  })",829,846,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 845, 'column': 66, 'index': 23814}","it(""compact() respects allowOverlap=true"", () => {
     // Directly test the compact function with overlapping items
     const layout = [
       { i: ""a"", x: 0, y: 0, w: 4, h: 4 },
@@ -13210,8 +13236,8 @@ file,type,line,method,methodStart,methodEnd,source
     const compactedWithoutOverlap = compact(layout, ""vertical"", 12, false);
     // b should be pushed to y=4 (after a ends)
     expect(compactedWithoutOverlap.find(l => l.i === ""b"").y).toBe(4);
-  })",803,820,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 883, 'column': 30, 'index': 25418}","it(""includes margin in item positioning"", () => {
+  })",829,846,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 909, 'column': 30, 'index': 25549}","it(""includes margin in item positioning"", () => {
     const { container } = render(
       <ReactGridLayout
         layout={[
@@ -13236,8 +13262,8 @@ file,type,line,method,methodStart,methodEnd,source
       const style = item.getAttribute(""style"") || """";
       expect(style.length).toBeGreaterThan(0);
     });
-  })",865,890,steel
-/test/spec/backcompat-test.js,Magic Number,"{'line': 888, 'column': 43, 'index': 25597}","it(""includes margin in item positioning"", () => {
+  })",891,916,steel
+/test/spec/backcompat-test.js,Magic Number,"{'line': 914, 'column': 43, 'index': 25728}","it(""includes margin in item positioning"", () => {
     const { container } = render(
       <ReactGridLayout
         layout={[
@@ -13262,4 +13288,4 @@ file,type,line,method,methodStart,methodEnd,source
       const style = item.getAttribute(""style"") || """";
       expect(style.length).toBeGreaterThan(0);
     });
-  })",865,890,steel
+  })",891,916,steel

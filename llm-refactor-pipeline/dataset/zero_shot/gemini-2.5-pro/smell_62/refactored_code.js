@@ -1,4 +1,4 @@
-describe('HashTable creation', () => {
+describe('HashTable', () => {
   it('should create a hash table with the default size', () => {
     const defaultHashTable = new HashTable();
     expect(defaultHashTable.buckets.length).toBe(32);

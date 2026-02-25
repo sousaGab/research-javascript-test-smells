@@ -1,3 +1,4 @@
 it('that Logger class is exported', () => {
-    expect(Logger).toBe(require('../../lib/winston/logger'));
-  });
+  // eslint-disable-next-line global-require
+  expect(Logger).to.equal(require('../../lib/winston/logger'));
+});

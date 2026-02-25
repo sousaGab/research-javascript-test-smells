@@ -1,13 +1,8 @@
-it('should find all items matching the fuzzy search term', function () {
-    const searchTerm = 'thre';
-    const expectedMatches = [
-      'three',
-      'thirteen',
-      'thirty',
-      'thirty-three'
-    ];
+it('should find four items when searching for "thre"', function () {
+  const searchTerm = 'thre';
+  const expectedMatchCount = 4;
 
-    list.fuzzySearch(searchTerm);
+  list.fuzzySearch(searchTerm);
 
-    expect(list.matchingItems.length).toBe(expectedMatches.length);
+  expect(list.matchingItems.length).toBe(expectedMatchCount);
 });

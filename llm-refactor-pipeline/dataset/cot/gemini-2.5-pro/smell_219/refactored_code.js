@@ -17,6 +17,7 @@ it('shows when IntersectionObserver not supported', async () => {
   await waitRAF()
 
   expect(wrapper.vm.isShown).toBe(true)
+
   expect(wrapper.attributes('src')).toBeDefined()
   expect(wrapper.attributes('src')).toContain(src)
 

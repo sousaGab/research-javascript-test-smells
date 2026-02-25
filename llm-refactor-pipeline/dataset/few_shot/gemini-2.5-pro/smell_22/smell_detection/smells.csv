@@ -2949,19 +2949,18 @@ file,type,line,method,methodStart,methodEnd,source
       // (within a small tolerance, since algorithms may differ slightly)
       const NUMBER_OF_RUNS = 50;
       const LAYOUT_ITEMS = 30;
-      const LAYOUT_COLUMNS = 12;
-      const ALLOWED_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-      const MAX_WORSE_CASES = NUMBER_OF_RUNS * ALLOWED_WORSE_CASE_PERCENTAGE;
+      const COLUMNS = 12;
+      const WORST_CASE_TOLERANCE = 0.8; // Fast compactor can be worse in at most 80% of cases
 
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
 
       for (let run = 0; run < NUMBER_OF_RUNS; run++) {
-        const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
+        const layout = generateMessyLayout(LAYOUT_ITEMS, COLUMNS);
 
-        const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-        const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
+        const stdCompacted = verticalCompactor.compact(layout, COLUMNS);
+        const fastCompacted = fastVerticalCompactor.compact(layout, COLUMNS);
 
         const stdHeight = layoutHeight(stdCompacted);
         const fastHeight = layoutHeight(fastCompacted);
@@ -2983,7 +2982,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       // Fast compactor should not be significantly worse
       // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_CASES); // At most 80% worse
+      const maxStdBetterAllowed = NUMBER_OF_RUNS * WORST_CASE_TOLERANCE;
+      expect(stdBetter).toBeLessThan(maxStdBetterAllowed);
     })",378,418,snuts
 /test/spec/fast-compactor-test.js,TranscriptingTest,"{'startLine':463,'endLine':500}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
       // Use the same deterministic layout from benchmark-test.js
@@ -3023,24 +3023,23 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(heightDiff).toBeLessThan(0.2); // Within 20%
     })",463,500,snuts
-/test/spec/fast-compactor-test.js,OvercommentedTest,"{'startLine':378,'endLine':418}","it(""produces similar or better compaction height"", () => {
+/test/spec/fast-compactor-test.js,ConditionalTestLogic,"{'startLine':399,'endLine':401}","it(""produces similar or better compaction height"", () => {
       // The fast compactor should produce layouts with similar total height
       // (within a small tolerance, since algorithms may differ slightly)
       const NUMBER_OF_RUNS = 50;
       const LAYOUT_ITEMS = 30;
-      const LAYOUT_COLUMNS = 12;
-      const ALLOWED_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-      const MAX_WORSE_CASES = NUMBER_OF_RUNS * ALLOWED_WORSE_CASE_PERCENTAGE;
+      const COLUMNS = 12;
+      const WORST_CASE_TOLERANCE = 0.8; // Fast compactor can be worse in at most 80% of cases
 
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
 
       for (let run = 0; run < NUMBER_OF_RUNS; run++) {
-        const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
+        const layout = generateMessyLayout(LAYOUT_ITEMS, COLUMNS);
 
-        const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-        const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
+        const stdCompacted = verticalCompactor.compact(layout, COLUMNS);
+        const fastCompacted = fastVerticalCompactor.compact(layout, COLUMNS);
 
         const stdHeight = layoutHeight(stdCompacted);
         const fastHeight = layoutHeight(fastCompacted);
@@ -3062,26 +3061,26 @@ file,type,line,method,methodStart,methodEnd,source
 
       // Fast compactor should not be significantly worse
       // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_CASES); // At most 80% worse
+      const maxStdBetterAllowed = NUMBER_OF_RUNS * WORST_CASE_TOLERANCE;
+      expect(stdBetter).toBeLessThan(maxStdBetterAllowed);
     })",378,418,snuts
-/test/spec/fast-compactor-test.js,ConditionalTestLogic,"{'startLine':400,'endLine':402}","it(""produces similar or better compaction height"", () => {
+/test/spec/fast-compactor-test.js,ConditionalTestLogic,"{'startLine':400,'endLine':401}","it(""produces similar or better compaction height"", () => {
       // The fast compactor should produce layouts with similar total height
       // (within a small tolerance, since algorithms may differ slightly)
       const NUMBER_OF_RUNS = 50;
       const LAYOUT_ITEMS = 30;
-      const LAYOUT_COLUMNS = 12;
-      const ALLOWED_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-      const MAX_WORSE_CASES = NUMBER_OF_RUNS * ALLOWED_WORSE_CASE_PERCENTAGE;
+      const COLUMNS = 12;
+      const WORST_CASE_TOLERANCE = 0.8; // Fast compactor can be worse in at most 80% of cases
 
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
 
       for (let run = 0; run < NUMBER_OF_RUNS; run++) {
-        const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
+        const layout = generateMessyLayout(LAYOUT_ITEMS, COLUMNS);
 
-        const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-        const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
+        const stdCompacted = verticalCompactor.compact(layout, COLUMNS);
+        const fastCompacted = fastVerticalCompactor.compact(layout, COLUMNS);
 
         const stdHeight = layoutHeight(stdCompacted);
         const fastHeight = layoutHeight(fastCompacted);
@@ -3103,48 +3102,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       // Fast compactor should not be significantly worse
       // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_CASES); // At most 80% worse
-    })",378,418,snuts
-/test/spec/fast-compactor-test.js,ConditionalTestLogic,"{'startLine':401,'endLine':402}","it(""produces similar or better compaction height"", () => {
-      // The fast compactor should produce layouts with similar total height
-      // (within a small tolerance, since algorithms may differ slightly)
-      const NUMBER_OF_RUNS = 50;
-      const LAYOUT_ITEMS = 30;
-      const LAYOUT_COLUMNS = 12;
-      const ALLOWED_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-      const MAX_WORSE_CASES = NUMBER_OF_RUNS * ALLOWED_WORSE_CASE_PERCENTAGE;
-
-      let fastBetter = 0;
-      let stdBetter = 0;
-      let equal = 0;
-
-      for (let run = 0; run < NUMBER_OF_RUNS; run++) {
-        const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
-
-        const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-        const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
-
-        const stdHeight = layoutHeight(stdCompacted);
-        const fastHeight = layoutHeight(fastCompacted);
-
-        if (fastHeight < stdHeight) fastBetter++;
-        else if (stdHeight < fastHeight) stdBetter++;
-        else equal++;
-      }
-
-      console.log(
-        [
-          """",
-          `  Compaction height comparison (${NUMBER_OF_RUNS} random layouts):`,
-          `    Fast better: ${fastBetter}`,
-          `    Standard better: ${stdBetter}`,
-          `    Equal: ${equal}`
-        ].join(""\n"")
-      );
-
-      // Fast compactor should not be significantly worse
-      // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_CASES); // At most 80% worse
+      const maxStdBetterAllowed = NUMBER_OF_RUNS * WORST_CASE_TOLERANCE;
+      expect(stdBetter).toBeLessThan(maxStdBetterAllowed);
     })",378,418,snuts
 /test/spec/fast-compactor-test.js,SubOptimalAssert,"{'startLine':291,'endLine':291}","it(""handles items wider than grid"", () => {
       const layout = [
@@ -9651,19 +9610,18 @@ file,type,line,method,methodStart,methodEnd,source
       // (within a small tolerance, since algorithms may differ slightly)
       const NUMBER_OF_RUNS = 50;
       const LAYOUT_ITEMS = 30;
-      const LAYOUT_COLUMNS = 12;
-      const ALLOWED_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-      const MAX_WORSE_CASES = NUMBER_OF_RUNS * ALLOWED_WORSE_CASE_PERCENTAGE;
+      const COLUMNS = 12;
+      const WORST_CASE_TOLERANCE = 0.8; // Fast compactor can be worse in at most 80% of cases
 
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
 
       for (let run = 0; run < NUMBER_OF_RUNS; run++) {
-        const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
+        const layout = generateMessyLayout(LAYOUT_ITEMS, COLUMNS);
 
-        const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-        const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
+        const stdCompacted = verticalCompactor.compact(layout, COLUMNS);
+        const fastCompacted = fastVerticalCompactor.compact(layout, COLUMNS);
 
         const stdHeight = layoutHeight(stdCompacted);
         const fastHeight = layoutHeight(fastCompacted);
@@ -9685,7 +9643,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       // Fast compactor should not be significantly worse
       // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_CASES); // At most 80% worse
+      const maxStdBetterAllowed = NUMBER_OF_RUNS * WORST_CASE_TOLERANCE;
+      expect(stdBetter).toBeLessThan(maxStdBetterAllowed);
     });
 
     it(""handles complex static item configurations identically"", () => {
@@ -9889,19 +9848,18 @@ file,type,line,method,methodStart,methodEnd,source
       // (within a small tolerance, since algorithms may differ slightly)
       const NUMBER_OF_RUNS = 50;
       const LAYOUT_ITEMS = 30;
-      const LAYOUT_COLUMNS = 12;
-      const ALLOWED_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-      const MAX_WORSE_CASES = NUMBER_OF_RUNS * ALLOWED_WORSE_CASE_PERCENTAGE;
+      const COLUMNS = 12;
+      const WORST_CASE_TOLERANCE = 0.8; // Fast compactor can be worse in at most 80% of cases
 
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
 
       for (let run = 0; run < NUMBER_OF_RUNS; run++) {
-        const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
+        const layout = generateMessyLayout(LAYOUT_ITEMS, COLUMNS);
 
-        const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-        const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
+        const stdCompacted = verticalCompactor.compact(layout, COLUMNS);
+        const fastCompacted = fastVerticalCompactor.compact(layout, COLUMNS);
 
         const stdHeight = layoutHeight(stdCompacted);
         const fastHeight = layoutHeight(fastCompacted);
@@ -9923,7 +9881,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       // Fast compactor should not be significantly worse
       // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_CASES); // At most 80% worse
+      const maxStdBetterAllowed = NUMBER_OF_RUNS * WORST_CASE_TOLERANCE;
+      expect(stdBetter).toBeLessThan(maxStdBetterAllowed);
     });
 
     it(""handles complex static item configurations identically"", () => {
@@ -10127,19 +10086,18 @@ file,type,line,method,methodStart,methodEnd,source
       // (within a small tolerance, since algorithms may differ slightly)
       const NUMBER_OF_RUNS = 50;
       const LAYOUT_ITEMS = 30;
-      const LAYOUT_COLUMNS = 12;
-      const ALLOWED_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-      const MAX_WORSE_CASES = NUMBER_OF_RUNS * ALLOWED_WORSE_CASE_PERCENTAGE;
+      const COLUMNS = 12;
+      const WORST_CASE_TOLERANCE = 0.8; // Fast compactor can be worse in at most 80% of cases
 
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
 
       for (let run = 0; run < NUMBER_OF_RUNS; run++) {
-        const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
+        const layout = generateMessyLayout(LAYOUT_ITEMS, COLUMNS);
 
-        const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-        const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
+        const stdCompacted = verticalCompactor.compact(layout, COLUMNS);
+        const fastCompacted = fastVerticalCompactor.compact(layout, COLUMNS);
 
         const stdHeight = layoutHeight(stdCompacted);
         const fastHeight = layoutHeight(fastCompacted);
@@ -10161,7 +10119,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       // Fast compactor should not be significantly worse
       // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_CASES); // At most 80% worse
+      const maxStdBetterAllowed = NUMBER_OF_RUNS * WORST_CASE_TOLERANCE;
+      expect(stdBetter).toBeLessThan(maxStdBetterAllowed);
     });
 
     it(""handles complex static item configurations identically"", () => {
@@ -10365,19 +10324,18 @@ file,type,line,method,methodStart,methodEnd,source
       // (within a small tolerance, since algorithms may differ slightly)
       const NUMBER_OF_RUNS = 50;
       const LAYOUT_ITEMS = 30;
-      const LAYOUT_COLUMNS = 12;
-      const ALLOWED_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-      const MAX_WORSE_CASES = NUMBER_OF_RUNS * ALLOWED_WORSE_CASE_PERCENTAGE;
+      const COLUMNS = 12;
+      const WORST_CASE_TOLERANCE = 0.8; // Fast compactor can be worse in at most 80% of cases
 
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
 
       for (let run = 0; run < NUMBER_OF_RUNS; run++) {
-        const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
+        const layout = generateMessyLayout(LAYOUT_ITEMS, COLUMNS);
 
-        const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-        const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
+        const stdCompacted = verticalCompactor.compact(layout, COLUMNS);
+        const fastCompacted = fastVerticalCompactor.compact(layout, COLUMNS);
 
         const stdHeight = layoutHeight(stdCompacted);
         const fastHeight = layoutHeight(fastCompacted);
@@ -10399,7 +10357,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       // Fast compactor should not be significantly worse
       // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_CASES); // At most 80% worse
+      const maxStdBetterAllowed = NUMBER_OF_RUNS * WORST_CASE_TOLERANCE;
+      expect(stdBetter).toBeLessThan(maxStdBetterAllowed);
     });
 
     it(""handles complex static item configurations identically"", () => {
@@ -10542,24 +10501,23 @@ file,type,line,method,methodStart,methodEnd,source
         expect(fastCompacted.length).toBe(stdCompacted.length);
       }
     })",360,376,steel
-/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 391, 'column': 6, 'index': 12748}","it(""produces similar or better compaction height"", () => {
+/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 390, 'column': 6, 'index': 12702}","it(""produces similar or better compaction height"", () => {
       // The fast compactor should produce layouts with similar total height
       // (within a small tolerance, since algorithms may differ slightly)
       const NUMBER_OF_RUNS = 50;
       const LAYOUT_ITEMS = 30;
-      const LAYOUT_COLUMNS = 12;
-      const ALLOWED_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-      const MAX_WORSE_CASES = NUMBER_OF_RUNS * ALLOWED_WORSE_CASE_PERCENTAGE;
+      const COLUMNS = 12;
+      const WORST_CASE_TOLERANCE = 0.8; // Fast compactor can be worse in at most 80% of cases
 
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
 
       for (let run = 0; run < NUMBER_OF_RUNS; run++) {
-        const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
+        const layout = generateMessyLayout(LAYOUT_ITEMS, COLUMNS);
 
-        const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-        const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
+        const stdCompacted = verticalCompactor.compact(layout, COLUMNS);
+        const fastCompacted = fastVerticalCompactor.compact(layout, COLUMNS);
 
         const stdHeight = layoutHeight(stdCompacted);
         const fastHeight = layoutHeight(fastCompacted);
@@ -10581,26 +10539,26 @@ file,type,line,method,methodStart,methodEnd,source
 
       // Fast compactor should not be significantly worse
       // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_CASES); // At most 80% worse
+      const maxStdBetterAllowed = NUMBER_OF_RUNS * WORST_CASE_TOLERANCE;
+      expect(stdBetter).toBeLessThan(maxStdBetterAllowed);
     })",378,418,steel
-/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 400, 'column': 8, 'index': 13157}","it(""produces similar or better compaction height"", () => {
+/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 399, 'column': 8, 'index': 13090}","it(""produces similar or better compaction height"", () => {
       // The fast compactor should produce layouts with similar total height
       // (within a small tolerance, since algorithms may differ slightly)
       const NUMBER_OF_RUNS = 50;
       const LAYOUT_ITEMS = 30;
-      const LAYOUT_COLUMNS = 12;
-      const ALLOWED_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-      const MAX_WORSE_CASES = NUMBER_OF_RUNS * ALLOWED_WORSE_CASE_PERCENTAGE;
+      const COLUMNS = 12;
+      const WORST_CASE_TOLERANCE = 0.8; // Fast compactor can be worse in at most 80% of cases
 
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
 
       for (let run = 0; run < NUMBER_OF_RUNS; run++) {
-        const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
+        const layout = generateMessyLayout(LAYOUT_ITEMS, COLUMNS);
 
-        const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-        const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
+        const stdCompacted = verticalCompactor.compact(layout, COLUMNS);
+        const fastCompacted = fastVerticalCompactor.compact(layout, COLUMNS);
 
         const stdHeight = layoutHeight(stdCompacted);
         const fastHeight = layoutHeight(fastCompacted);
@@ -10622,26 +10580,26 @@ file,type,line,method,methodStart,methodEnd,source
 
       // Fast compactor should not be significantly worse
       // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_CASES); // At most 80% worse
+      const maxStdBetterAllowed = NUMBER_OF_RUNS * WORST_CASE_TOLERANCE;
+      expect(stdBetter).toBeLessThan(maxStdBetterAllowed);
     })",378,418,steel
-/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 401, 'column': 13, 'index': 13212}","it(""produces similar or better compaction height"", () => {
+/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 400, 'column': 13, 'index': 13145}","it(""produces similar or better compaction height"", () => {
       // The fast compactor should produce layouts with similar total height
       // (within a small tolerance, since algorithms may differ slightly)
       const NUMBER_OF_RUNS = 50;
       const LAYOUT_ITEMS = 30;
-      const LAYOUT_COLUMNS = 12;
-      const ALLOWED_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-      const MAX_WORSE_CASES = NUMBER_OF_RUNS * ALLOWED_WORSE_CASE_PERCENTAGE;
+      const COLUMNS = 12;
+      const WORST_CASE_TOLERANCE = 0.8; // Fast compactor can be worse in at most 80% of cases
 
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
 
       for (let run = 0; run < NUMBER_OF_RUNS; run++) {
-        const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
+        const layout = generateMessyLayout(LAYOUT_ITEMS, COLUMNS);
 
-        const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-        const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
+        const stdCompacted = verticalCompactor.compact(layout, COLUMNS);
+        const fastCompacted = fastVerticalCompactor.compact(layout, COLUMNS);
 
         const stdHeight = layoutHeight(stdCompacted);
         const fastHeight = layoutHeight(fastCompacted);
@@ -10663,9 +10621,10 @@ file,type,line,method,methodStart,methodEnd,source
 
       // Fast compactor should not be significantly worse
       // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_CASES); // At most 80% worse
+      const maxStdBetterAllowed = NUMBER_OF_RUNS * WORST_CASE_TOLERANCE;
+      expect(stdBetter).toBeLessThan(maxStdBetterAllowed);
     })",378,418,steel
-/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 436, 'column': 6, 'index': 14475}","it(""handles complex static item configurations identically"", () => {
+/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 436, 'column': 6, 'index': 14464}","it(""handles complex static item configurations identically"", () => {
       // Multiple static items at various positions
       const layout = [
         { i: ""s1"", x: 0, y: 0, w: 4, h: 2, static: true },
@@ -10692,7 +10651,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(hasOverlaps(stdCompacted)).toBe(false);
       expect(hasOverlaps(fastCompacted)).toBe(false);
     })",420,446,steel
-/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 454, 'column': 6, 'index': 15137}","it(""preserves item dimensions"", () => {
+/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 454, 'column': 6, 'index': 15126}","it(""preserves item dimensions"", () => {
       const layout = generateRandomLayout(30, 12, 5);
 
       const fastCompacted = fastVerticalCompactor.compact(layout, 12);
@@ -10706,7 +10665,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(compacted.static).toBe(original.static);
       }
     })",448,461,steel
-/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 466, 'column': 6, 'index': 15629}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
+/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 466, 'column': 6, 'index': 15618}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
       // Use the same deterministic layout from benchmark-test.js
       const layout = [];
       for (let i = 0; i < 100; i++) {
@@ -10744,7 +10703,7 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(heightDiff).toBeLessThan(0.2); // Within 20%
     })",463,500,steel
-/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 523, 'column': 6, 'index': 17592}","it(""handles narrow grids (1-3 columns)"", () => {
+/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 523, 'column': 6, 'index': 17581}","it(""handles narrow grids (1-3 columns)"", () => {
       for (let cols = 1; cols <= 3; cols++) {
         const layout = [];
         for (let i = 0; i < 10; i++) {
@@ -10764,7 +10723,7 @@ file,type,line,method,methodStart,methodEnd,source
         expect(hasOverlaps(fastCompacted)).toBe(false);
       }
     })",522,541,steel
-/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 525, 'column': 8, 'index': 17667}","it(""handles narrow grids (1-3 columns)"", () => {
+/test/spec/fast-compactor-test.js,Conditional Test Logic,"{'line': 525, 'column': 8, 'index': 17656}","it(""handles narrow grids (1-3 columns)"", () => {
       for (let cols = 1; cols <= 3; cols++) {
         const layout = [];
         for (let i = 0; i < 10; i++) {
@@ -10889,7 +10848,7 @@ file,type,line,method,methodStart,methodEnd,source
       const compacted = fastVerticalCompactor.compact(layout, 12);
       expect(compacted.length).toBe(1);
     })",294,302,steel
-/test/spec/fast-compactor-test.js,Magic Number,"{'line': 499, 'column': 38, 'index': 16668}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
+/test/spec/fast-compactor-test.js,Magic Number,"{'line': 499, 'column': 38, 'index': 16657}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
       // Use the same deterministic layout from benchmark-test.js
       const layout = [];
       for (let i = 0; i < 100; i++) {
@@ -10927,7 +10886,7 @@ file,type,line,method,methodStart,methodEnd,source
 
       expect(heightDiff).toBeLessThan(0.2); // Within 20%
     })",463,500,steel
-/test/spec/fast-compactor-test.js,Magic Number,"{'line': 518, 'column': 46, 'index': 17469}","it(""handles edge case: items that could stack in different orders"", () => {
+/test/spec/fast-compactor-test.js,Magic Number,"{'line': 518, 'column': 46, 'index': 17458}","it(""handles edge case: items that could stack in different orders"", () => {
       // Items that could be stacked in different valid configurations
       const layout = [
         { i: ""a"", x: 0, y: 0, w: 6, h: 2 },
@@ -10946,7 +10905,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(layoutHeight(stdCompacted)).toBe(6);
       expect(layoutHeight(fastCompacted)).toBe(6);
     })",502,520,steel
-/test/spec/fast-compactor-test.js,Magic Number,"{'line': 519, 'column': 47, 'index': 17520}","it(""handles edge case: items that could stack in different orders"", () => {
+/test/spec/fast-compactor-test.js,Magic Number,"{'line': 519, 'column': 47, 'index': 17509}","it(""handles edge case: items that could stack in different orders"", () => {
       // Items that could be stacked in different valid configurations
       const layout = [
         { i: ""a"", x: 0, y: 0, w: 6, h: 2 },
@@ -10988,24 +10947,23 @@ file,type,line,method,methodStart,methodEnd,source
         ].join(""\n"")
       );
     })",232,254,steel
-/test/spec/fast-compactor-test.js,Redundant Print,"{'line': 405, 'column': 6, 'index': 13290}","it(""produces similar or better compaction height"", () => {
+/test/spec/fast-compactor-test.js,Redundant Print,"{'line': 404, 'column': 6, 'index': 13223}","it(""produces similar or better compaction height"", () => {
       // The fast compactor should produce layouts with similar total height
       // (within a small tolerance, since algorithms may differ slightly)
       const NUMBER_OF_RUNS = 50;
       const LAYOUT_ITEMS = 30;
-      const LAYOUT_COLUMNS = 12;
-      const ALLOWED_WORSE_CASE_PERCENTAGE = 0.8; // 80%
-      const MAX_WORSE_CASES = NUMBER_OF_RUNS * ALLOWED_WORSE_CASE_PERCENTAGE;
+      const COLUMNS = 12;
+      const WORST_CASE_TOLERANCE = 0.8; // Fast compactor can be worse in at most 80% of cases
 
       let fastBetter = 0;
       let stdBetter = 0;
       let equal = 0;
 
       for (let run = 0; run < NUMBER_OF_RUNS; run++) {
-        const layout = generateMessyLayout(LAYOUT_ITEMS, LAYOUT_COLUMNS);
+        const layout = generateMessyLayout(LAYOUT_ITEMS, COLUMNS);
 
-        const stdCompacted = verticalCompactor.compact(layout, LAYOUT_COLUMNS);
-        const fastCompacted = fastVerticalCompactor.compact(layout, LAYOUT_COLUMNS);
+        const stdCompacted = verticalCompactor.compact(layout, COLUMNS);
+        const fastCompacted = fastVerticalCompactor.compact(layout, COLUMNS);
 
         const stdHeight = layoutHeight(stdCompacted);
         const fastHeight = layoutHeight(fastCompacted);
@@ -11027,9 +10985,10 @@ file,type,line,method,methodStart,methodEnd,source
 
       // Fast compactor should not be significantly worse
       // Allow some tolerance since algorithms may differ
-      expect(stdBetter).toBeLessThan(MAX_WORSE_CASES); // At most 80% worse
+      const maxStdBetterAllowed = NUMBER_OF_RUNS * WORST_CASE_TOLERANCE;
+      expect(stdBetter).toBeLessThan(maxStdBetterAllowed);
     })",378,418,steel
-/test/spec/fast-compactor-test.js,Redundant Print,"{'line': 489, 'column': 6, 'index': 16363}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
+/test/spec/fast-compactor-test.js,Redundant Print,"{'line': 489, 'column': 6, 'index': 16352}","it(""matches standard compactor for deterministic layout from benchmark"", () => {
       // Use the same deterministic layout from benchmark-test.js
       const layout = [];
       for (let i = 0; i < 100; i++) {

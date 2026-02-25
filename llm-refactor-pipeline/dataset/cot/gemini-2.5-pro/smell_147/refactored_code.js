@@ -1,32 +1,23 @@
-test('remove file object from client and fail to remove from server', () => {
-    jest.useFakeTimers();
-
+test('remove file object from client and fail to remove from server', done => {
     pond.server = {
         ...server,
         remove: (source, load, error) => {
-            setTimeout(() => {
-                error('fail');
-            }, 10);
+            // The error callback is now invoked synchronously, removing the delay
+            error('fail');
         },
     };
 
-    const onRemoveFileHandler = jest.fn();
-    pond.onremovefile = onRemoveFileHandler;
+    pond.onremovefile = (error, file) => {
+        expect(error.type).toBe('error');
+        // The file should not be removed on the client if the server fails
+        expect(pond.getFiles().length).toBe(1);
+        done();
+    };
 
     pond.onaddfile = () => {
         pond.removeFile();
     };
 
-    // This assignment is expected to trigger the onaddfile -> removeFile flow
+    // This assignment kicks off the test flow
     pond.files = [LOCAL_FILE];
-
-    // Fast-forward timers to execute the error callback in the mock server
-    jest.runAllTimers();
-
-    expect(onRemoveFileHandler).toHaveBeenCalledTimes(1);
-    const [error] = onRemoveFileHandler.mock.calls[0];
-    expect(error.type).toBe('error');
-    expect(pond.getFiles().length).toBe(1);
-
-    jest.useRealTimers();
 });

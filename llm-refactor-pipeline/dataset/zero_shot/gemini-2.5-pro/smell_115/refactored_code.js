@@ -7,9 +7,10 @@ it('default levels', function () {
 
   assume(logger.getHighestLogLevel).is.a('function');
   assume(logger.getHighestLogLevel()).equals(4);
+
   assume(logger.isLevelEnabled).is.a('function');
 
-  const levels = {
+  const levelChecks = {
     error: true,
     warn: true,
     info: true,
@@ -18,11 +19,11 @@ it('default levels', function () {
     silly: false
   };
 
-  Object.entries(levels).forEach(([level, shouldBeEnabled]) => {
-    const methodName = `is${level.charAt(0).toUpperCase() + level.slice(1)}Enabled`;
+  Object.entries(levelChecks).forEach(([level, shouldBeEnabled]) => {
+    const specificChecker = `is${level.charAt(0).toUpperCase() + level.slice(1)}Enabled`;
 
-    assume(logger[methodName]).is.a('function');
-    assume(logger.isLevelEnabled(level)).equals(shouldBeEnabled);
-    assume(logger[methodName]()).equals(shouldBeEnabled);
+    assume(logger[specificChecker]).is.a('function');
+    assume(logger.isLevelEnabled(level))[shouldBeEnabled ? 'true' : 'false']();
+    assume(logger[specificChecker]())[shouldBeEnabled ? 'true' : 'false']();
   });
 });

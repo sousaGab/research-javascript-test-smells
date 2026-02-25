@@ -9,9 +9,8 @@ test('when no arguments then asterisk action not called', () => {
     .command('*')
     .action(mockAction);
 
-  const parse = () => program.parse(['node', 'test']);
+  expect(() => program.parse(['node', 'test'])).toThrow();
 
-  expect(parse).toThrow();
   expect(mockAction).not.toHaveBeenCalled();
   writeMock.mockRestore();
 });

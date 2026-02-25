@@ -1028,7 +1028,7 @@ file,type,line,method,methodStart,methodEnd,source
       assume(transports).length(1);
       assume(transports).contains(transport);
     })",107,112,snuts
-/test/unit/winston/transports/00-file-stress.test.js,OvercommentedTest,"{'startLine':154,'endLine':202}","it('should handle a high volume of writes with lazy option enabled', function (done) {
+/test/unit/winston/transports/00-file-stress.test.js,OvercommentedTest,"{'startLine':154,'endLine':203}","it('should handle a high volume of writes with lazy option enabled', function (done) {
   const logger = winston.createLogger({
     transports: [
       new winston.transports.File({
@@ -1043,14 +1043,17 @@ file,type,line,method,methodStart,methodEnd,source
     read: 0
   };
 
-  // Wait for the 'finish' event, which is emitted when the stream has been
-  // fully flushed to the underlying transport. This provides a deterministic
-  // way to know when it's safe to read the file.
+  const numWrites = 5000;
+
+  // The 'finish' event is emitted when all logs have been written and the
+  // underlying stream has been closed. This is the deterministic way to
+  // know when to start reading the file.
   logger.on('finish', () => {
     helpers
       .tryRead(fileStressLogFile)
       .on('error', function (err) {
         assume(err).false();
+        logger.close();
         done();
       })
       .pipe(split())
@@ -1061,22 +1064,20 @@ file,type,line,method,methodStart,methodEnd,source
       })
       .on('end', function () {
         assume(counters.write).equal(counters.read);
+        logger.close();
         done();
       });
   });
 
-  // Instead of an interval with a fixed timeout, write a large, fixed number
-  // of logs in a tight loop to simulate high volume.
-  const numWrites = 5000;
-  for (let i = 1; i <= numWrites; i++) {
-    logger.info(i);
+  // Write a large number of log entries in a tight loop.
+  for (let i = 0; i < numWrites; i++) {
+    logger.info(++counters.write);
   }
-  counters.write = numWrites;
 
-  // Calling end() on the logger flushes all transports and triggers the
-  // 'finish' event when complete, removing the need for a non-deterministic sleep.
+  // Signal to the logger that we are done writing. This will trigger the
+  // stream to flush and eventually emit the 'finish' event.
   logger.end();
-})",154,202,snuts
+})",154,203,snuts
 /test/helpers/index.js,NonFunctionalStatement,"{'startLine':121,'endLine':121}",Unknown,,,snuts
 /test/helpers/handler-tests.js,AnonymousTest,"{'startLine':36,'endLine':38}","it('.getProcessInfo()', function () {
       helpers.assertProcessInfo(handler.getProcessInfo());
@@ -3940,7 +3941,7 @@ file,type,line,method,methodStart,methodEnd,source
       if (ex && ex.code !== 'ENOENT') { return done(ex); }
     }
   })",23,29,steel
-/test/unit/winston/transports/00-file-stress.test.js,Conditional Test Logic,"{'line': 194, 'column': 2, 'index': 5147}","it('should handle a high volume of writes with lazy option enabled', function (done) {
+/test/unit/winston/transports/00-file-stress.test.js,Conditional Test Logic,"{'line': 196, 'column': 2, 'index': 5108}","it('should handle a high volume of writes with lazy option enabled', function (done) {
   const logger = winston.createLogger({
     transports: [
       new winston.transports.File({
@@ -3955,14 +3956,17 @@ file,type,line,method,methodStart,methodEnd,source
     read: 0
   };
 
-  // Wait for the 'finish' event, which is emitted when the stream has been
-  // fully flushed to the underlying transport. This provides a deterministic
-  // way to know when it's safe to read the file.
+  const numWrites = 5000;
+
+  // The 'finish' event is emitted when all logs have been written and the
+  // underlying stream has been closed. This is the deterministic way to
+  // know when to start reading the file.
   logger.on('finish', () => {
     helpers
       .tryRead(fileStressLogFile)
       .on('error', function (err) {
         assume(err).false();
+        logger.close();
         done();
       })
       .pipe(split())
@@ -3973,22 +3977,20 @@ file,type,line,method,methodStart,methodEnd,source
       })
       .on('end', function () {
         assume(counters.write).equal(counters.read);
+        logger.close();
         done();
       });
   });
 
-  // Instead of an interval with a fixed timeout, write a large, fixed number
-  // of logs in a tight loop to simulate high volume.
-  const numWrites = 5000;
-  for (let i = 1; i <= numWrites; i++) {
-    logger.info(i);
+  // Write a large number of log entries in a tight loop.
+  for (let i = 0; i < numWrites; i++) {
+    logger.info(++counters.write);
   }
-  counters.write = numWrites;
 
-  // Calling end() on the logger flushes all transports and triggers the
-  // 'finish' event when complete, removing the need for a non-deterministic sleep.
+  // Signal to the logger that we are done writing. This will trigger the
+  // stream to flush and eventually emit the 'finish' event.
   logger.end();
-})",154,202,steel
+})",154,203,steel
 /test/unit/winston/transports/00-file-stress.test.js,Sleepy Test,"{'line': 47, 'column': 4, 'index': 1122}","it('should handle a high volume of writes', function (done) {
     const logger = winston.createLogger({
       transports: [new winston.transports.File({
@@ -4244,14 +4246,17 @@ file,type,line,method,methodStart,methodEnd,source
     read: 0
   };
 
-  // Wait for the 'finish' event, which is emitted when the stream has been
-  // fully flushed to the underlying transport. This provides a deterministic
-  // way to know when it's safe to read the file.
+  const numWrites = 5000;
+
+  // The 'finish' event is emitted when all logs have been written and the
+  // underlying stream has been closed. This is the deterministic way to
+  // know when to start reading the file.
   logger.on('finish', () => {
     helpers
       .tryRead(fileStressLogFile)
       .on('error', function (err) {
         assume(err).false();
+        logger.close();
         done();
       })
       .pipe(split())
@@ -4262,22 +4267,20 @@ file,type,line,method,methodStart,methodEnd,source
       })
       .on('end', function () {
         assume(counters.write).equal(counters.read);
+        logger.close();
         done();
       });
   });
 
-  // Instead of an interval with a fixed timeout, write a large, fixed number
-  // of logs in a tight loop to simulate high volume.
-  const numWrites = 5000;
-  for (let i = 1; i <= numWrites; i++) {
-    logger.info(i);
+  // Write a large number of log entries in a tight loop.
+  for (let i = 0; i < numWrites; i++) {
+    logger.info(++counters.write);
   }
-  counters.write = numWrites;
 
-  // Calling end() on the logger flushes all transports and triggers the
-  // 'finish' event when complete, removing the need for a non-deterministic sleep.
+  // Signal to the logger that we are done writing. This will trigger the
+  // stream to flush and eventually emit the 'finish' event.
   logger.end();
-})",154,202,steel
+})",154,203,steel
 /test/unit/winston/config/config.test.js,Unknown Test,"{'column': 2, 'line': 13}","it('should have expected methods', function () {
     assume(winston.config).is.an('object');
     assume(winston.config.addColors).is.a('function');

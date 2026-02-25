@@ -10,17 +10,15 @@ it('can destroy the socket if stream is not finished', async () => {
     const req = http.get('http://example.test/somepath')
     const stream = await new Promise(resolve => req.on('response', resolve))
 
-    const events = {
-      close: false,
-      end: false,
-    }
+    let streamClosed = false;
+    let streamEnded = false;
 
     stream.on('close', () => {
-      events.close = true
-    })
+      streamClosed = true;
+    });
     stream.on('end', () => {
-      events.end = true
-    })
+      streamEnded = true;
+    });
 
     // close after first chunk of data
     stream.on('data', () => stream.destroy())
@@ -30,6 +28,6 @@ it('can destroy the socket if stream is not finished', async () => {
       stream.on('close', resolve)
     })
 
-    expect(events.close).toBe(true)
-    expect(events.end).toBe(false)
+    expect(streamClosed).toBe(true);
+    expect(streamEnded).toBe(false);
   })

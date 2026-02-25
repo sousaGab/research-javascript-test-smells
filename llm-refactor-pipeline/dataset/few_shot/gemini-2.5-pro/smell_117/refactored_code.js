@@ -2,7 +2,6 @@ test('set-cookie', async () => {
   const now = new Date(2022, 7, 11, 3, 30, 30)
   const maxAge = 3000
   const expires = new Date(+now + maxAge)
-  const expectedExpires = expires.toUTCString()
 
   jest.useFakeTimers('modern')
   jest.setSystemTime(now)
@@ -23,38 +22,37 @@ test('set-cookie', async () => {
   jest.useRealTimers()
 
   const expectedSetCookieHeaders = [
-    `Zoo=boo; Max-Age=3; Domain=mafoo.com; Path=/; Expires=${expectedExpires}; HttpOnly; Secure; SameSite=Strict`,
+    `Zoo=boo; Max-Age=3; Domain=mafoo.com; Path=/; Expires=${expires.toUTCString()}; HttpOnly; Secure; SameSite=Strict`,
     'Foo=bar; Domain=example.com; Path=/; HttpOnly; Secure; SameSite=Strict',
     'Fizz=buzz; Path=/'
   ]
 
-  const isAzure = ['azureHttpFunctionV4', 'azureHttpFunctionV3'].includes(eventSourceName)
+  const azureCookies = [{
+    name: 'Zoo',
+    value: 'boo',
+    domain: 'mafoo.com',
+    path: '/',
+    expires,
+    maxAge: maxAge / 1000,
+    httpOnly: true,
+    secure: true,
+    sameSite: 'Strict'
+  }, {
+    name: 'Foo',
+    value: 'bar',
+    domain: 'example.com',
+    path: '/',
+    httpOnly: true,
+    secure: true,
+    sameSite: 'Strict'
+  }, {
+    name: 'Fizz',
+    value: 'buzz',
+    path: '/'
+  }]
 
-  const expectedCookies = isAzure
-    ? [
-        {
-          domain: 'mafoo.com',
-          httpOnly: true,
-          name: 'Zoo',
-          path: '/',
-          sameSite: 'Strict',
-          secure: true,
-          value: 'boo',
-          maxAge: maxAge / 1000,
-          expires
-        },
-        {
-          domain: 'example.com',
-          httpOnly: true,
-          name: 'Foo',
-          path: '/',
-          sameSite: 'Strict',
-          secure: true,
-          value: 'bar'
-        },
-        { name: 'Fizz', path: '/', value: 'buzz' }
-      ]
-    : expectedSetCookieHeaders
+  const isAzure = ['azureHttpFunctionV4', 'azureHttpFunctionV3'].includes(eventSourceName)
+  const expectedCookies = isAzure ? azureCookies : expectedSetCookieHeaders
 
   const expectedResponse = makeResponse({
     eventSourceName,

@@ -19,8 +19,7 @@ it("isDraggable:false in data-grid prevents dragging that item", () => {
   );
 
   const item = container.querySelector(".react-grid-item");
-  // The test should fail if the item is not found, so we assert its existence.
-  expect(item).toBeInTheDocument();
+  expect(item).not.toBeNull();
 
   fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
   fireEvent.mouseMove(document, { clientX: 200, clientY: 200 });

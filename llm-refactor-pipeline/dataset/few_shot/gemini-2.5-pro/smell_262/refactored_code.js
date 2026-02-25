@@ -1,4 +1,4 @@
-describe('isJSONContent', () => {
+describe('isJSONContent()', () => {
   it('should return true for "application/json" content type', () => {
     expect(common.isJSONContent({ 'content-type': 'application/json' })).to.be
       .true

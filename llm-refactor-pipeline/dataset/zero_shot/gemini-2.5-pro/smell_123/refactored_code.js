@@ -7,22 +7,22 @@ it('should pass filteringPath options', async () => {
       },
     }
 
-    // Record the initial request.
+    // Record the fixture with the first timestamp.
     const back1 = await nockBack(fixtureFilename, nockBackOptions)
     const response1 = await got(`${server.origin}/?timestamp=1111`)
     back1.nockDone()
 
-    // Assert the fixture was recorded correctly with the filtered path.
-    const recordedFixture = getFixtureContent()
-    expect(recordedFixture).to.have.lengthOf(1)
-    expect(recordedFixture[0].path).to.equal('/?timestamp=1111')
-
-    // Playback the request using a different timestamp, which should be filtered and matched.
+    // Play back from the fixture using a different timestamp, which should be normalized.
     const back2 = await nockBack(fixtureFilename, nockBackOptions)
     const response2 = await got(`${server.origin}/?timestamp=2222`)
     back2.nockDone()
 
-    // Assert the response came from the mock and the fixture was not modified.
+    // The response from the mocked call should match the original recorded response.
     expect(response2.body).to.deep.equal(response1.body)
-    expect(getFixtureContent()).to.deep.equal(recordedFixture)
+
+    // The fixture should contain only one entry with the normalized path,
+    // confirming playback was used and no new fixture was recorded.
+    const fixtureContent = getFixtureContent()
+    expect(fixtureContent).to.have.lengthOf(1)
+    expect(fixtureContent[0].path).to.equal('/?timestamp=1111')
   })

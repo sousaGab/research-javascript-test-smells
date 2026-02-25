@@ -1,44 +1,62 @@
 it('should populate the value attribute on select multiple using groups', () => {
   const template = (val) =>
     createElement(
-      'select',
-      {
+      'select', {
         multiple: true,
         value: val,
       },
       createElement(
-        'optgroup',
-        { label: 'foo-group' },
-        createElement('option', { value: 'foo' }),
+        'optgroup', {
+          label: 'foo-group'
+        },
+        createElement('option', {
+          value: 'foo'
+        }),
       ),
       createElement(
-        'optgroup',
-        { label: 'bar-group', disabled: true },
-        createElement('option', { value: 'bar' }),
+        'optgroup', {
+          label: 'bar-group',
+          disabled: true
+        },
+        createElement('option', {
+          value: 'bar'
+        }),
       ),
     );
 
   render(template(undefined), container);
 
   const select = container.firstChild;
-  const [optgroup1, optgroup2] = select.children;
-  const [optionFoo] = optgroup1.children;
-  const [optionBar] = optgroup2.children;
+  const [optgroupFoo, optgroupBar] = select.children;
+  const [optionFoo] = optgroupFoo.children;
+  const [optionBar] = optgroupBar.children;
 
-  expect(optgroup1.disabled).toBe(false);
-  expect(optgroup2.disabled).toBe(true);
-  expect(optgroup1.innerHTML).toBe('<option value="foo"></option>');
-  expect(optgroup2.innerHTML).toBe('<option value="bar"></option>');
+  expect(optgroupFoo.disabled).toBe(false);
+  expect(optgroupBar.disabled).toBe(true);
+  expect(optgroupFoo.innerHTML).toBe('<option value="foo"></option>');
+  expect(optgroupBar.innerHTML).toBe('<option value="bar"></option>');
 
-  const testCases = [
-    { value: ['foo', 'bar'], expected: [true, true] },
-    { value: [], expected: [false, false] },
-    { value: 'foo', expected: [true, false] },
-    { value: 'bar', expected: [false, true] },
-    { value: false, expected: [false, false] },
-  ];
+  const testCases = [{
+    value: ['foo', 'bar'],
+    expected: [true, true]
+  }, {
+    value: [],
+    expected: [false, false]
+  }, {
+    value: 'foo',
+    expected: [true, false]
+  }, {
+    value: 'bar',
+    expected: [false, true]
+  }, {
+    value: false,
+    expected: [false, false]
+  }, ];
 
-  testCases.forEach(({ value, expected }) => {
+  testCases.forEach(({
+    value,
+    expected
+  }) => {
     render(template(value), container);
     const [fooSelected, barSelected] = expected;
     expect(optionFoo.selected).toBe(fooSelected);

@@ -31,7 +31,7 @@ it('Should stop propagating normal event to normal event', () => {
       render(<SmallComponent />, container);
 
       container.querySelector('#tester').click();
-      
+
       expect(eventHandlerSpy.calls.count()).toBe(1);
       expect(eventHandlerSpy2.calls.count()).toBe(0);
     })

@@ -15,16 +15,15 @@ it("onDrag provides newItem with updated position during drag", () => {
   );
 
   const item = container.querySelector(".react-grid-item");
-  // Test should fail if the grid item isn't rendered.
+  // The test should fail if the item to be dragged is not found.
   expect(item).not.toBeNull();
 
-  // The non-null assertion operator (!) tells the compiler that item is not null.
-  // This is safe because of the expect() check above.
-  fireEvent.mouseDown(item!, { clientX: 50, clientY: 50 });
+  // $FlowIgnore - item is checked for nullity above
+  fireEvent.mouseDown(item, { clientX: 50, clientY: 50 });
   // Move significantly right and down
   fireEvent.mouseMove(document, { clientX: 400, clientY: 200 });
 
-  // Test should fail if onDrag is not called.
+  // The test should fail if the onDrag handler is not called.
   expect(onDrag).toHaveBeenCalled();
 
   const [, oldItem, newItem] = onDrag.mock.calls[0];

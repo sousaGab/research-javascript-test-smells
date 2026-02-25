@@ -225,12 +225,12 @@ d\r
       })",273,284,snuts
 /test/unit/formidable.test.js,NonFunctionalStatement,"{'startLine':15,'endLine':15}",Unknown,,,snuts
 /test/unit/formidable.test.js,NonFunctionalStatement,"{'startLine':16,'endLine':16}",Unknown,,,snuts
-/test/unit/custom-plugins.test.js,ConditionalTestLogic,"{'startLine':130,'endLine':132}","test('.parse throw error when some plugin fail', async () => {
+/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':124,'endLine':124}","test('.parse throw error when some plugin fail', async () => {
+  expect.assertions(5);
+
   const server = createServer(
     { enabledPlugins: [octetstream, json] },
     async (ctx, form) => {
-      let errorWasCaught = false;
-
       form.on('plugin', () => {
         ctx.__pluginsCount = ctx.__pluginsCount || 0;
         ctx.__pluginsCount += 1;
@@ -247,16 +247,11 @@ d\r
       try {
         await form.parse(ctx.req);
       } catch (err) {
-        errorWasCaught = true;
         expect(err.code).toBe(errors.pluginFailed);
         expect(err.httpCode).toBe(500);
         expect(form._plugins.length).toBe(3);
         expect(ctx.__pluginsCount).toBe(2);
         expect(ctx.__pluginsResults).toBe(undefined);
-      }
-
-      if (!errorWasCaught) {
-        throw new Error('Expected form.parse() to throw, but it did not.');
       }
     },
   );
@@ -264,15 +259,14 @@ d\r
   await request(server.callback())
     .post('/')
     .type('application/octet-stream')
-    .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'))
-    .expect(200);
-})",100,141,snuts
-/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':125,'endLine':125}","test('.parse throw error when some plugin fail', async () => {
+    .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'));
+})",100,135,snuts
+/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':126,'endLine':126}","test('.parse throw error when some plugin fail', async () => {
+  expect.assertions(5);
+
   const server = createServer(
     { enabledPlugins: [octetstream, json] },
     async (ctx, form) => {
-      let errorWasCaught = false;
-
       form.on('plugin', () => {
         ctx.__pluginsCount = ctx.__pluginsCount || 0;
         ctx.__pluginsCount += 1;
@@ -289,16 +283,11 @@ d\r
       try {
         await form.parse(ctx.req);
       } catch (err) {
-        errorWasCaught = true;
         expect(err.code).toBe(errors.pluginFailed);
         expect(err.httpCode).toBe(500);
         expect(form._plugins.length).toBe(3);
         expect(ctx.__pluginsCount).toBe(2);
         expect(ctx.__pluginsResults).toBe(undefined);
-      }
-
-      if (!errorWasCaught) {
-        throw new Error('Expected form.parse() to throw, but it did not.');
       }
     },
   );
@@ -306,52 +295,9 @@ d\r
   await request(server.callback())
     .post('/')
     .type('application/octet-stream')
-    .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'))
-    .expect(200);
-})",100,141,snuts
-/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':127,'endLine':127}","test('.parse throw error when some plugin fail', async () => {
-  const server = createServer(
-    { enabledPlugins: [octetstream, json] },
-    async (ctx, form) => {
-      let errorWasCaught = false;
-
-      form.on('plugin', () => {
-        ctx.__pluginsCount = ctx.__pluginsCount || 0;
-        ctx.__pluginsCount += 1;
-      });
-
-      form.once('error', () => {
-        throw new Error('error event should not be fired when plugin throw');
-      });
-
-      form.use(() => {
-        throw new Error('custom plugin err');
-      });
-
-      try {
-        await form.parse(ctx.req);
-      } catch (err) {
-        errorWasCaught = true;
-        expect(err.code).toBe(errors.pluginFailed);
-        expect(err.httpCode).toBe(500);
-        expect(form._plugins.length).toBe(3);
-        expect(ctx.__pluginsCount).toBe(2);
-        expect(ctx.__pluginsResults).toBe(undefined);
-      }
-
-      if (!errorWasCaught) {
-        throw new Error('Expected form.parse() to throw, but it did not.');
-      }
-    },
-  );
-
-  await request(server.callback())
-    .post('/')
-    .type('application/octet-stream')
-    .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'))
-    .expect(200);
-})",100,141,snuts
-/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':150,'endLine':150}","test('multipart plugin fire `error` event when malformed boundary', async () => {
+    .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'));
+})",100,135,snuts
+/test/unit/custom-plugins.test.js,SubOptimalAssert,"{'startLine':144,'endLine':144}","test('multipart plugin fire `error` event when malformed boundary', async () => {
   const server = createServer(
     { enabledPlugins: [json, multipart] },
     (ctx, form) => {
@@ -389,7 +335,7 @@ d\r
       .set('Content-Type', 'multipart/form-data; bouZndary=')
       .end((err) => (err ? reject(err) : resolve()));
   });
-})",143,181,snuts
+})",137,175,snuts
 /test/standalone/issue-46.test.js,AnonymousTest,"{'startLine':12,'endLine':41}","test(""issue 46"", (done) => {
   const server = createServer(async (req, res) => {
     // Parse form and write results to response.

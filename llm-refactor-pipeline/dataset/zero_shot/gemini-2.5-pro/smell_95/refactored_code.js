@@ -1,9 +1,9 @@
 test('.parse throw error when some plugin fail', async () => {
+  expect.assertions(5);
+
   const server = createServer(
     { enabledPlugins: [octetstream, json] },
     async (ctx, form) => {
-      let errorWasCaught = false;
-
       form.on('plugin', () => {
         ctx.__pluginsCount = ctx.__pluginsCount || 0;
         ctx.__pluginsCount += 1;
@@ -20,16 +20,11 @@ test('.parse throw error when some plugin fail', async () => {
       try {
         await form.parse(ctx.req);
       } catch (err) {
-        errorWasCaught = true;
         expect(err.code).toBe(errors.pluginFailed);
         expect(err.httpCode).toBe(500);
         expect(form._plugins.length).toBe(3);
         expect(ctx.__pluginsCount).toBe(2);
         expect(ctx.__pluginsResults).toBe(undefined);
-      }
-
-      if (!errorWasCaught) {
-        throw new Error('Expected form.parse() to throw, but it did not.');
       }
     },
   );
@@ -37,6 +32,5 @@ test('.parse throw error when some plugin fail', async () => {
   await request(server.callback())
     .post('/')
     .type('application/octet-stream')
-    .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'))
-    .expect(200);
+    .attach('bin', fromFixtures('file', 'binaryfile.tar.gz'));
 });

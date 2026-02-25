@@ -1,116 +1,94 @@
-describe('BPagination responsive visibility classes', () => {
-  const mountPagination = props => {
-    return mount(BPagination, {
-      propsData: {
-        totalRows: 70, // 7 pages
-        perPage: 10,
-        limit: 7,
-        ...props
+describe('BPagination responsive class rendering', () => {
+  const PROPS_DATA = {
+    totalRows: 70, // 7 pages
+    perPage: 10,
+    limit: 7, // Show all 7 page buttons
+  }
+
+  const getLiClasses = wrapper => {
+    return wrapper.findAll('li').wrappers.map(li => li.classes().sort())
+  }
+
+  it('applies correct classes when on the first page', () => {
+    const wrapper = mount(BPagination, {
+      propsData: { ...PROPS_DATA,
+        value: 1
       }
     })
-  }
 
-  const getVisibilityState = wrapper => {
-    const listItems = wrapper.findAll('li')
-    // Page number buttons are between the first two and last two bookend buttons
-    return listItems.wrappers.slice(2, -2).map(li => li.classes().includes('bv-d-xs-down-none'))
-  }
+    expect(wrapper.findAll('li').length).toBe(11)
 
-  it('hides trailing page buttons when on the first page', async () => {
-    const wrapper = mountPagination({
-      value: 1
-    })
+    const expectedClasses = [
+      ['disabled', 'page-item'], // First
+      ['disabled', 'page-item'], // Prev
+      ['active', 'page-item'], // Page 1
+      ['page-item'], // Page 2
+      ['page-item'], // Page 3
+      ['bv-d-xs-down-none', 'page-item'], // Page 4
+      ['bv-d-xs-down-none', 'page-item'], // Page 5
+      ['bv-d-xs-down-none', 'page-item'], // Page 6
+      ['bv-d-xs-down-none', 'page-item'], // Page 7
+      ['page-item'], // Next
+      ['page-item'] // Last
+    ].map(classArray => classArray.sort())
 
-    const listItems = wrapper.findAll('li')
-    expect(listItems.length).toBe(11) // 7 pages + 4 bookends
-
-    // Assert bookend button states
-    expect(listItems.at(0).classes()).toContain('disabled') // First
-    expect(listItems.at(1).classes()).toContain('disabled') // Prev
-    expect(listItems.at(9).classes()).not.toContain('disabled') // Next
-    expect(listItems.at(10).classes()).not.toContain('disabled') // Last
-
-    // Assert active page
-    expect(listItems.at(2).classes()).toContain('active') // Page 1
-
-    // Assert responsive visibility
-    const visibility = getVisibilityState(wrapper)
-    expect(visibility).toEqual([
-      false, // Page 1
-      false, // Page 2
-      false, // Page 3
-      true, // Page 4
-      true, // Page 5
-      true, // Page 6
-      true // Page 7
-    ])
-
+    expect(getLiClasses(wrapper)).toEqual(expectedClasses)
     wrapper.destroy()
   })
 
-  it('hides leading and trailing page buttons when on a middle page', async () => {
-    const wrapper = mountPagination({
-      value: 4
+  it('applies correct classes when on a middle page', async () => {
+    const wrapper = mount(BPagination, {
+      propsData: { ...PROPS_DATA,
+        value: 4
+      }
     })
     await waitNT(wrapper.vm)
 
-    const listItems = wrapper.findAll('li')
-    expect(listItems.length).toBe(11)
+    expect(wrapper.findAll('li').length).toBe(11)
 
-    // Assert bookend button states
-    expect(listItems.at(0).classes()).not.toContain('disabled') // First
-    expect(listItems.at(1).classes()).not.toContain('disabled') // Prev
-    expect(listItems.at(9).classes()).not.toContain('disabled') // Next
-    expect(listItems.at(10).classes()).not.toContain('disabled') // Last
+    const expectedClasses = [
+      ['page-item'], // First
+      ['page-item'], // Prev
+      ['bv-d-xs-down-none', 'page-item'], // Page 1
+      ['bv-d-xs-down-none', 'page-item'], // Page 2
+      ['page-item'], // Page 3
+      ['active', 'page-item'], // Page 4
+      ['page-item'], // Page 5
+      ['bv-d-xs-down-none', 'page-item'], // Page 6
+      ['bv-d-xs-down-none', 'page-item'], // Page 7
+      ['page-item'], // Next
+      ['page-item'] // Last
+    ].map(classArray => classArray.sort())
 
-    // Assert active page
-    expect(listItems.at(5).classes()).toContain('active') // Page 4
-
-    // Assert responsive visibility
-    const visibility = getVisibilityState(wrapper)
-    expect(visibility).toEqual([
-      true, // Page 1
-      true, // Page 2
-      false, // Page 3
-      false, // Page 4
-      false, // Page 5
-      true, // Page 6
-      true // Page 7
-    ])
-
+    expect(getLiClasses(wrapper)).toEqual(expectedClasses)
     wrapper.destroy()
   })
 
-  it('hides leading page buttons when on the last page', async () => {
-    const wrapper = mountPagination({
-      value: 7
+  it('applies correct classes when on the last page', async () => {
+    const wrapper = mount(BPagination, {
+      propsData: { ...PROPS_DATA,
+        value: 7
+      }
     })
     await waitNT(wrapper.vm)
 
-    const listItems = wrapper.findAll('li')
-    expect(listItems.length).toBe(11)
+    expect(wrapper.findAll('li').length).toBe(11)
 
-    // Assert bookend button states
-    expect(listItems.at(0).classes()).not.toContain('disabled') // First
-    expect(listItems.at(1).classes()).not.toContain('disabled') // Prev
-    expect(listItems.at(9).classes()).toContain('disabled') // Next
-    expect(listItems.at(10).classes()).toContain('disabled') // Last
+    const expectedClasses = [
+      ['page-item'], // First
+      ['page-item'], // Prev
+      ['bv-d-xs-down-none', 'page-item'], // Page 1
+      ['bv-d-xs-down-none', 'page-item'], // Page 2
+      ['bv-d-xs-down-none', 'page-item'], // Page 3
+      ['bv-d-xs-down-none', 'page-item'], // Page 4
+      ['page-item'], // Page 5
+      ['page-item'], // Page 6
+      ['active', 'page-item'], // Page 7
+      ['disabled', 'page-item'], // Next
+      ['disabled', 'page-item'] // Last
+    ].map(classArray => classArray.sort())
 
-    // Assert active page
-    expect(listItems.at(8).classes()).toContain('active') // Page 7
-
-    // Assert responsive visibility
-    const visibility = getVisibilityState(wrapper)
-    expect(visibility).toEqual([
-      true, // Page 1
-      true, // Page 2
-      true, // Page 3
-      true, // Page 4
-      false, // Page 5
-      false, // Page 6
-      false // Page 7
-    ])
-
+    expect(getLiClasses(wrapper)).toEqual(expectedClasses)
     wrapper.destroy()
   })
 })

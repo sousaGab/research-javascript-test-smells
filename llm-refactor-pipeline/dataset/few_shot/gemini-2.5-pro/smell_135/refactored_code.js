@@ -10,7 +10,12 @@ it('should handle a high volume of large writes synchronous', function (done) {
       read: 0
     };
 
-    logger.on('finish', () => {
+    const msgs = new Array(10).fill().map(() => ({
+      counter: ++counters.write,
+      message: 'a'.repeat(16384 - os.EOL.length - 1)
+    }));
+
+    logger.on('finish', function () {
       helpers.tryRead(fileStressLogFile)
         .on('error', function (err) {
           assume(err).false();
@@ -29,11 +34,6 @@ it('should handle a high volume of large writes synchronous', function (done) {
         });
     });
 
-    const msgs = new Array(10).fill().map(() => ({
-      counter: ++counters.write,
-      message: 'a'.repeat(16384 - os.EOL.length - 1)
-    }));
     msgs.forEach(msg => logger.info(msg));
-
-    logger.end();
+    logger.close();
   })

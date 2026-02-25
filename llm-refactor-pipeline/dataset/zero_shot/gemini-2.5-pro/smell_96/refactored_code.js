@@ -1,4 +1,4 @@
-it('when output_objects is true, it records the decoded JSON object in the body', async () => {
+it('records objects and correctly stores JSON object in body', async () => {
   nock.restore()
   nock.recorder.clear()
   expect(nock.recorder.play()).to.be.empty()

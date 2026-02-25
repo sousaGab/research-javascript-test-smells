@@ -7,6 +7,8 @@ it('should error on a shorted deref path.', function(done) {
     model.
     get(['lolomo', 0, 0, 'item', 'title']).
     subscribe(onNext, noOp, function() {
+        expect(onNext).toHaveBeenCalledTimes(1);
+
         var json = onNext.mock.calls[0][0].json;
         var lolomoModel = model.deref(json.lolomo);
         model.
@@ -20,7 +22,6 @@ it('should error on a shorted deref path.', function(done) {
         toObservable(lolomoModel.
             get([0, 0, 'item', 'title'])).
         doAction(onNext, function(err) {
-            expect(onNext).toHaveBeenCalledTimes(1);
             expect(err.name).toBe(InvalidModelError.name);
         }).
         subscribe(

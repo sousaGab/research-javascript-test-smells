@@ -1461,6 +1461,407 @@ file,type,line,method,methodStart,methodEnd,source
     ownerDifferences: false,
   });
 })",92,112,snuts
+/tests/librariesTests/styled-components.test.js,AnonymousTest,"{'startLine':21,'endLine':46}","test('simple styled-components', () => {
+  const InnerComponent = () => <div>foobar</div>;
+  const StyledInnerComponent = styled(InnerComponent)``;
+
+  StyledInnerComponent.whyDidYouRender = true;
+
+  const {rerender} = rtl.render(
+    <StyledInnerComponent a={[]}/>
+  );
+  rerender(
+    <StyledInnerComponent a={[]}/>
+  );
+
+  expect(updateInfos).toHaveLength(1);
+  expect(updateInfos[0].reason).toEqual({
+    propsDifferences: [{
+      pathString: 'a',
+      diffType: diffTypes.deepEquals,
+      prevValue: [],
+      nextValue: [],
+    }],
+    stateDifferences: false,
+    hookDifferences: false,
+    ownerDifferences: false,
+  });
+})",21,46,snuts
+/tests/librariesTests/react-router-dom.test.js,AnonymousTest,"{'startLine':29,'endLine':92}","test('simple', () => {
+    const InnerComp = ({a}) => {
+      const location = useLocation();
+
+      const [state, setState] = React.useState(0);
+      React.useLayoutEffect(() => {
+        setState(a => a + 1);
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return (
+        <div>hi! {JSON.stringify(a)} {state}</div>
+      );
+    };
+
+    InnerComp.whyDidYouRender = true;
+
+    const Comp = () => (
+      <BrowserRouter>
+        <Routes>
+          <Route exact path=""/"" element={<InnerComp a={{b: 'c'}}/>}/>
+        </Routes>
+      </BrowserRouter>
+    );
+
+    const {rerender} = rtl.render(<Comp/>);
+
+    rerender(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(2);
+    expect(updateInfos).toEqual([
+      expect.objectContaining({
+        displayName: 'InnerComp',
+        hookName: 'useState',
+      }),
+      expect.objectContaining({
+        displayName: 'InnerComp',
+        reason: {
+          hookDifferences: false,
+          stateDifferences: false,
+          propsDifferences: [{
+            diffType: 'deepEquals',
+            nextValue: {b: 'c'},
+            pathString: 'a',
+            prevValue: {b: 'c'},
+          }],
+          ownerDifferences: {
+            hookDifferences: false,
+            propsDifferences: false,
+            stateDifferences: false
+          }
+        }
+      })
+    ]);
+  })",29,92,snuts
+/tests/librariesTests/react-router-dom.test.js,AnonymousTest,"{'startLine':94,'endLine':161}","test('with redux', () => {
+    const initialState = {a: {b: 'c'}};
+
+    const rootReducer = (state, action) => {
+      if (action.type === 'differentState') {
+        return {a: {b: 'd'}};
+      }
+
+      if (action.type === 'deepEqlState') {
+        return cloneDeep(state);
+      }
+
+      return state;
+    };
+
+    const store = createStore(rootReducer, initialState);
+
+    const InnerFn = ({a, setDeepEqlState}) => {
+      const location = useLocation();
+
+      React.useLayoutEffect(() => {
+        setDeepEqlState();
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return <div>hi! {a.b}</div>;
+    };
+
+    const InnerComp = connect(
+      state => ({a: state.a}),
+      {setDeepEqlState: () => ({type: 'deepEqlState'})}
+    )(InnerFn);
+
+    InnerFn.whyDidYouRender = true;
+
+    const Comp = () => (
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route exact path=""/"" element={<InnerComp/>}/>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    );
+
+    rtl.render(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: 'a',
+        prevValue: {b: 'c'},
+        nextValue: {b: 'c'},
+      }],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",94,161,snuts
+/tests/librariesTests/react-router-dom.test.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","test('with redux', () => {
+    const initialState = {a: {b: 'c'}};
+
+    const rootReducer = (state, action) => {
+      if (action.type === 'differentState') {
+        return {a: {b: 'd'}};
+      }
+
+      if (action.type === 'deepEqlState') {
+        return cloneDeep(state);
+      }
+
+      return state;
+    };
+
+    const store = createStore(rootReducer, initialState);
+
+    const InnerFn = ({a, setDeepEqlState}) => {
+      const location = useLocation();
+
+      React.useLayoutEffect(() => {
+        setDeepEqlState();
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return <div>hi! {a.b}</div>;
+    };
+
+    const InnerComp = connect(
+      state => ({a: state.a}),
+      {setDeepEqlState: () => ({type: 'deepEqlState'})}
+    )(InnerFn);
+
+    InnerFn.whyDidYouRender = true;
+
+    const Comp = () => (
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route exact path=""/"" element={<InnerComp/>}/>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    );
+
+    rtl.render(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: 'a',
+        prevValue: {b: 'c'},
+        nextValue: {b: 'c'},
+      }],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",94,161,snuts
+/tests/librariesTests/react-router-dom.test.js,ConditionalTestLogic,"{'startLine':102,'endLine':104}","test('with redux', () => {
+    const initialState = {a: {b: 'c'}};
+
+    const rootReducer = (state, action) => {
+      if (action.type === 'differentState') {
+        return {a: {b: 'd'}};
+      }
+
+      if (action.type === 'deepEqlState') {
+        return cloneDeep(state);
+      }
+
+      return state;
+    };
+
+    const store = createStore(rootReducer, initialState);
+
+    const InnerFn = ({a, setDeepEqlState}) => {
+      const location = useLocation();
+
+      React.useLayoutEffect(() => {
+        setDeepEqlState();
+      }, []);
+
+      // eslint-disable-next-line no-console
+      console.log(`location is: ${location.pathname}`);
+
+      return <div>hi! {a.b}</div>;
+    };
+
+    const InnerComp = connect(
+      state => ({a: state.a}),
+      {setDeepEqlState: () => ({type: 'deepEqlState'})}
+    )(InnerFn);
+
+    InnerFn.whyDidYouRender = true;
+
+    const Comp = () => (
+      <Provider store={store}>
+        <BrowserRouter>
+          <Routes>
+            <Route exact path=""/"" element={<InnerComp/>}/>
+          </Routes>
+        </BrowserRouter>
+      </Provider>
+    );
+
+    rtl.render(<Comp/>);
+
+    const consoleOutputs = flushConsoleOutput();
+    expect(consoleOutputs).toEqual([
+      expect.objectContaining({args: ['location is: /']}),
+      expect.objectContaining({args: ['location is: /']}),
+    ]);
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0].reason).toEqual({
+      propsDifferences: [{
+        diffType: diffTypes.deepEquals,
+        pathString: 'a',
+        prevValue: {b: 'c'},
+        nextValue: {b: 'c'},
+      }],
+      stateDifferences: false,
+      hookDifferences: false,
+      ownerDifferences: expect.anything(),
+    });
+  })",94,161,snuts
+/tests/librariesTests/react-redux.test.js,IdenticalTestDescription,"{'startLine':188,'endLine':214}","test('same state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'sameState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(0);
+  })",188,214,snuts
+/tests/librariesTests/react-redux.test.js,IdenticalTestDescription,"{'startLine':216,'endLine':255}","test('different state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">{a.b}</div>
+      );
+    };
+
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'differentState'});
+    });
+
+    expect(store.getState().a.b).toBe('d');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.different, pathString: '.b', prevValue: 'c', nextValue: 'd'},
+          {diffType: diffTypes.different, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'd'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  })",216,255,snuts
+/tests/librariesTests/react-redux.test.js,IdenticalTestDescription,"{'startLine':257,'endLine':296}","test('deep equals state after dispatch', () => {
+    const ConnectedSimpleComponent = () => {
+      const a = ReactRedux.useSelector(state => state.a);
+      return (
+        <div data-testid=""foo"">
+          {a.b}
+        </div>
+      );
+    };
+    ConnectedSimpleComponent.whyDidYouRender = true;
+
+    const Main = () => (
+      <Provider store={store}>
+        <ConnectedSimpleComponent/>
+      </Provider>
+    );
+
+    rtl.render(<Main/>);
+
+    expect(store.getState().a.b).toBe('c');
+
+    rtl.act(() => {
+      store.dispatch({type: 'deepEqlState'});
+    });
+
+    expect(store.getState().a.b).toBe('c');
+
+    expect(updateInfos).toHaveLength(1);
+    expect(updateInfos[0]).toEqual(expect.objectContaining({
+      hookName: 'useSelector',
+      reason: {
+        propsDifferences: false,
+        stateDifferences: false,
+        hookDifferences: [
+          {diffType: diffTypes.deepEquals, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'c'}},
+        ],
+        ownerDifferences: false,
+      },
+    }));
+  })",257,296,snuts
 /tests/hooks/useSyncExternalStore.test.js,AnonymousTest,"{'startLine':39,'endLine':71}","test('same value', () => {
     const store = createSimpleStore('c');
 
@@ -1923,407 +2324,6 @@ file,type,line,method,methodStart,methodEnd,source
       },
     });
   })",26,86,snuts
-/tests/librariesTests/styled-components.test.js,AnonymousTest,"{'startLine':21,'endLine':46}","test('simple styled-components', () => {
-  const InnerComponent = () => <div>foobar</div>;
-  const StyledInnerComponent = styled(InnerComponent)``;
-
-  StyledInnerComponent.whyDidYouRender = true;
-
-  const {rerender} = rtl.render(
-    <StyledInnerComponent a={[]}/>
-  );
-  rerender(
-    <StyledInnerComponent a={[]}/>
-  );
-
-  expect(updateInfos).toHaveLength(1);
-  expect(updateInfos[0].reason).toEqual({
-    propsDifferences: [{
-      pathString: 'a',
-      diffType: diffTypes.deepEquals,
-      prevValue: [],
-      nextValue: [],
-    }],
-    stateDifferences: false,
-    hookDifferences: false,
-    ownerDifferences: false,
-  });
-})",21,46,snuts
-/tests/librariesTests/react-router-dom.test.js,AnonymousTest,"{'startLine':29,'endLine':92}","test('simple', () => {
-    const InnerComp = ({a}) => {
-      const location = useLocation();
-
-      const [state, setState] = React.useState(0);
-      React.useLayoutEffect(() => {
-        setState(a => a + 1);
-      }, []);
-
-      // eslint-disable-next-line no-console
-      console.log(`location is: ${location.pathname}`);
-
-      return (
-        <div>hi! {JSON.stringify(a)} {state}</div>
-      );
-    };
-
-    InnerComp.whyDidYouRender = true;
-
-    const Comp = () => (
-      <BrowserRouter>
-        <Routes>
-          <Route exact path=""/"" element={<InnerComp a={{b: 'c'}}/>}/>
-        </Routes>
-      </BrowserRouter>
-    );
-
-    const {rerender} = rtl.render(<Comp/>);
-
-    rerender(<Comp/>);
-
-    const consoleOutputs = flushConsoleOutput();
-    expect(consoleOutputs).toEqual([
-      expect.objectContaining({args: ['location is: /']}),
-      expect.objectContaining({args: ['location is: /']}),
-      expect.objectContaining({args: ['location is: /']}),
-    ]);
-
-    expect(updateInfos).toHaveLength(2);
-    expect(updateInfos).toEqual([
-      expect.objectContaining({
-        displayName: 'InnerComp',
-        hookName: 'useState',
-      }),
-      expect.objectContaining({
-        displayName: 'InnerComp',
-        reason: {
-          hookDifferences: false,
-          stateDifferences: false,
-          propsDifferences: [{
-            diffType: 'deepEquals',
-            nextValue: {b: 'c'},
-            pathString: 'a',
-            prevValue: {b: 'c'},
-          }],
-          ownerDifferences: {
-            hookDifferences: false,
-            propsDifferences: false,
-            stateDifferences: false
-          }
-        }
-      })
-    ]);
-  })",29,92,snuts
-/tests/librariesTests/react-router-dom.test.js,AnonymousTest,"{'startLine':94,'endLine':161}","test('with redux', () => {
-    const initialState = {a: {b: 'c'}};
-
-    const rootReducer = (state, action) => {
-      if (action.type === 'differentState') {
-        return {a: {b: 'd'}};
-      }
-
-      if (action.type === 'deepEqlState') {
-        return cloneDeep(state);
-      }
-
-      return state;
-    };
-
-    const store = createStore(rootReducer, initialState);
-
-    const InnerFn = ({a, setDeepEqlState}) => {
-      const location = useLocation();
-
-      React.useLayoutEffect(() => {
-        setDeepEqlState();
-      }, []);
-
-      // eslint-disable-next-line no-console
-      console.log(`location is: ${location.pathname}`);
-
-      return <div>hi! {a.b}</div>;
-    };
-
-    const InnerComp = connect(
-      state => ({a: state.a}),
-      {setDeepEqlState: () => ({type: 'deepEqlState'})}
-    )(InnerFn);
-
-    InnerFn.whyDidYouRender = true;
-
-    const Comp = () => (
-      <Provider store={store}>
-        <BrowserRouter>
-          <Routes>
-            <Route exact path=""/"" element={<InnerComp/>}/>
-          </Routes>
-        </BrowserRouter>
-      </Provider>
-    );
-
-    rtl.render(<Comp/>);
-
-    const consoleOutputs = flushConsoleOutput();
-    expect(consoleOutputs).toEqual([
-      expect.objectContaining({args: ['location is: /']}),
-      expect.objectContaining({args: ['location is: /']}),
-    ]);
-
-    expect(updateInfos).toHaveLength(1);
-    expect(updateInfos[0].reason).toEqual({
-      propsDifferences: [{
-        diffType: diffTypes.deepEquals,
-        pathString: 'a',
-        prevValue: {b: 'c'},
-        nextValue: {b: 'c'},
-      }],
-      stateDifferences: false,
-      hookDifferences: false,
-      ownerDifferences: expect.anything(),
-    });
-  })",94,161,snuts
-/tests/librariesTests/react-router-dom.test.js,ConditionalTestLogic,"{'startLine':98,'endLine':100}","test('with redux', () => {
-    const initialState = {a: {b: 'c'}};
-
-    const rootReducer = (state, action) => {
-      if (action.type === 'differentState') {
-        return {a: {b: 'd'}};
-      }
-
-      if (action.type === 'deepEqlState') {
-        return cloneDeep(state);
-      }
-
-      return state;
-    };
-
-    const store = createStore(rootReducer, initialState);
-
-    const InnerFn = ({a, setDeepEqlState}) => {
-      const location = useLocation();
-
-      React.useLayoutEffect(() => {
-        setDeepEqlState();
-      }, []);
-
-      // eslint-disable-next-line no-console
-      console.log(`location is: ${location.pathname}`);
-
-      return <div>hi! {a.b}</div>;
-    };
-
-    const InnerComp = connect(
-      state => ({a: state.a}),
-      {setDeepEqlState: () => ({type: 'deepEqlState'})}
-    )(InnerFn);
-
-    InnerFn.whyDidYouRender = true;
-
-    const Comp = () => (
-      <Provider store={store}>
-        <BrowserRouter>
-          <Routes>
-            <Route exact path=""/"" element={<InnerComp/>}/>
-          </Routes>
-        </BrowserRouter>
-      </Provider>
-    );
-
-    rtl.render(<Comp/>);
-
-    const consoleOutputs = flushConsoleOutput();
-    expect(consoleOutputs).toEqual([
-      expect.objectContaining({args: ['location is: /']}),
-      expect.objectContaining({args: ['location is: /']}),
-    ]);
-
-    expect(updateInfos).toHaveLength(1);
-    expect(updateInfos[0].reason).toEqual({
-      propsDifferences: [{
-        diffType: diffTypes.deepEquals,
-        pathString: 'a',
-        prevValue: {b: 'c'},
-        nextValue: {b: 'c'},
-      }],
-      stateDifferences: false,
-      hookDifferences: false,
-      ownerDifferences: expect.anything(),
-    });
-  })",94,161,snuts
-/tests/librariesTests/react-router-dom.test.js,ConditionalTestLogic,"{'startLine':102,'endLine':104}","test('with redux', () => {
-    const initialState = {a: {b: 'c'}};
-
-    const rootReducer = (state, action) => {
-      if (action.type === 'differentState') {
-        return {a: {b: 'd'}};
-      }
-
-      if (action.type === 'deepEqlState') {
-        return cloneDeep(state);
-      }
-
-      return state;
-    };
-
-    const store = createStore(rootReducer, initialState);
-
-    const InnerFn = ({a, setDeepEqlState}) => {
-      const location = useLocation();
-
-      React.useLayoutEffect(() => {
-        setDeepEqlState();
-      }, []);
-
-      // eslint-disable-next-line no-console
-      console.log(`location is: ${location.pathname}`);
-
-      return <div>hi! {a.b}</div>;
-    };
-
-    const InnerComp = connect(
-      state => ({a: state.a}),
-      {setDeepEqlState: () => ({type: 'deepEqlState'})}
-    )(InnerFn);
-
-    InnerFn.whyDidYouRender = true;
-
-    const Comp = () => (
-      <Provider store={store}>
-        <BrowserRouter>
-          <Routes>
-            <Route exact path=""/"" element={<InnerComp/>}/>
-          </Routes>
-        </BrowserRouter>
-      </Provider>
-    );
-
-    rtl.render(<Comp/>);
-
-    const consoleOutputs = flushConsoleOutput();
-    expect(consoleOutputs).toEqual([
-      expect.objectContaining({args: ['location is: /']}),
-      expect.objectContaining({args: ['location is: /']}),
-    ]);
-
-    expect(updateInfos).toHaveLength(1);
-    expect(updateInfos[0].reason).toEqual({
-      propsDifferences: [{
-        diffType: diffTypes.deepEquals,
-        pathString: 'a',
-        prevValue: {b: 'c'},
-        nextValue: {b: 'c'},
-      }],
-      stateDifferences: false,
-      hookDifferences: false,
-      ownerDifferences: expect.anything(),
-    });
-  })",94,161,snuts
-/tests/librariesTests/react-redux.test.js,IdenticalTestDescription,"{'startLine':188,'endLine':214}","test('same state after dispatch', () => {
-    const ConnectedSimpleComponent = () => {
-      const a = ReactRedux.useSelector(state => state);
-      return (
-        <div data-testid=""foo"">{a.b}</div>
-      );
-    };
-    ConnectedSimpleComponent.whyDidYouRender = true;
-
-    const Main = () => (
-      <Provider store={store}>
-        <ConnectedSimpleComponent/>
-      </Provider>
-    );
-
-    rtl.render(<Main/>);
-
-    expect(store.getState().a.b).toBe('c');
-
-    rtl.act(() => {
-      store.dispatch({type: 'sameState'});
-    });
-
-    expect(store.getState().a.b).toBe('c');
-
-    expect(updateInfos).toHaveLength(0);
-  })",188,214,snuts
-/tests/librariesTests/react-redux.test.js,IdenticalTestDescription,"{'startLine':216,'endLine':255}","test('different state after dispatch', () => {
-    const ConnectedSimpleComponent = () => {
-      const a = ReactRedux.useSelector(state => state.a);
-      return (
-        <div data-testid=""foo"">{a.b}</div>
-      );
-    };
-
-    ConnectedSimpleComponent.whyDidYouRender = true;
-
-    const Main = () => (
-      <Provider store={store}>
-        <ConnectedSimpleComponent/>
-      </Provider>
-    );
-
-    rtl.render(<Main/>);
-
-    expect(store.getState().a.b).toBe('c');
-
-    rtl.act(() => {
-      store.dispatch({type: 'differentState'});
-    });
-
-    expect(store.getState().a.b).toBe('d');
-
-    expect(updateInfos).toHaveLength(1);
-    expect(updateInfos[0]).toEqual(expect.objectContaining({
-      hookName: 'useSelector',
-      reason: {
-        propsDifferences: false,
-        stateDifferences: false,
-        hookDifferences: [
-          {diffType: diffTypes.different, pathString: '.b', prevValue: 'c', nextValue: 'd'},
-          {diffType: diffTypes.different, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'd'}},
-        ],
-        ownerDifferences: false,
-      },
-    }));
-  })",216,255,snuts
-/tests/librariesTests/react-redux.test.js,IdenticalTestDescription,"{'startLine':257,'endLine':296}","test('deep equals state after dispatch', () => {
-    const ConnectedSimpleComponent = () => {
-      const a = ReactRedux.useSelector(state => state.a);
-      return (
-        <div data-testid=""foo"">
-          {a.b}
-        </div>
-      );
-    };
-    ConnectedSimpleComponent.whyDidYouRender = true;
-
-    const Main = () => (
-      <Provider store={store}>
-        <ConnectedSimpleComponent/>
-      </Provider>
-    );
-
-    rtl.render(<Main/>);
-
-    expect(store.getState().a.b).toBe('c');
-
-    rtl.act(() => {
-      store.dispatch({type: 'deepEqlState'});
-    });
-
-    expect(store.getState().a.b).toBe('c');
-
-    expect(updateInfos).toHaveLength(1);
-    expect(updateInfos[0]).toEqual(expect.objectContaining({
-      hookName: 'useSelector',
-      reason: {
-        propsDifferences: false,
-        stateDifferences: false,
-        hookDifferences: [
-          {diffType: diffTypes.deepEquals, pathString: '', prevValue: {b: 'c'}, nextValue: {b: 'c'}},
-        ],
-        ownerDifferences: false,
-      },
-    }));
-  })",257,296,snuts
 /tests/utils.test.js,Duplicate Assert,"{'line': 23, 'column': 4, 'index': 522}","test('class component', () => {
     let isStrictMode;
     class TestComponent extends React.Component {

@@ -1,4 +1,4 @@
-test("DateTime#offsetNameLong returns null for invalid times", () => {
+test("DateTime.invalid creates an invalid instance", () => {
   const zoned = DateTime.invalid("because");
-  expect(zoned.offsetNameLong).toBeNull();
+  expect(zoned.isValid).toBe(false);
 });

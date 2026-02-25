@@ -8,16 +8,12 @@ it('works when headers are removed on the socket event', done => {
   const server = http.createServer((request, response) => {
     const proxyReq = http.request({
       host: 'example.test',
-      path: request.url,
+      path: `/${request.url.split('/').slice(1).join('/')}`,
       headers: request.headers,
     })
 
     proxyReq.on('socket', () => {
       proxyReq.removeHeader('authorization')
-
-      // The request must be ended inside the 'socket' event handler.
-      // This ensures the header is removed before the request is sent,
-      // as 'socket' fires on `process.nextTick()`.
       proxyReq.end()
     })
 

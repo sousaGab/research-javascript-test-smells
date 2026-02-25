@@ -1,13 +1,15 @@
-it('should be triggered before and after filter', function (done) {
-  const eventOrder = [];
+it('should trigger filterStart before filterComplete', function (done) {
+  let filterStartTriggered = false;
+
   list.on('filterStart', function () {
-    eventOrder.push('filterStart');
+    filterStartTriggered = true;
   });
+
   list.on('filterComplete', function () {
-    eventOrder.push('filterComplete');
-    expect(eventOrder).toEqual(['filterStart', 'filterComplete']);
+    expect(filterStartTriggered).to.be.true;
     done();
   });
+
   list.filter(function () {
     return true;
   });

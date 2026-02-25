@@ -1,4 +1,4 @@
-it("should be able to dispose of getRequests.", async () => {
+it("should be able to dispose of getRequests.", done => {
     const onGet = jest.fn();
     const source = new LocalDataSource(cacheGenerator(0, 2), {
         onGet
@@ -7,18 +7,18 @@ it("should be able to dispose of getRequests.", async () => {
         source
     }).batch();
     const onNext = jest.fn();
-    const onError = jest.fn();
-    const onCompleted = jest.fn();
+    const disposable = toObservable(model.
+        get(["videos", 0, "title"])).
+    doAction(onNext, noOp, () => {
+        done.fail("Should not of completed. It was disposed.");
+    }).
+    subscribe(noOp, done);
 
-    const disposable = toObservable(model.get(["videos", 0, "title"]))
-        .subscribe(onNext, onError, onCompleted);
 
     disposable.dispose();
-
-    await new Promise(resolve => setTimeout(resolve, 200));
-
-    expect(onNext).not.toHaveBeenCalled();
-    expect(onGet).not.toHaveBeenCalled();
-    expect(onError).not.toHaveBeenCalled();
-    expect(onCompleted).not.toHaveBeenCalled();
+    setTimeout(() => {
+        expect(onNext).not.toHaveBeenCalled();
+        expect(onGet).not.toHaveBeenCalled();
+        done();
+    }, 200);
 });

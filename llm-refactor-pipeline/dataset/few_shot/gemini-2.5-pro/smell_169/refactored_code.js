@@ -12,7 +12,7 @@ describe("DateTime.fromRFC2822 parses a range of dates", () => {
     ["Mon, 02 Jan 2017 06:00:00 PDT", [2017, 1, 2, 13, 0, 0]],
   ];
 
-  test.each(testCases)("given %s, should return %p", (testString, expected) => {
+  test.each(testCases)("parses '%s'", (testString, expected) => {
     const r = DateTime.fromRFC2822(testString).toUTC();
     const actual = [r.year, r.month, r.day, r.hour, r.minute, r.second];
     expect(actual).toEqual(expected);

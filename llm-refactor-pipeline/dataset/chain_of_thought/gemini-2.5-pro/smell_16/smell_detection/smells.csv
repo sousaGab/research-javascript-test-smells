@@ -1,4 +1,26 @@
 file,type,line,method,methodStart,methodEnd,source
+/src/utils/comparator/__test__/Comparator.test.js,ConditionalTestLogic,"{'startLine':27,'endLine':29}","it('should compare with custom comparator function', () => {
+  const comparator = new Comparator((a, b) => {
+    if (a.length === b.length) {
+      return 0;
+    }
+
+    return a.length < b.length ? -1 : 1;
+  });
+
+  expect(comparator.equal('a', 'b')).toBe(true);
+  expect(comparator.equal('a', '')).toBe(false);
+  expect(comparator.lessThan('b', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+
+  comparator.reverse();
+
+  expect(comparator.lessThan('b', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
+})",25,46,snuts
 /src/utils/comparator/__test__/Comparator.test.js,VerboseStatement,"{'startLine':4,'endLine':23}","it('should compare with default comparator function', () => {
     const comparator = new Comparator();
 
@@ -4318,31 +4340,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(regularExpressionMatching('abba', 'a*b*.c')).toBe(false);
     expect(regularExpressionMatching('abba', '.*c')).toBe(false);
   })",4,33,snuts
-/src/algorithms/string/levenshtein-distance/__test__/levenshteinDistance.test.js,OvercommentedTest,"{'startLine':4,'endLine':28}","it('should calculate edit distance between two strings', () => {
-    expect(levenshteinDistance('', '')).toBe(0);
-    expect(levenshteinDistance('a', '')).toBe(1);
-    expect(levenshteinDistance('', 'a')).toBe(1);
-    expect(levenshteinDistance('abc', '')).toBe(3);
-    expect(levenshteinDistance('', 'abc')).toBe(3);
-
-    // Should just add I to the beginning.
-    expect(levenshteinDistance('islander', 'slander')).toBe(1);
-
-    // Needs to substitute M by K, T by M and add an A to the end
-    expect(levenshteinDistance('mart', 'karma')).toBe(3);
-
-    // Substitute K by S, E by I and insert G at the end.
-    expect(levenshteinDistance('kitten', 'sitting')).toBe(3);
-
-    // Should add 4 letters FOOT at the beginning.
-    expect(levenshteinDistance('ball', 'football')).toBe(4);
-
-    // Should delete 4 letters FOOT at the beginning.
-    expect(levenshteinDistance('football', 'foot')).toBe(4);
-
-    // Needs to substitute the first 5 chars: INTEN by EXECU
-    expect(levenshteinDistance('intention', 'execution')).toBe(5);
-  })",4,28,snuts
 /src/algorithms/statistics/weighted-random/__test__/weightedRandom.test.js,OvercommentedTest,"{'startLine':27,'endLine':63}","it('should correctly do random selection based on wights', () => {
     // Number of times we're going to select the random items based on their weights.
     const ATTEMPTS_NUM = 1000;
@@ -4417,6 +4414,31 @@ file,type,line,method,methodStart,methodEnd,source
       expect(counter[itemIndex]).toBeLessThan(ATTEMPTS_NUM * weights[itemIndex] + THRESHOLD);
     }
   })",27,63,snuts
+/src/algorithms/string/levenshtein-distance/__test__/levenshteinDistance.test.js,OvercommentedTest,"{'startLine':4,'endLine':28}","it('should calculate edit distance between two strings', () => {
+    expect(levenshteinDistance('', '')).toBe(0);
+    expect(levenshteinDistance('a', '')).toBe(1);
+    expect(levenshteinDistance('', 'a')).toBe(1);
+    expect(levenshteinDistance('abc', '')).toBe(3);
+    expect(levenshteinDistance('', 'abc')).toBe(3);
+
+    // Should just add I to the beginning.
+    expect(levenshteinDistance('islander', 'slander')).toBe(1);
+
+    // Needs to substitute M by K, T by M and add an A to the end
+    expect(levenshteinDistance('mart', 'karma')).toBe(3);
+
+    // Substitute K by S, E by I and insert G at the end.
+    expect(levenshteinDistance('kitten', 'sitting')).toBe(3);
+
+    // Should add 4 letters FOOT at the beginning.
+    expect(levenshteinDistance('ball', 'football')).toBe(4);
+
+    // Should delete 4 letters FOOT at the beginning.
+    expect(levenshteinDistance('football', 'foot')).toBe(4);
+
+    // Needs to substitute the first 5 chars: INTEN by EXECU
+    expect(levenshteinDistance('intention', 'execution')).toBe(5);
+  })",4,28,snuts
 /src/algorithms/sets/permutations/__test__/permutateWithoutRepetitions.test.js,SubOptimalAssert,"{'startLine':12,'endLine':12}","it('should permutate string', () => {
     const permutations1 = permutateWithoutRepetitions(['A']);
     expect(permutations1).toEqual([
@@ -4875,196 +4897,6 @@ file,type,line,method,methodStart,methodEnd,source
       0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 7, 15,
     ])).toBe(6);
   })",4,35,snuts
-/src/algorithms/sets/knapsack-problem/__test__/KnapsackItem.test.js,VerboseStatement,"{'startLine':4,'endLine':34}","it('should create knapsack item and count its total weight and value', () => {
-    const knapsackItem = new KnapsackItem({ value: 3, weight: 2 });
-
-    expect(knapsackItem.value).toBe(3);
-    expect(knapsackItem.weight).toBe(2);
-    expect(knapsackItem.quantity).toBe(1);
-    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
-    expect(knapsackItem.toString()).toBe('v3 w2 x 1');
-    expect(knapsackItem.totalValue).toBe(3);
-    expect(knapsackItem.totalWeight).toBe(2);
-
-    knapsackItem.quantity = 0;
-
-    expect(knapsackItem.value).toBe(3);
-    expect(knapsackItem.weight).toBe(2);
-    expect(knapsackItem.quantity).toBe(0);
-    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
-    expect(knapsackItem.toString()).toBe('v3 w2 x 0');
-    expect(knapsackItem.totalValue).toBe(0);
-    expect(knapsackItem.totalWeight).toBe(0);
-
-    knapsackItem.quantity = 2;
-
-    expect(knapsackItem.value).toBe(3);
-    expect(knapsackItem.weight).toBe(2);
-    expect(knapsackItem.quantity).toBe(2);
-    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
-    expect(knapsackItem.toString()).toBe('v3 w2 x 2');
-    expect(knapsackItem.totalValue).toBe(6);
-    expect(knapsackItem.totalWeight).toBe(4);
-  })",4,34,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':21,'endLine':21}","it('should solve 0/1 knapsack problem', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 1, weight: 1 }),
-      new KnapsackItem({ value: 4, weight: 3 }),
-      new KnapsackItem({ value: 5, weight: 4 }),
-      new KnapsackItem({ value: 7, weight: 5 }),
-    ];
-
-    const maxKnapsackWeight = 7;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveZeroOneKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(9);
-    expect(knapsack.totalWeight).toBe(7);
-    expect(knapsack.selectedItems.length).toBe(2);
-    expect(knapsack.selectedItems[0].toString()).toBe('v5 w4 x 1');
-    expect(knapsack.selectedItems[1].toString()).toBe('v4 w3 x 1');
-  })",5,24,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':42,'endLine':42}","it('should solve 0/1 knapsack problem regardless of items order', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 5, weight: 4 }),
-      new KnapsackItem({ value: 1, weight: 1 }),
-      new KnapsackItem({ value: 7, weight: 5 }),
-      new KnapsackItem({ value: 4, weight: 3 }),
-    ];
-
-    const maxKnapsackWeight = 7;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveZeroOneKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(9);
-    expect(knapsack.totalWeight).toBe(7);
-    expect(knapsack.selectedItems.length).toBe(2);
-    expect(knapsack.selectedItems[0].toString()).toBe('v5 w4 x 1');
-    expect(knapsack.selectedItems[1].toString()).toBe('v4 w3 x 1');
-  })",26,45,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':63,'endLine':63}","it('should solve 0/1 knapsack problem with impossible items set', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 5, weight: 40 }),
-      new KnapsackItem({ value: 1, weight: 10 }),
-      new KnapsackItem({ value: 7, weight: 50 }),
-      new KnapsackItem({ value: 4, weight: 30 }),
-    ];
-
-    const maxKnapsackWeight = 7;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveZeroOneKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(0);
-    expect(knapsack.totalWeight).toBe(0);
-    expect(knapsack.selectedItems.length).toBe(0);
-  })",47,64,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':84,'endLine':84}","it('should solve 0/1 knapsack problem with all equal weights', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 5, weight: 1 }),
-      new KnapsackItem({ value: 1, weight: 1 }),
-      new KnapsackItem({ value: 7, weight: 1 }),
-      new KnapsackItem({ value: 4, weight: 1 }),
-      new KnapsackItem({ value: 4, weight: 1 }),
-      new KnapsackItem({ value: 4, weight: 1 }),
-    ];
-
-    const maxKnapsackWeight = 3;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveZeroOneKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(16);
-    expect(knapsack.totalWeight).toBe(3);
-    expect(knapsack.selectedItems.length).toBe(3);
-    expect(knapsack.selectedItems[0].toString()).toBe('v4 w1 x 1');
-    expect(knapsack.selectedItems[1].toString()).toBe('v5 w1 x 1');
-    expect(knapsack.selectedItems[2].toString()).toBe('v7 w1 x 1');
-  })",66,88,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':107,'endLine':107}","it('should solve unbound knapsack problem', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 84, weight: 7 }), // v/w ratio is 12
-      new KnapsackItem({ value: 5, weight: 2 }), // v/w ratio is 2.5
-      new KnapsackItem({ value: 12, weight: 3 }), // v/w ratio is 4
-      new KnapsackItem({ value: 10, weight: 1 }), // v/w ratio is 10
-      new KnapsackItem({ value: 20, weight: 2 }), // v/w ratio is 10
-    ];
-
-    const maxKnapsackWeight = 15;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveUnboundedKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(84 + 20 + 12 + 10 + 5);
-    expect(knapsack.totalWeight).toBe(15);
-    expect(knapsack.selectedItems.length).toBe(5);
-    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 1');
-    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 1');
-    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 1');
-    expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
-    expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 1');
-  })",90,113,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':132,'endLine':132}","it('should solve unbound knapsack problem with items in stock', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 84, weight: 7, itemsInStock: 3 }), // v/w ratio is 12
-      new KnapsackItem({ value: 5, weight: 2, itemsInStock: 2 }), // v/w ratio is 2.5
-      new KnapsackItem({ value: 12, weight: 3, itemsInStock: 1 }), // v/w ratio is 4
-      new KnapsackItem({ value: 10, weight: 1, itemsInStock: 6 }), // v/w ratio is 10
-      new KnapsackItem({ value: 20, weight: 2, itemsInStock: 8 }), // v/w ratio is 10
-    ];
-
-    const maxKnapsackWeight = 17;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveUnboundedKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe(84 + 84 + 20 + 10);
-    expect(knapsack.totalWeight).toBe(17);
-    expect(knapsack.selectedItems.length).toBe(3);
-    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 2');
-    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 1');
-    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 1');
-  })",115,136,snuts
-/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':155,'endLine':155}","it('should solve unbound knapsack problem with items in stock and max weight more than sum of all items', () => {
-    const possibleKnapsackItems = [
-      new KnapsackItem({ value: 84, weight: 7, itemsInStock: 3 }), // v/w ratio is 12
-      new KnapsackItem({ value: 5, weight: 2, itemsInStock: 2 }), // v/w ratio is 2.5
-      new KnapsackItem({ value: 12, weight: 3, itemsInStock: 1 }), // v/w ratio is 4
-      new KnapsackItem({ value: 10, weight: 1, itemsInStock: 6 }), // v/w ratio is 10
-      new KnapsackItem({ value: 20, weight: 2, itemsInStock: 8 }), // v/w ratio is 10
-    ];
-
-    const maxKnapsackWeight = 60;
-
-    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
-
-    knapsack.solveUnboundedKnapsackProblem();
-
-    expect(knapsack.totalValue).toBe((3 * 84) + (2 * 5) + (1 * 12) + (6 * 10) + (8 * 20));
-    expect(knapsack.totalWeight).toBe((3 * 7) + (2 * 2) + (1 * 3) + (6 * 1) + (8 * 2));
-    expect(knapsack.selectedItems.length).toBe(5);
-    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 3');
-    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 8');
-    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 6');
-    expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
-    expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 2');
-  })",138,161,snuts
-/src/algorithms/sets/fisher-yates/__test__/fisherYates.test.js,SubOptimalAssert,"{'startLine':15,'endLine':15}","it('should shuffle array randomly', () => {
-    const shuffledArray = fisherYates(sortedArr);
-    const sorter = new QuickSort();
-
-    expect(shuffledArray.length).toBe(sortedArr.length);
-    expect(shuffledArray).not.toEqual(sortedArr);
-    expect(sorter.sort(shuffledArray)).toEqual(sortedArr);
-  })",11,18,snuts
 /src/algorithms/sets/combinations/__test__/combineWithoutRepetitions.test.js,SubOptimalAssert,"{'startLine':59,'endLine':59}","it('should combine string without repetitions', () => {
     expect(combineWithoutRepetitions(['A', 'B'], 3)).toEqual([]);
 
@@ -5293,6 +5125,40 @@ file,type,line,method,methodStart,methodEnd,source
 
     expect(combinations.length).toBe(expectedNumberOfCombinations);
   })",5,58,snuts
+/src/algorithms/search/jump-search/__test__/jumpSearch.test.js,ConditionalTestLogic,"{'startLine':29,'endLine':29}","it('should search object in sorted array', () => {
+    const sortedArrayOfObjects = [
+      { key: 1, value: 'value1' },
+      { key: 2, value: 'value2' },
+      { key: 3, value: 'value3' },
+    ];
+
+    const comparator = (a, b) => {
+      if (a.key === b.key) return 0;
+      return a.key < b.key ? -1 : 1;
+    };
+
+    expect(jumpSearch([], { key: 1 }, comparator)).toBe(-1);
+    expect(jumpSearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
+    expect(jumpSearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
+    expect(jumpSearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
+    expect(jumpSearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
+  })",21,38,snuts
+/src/algorithms/search/jump-search/__test__/jumpSearch.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should search for an element in sorted array', () => {
+    expect(jumpSearch([], 1)).toBe(-1);
+    expect(jumpSearch([1], 2)).toBe(-1);
+    expect(jumpSearch([1], 1)).toBe(0);
+    expect(jumpSearch([1, 2], 1)).toBe(0);
+    expect(jumpSearch([1, 2], 1)).toBe(0);
+    expect(jumpSearch([1, 1, 1], 1)).toBe(0);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 2)).toBe(1);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 0)).toBe(-1);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 0)).toBe(-1);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 7)).toBe(-1);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 5)).toBe(2);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 20)).toBe(4);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 30)).toBe(7);
+    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 48)).toBe(8);
+  })",4,19,snuts
 /src/algorithms/search/linear-search/__test__/linearSearch.test.js,ConditionalTestLogic,"{'startLine':22,'endLine':24}","it('should search through objects as well', () => {
     const comparatorCallback = (a, b) => {
       if (a.key === b.key) {
@@ -5333,24 +5199,196 @@ file,type,line,method,methodStart,methodEnd,source
     expect(interpolationSearch([1, 2, 3, 700, 800, 1200, 1300, 1400, 19000], 800)).toBe(4);
     expect(interpolationSearch([0, 10, 11, 12, 13, 14, 15], 10)).toBe(1);
   })",4,23,snuts
-/src/algorithms/search/binary-search/__test__/binarySearch.test.js,ConditionalTestLogic,"{'startLine':24,'endLine':24}","it('should search object in sorted array', () => {
-    const sortedArrayOfObjects = [
-      { key: 1, value: 'value1' },
-      { key: 2, value: 'value2' },
-      { key: 3, value: 'value3' },
+/src/algorithms/sets/knapsack-problem/__test__/KnapsackItem.test.js,VerboseStatement,"{'startLine':4,'endLine':34}","it('should create knapsack item and count its total weight and value', () => {
+    const knapsackItem = new KnapsackItem({ value: 3, weight: 2 });
+
+    expect(knapsackItem.value).toBe(3);
+    expect(knapsackItem.weight).toBe(2);
+    expect(knapsackItem.quantity).toBe(1);
+    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
+    expect(knapsackItem.toString()).toBe('v3 w2 x 1');
+    expect(knapsackItem.totalValue).toBe(3);
+    expect(knapsackItem.totalWeight).toBe(2);
+
+    knapsackItem.quantity = 0;
+
+    expect(knapsackItem.value).toBe(3);
+    expect(knapsackItem.weight).toBe(2);
+    expect(knapsackItem.quantity).toBe(0);
+    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
+    expect(knapsackItem.toString()).toBe('v3 w2 x 0');
+    expect(knapsackItem.totalValue).toBe(0);
+    expect(knapsackItem.totalWeight).toBe(0);
+
+    knapsackItem.quantity = 2;
+
+    expect(knapsackItem.value).toBe(3);
+    expect(knapsackItem.weight).toBe(2);
+    expect(knapsackItem.quantity).toBe(2);
+    expect(knapsackItem.valuePerWeightRatio).toBe(1.5);
+    expect(knapsackItem.toString()).toBe('v3 w2 x 2');
+    expect(knapsackItem.totalValue).toBe(6);
+    expect(knapsackItem.totalWeight).toBe(4);
+  })",4,34,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':21,'endLine':21}","it('should solve 0/1 knapsack problem', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 1, weight: 1 }),
+      new KnapsackItem({ value: 4, weight: 3 }),
+      new KnapsackItem({ value: 5, weight: 4 }),
+      new KnapsackItem({ value: 7, weight: 5 }),
     ];
 
-    const comparator = (a, b) => {
-      if (a.key === b.key) return 0;
-      return a.key < b.key ? -1 : 1;
-    };
+    const maxKnapsackWeight = 7;
 
-    expect(binarySearch([], { key: 1 }, comparator)).toBe(-1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
-    expect(binarySearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
-    expect(binarySearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
-  })",16,33,snuts
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveZeroOneKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(9);
+    expect(knapsack.totalWeight).toBe(7);
+    expect(knapsack.selectedItems.length).toBe(2);
+    expect(knapsack.selectedItems[0].toString()).toBe('v5 w4 x 1');
+    expect(knapsack.selectedItems[1].toString()).toBe('v4 w3 x 1');
+  })",5,24,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':42,'endLine':42}","it('should solve 0/1 knapsack problem regardless of items order', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 5, weight: 4 }),
+      new KnapsackItem({ value: 1, weight: 1 }),
+      new KnapsackItem({ value: 7, weight: 5 }),
+      new KnapsackItem({ value: 4, weight: 3 }),
+    ];
+
+    const maxKnapsackWeight = 7;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveZeroOneKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(9);
+    expect(knapsack.totalWeight).toBe(7);
+    expect(knapsack.selectedItems.length).toBe(2);
+    expect(knapsack.selectedItems[0].toString()).toBe('v5 w4 x 1');
+    expect(knapsack.selectedItems[1].toString()).toBe('v4 w3 x 1');
+  })",26,45,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':63,'endLine':63}","it('should solve 0/1 knapsack problem with impossible items set', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 5, weight: 40 }),
+      new KnapsackItem({ value: 1, weight: 10 }),
+      new KnapsackItem({ value: 7, weight: 50 }),
+      new KnapsackItem({ value: 4, weight: 30 }),
+    ];
+
+    const maxKnapsackWeight = 7;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveZeroOneKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(0);
+    expect(knapsack.totalWeight).toBe(0);
+    expect(knapsack.selectedItems.length).toBe(0);
+  })",47,64,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':84,'endLine':84}","it('should solve 0/1 knapsack problem with all equal weights', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 5, weight: 1 }),
+      new KnapsackItem({ value: 1, weight: 1 }),
+      new KnapsackItem({ value: 7, weight: 1 }),
+      new KnapsackItem({ value: 4, weight: 1 }),
+      new KnapsackItem({ value: 4, weight: 1 }),
+      new KnapsackItem({ value: 4, weight: 1 }),
+    ];
+
+    const maxKnapsackWeight = 3;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveZeroOneKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(16);
+    expect(knapsack.totalWeight).toBe(3);
+    expect(knapsack.selectedItems.length).toBe(3);
+    expect(knapsack.selectedItems[0].toString()).toBe('v4 w1 x 1');
+    expect(knapsack.selectedItems[1].toString()).toBe('v5 w1 x 1');
+    expect(knapsack.selectedItems[2].toString()).toBe('v7 w1 x 1');
+  })",66,88,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':107,'endLine':107}","it('should solve unbound knapsack problem', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 84, weight: 7 }), // v/w ratio is 12
+      new KnapsackItem({ value: 5, weight: 2 }), // v/w ratio is 2.5
+      new KnapsackItem({ value: 12, weight: 3 }), // v/w ratio is 4
+      new KnapsackItem({ value: 10, weight: 1 }), // v/w ratio is 10
+      new KnapsackItem({ value: 20, weight: 2 }), // v/w ratio is 10
+    ];
+
+    const maxKnapsackWeight = 15;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveUnboundedKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(84 + 20 + 12 + 10 + 5);
+    expect(knapsack.totalWeight).toBe(15);
+    expect(knapsack.selectedItems.length).toBe(5);
+    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 1');
+    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 1');
+    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 1');
+    expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
+    expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 1');
+  })",90,113,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':132,'endLine':132}","it('should solve unbound knapsack problem with items in stock', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 84, weight: 7, itemsInStock: 3 }), // v/w ratio is 12
+      new KnapsackItem({ value: 5, weight: 2, itemsInStock: 2 }), // v/w ratio is 2.5
+      new KnapsackItem({ value: 12, weight: 3, itemsInStock: 1 }), // v/w ratio is 4
+      new KnapsackItem({ value: 10, weight: 1, itemsInStock: 6 }), // v/w ratio is 10
+      new KnapsackItem({ value: 20, weight: 2, itemsInStock: 8 }), // v/w ratio is 10
+    ];
+
+    const maxKnapsackWeight = 17;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveUnboundedKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe(84 + 84 + 20 + 10);
+    expect(knapsack.totalWeight).toBe(17);
+    expect(knapsack.selectedItems.length).toBe(3);
+    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 2');
+    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 1');
+    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 1');
+  })",115,136,snuts
+/src/algorithms/sets/knapsack-problem/__test__/Knapsack.test.js,SubOptimalAssert,"{'startLine':155,'endLine':155}","it('should solve unbound knapsack problem with items in stock and max weight more than sum of all items', () => {
+    const possibleKnapsackItems = [
+      new KnapsackItem({ value: 84, weight: 7, itemsInStock: 3 }), // v/w ratio is 12
+      new KnapsackItem({ value: 5, weight: 2, itemsInStock: 2 }), // v/w ratio is 2.5
+      new KnapsackItem({ value: 12, weight: 3, itemsInStock: 1 }), // v/w ratio is 4
+      new KnapsackItem({ value: 10, weight: 1, itemsInStock: 6 }), // v/w ratio is 10
+      new KnapsackItem({ value: 20, weight: 2, itemsInStock: 8 }), // v/w ratio is 10
+    ];
+
+    const maxKnapsackWeight = 60;
+
+    const knapsack = new Knapsack(possibleKnapsackItems, maxKnapsackWeight);
+
+    knapsack.solveUnboundedKnapsackProblem();
+
+    expect(knapsack.totalValue).toBe((3 * 84) + (2 * 5) + (1 * 12) + (6 * 10) + (8 * 20));
+    expect(knapsack.totalWeight).toBe((3 * 7) + (2 * 2) + (1 * 3) + (6 * 1) + (8 * 2));
+    expect(knapsack.selectedItems.length).toBe(5);
+    expect(knapsack.selectedItems[0].toString()).toBe('v84 w7 x 3');
+    expect(knapsack.selectedItems[1].toString()).toBe('v20 w2 x 8');
+    expect(knapsack.selectedItems[2].toString()).toBe('v10 w1 x 6');
+    expect(knapsack.selectedItems[3].toString()).toBe('v12 w3 x 1');
+    expect(knapsack.selectedItems[4].toString()).toBe('v5 w2 x 2');
+  })",138,161,snuts
+/src/algorithms/sets/fisher-yates/__test__/fisherYates.test.js,SubOptimalAssert,"{'startLine':15,'endLine':15}","it('should shuffle array randomly', () => {
+    const shuffledArray = fisherYates(sortedArr);
+    const sorter = new QuickSort();
+
+    expect(shuffledArray.length).toBe(sortedArr.length);
+    expect(shuffledArray).not.toEqual(sortedArr);
+    expect(sorter.sort(shuffledArray)).toEqual(sortedArr);
+  })",11,18,snuts
 /src/algorithms/ml/knn/__test__/knn.test.js,IdenticalTestDescription,"{'startLine':24,'endLine':29}","it('should throw an error on not giving classification vector', () => {
     const inconsistent = () => {
       kNN([[1, 1]], [1], [1]);
@@ -5446,40 +5484,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(primeFactors(8735463)).toEqual([3, 3, 11, 88237]);
     expect(primeFactors(873452453)).toEqual([149, 1637, 3581]);
   })",17,37,snuts
-/src/algorithms/search/jump-search/__test__/jumpSearch.test.js,ConditionalTestLogic,"{'startLine':29,'endLine':29}","it('should search object in sorted array', () => {
-    const sortedArrayOfObjects = [
-      { key: 1, value: 'value1' },
-      { key: 2, value: 'value2' },
-      { key: 3, value: 'value3' },
-    ];
-
-    const comparator = (a, b) => {
-      if (a.key === b.key) return 0;
-      return a.key < b.key ? -1 : 1;
-    };
-
-    expect(jumpSearch([], { key: 1 }, comparator)).toBe(-1);
-    expect(jumpSearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
-    expect(jumpSearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
-    expect(jumpSearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
-    expect(jumpSearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
-  })",21,38,snuts
-/src/algorithms/search/jump-search/__test__/jumpSearch.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should search for an element in sorted array', () => {
-    expect(jumpSearch([], 1)).toBe(-1);
-    expect(jumpSearch([1], 2)).toBe(-1);
-    expect(jumpSearch([1], 1)).toBe(0);
-    expect(jumpSearch([1, 2], 1)).toBe(0);
-    expect(jumpSearch([1, 2], 1)).toBe(0);
-    expect(jumpSearch([1, 1, 1], 1)).toBe(0);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 2)).toBe(1);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 0)).toBe(-1);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 0)).toBe(-1);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 7)).toBe(-1);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 5)).toBe(2);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 20)).toBe(4);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 30)).toBe(7);
-    expect(jumpSearch([1, 2, 5, 10, 20, 21, 24, 30, 48], 48)).toBe(8);
-  })",4,19,snuts
 /src/algorithms/math/is-power-of-two/__test__/isPowerOfTwoBitwise.test.js,VerboseStatement,"{'startLine':4,'endLine':22}","it('should check if the number is made by multiplying twos', () => {
     expect(isPowerOfTwoBitwise(-1)).toBe(false);
     expect(isPowerOfTwoBitwise(0)).toBe(false);
@@ -5651,6 +5655,24 @@ file,type,line,method,methodStart,methodEnd,source
     expect(complexNumber10.getPolarForm().phase).toBeCloseTo(0);
     expect(complexNumber10.getPolarForm(false).phase).toBeCloseTo(0);
   })",130,180,snuts
+/src/algorithms/search/binary-search/__test__/binarySearch.test.js,ConditionalTestLogic,"{'startLine':24,'endLine':24}","it('should search object in sorted array', () => {
+    const sortedArrayOfObjects = [
+      { key: 1, value: 'value1' },
+      { key: 2, value: 'value2' },
+      { key: 3, value: 'value3' },
+    ];
+
+    const comparator = (a, b) => {
+      if (a.key === b.key) return 0;
+      return a.key < b.key ? -1 : 1;
+    };
+
+    expect(binarySearch([], { key: 1 }, comparator)).toBe(-1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 4 }, comparator)).toBe(-1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 1 }, comparator)).toBe(0);
+    expect(binarySearch(sortedArrayOfObjects, { key: 2 }, comparator)).toBe(1);
+    expect(binarySearch(sortedArrayOfObjects, { key: 3 }, comparator)).toBe(2);
+  })",16,33,snuts
 /src/algorithms/math/bits/__test__/isPowerOfTwo.test.js,VerboseStatement,"{'startLine':4,'endLine':19}","it('should detect if the number is power of two', () => {
     expect(isPowerOfTwo(1)).toBe(true);
     expect(isPowerOfTwo(2)).toBe(true);
@@ -5791,37 +5813,7 @@ file,type,line,method,methodStart,methodEnd,source
     expect(salesmanPath[2].getKey()).toEqual(vertexD.getKey());
     expect(salesmanPath[3].getKey()).toEqual(vertexC.getKey());
   })",7,50,snuts
-/src/algorithms/graph/strongly-connected-components/__test__/stronglyConnectedComponents.test.js,SubOptimalAssert,"{'startLine':29,'endLine':29}","it('should detect strongly connected components in simple graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCA = new GraphEdge(vertexC, vertexA);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-
-    const graph = new Graph(true);
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeCA)
-      .addEdge(edgeCD);
-
-    const components = stronglyConnectedComponents(graph);
-
-    expect(components).toBeDefined();
-    expect(components.length).toBe(2);
-
-    expect(components[0][0].getKey()).toBe(vertexA.getKey());
-    expect(components[0][1].getKey()).toBe(vertexC.getKey());
-    expect(components[0][2].getKey()).toBe(vertexB.getKey());
-
-    expect(components[1][0].getKey()).toBe(vertexD.getKey());
-  })",7,36,snuts
-/src/algorithms/graph/strongly-connected-components/__test__/stronglyConnectedComponents.test.js,SubOptimalAssert,"{'startLine':85,'endLine':85}","it('should detect strongly connected components in graph', () => {
+/src/algorithms/graph/topological-sorting/__test__/topologicalSort.test.js,SubOptimalAssert,"{'startLine':41,'endLine':41}","it('should do topological sorting on graph', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
     const vertexC = new GraphVertex('C');
@@ -5830,92 +5822,44 @@ file,type,line,method,methodStart,methodEnd,source
     const vertexF = new GraphVertex('F');
     const vertexG = new GraphVertex('G');
     const vertexH = new GraphVertex('H');
-    const vertexI = new GraphVertex('I');
-    const vertexJ = new GraphVertex('J');
-    const vertexK = new GraphVertex('K');
 
-    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeAC = new GraphEdge(vertexA, vertexC);
     const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCA = new GraphEdge(vertexC, vertexA);
     const edgeBD = new GraphEdge(vertexB, vertexD);
-    const edgeDE = new GraphEdge(vertexD, vertexE);
+    const edgeCE = new GraphEdge(vertexC, vertexE);
+    const edgeDF = new GraphEdge(vertexD, vertexF);
     const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeFD = new GraphEdge(vertexF, vertexD);
-    const edgeGF = new GraphEdge(vertexG, vertexF);
-    const edgeGH = new GraphEdge(vertexG, vertexH);
-    const edgeHI = new GraphEdge(vertexH, vertexI);
-    const edgeIJ = new GraphEdge(vertexI, vertexJ);
-    const edgeJG = new GraphEdge(vertexJ, vertexG);
-    const edgeJK = new GraphEdge(vertexJ, vertexK);
+    const edgeEH = new GraphEdge(vertexE, vertexH);
+    const edgeFG = new GraphEdge(vertexF, vertexG);
 
     const graph = new Graph(true);
 
     graph
-      .addEdge(edgeAB)
+      .addEdge(edgeAC)
       .addEdge(edgeBC)
-      .addEdge(edgeCA)
       .addEdge(edgeBD)
-      .addEdge(edgeDE)
+      .addEdge(edgeCE)
+      .addEdge(edgeDF)
       .addEdge(edgeEF)
-      .addEdge(edgeFD)
-      .addEdge(edgeGF)
-      .addEdge(edgeGH)
-      .addEdge(edgeHI)
-      .addEdge(edgeIJ)
-      .addEdge(edgeJG)
-      .addEdge(edgeJK);
+      .addEdge(edgeEH)
+      .addEdge(edgeFG);
 
-    const components = stronglyConnectedComponents(graph);
+    const sortedVertices = topologicalSort(graph);
 
-    expect(components).toBeDefined();
-    expect(components.length).toBe(4);
-
-    expect(components[0][0].getKey()).toBe(vertexG.getKey());
-    expect(components[0][1].getKey()).toBe(vertexJ.getKey());
-    expect(components[0][2].getKey()).toBe(vertexI.getKey());
-    expect(components[0][3].getKey()).toBe(vertexH.getKey());
-
-    expect(components[1][0].getKey()).toBe(vertexK.getKey());
-
-    expect(components[2][0].getKey()).toBe(vertexA.getKey());
-    expect(components[2][1].getKey()).toBe(vertexC.getKey());
-    expect(components[2][2].getKey()).toBe(vertexB.getKey());
-
-    expect(components[3][0].getKey()).toBe(vertexD.getKey());
-    expect(components[3][1].getKey()).toBe(vertexF.getKey());
-    expect(components[3][2].getKey()).toBe(vertexE.getKey());
-  })",38,101,snuts
-/src/algorithms/graph/strongly-connected-components/__test__/stronglyConnectedComponents.test.js,VerboseStatement,"{'startLine':7,'endLine':36}","it('should detect strongly connected components in simple graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-
-    const edgeAB = new GraphEdge(vertexA, vertexB);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCA = new GraphEdge(vertexC, vertexA);
-    const edgeCD = new GraphEdge(vertexC, vertexD);
-
-    const graph = new Graph(true);
-
-    graph
-      .addEdge(edgeAB)
-      .addEdge(edgeBC)
-      .addEdge(edgeCA)
-      .addEdge(edgeCD);
-
-    const components = stronglyConnectedComponents(graph);
-
-    expect(components).toBeDefined();
-    expect(components.length).toBe(2);
-
-    expect(components[0][0].getKey()).toBe(vertexA.getKey());
-    expect(components[0][1].getKey()).toBe(vertexC.getKey());
-    expect(components[0][2].getKey()).toBe(vertexB.getKey());
-
-    expect(components[1][0].getKey()).toBe(vertexD.getKey());
-  })",7,36,snuts
-/src/algorithms/graph/strongly-connected-components/__test__/stronglyConnectedComponents.test.js,VerboseStatement,"{'startLine':38,'endLine':101}","it('should detect strongly connected components in graph', () => {
+    expect(sortedVertices).toBeDefined();
+    expect(sortedVertices.length).toBe(graph.getAllVertices().length);
+    expect(sortedVertices).toEqual([
+      vertexB,
+      vertexD,
+      vertexA,
+      vertexC,
+      vertexE,
+      vertexH,
+      vertexF,
+      vertexG,
+    ]);
+  })",7,52,snuts
+/src/algorithms/graph/topological-sorting/__test__/topologicalSort.test.js,VerboseStatement,"{'startLine':7,'endLine':52}","it('should do topological sorting on graph', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
     const vertexC = new GraphVertex('C');
@@ -5924,61 +5868,43 @@ file,type,line,method,methodStart,methodEnd,source
     const vertexF = new GraphVertex('F');
     const vertexG = new GraphVertex('G');
     const vertexH = new GraphVertex('H');
-    const vertexI = new GraphVertex('I');
-    const vertexJ = new GraphVertex('J');
-    const vertexK = new GraphVertex('K');
 
-    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeAC = new GraphEdge(vertexA, vertexC);
     const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeCA = new GraphEdge(vertexC, vertexA);
     const edgeBD = new GraphEdge(vertexB, vertexD);
-    const edgeDE = new GraphEdge(vertexD, vertexE);
+    const edgeCE = new GraphEdge(vertexC, vertexE);
+    const edgeDF = new GraphEdge(vertexD, vertexF);
     const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeFD = new GraphEdge(vertexF, vertexD);
-    const edgeGF = new GraphEdge(vertexG, vertexF);
-    const edgeGH = new GraphEdge(vertexG, vertexH);
-    const edgeHI = new GraphEdge(vertexH, vertexI);
-    const edgeIJ = new GraphEdge(vertexI, vertexJ);
-    const edgeJG = new GraphEdge(vertexJ, vertexG);
-    const edgeJK = new GraphEdge(vertexJ, vertexK);
+    const edgeEH = new GraphEdge(vertexE, vertexH);
+    const edgeFG = new GraphEdge(vertexF, vertexG);
 
     const graph = new Graph(true);
 
     graph
-      .addEdge(edgeAB)
+      .addEdge(edgeAC)
       .addEdge(edgeBC)
-      .addEdge(edgeCA)
       .addEdge(edgeBD)
-      .addEdge(edgeDE)
+      .addEdge(edgeCE)
+      .addEdge(edgeDF)
       .addEdge(edgeEF)
-      .addEdge(edgeFD)
-      .addEdge(edgeGF)
-      .addEdge(edgeGH)
-      .addEdge(edgeHI)
-      .addEdge(edgeIJ)
-      .addEdge(edgeJG)
-      .addEdge(edgeJK);
+      .addEdge(edgeEH)
+      .addEdge(edgeFG);
 
-    const components = stronglyConnectedComponents(graph);
+    const sortedVertices = topologicalSort(graph);
 
-    expect(components).toBeDefined();
-    expect(components.length).toBe(4);
-
-    expect(components[0][0].getKey()).toBe(vertexG.getKey());
-    expect(components[0][1].getKey()).toBe(vertexJ.getKey());
-    expect(components[0][2].getKey()).toBe(vertexI.getKey());
-    expect(components[0][3].getKey()).toBe(vertexH.getKey());
-
-    expect(components[1][0].getKey()).toBe(vertexK.getKey());
-
-    expect(components[2][0].getKey()).toBe(vertexA.getKey());
-    expect(components[2][1].getKey()).toBe(vertexC.getKey());
-    expect(components[2][2].getKey()).toBe(vertexB.getKey());
-
-    expect(components[3][0].getKey()).toBe(vertexD.getKey());
-    expect(components[3][1].getKey()).toBe(vertexF.getKey());
-    expect(components[3][2].getKey()).toBe(vertexE.getKey());
-  })",38,101,snuts
+    expect(sortedVertices).toBeDefined();
+    expect(sortedVertices.length).toBe(graph.getAllVertices().length);
+    expect(sortedVertices).toEqual([
+      vertexB,
+      vertexD,
+      vertexA,
+      vertexC,
+      vertexE,
+      vertexH,
+      vertexF,
+      vertexG,
+    ]);
+  })",7,52,snuts
 /src/algorithms/graph/prim/__test__/prim.test.js,SubOptimalAssert,"{'startLine':56,'endLine':56}","it('should find minimum spanning tree', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -6198,98 +6124,6 @@ file,type,line,method,methodStart,methodEnd,source
     expect(minimumSpanningTree.getAllEdges().length).toBe(graph.getAllVertices().length - 1);
     expect(minimumSpanningTree.toString()).toBe('A,B,C,D');
   })",61,90,snuts
-/src/algorithms/graph/topological-sorting/__test__/topologicalSort.test.js,SubOptimalAssert,"{'startLine':41,'endLine':41}","it('should do topological sorting on graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-    const vertexH = new GraphVertex('H');
-
-    const edgeAC = new GraphEdge(vertexA, vertexC);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeBD = new GraphEdge(vertexB, vertexD);
-    const edgeCE = new GraphEdge(vertexC, vertexE);
-    const edgeDF = new GraphEdge(vertexD, vertexF);
-    const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeEH = new GraphEdge(vertexE, vertexH);
-    const edgeFG = new GraphEdge(vertexF, vertexG);
-
-    const graph = new Graph(true);
-
-    graph
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeBD)
-      .addEdge(edgeCE)
-      .addEdge(edgeDF)
-      .addEdge(edgeEF)
-      .addEdge(edgeEH)
-      .addEdge(edgeFG);
-
-    const sortedVertices = topologicalSort(graph);
-
-    expect(sortedVertices).toBeDefined();
-    expect(sortedVertices.length).toBe(graph.getAllVertices().length);
-    expect(sortedVertices).toEqual([
-      vertexB,
-      vertexD,
-      vertexA,
-      vertexC,
-      vertexE,
-      vertexH,
-      vertexF,
-      vertexG,
-    ]);
-  })",7,52,snuts
-/src/algorithms/graph/topological-sorting/__test__/topologicalSort.test.js,VerboseStatement,"{'startLine':7,'endLine':52}","it('should do topological sorting on graph', () => {
-    const vertexA = new GraphVertex('A');
-    const vertexB = new GraphVertex('B');
-    const vertexC = new GraphVertex('C');
-    const vertexD = new GraphVertex('D');
-    const vertexE = new GraphVertex('E');
-    const vertexF = new GraphVertex('F');
-    const vertexG = new GraphVertex('G');
-    const vertexH = new GraphVertex('H');
-
-    const edgeAC = new GraphEdge(vertexA, vertexC);
-    const edgeBC = new GraphEdge(vertexB, vertexC);
-    const edgeBD = new GraphEdge(vertexB, vertexD);
-    const edgeCE = new GraphEdge(vertexC, vertexE);
-    const edgeDF = new GraphEdge(vertexD, vertexF);
-    const edgeEF = new GraphEdge(vertexE, vertexF);
-    const edgeEH = new GraphEdge(vertexE, vertexH);
-    const edgeFG = new GraphEdge(vertexF, vertexG);
-
-    const graph = new Graph(true);
-
-    graph
-      .addEdge(edgeAC)
-      .addEdge(edgeBC)
-      .addEdge(edgeBD)
-      .addEdge(edgeCE)
-      .addEdge(edgeDF)
-      .addEdge(edgeEF)
-      .addEdge(edgeEH)
-      .addEdge(edgeFG);
-
-    const sortedVertices = topologicalSort(graph);
-
-    expect(sortedVertices).toBeDefined();
-    expect(sortedVertices.length).toBe(graph.getAllVertices().length);
-    expect(sortedVertices).toEqual([
-      vertexB,
-      vertexD,
-      vertexA,
-      vertexC,
-      vertexE,
-      vertexH,
-      vertexF,
-      vertexG,
-    ]);
-  })",7,52,snuts
 /src/algorithms/graph/kruskal/__test__/kruskal.test.js,SubOptimalAssert,"{'startLine':56,'endLine':56}","it('should find minimum spanning tree', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -7814,6 +7648,194 @@ file,type,line,method,methodStart,methodEnd,source
       expect(params.previousVertex).toEqual(leaveVertexParamsMap[callIndex].previousVertex);
     }
   })",87,164,snuts
+/src/algorithms/graph/strongly-connected-components/__test__/stronglyConnectedComponents.test.js,SubOptimalAssert,"{'startLine':29,'endLine':29}","it('should detect strongly connected components in simple graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCA = new GraphEdge(vertexC, vertexA);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+
+    const graph = new Graph(true);
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeCA)
+      .addEdge(edgeCD);
+
+    const components = stronglyConnectedComponents(graph);
+
+    expect(components).toBeDefined();
+    expect(components.length).toBe(2);
+
+    expect(components[0][0].getKey()).toBe(vertexA.getKey());
+    expect(components[0][1].getKey()).toBe(vertexC.getKey());
+    expect(components[0][2].getKey()).toBe(vertexB.getKey());
+
+    expect(components[1][0].getKey()).toBe(vertexD.getKey());
+  })",7,36,snuts
+/src/algorithms/graph/strongly-connected-components/__test__/stronglyConnectedComponents.test.js,SubOptimalAssert,"{'startLine':85,'endLine':85}","it('should detect strongly connected components in graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+    const vertexH = new GraphVertex('H');
+    const vertexI = new GraphVertex('I');
+    const vertexJ = new GraphVertex('J');
+    const vertexK = new GraphVertex('K');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCA = new GraphEdge(vertexC, vertexA);
+    const edgeBD = new GraphEdge(vertexB, vertexD);
+    const edgeDE = new GraphEdge(vertexD, vertexE);
+    const edgeEF = new GraphEdge(vertexE, vertexF);
+    const edgeFD = new GraphEdge(vertexF, vertexD);
+    const edgeGF = new GraphEdge(vertexG, vertexF);
+    const edgeGH = new GraphEdge(vertexG, vertexH);
+    const edgeHI = new GraphEdge(vertexH, vertexI);
+    const edgeIJ = new GraphEdge(vertexI, vertexJ);
+    const edgeJG = new GraphEdge(vertexJ, vertexG);
+    const edgeJK = new GraphEdge(vertexJ, vertexK);
+
+    const graph = new Graph(true);
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeCA)
+      .addEdge(edgeBD)
+      .addEdge(edgeDE)
+      .addEdge(edgeEF)
+      .addEdge(edgeFD)
+      .addEdge(edgeGF)
+      .addEdge(edgeGH)
+      .addEdge(edgeHI)
+      .addEdge(edgeIJ)
+      .addEdge(edgeJG)
+      .addEdge(edgeJK);
+
+    const components = stronglyConnectedComponents(graph);
+
+    expect(components).toBeDefined();
+    expect(components.length).toBe(4);
+
+    expect(components[0][0].getKey()).toBe(vertexG.getKey());
+    expect(components[0][1].getKey()).toBe(vertexJ.getKey());
+    expect(components[0][2].getKey()).toBe(vertexI.getKey());
+    expect(components[0][3].getKey()).toBe(vertexH.getKey());
+
+    expect(components[1][0].getKey()).toBe(vertexK.getKey());
+
+    expect(components[2][0].getKey()).toBe(vertexA.getKey());
+    expect(components[2][1].getKey()).toBe(vertexC.getKey());
+    expect(components[2][2].getKey()).toBe(vertexB.getKey());
+
+    expect(components[3][0].getKey()).toBe(vertexD.getKey());
+    expect(components[3][1].getKey()).toBe(vertexF.getKey());
+    expect(components[3][2].getKey()).toBe(vertexE.getKey());
+  })",38,101,snuts
+/src/algorithms/graph/strongly-connected-components/__test__/stronglyConnectedComponents.test.js,VerboseStatement,"{'startLine':7,'endLine':36}","it('should detect strongly connected components in simple graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCA = new GraphEdge(vertexC, vertexA);
+    const edgeCD = new GraphEdge(vertexC, vertexD);
+
+    const graph = new Graph(true);
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeCA)
+      .addEdge(edgeCD);
+
+    const components = stronglyConnectedComponents(graph);
+
+    expect(components).toBeDefined();
+    expect(components.length).toBe(2);
+
+    expect(components[0][0].getKey()).toBe(vertexA.getKey());
+    expect(components[0][1].getKey()).toBe(vertexC.getKey());
+    expect(components[0][2].getKey()).toBe(vertexB.getKey());
+
+    expect(components[1][0].getKey()).toBe(vertexD.getKey());
+  })",7,36,snuts
+/src/algorithms/graph/strongly-connected-components/__test__/stronglyConnectedComponents.test.js,VerboseStatement,"{'startLine':38,'endLine':101}","it('should detect strongly connected components in graph', () => {
+    const vertexA = new GraphVertex('A');
+    const vertexB = new GraphVertex('B');
+    const vertexC = new GraphVertex('C');
+    const vertexD = new GraphVertex('D');
+    const vertexE = new GraphVertex('E');
+    const vertexF = new GraphVertex('F');
+    const vertexG = new GraphVertex('G');
+    const vertexH = new GraphVertex('H');
+    const vertexI = new GraphVertex('I');
+    const vertexJ = new GraphVertex('J');
+    const vertexK = new GraphVertex('K');
+
+    const edgeAB = new GraphEdge(vertexA, vertexB);
+    const edgeBC = new GraphEdge(vertexB, vertexC);
+    const edgeCA = new GraphEdge(vertexC, vertexA);
+    const edgeBD = new GraphEdge(vertexB, vertexD);
+    const edgeDE = new GraphEdge(vertexD, vertexE);
+    const edgeEF = new GraphEdge(vertexE, vertexF);
+    const edgeFD = new GraphEdge(vertexF, vertexD);
+    const edgeGF = new GraphEdge(vertexG, vertexF);
+    const edgeGH = new GraphEdge(vertexG, vertexH);
+    const edgeHI = new GraphEdge(vertexH, vertexI);
+    const edgeIJ = new GraphEdge(vertexI, vertexJ);
+    const edgeJG = new GraphEdge(vertexJ, vertexG);
+    const edgeJK = new GraphEdge(vertexJ, vertexK);
+
+    const graph = new Graph(true);
+
+    graph
+      .addEdge(edgeAB)
+      .addEdge(edgeBC)
+      .addEdge(edgeCA)
+      .addEdge(edgeBD)
+      .addEdge(edgeDE)
+      .addEdge(edgeEF)
+      .addEdge(edgeFD)
+      .addEdge(edgeGF)
+      .addEdge(edgeGH)
+      .addEdge(edgeHI)
+      .addEdge(edgeIJ)
+      .addEdge(edgeJG)
+      .addEdge(edgeJK);
+
+    const components = stronglyConnectedComponents(graph);
+
+    expect(components).toBeDefined();
+    expect(components.length).toBe(4);
+
+    expect(components[0][0].getKey()).toBe(vertexG.getKey());
+    expect(components[0][1].getKey()).toBe(vertexJ.getKey());
+    expect(components[0][2].getKey()).toBe(vertexI.getKey());
+    expect(components[0][3].getKey()).toBe(vertexH.getKey());
+
+    expect(components[1][0].getKey()).toBe(vertexK.getKey());
+
+    expect(components[2][0].getKey()).toBe(vertexA.getKey());
+    expect(components[2][1].getKey()).toBe(vertexC.getKey());
+    expect(components[2][2].getKey()).toBe(vertexB.getKey());
+
+    expect(components[3][0].getKey()).toBe(vertexD.getKey());
+    expect(components[3][1].getKey()).toBe(vertexF.getKey());
+    expect(components[3][2].getKey()).toBe(vertexE.getKey());
+  })",38,101,snuts
 /src/algorithms/graph/bridges/__test__/graphBridges.test.js,SubOptimalAssert,"{'startLine':26,'endLine':26}","it('should find bridges in simple graph', () => {
     const vertexA = new GraphVertex('A');
     const vertexB = new GraphVertex('B');
@@ -8877,35 +8899,160 @@ file,type,line,method,methodStart,methodEnd,source
       });
     });
   })",4,42,snuts
-/src/utils/comparator/__test__/Comparator.test.js,Conditional Test Logic,"{'line': 27, 'column': 4, 'index': 1194}","describe('Comparator with custom comparator function', () => {
-  const createLengthComparator = () => new Comparator((a, b) => {
+/src/utils/comparator/__test__/Comparator.test.js,Conditional Test Logic,"{'line': 27, 'column': 4, 'index': 1174}","it('should compare with custom comparator function', () => {
+  const comparator = new Comparator((a, b) => {
     if (a.length === b.length) {
       return 0;
     }
+
     return a.length < b.length ? -1 : 1;
   });
 
-  it('should compare strings based on their length by default', () => {
-    const comparator = createLengthComparator();
+  expect(comparator.equal('a', 'b')).toBe(true);
+  expect(comparator.equal('a', '')).toBe(false);
+  expect(comparator.lessThan('b', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
 
-    expect(comparator.equal('a', 'b')).toBe(true);
-    expect(comparator.equal('a', '')).toBe(false);
-    expect(comparator.lessThan('b', 'aa')).toBe(true);
-    expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(false);
-    expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(true);
-    expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+  comparator.reverse();
+
+  expect(comparator.lessThan('b', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
+})",25,46,steel
+/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 36, 'column': 2, 'index': 1374}","it('should compare with custom comparator function', () => {
+  const comparator = new Comparator((a, b) => {
+    if (a.length === b.length) {
+      return 0;
+    }
+
+    return a.length < b.length ? -1 : 1;
   });
 
-  it('should reverse the comparison logic', () => {
-    const comparator = createLengthComparator();
-    comparator.reverse();
+  expect(comparator.equal('a', 'b')).toBe(true);
+  expect(comparator.equal('a', '')).toBe(false);
+  expect(comparator.lessThan('b', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
 
-    // Assertions for 'equal' are omitted as 'reverse' does not affect them.
-    expect(comparator.lessThan('b', 'aa')).toBe(false);
-    expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(true);
-    expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
+  comparator.reverse();
+
+  expect(comparator.lessThan('b', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
+})",25,46,steel
+/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 37, 'column': 2, 'index': 1427}","it('should compare with custom comparator function', () => {
+  const comparator = new Comparator((a, b) => {
+    if (a.length === b.length) {
+      return 0;
+    }
+
+    return a.length < b.length ? -1 : 1;
   });
-})",25,53,steel
+
+  expect(comparator.equal('a', 'b')).toBe(true);
+  expect(comparator.equal('a', '')).toBe(false);
+  expect(comparator.lessThan('b', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+
+  comparator.reverse();
+
+  expect(comparator.lessThan('b', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
+})",25,46,steel
+/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 38, 'column': 2, 'index': 1491}","it('should compare with custom comparator function', () => {
+  const comparator = new Comparator((a, b) => {
+    if (a.length === b.length) {
+      return 0;
+    }
+
+    return a.length < b.length ? -1 : 1;
+  });
+
+  expect(comparator.equal('a', 'b')).toBe(true);
+  expect(comparator.equal('a', '')).toBe(false);
+  expect(comparator.lessThan('b', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+
+  comparator.reverse();
+
+  expect(comparator.lessThan('b', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
+})",25,46,steel
+/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 43, 'column': 2, 'index': 1642}","it('should compare with custom comparator function', () => {
+  const comparator = new Comparator((a, b) => {
+    if (a.length === b.length) {
+      return 0;
+    }
+
+    return a.length < b.length ? -1 : 1;
+  });
+
+  expect(comparator.equal('a', 'b')).toBe(true);
+  expect(comparator.equal('a', '')).toBe(false);
+  expect(comparator.lessThan('b', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+
+  comparator.reverse();
+
+  expect(comparator.lessThan('b', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
+})",25,46,steel
+/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 44, 'column': 2, 'index': 1696}","it('should compare with custom comparator function', () => {
+  const comparator = new Comparator((a, b) => {
+    if (a.length === b.length) {
+      return 0;
+    }
+
+    return a.length < b.length ? -1 : 1;
+  });
+
+  expect(comparator.equal('a', 'b')).toBe(true);
+  expect(comparator.equal('a', '')).toBe(false);
+  expect(comparator.lessThan('b', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+
+  comparator.reverse();
+
+  expect(comparator.lessThan('b', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
+})",25,46,steel
+/src/utils/comparator/__test__/Comparator.test.js,Duplicate Assert,"{'line': 45, 'column': 2, 'index': 1759}","it('should compare with custom comparator function', () => {
+  const comparator = new Comparator((a, b) => {
+    if (a.length === b.length) {
+      return 0;
+    }
+
+    return a.length < b.length ? -1 : 1;
+  });
+
+  expect(comparator.equal('a', 'b')).toBe(true);
+  expect(comparator.equal('a', '')).toBe(false);
+  expect(comparator.lessThan('b', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(true);
+  expect(comparator.greaterThanOrEqual('a', 'a')).toBe(true);
+
+  comparator.reverse();
+
+  expect(comparator.lessThan('b', 'aa')).toBe(false);
+  expect(comparator.greaterThanOrEqual('a', 'aa')).toBe(true);
+  expect(comparator.greaterThanOrEqual('aa', 'a')).toBe(false);
+})",25,46,steel
 /src/playground/__test__/playground.test.js,Magic Number,"{'line': 6, 'column': 30, 'index': 220}","it('should return correct results', () => {
     // Replace the next dummy test with your playground function tests.
     expect(playground()).toBe(120);

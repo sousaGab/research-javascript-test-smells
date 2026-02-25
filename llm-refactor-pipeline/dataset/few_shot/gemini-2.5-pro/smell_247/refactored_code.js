@@ -1,5 +1,9 @@
-it('should enable net connect', () => {
+it('should enable net connect', done => {
       nock.disableNetConnect()
       nockBack.setMode('wild')
-      expect(nock.isNetConnectAllowed()).toBe(true)
+
+      nockBackWithFixtureLocalhost(err => {
+        expect(err).toBeFalsy()
+        done()
+      })
     })

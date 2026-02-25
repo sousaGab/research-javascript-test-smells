@@ -1,58 +1,51 @@
-describe('event handling', () => {
-  const template = (handler) =>
-    createElement('div', {
-      id: 'test',
-      onclick: handler,
-    });
+it('should attach basic click events', () => {
+    const template = (val) =>
+      createElement('div', {
+        id: 'test',
+        onclick: val,
+      });
 
-  it('should attach a click event handler', () => {
-    let wasCalled = false;
-    const handleClick = () => {
-      wasCalled = true;
-    };
+    let calledFirstTest = false;
 
-    render(template(handleClick), container);
-    container.querySelector('div').click();
+    function test() {
+      calledFirstTest = true;
+    }
 
-    expect(wasCalled).toBe(true);
-  });
+    // different event
+    let calledSecondTest = false;
 
-  it('should update an existing click event handler', () => {
-    let firstHandlerCalled = false;
-    const firstHandler = () => {
-      firstHandlerCalled = true;
-    };
+    function test2() {
+      calledSecondTest = true;
+    }
 
-    let secondHandlerCalled = false;
-    const secondHandler = () => {
-      secondHandlerCalled = true;
-    };
+    render(template(test), container);
 
-    render(template(firstHandler), container);
-    render(template(secondHandler), container); // Re-render with the new handler
+    let divs = container.querySelectorAll('div');
+    for (const div of divs) {
+      div.click();
+    }
+    expect(calledFirstTest).toBe(true);
 
-    container.querySelector('div').click();
+    // reset
+    calledFirstTest = false;
 
-    expect(firstHandlerCalled).toBe(false);
-    expect(secondHandlerCalled).toBe(true);
-  });
-
-  it('should remove the click event handler when the element is unmounted', () => {
-    let wasCalled = false;
-    const handleClick = () => {
-      wasCalled = true;
-    };
-
-    render(template(handleClick), container);
-    const div = container.querySelector('div');
-
-    render(null, container); // Unmount the element
-
-    // Attempt to click the now-detached element to ensure the listener was cleaned up
-    if (div) {
+    render(template(test2), container);
+    divs = container.querySelectorAll('div');
+    for (const div of divs) {
       div.click();
     }
 
-    expect(wasCalled).toBe(false);
-  });
-});
+    expect(calledFirstTest).toBe(false);
+    expect(calledSecondTest).toBe(true);
+
+    // reset
+    calledSecondTest = false;
+
+    render(null, container);
+    divs = container.querySelectorAll('div');
+    for (const div of divs) {
+      div.click();
+    }
+
+    expect(calledSecondTest).toBe(false);
+  })

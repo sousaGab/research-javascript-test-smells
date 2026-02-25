@@ -1,4 +1,4 @@
-it("should set a value for multiple keys when the path contains a key set", function() {
+it("should set a property on multiple objects via a path with a key set", function() {
 
     var cache = {};
     var version = 0;
@@ -15,4 +15,4 @@ it("should set a value for multiple keys when the path contains a key set", func
             "reservior-dogs": { "director": $atom("Quentin Tarantino") }
         }
     }));
-});
+})

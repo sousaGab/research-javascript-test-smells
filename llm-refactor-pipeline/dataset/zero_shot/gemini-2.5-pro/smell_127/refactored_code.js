@@ -1,47 +1,71 @@
 test("DateTime.fromFormat() parses format month names", () => {
   const testCases = [{
-    input: "May 25 1982",
-    format: "MMMM dd yyyy",
-    expectedMonth: 5
+    s: "May 25 1982",
+    f: "MMMM dd yyyy",
+    expected: {
+      year: 1982,
+      month: 5,
+      day: 25
+    }
   }, {
-    input: "Sep 25 1982",
-    format: "MMM dd yyyy",
-    expectedMonth: 9
+    s: "Sep 25 1982",
+    f: "MMM dd yyyy",
+    expected: {
+      year: 1982,
+      month: 9,
+      day: 25
+    }
   }, {
-    input: "5 25 1982",
-    format: "M dd yyyy",
-    expectedMonth: 5
+    s: "5 25 1982",
+    f: "M dd yyyy",
+    expected: {
+      year: 1982,
+      month: 5,
+      day: 25
+    }
   }, {
-    input: "05 25 1982",
-    format: "MM dd yyyy",
-    expectedMonth: 5
+    s: "05 25 1982",
+    f: "MM dd yyyy",
+    expected: {
+      year: 1982,
+      month: 5,
+      day: 25
+    }
   }, {
-    input: "mai 25 1982",
-    format: "MMMM dd yyyy",
-    options: {
+    s: "mai 25 1982",
+    f: "MMMM dd yyyy",
+    opts: {
       locale: "fr"
     },
-    expectedMonth: 5
+    expected: {
+      year: 1982,
+      month: 5,
+      day: 25
+    }
   }, {
-    input: "janv. 25 1982",
-    format: "MMM dd yyyy",
-    options: {
+    s: "janv. 25 1982",
+    f: "MMM dd yyyy",
+    opts: {
       locale: "fr"
     },
-    expectedMonth: 1
+    expected: {
+      year: 1982,
+      month: 1,
+      day: 25
+    }
   }, ];
 
   testCases.forEach(({
-    input,
-    format,
-    options,
-    expectedMonth
+    s,
+    f,
+    opts,
+    expected
   }) => {
-    const i = DateTime.fromFormat(input, format, options);
-    expect(i).toMatchObject({
-      year: 1982,
-      month: expectedMonth,
-      day: 25,
-    });
+    const i = DateTime.fromFormat(s, f, opts);
+    expect({
+      year: i.year,
+      month: i.month,
+      day: i.day
+    }).toEqual(expected);
   });
 });

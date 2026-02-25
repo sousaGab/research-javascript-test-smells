@@ -400,10 +400,10 @@ file,type,line,method,methodStart,methodEnd,source
       const { container } = render(<BasicLayout />);
       expect(container.querySelector("".react-grid-layout"")).toBeInTheDocument();
     })",261,264,snuts
-/test/spec/lifecycle-test.js,AnonymousTest,"{'startLine':2073,'endLine':2076}","it(""Basic Render"", async function () {
+/test/spec/lifecycle-test.js,AnonymousTest,"{'startLine':2046,'endLine':2049}","it(""Basic Render"", async function () {
       const { container } = render(<ShowcaseLayout />);
       expect(container.querySelector("".react-grid-layout"")).toBeInTheDocument();
-    })",2073,2076,snuts
+    })",2046,2049,snuts
 /test/spec/lifecycle-test.js,GeneralFixture,"{'startLine':80,'endLine':80}","beforeEach(() => {
     randIdx = 0;
   })",79,81,snuts
@@ -629,8 +629,8 @@ file,type,line,method,methodStart,methodEnd,source
         );
         expect(hasDroppedItemInPublicLayout).toBe(false);
       })",857,914,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':916,'endLine':1019}","it(""should not cause an infinite update loop when dragging an item in and then out of the grid"", function () {
-  // Arrange
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':916,'endLine':992}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+  // Arrange: Mock console.error to spy on React warnings and mock event handlers.
   const consoleError = jest
     .spyOn(console, ""error"")
     .mockImplementation(() => {});
@@ -656,42 +656,16 @@ file,type,line,method,methodStart,methodEnd,source
       </div>
     </ReactGridLayout>
   );
-
   const grid = container.querySelector("".react-grid-layout"");
 
-  // Act: Drag an external item into the grid
+  // Act: Simulate dragging an external item into and over the grid.
   act(() => {
     TestUtils.Simulate.dragEnter(grid, {
       clientX: 200,
       clientY: 100
     });
-  });
-  act(() => {
-    TestUtils.Simulate.dragOver(grid, {
-      currentTarget: {
-        getBoundingClientRect: () => ({ left: 0, top: 0 })
-      },
-      clientX: 200,
-      clientY: 100,
-      nativeEvent: {
-        target: document.createElement(""div"")
-      }
-    });
-  });
-
-  // Assert: A dropping placeholder is added to the DOM but not the public layout
-  expect(
-    container.querySelectorAll("".react-grid-item"").length
-  ).toBeGreaterThanOrEqual(2);
-
-  const hasDroppedItemInitially = onLayoutChange.mock.calls.some(call =>
-    call[0].some(item => item.i === ""__dropping-elem__"")
-  );
-  expect(hasDroppedItemInitially).toBe(false);
-
-  // Act: Drag the item around within the grid
-  for (let i = 0; i < 5; i++) {
-    act(() => {
+    // Simulate multiple dragOver events to mimic user movement
+    for (let i = 0; i < 5; i++) {
       TestUtils.Simulate.dragOver(grid, {
         currentTarget: {
           getBoundingClientRect: () => ({ left: 0, top: 0 })
@@ -702,10 +676,18 @@ file,type,line,method,methodStart,methodEnd,source
           target: document.createElement(""div"")
         }
       });
-    });
-  }
+    }
+  });
 
-  // Act: Drag the item out of the grid
+  // Assert: A dropping placeholder is added to the DOM, but not exposed in the layout.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(2);
+  const layoutsPassedToOnChange = onLayoutChange.mock.calls.flat(2);
+  const droppingElemWasInLayout = layoutsPassedToOnChange.some(
+    item => item.i === ""__dropping-elem__""
+  );
+  expect(droppingElemWasInLayout).toBe(false);
+
+  // Act: Simulate dragging the item out of the grid.
   act(() => {
     TestUtils.Simulate.dragLeave(grid, {
       clientX: -100,
@@ -713,27 +695,18 @@ file,type,line,method,methodStart,methodEnd,source
     });
   });
 
-  // Assert: The placeholder is removed and no errors occurred
-  expect(container.querySelectorAll("".react-grid-item"").length).toBe(1);
-
-  const finalLayoutCalls = onLayoutChange.mock.calls;
-  const lastLayout =
-    finalLayoutCalls[finalLayoutCalls.length - 1]?.[0] || [];
-  const hasDroppedItemInFinalLayout = lastLayout.some(
-    item => item.i === ""__dropping-elem__""
-  );
-  expect(hasDroppedItemInFinalLayout).toBe(false);
-
-  expect(onDrag.mock.calls.length).toBeLessThan(50);
+  // Assert: The placeholder is removed and no infinite loop errors occurred.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(1);
 
   const maxDepthErrors = consoleError.mock.calls.filter(call =>
     call[0]?.includes?.(""Maximum update depth exceeded"")
   );
   expect(maxDepthErrors).toHaveLength(0);
+  expect(onDrag.mock.calls.length).toBeLessThan(50);
 
   consoleError.mockRestore();
-})",916,1019,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1185,'endLine':1290}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
+})",916,992,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1158,'endLine':1263}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
         // This test replicates the exact scenario from the bug report:
         // - User has controlled state where onLayoutChange updates their layout state
         // - Children are memoized and derived from that state
@@ -838,8 +811,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1185,1290,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1293,'endLine':1361}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
+      })",1158,1263,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1266,'endLine':1334}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
         // This test verifies that repeatedly dragging an item INTO and then OUT OF
         // the grid (without releasing) doesn't cause infinite loops.
         const consoleError = jest
@@ -907,8 +880,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1293,1361,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1822,'endLine':1881}","it(""does not produce NaN values in position during resize"", () => {
+      })",1266,1334,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1795,'endLine':1854}","it(""does not produce NaN values in position during resize"", () => {
         // Regression test: when node is falsy in onResizeHandler,
         // updatedSize must still have valid top/left values
         const onResize = jest.fn();
@@ -967,8 +940,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(finalStyle).not.toContain(""NaN"");
 
         expect(onResizeStop).toHaveBeenCalled();
-      })",1822,1881,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2012,'endLine':2068}","it(""constrains movement when isBounded is true"", function () {
+      })",1795,1854,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':1985,'endLine':2041}","it(""constrains movement when isBounded is true"", function () {
         const onDragStart = jest.fn();
         const onDragStop = jest.fn();
         const { container } = render(
@@ -1024,8 +997,8 @@ file,type,line,method,methodStart,methodEnd,source
           expect(newItem.x).toBeGreaterThanOrEqual(0);
           expect(newItem.y).toBeGreaterThanOrEqual(0);
         }
-      })",2012,2068,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2450,'endLine':2504}","it(""does not start drag until mouse moves threshold pixels (v2 API)"", function () {
+      })",1985,2041,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2423,'endLine':2477}","it(""does not start drag until mouse moves threshold pixels (v2 API)"", function () {
       const onDragStart = jest.fn();
 
       const { container } = render(
@@ -1079,8 +1052,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2450,2504,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2506,'endLine':2560}","it(""uses default threshold of 3px when not specified (v2 API)"", function () {
+    })",2423,2477,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2479,'endLine':2533}","it(""uses default threshold of 3px when not specified (v2 API)"", function () {
       const onDragStart = jest.fn();
 
       const { container } = render(
@@ -1134,8 +1107,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2506,2560,snuts
-/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2567,'endLine':2669}","it(""does not cause item to jump on drag start with default positionStrategy"", function () {
+    })",2479,2533,snuts
+/test/spec/lifecycle-test.js,OvercommentedTest,"{'startLine':2540,'endLine':2642}","it(""does not cause item to jump on drag start with default positionStrategy"", function () {
       const onDrag = jest.fn();
       const onDragStart = jest.fn();
 
@@ -1237,7 +1210,7 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2567,2669,snuts
+    })",2540,2642,snuts
 /test/spec/lifecycle-test.js,IdenticalTestDescription,"{'startLine':166,'endLine':170}","it(""2x when string, not number"", () => {
           // $FlowIgnore
           render(<GridItem {...mockProps} minH={""apple""} />);
@@ -1252,10 +1225,10 @@ file,type,line,method,methodStart,methodEnd,source
       const { container } = render(<BasicLayout />);
       expect(container.querySelector("".react-grid-layout"")).toBeInTheDocument();
     })",261,264,snuts
-/test/spec/lifecycle-test.js,IdenticalTestDescription,"{'startLine':2073,'endLine':2076}","it(""Basic Render"", async function () {
+/test/spec/lifecycle-test.js,IdenticalTestDescription,"{'startLine':2046,'endLine':2049}","it(""Basic Render"", async function () {
       const { container } = render(<ShowcaseLayout />);
       expect(container.querySelector("".react-grid-layout"")).toBeInTheDocument();
-    })",2073,2076,snuts
+    })",2046,2049,snuts
 /test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':441,'endLine':447}","it(""measureBeforeMount re-observes element after switching from placeholder to composed component"", async function () {
         // This test verifies the fix for #2083
         // When measureBeforeMount=true, the WidthProvider:
@@ -1374,7 +1347,7 @@ file,type,line,method,methodStart,methodEnd,source
           );
         }
       })",473,531,snuts
-/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':1928,'endLine':1938}","it(""Does not allow elements to move when resizing with no free space"", () => {
+/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':1901,'endLine':1911}","it(""Does not allow elements to move when resizing with no free space"", () => {
           const onLayoutChange = jest.fn();
           const { container } = render(
             <PreventCollisionContainer
@@ -1405,8 +1378,8 @@ file,type,line,method,methodStart,methodEnd,source
               expect(item0.w).toBeLessThanOrEqual(1);
             }
           }
-        })",1908,1939,snuts
-/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':1935,'endLine':1937}","it(""Does not allow elements to move when resizing with no free space"", () => {
+        })",1881,1912,snuts
+/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':1908,'endLine':1910}","it(""Does not allow elements to move when resizing with no free space"", () => {
           const onLayoutChange = jest.fn();
           const { container } = render(
             <PreventCollisionContainer
@@ -1437,8 +1410,8 @@ file,type,line,method,methodStart,methodEnd,source
               expect(item0.w).toBeLessThanOrEqual(1);
             }
           }
-        })",1908,1939,snuts
-/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':2064,'endLine':2067}","it(""constrains movement when isBounded is true"", function () {
+        })",1881,1912,snuts
+/test/spec/lifecycle-test.js,ConditionalTestLogic,"{'startLine':2037,'endLine':2040}","it(""constrains movement when isBounded is true"", function () {
         const onDragStart = jest.fn();
         const onDragStop = jest.fn();
         const { container } = render(
@@ -1494,7 +1467,7 @@ file,type,line,method,methodStart,methodEnd,source
           expect(newItem.x).toBeGreaterThanOrEqual(0);
           expect(newItem.y).toBeGreaterThanOrEqual(0);
         }
-      })",2012,2068,snuts
+      })",1985,2041,snuts
 /test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':120,'endLine':120}","beforeEach(() => {
           mockError = jest.spyOn(console, ""error"").mockImplementation(() => {});
         })",119,121,snuts
@@ -1507,8 +1480,8 @@ file,type,line,method,methodStart,methodEnd,source
 /test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':180,'endLine':180}","beforeEach(() => {
           mockError = jest.spyOn(console, ""error"").mockImplementation(() => {});
         })",179,181,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':920,'endLine':920}","it(""should not cause an infinite update loop when dragging an item in and then out of the grid"", function () {
-  // Arrange
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':920,'endLine':920}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+  // Arrange: Mock console.error to spy on React warnings and mock event handlers.
   const consoleError = jest
     .spyOn(console, ""error"")
     .mockImplementation(() => {});
@@ -1534,42 +1507,16 @@ file,type,line,method,methodStart,methodEnd,source
       </div>
     </ReactGridLayout>
   );
-
   const grid = container.querySelector("".react-grid-layout"");
 
-  // Act: Drag an external item into the grid
+  // Act: Simulate dragging an external item into and over the grid.
   act(() => {
     TestUtils.Simulate.dragEnter(grid, {
       clientX: 200,
       clientY: 100
     });
-  });
-  act(() => {
-    TestUtils.Simulate.dragOver(grid, {
-      currentTarget: {
-        getBoundingClientRect: () => ({ left: 0, top: 0 })
-      },
-      clientX: 200,
-      clientY: 100,
-      nativeEvent: {
-        target: document.createElement(""div"")
-      }
-    });
-  });
-
-  // Assert: A dropping placeholder is added to the DOM but not the public layout
-  expect(
-    container.querySelectorAll("".react-grid-item"").length
-  ).toBeGreaterThanOrEqual(2);
-
-  const hasDroppedItemInitially = onLayoutChange.mock.calls.some(call =>
-    call[0].some(item => item.i === ""__dropping-elem__"")
-  );
-  expect(hasDroppedItemInitially).toBe(false);
-
-  // Act: Drag the item around within the grid
-  for (let i = 0; i < 5; i++) {
-    act(() => {
+    // Simulate multiple dragOver events to mimic user movement
+    for (let i = 0; i < 5; i++) {
       TestUtils.Simulate.dragOver(grid, {
         currentTarget: {
           getBoundingClientRect: () => ({ left: 0, top: 0 })
@@ -1580,10 +1527,18 @@ file,type,line,method,methodStart,methodEnd,source
           target: document.createElement(""div"")
         }
       });
-    });
-  }
+    }
+  });
 
-  // Act: Drag the item out of the grid
+  // Assert: A dropping placeholder is added to the DOM, but not exposed in the layout.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(2);
+  const layoutsPassedToOnChange = onLayoutChange.mock.calls.flat(2);
+  const droppingElemWasInLayout = layoutsPassedToOnChange.some(
+    item => item.i === ""__dropping-elem__""
+  );
+  expect(droppingElemWasInLayout).toBe(false);
+
+  // Act: Simulate dragging the item out of the grid.
   act(() => {
     TestUtils.Simulate.dragLeave(grid, {
       clientX: -100,
@@ -1591,27 +1546,18 @@ file,type,line,method,methodStart,methodEnd,source
     });
   });
 
-  // Assert: The placeholder is removed and no errors occurred
-  expect(container.querySelectorAll("".react-grid-item"").length).toBe(1);
-
-  const finalLayoutCalls = onLayoutChange.mock.calls;
-  const lastLayout =
-    finalLayoutCalls[finalLayoutCalls.length - 1]?.[0] || [];
-  const hasDroppedItemInFinalLayout = lastLayout.some(
-    item => item.i === ""__dropping-elem__""
-  );
-  expect(hasDroppedItemInFinalLayout).toBe(false);
-
-  expect(onDrag.mock.calls.length).toBeLessThan(50);
+  // Assert: The placeholder is removed and no infinite loop errors occurred.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(1);
 
   const maxDepthErrors = consoleError.mock.calls.filter(call =>
     call[0]?.includes?.(""Maximum update depth exceeded"")
   );
   expect(maxDepthErrors).toHaveLength(0);
+  expect(onDrag.mock.calls.length).toBeLessThan(50);
 
   consoleError.mockRestore();
-})",916,1019,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1025,'endLine':1025}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
+})",916,992,snuts
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':998,'endLine':998}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -1689,8 +1635,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1022,1100,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1106,'endLine':1106}","it(""does not cause Maximum update depth exceeded with ResponsiveReactGridLayout (#2210)"", function () {
+      })",995,1073,snuts
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1079,'endLine':1079}","it(""does not cause Maximum update depth exceeded with ResponsiveReactGridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -1769,8 +1715,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1103,1182,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1193,'endLine':1193}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
+      })",1076,1155,snuts
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1166,'endLine':1166}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
         // This test replicates the exact scenario from the bug report:
         // - User has controlled state where onLayoutChange updates their layout state
         // - Children are memoized and derived from that state
@@ -1875,8 +1821,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1185,1290,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1298,'endLine':1298}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
+      })",1158,1263,snuts
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':1271,'endLine':1271}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
         // This test verifies that repeatedly dragging an item INTO and then OUT OF
         // the grid (without releasing) doesn't cause infinite loops.
         const consoleError = jest
@@ -1944,8 +1890,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1293,1361,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':2129,'endLine':2129}","it(""renders without errors in StrictMode"", function () {
+      })",1266,1334,snuts
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':2102,'endLine':2102}","it(""renders without errors in StrictMode"", function () {
       const consoleError = jest
         .spyOn(console, ""error"")
         .mockImplementation(() => {});
@@ -1981,8 +1927,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(criticalErrors).toHaveLength(0);
 
       consoleError.mockRestore();
-    })",2126,2162,snuts
-/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':2167,'endLine':2167}","it(""handles concurrent updates without warnings"", function () {
+    })",2099,2135,snuts
+/test/spec/lifecycle-test.js,NonFunctionalStatement,"{'startLine':2140,'endLine':2140}","it(""handles concurrent updates without warnings"", function () {
       const consoleError = jest
         .spyOn(console, ""error"")
         .mockImplementation(() => {});
@@ -2028,7 +1974,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(flushSyncWarnings).toHaveLength(0);
 
       consoleError.mockRestore();
-    })",2164,2210,snuts
+    })",2137,2183,snuts
 /test/spec/lifecycle-test.js,SubOptimalAssert,"{'startLine':847,'endLine':847}","it(""calls dropConfig.onDragOver when provided (v2 API) (#2212)"", function () {
         const onDragOver = jest.fn(() => ({ w: 3, h: 3 }));
         const onLayoutChange = jest.fn();
@@ -2075,110 +2021,6 @@ file,type,line,method,methodStart,methodEnd,source
           .find(item => item.i === ""__dropping-elem__"");
         expect(droppingItemInLayoutChange).toBeUndefined();
       })",810,855,snuts
-/test/spec/lifecycle-test.js,SubOptimalAssert,"{'startLine':1001,'endLine':1001}","it(""should not cause an infinite update loop when dragging an item in and then out of the grid"", function () {
-  // Arrange
-  const consoleError = jest
-    .spyOn(console, ""error"")
-    .mockImplementation(() => {});
-  const onLayoutChange = jest.fn();
-  const onDropDragOver = jest.fn(() => ({ w: 2, h: 2 }));
-  const onDrag = jest.fn();
-  const onDragStart = jest.fn();
-
-  const { container } = render(
-    <ReactGridLayout
-      className=""layout""
-      cols={12}
-      rowHeight={30}
-      width={1200}
-      isDroppable={true}
-      onDropDragOver={onDropDragOver}
-      onLayoutChange={onLayoutChange}
-      onDrag={onDrag}
-      onDragStart={onDragStart}
-    >
-      <div key=""a"" data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
-        a
-      </div>
-    </ReactGridLayout>
-  );
-
-  const grid = container.querySelector("".react-grid-layout"");
-
-  // Act: Drag an external item into the grid
-  act(() => {
-    TestUtils.Simulate.dragEnter(grid, {
-      clientX: 200,
-      clientY: 100
-    });
-  });
-  act(() => {
-    TestUtils.Simulate.dragOver(grid, {
-      currentTarget: {
-        getBoundingClientRect: () => ({ left: 0, top: 0 })
-      },
-      clientX: 200,
-      clientY: 100,
-      nativeEvent: {
-        target: document.createElement(""div"")
-      }
-    });
-  });
-
-  // Assert: A dropping placeholder is added to the DOM but not the public layout
-  expect(
-    container.querySelectorAll("".react-grid-item"").length
-  ).toBeGreaterThanOrEqual(2);
-
-  const hasDroppedItemInitially = onLayoutChange.mock.calls.some(call =>
-    call[0].some(item => item.i === ""__dropping-elem__"")
-  );
-  expect(hasDroppedItemInitially).toBe(false);
-
-  // Act: Drag the item around within the grid
-  for (let i = 0; i < 5; i++) {
-    act(() => {
-      TestUtils.Simulate.dragOver(grid, {
-        currentTarget: {
-          getBoundingClientRect: () => ({ left: 0, top: 0 })
-        },
-        clientX: 200 + i * 20,
-        clientY: 100 + i * 20,
-        nativeEvent: {
-          target: document.createElement(""div"")
-        }
-      });
-    });
-  }
-
-  // Act: Drag the item out of the grid
-  act(() => {
-    TestUtils.Simulate.dragLeave(grid, {
-      clientX: -100,
-      clientY: -100
-    });
-  });
-
-  // Assert: The placeholder is removed and no errors occurred
-  expect(container.querySelectorAll("".react-grid-item"").length).toBe(1);
-
-  const finalLayoutCalls = onLayoutChange.mock.calls;
-  const lastLayout =
-    finalLayoutCalls[finalLayoutCalls.length - 1]?.[0] || [];
-  const hasDroppedItemInFinalLayout = lastLayout.some(
-    item => item.i === ""__dropping-elem__""
-  );
-  expect(hasDroppedItemInFinalLayout).toBe(false);
-
-  expect(onDrag.mock.calls.length).toBeLessThan(50);
-
-  const maxDepthErrors = consoleError.mock.calls.filter(call =>
-    call[0]?.includes?.(""Maximum update depth exceeded"")
-  );
-  expect(maxDepthErrors).toHaveLength(0);
-
-  consoleError.mockRestore();
-})",916,1019,snuts
 /test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':390,'endLine':448}","it(""measureBeforeMount re-observes element after switching from placeholder to composed component"", async function () {
         // This test verifies the fix for #2083
         // When measureBeforeMount=true, the WidthProvider:
@@ -2297,8 +2139,8 @@ file,type,line,method,methodStart,methodEnd,source
           );
         }
       })",473,531,snuts
-/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':916,'endLine':1019}","it(""should not cause an infinite update loop when dragging an item in and then out of the grid"", function () {
-  // Arrange
+/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':916,'endLine':992}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+  // Arrange: Mock console.error to spy on React warnings and mock event handlers.
   const consoleError = jest
     .spyOn(console, ""error"")
     .mockImplementation(() => {});
@@ -2324,42 +2166,16 @@ file,type,line,method,methodStart,methodEnd,source
       </div>
     </ReactGridLayout>
   );
-
   const grid = container.querySelector("".react-grid-layout"");
 
-  // Act: Drag an external item into the grid
+  // Act: Simulate dragging an external item into and over the grid.
   act(() => {
     TestUtils.Simulate.dragEnter(grid, {
       clientX: 200,
       clientY: 100
     });
-  });
-  act(() => {
-    TestUtils.Simulate.dragOver(grid, {
-      currentTarget: {
-        getBoundingClientRect: () => ({ left: 0, top: 0 })
-      },
-      clientX: 200,
-      clientY: 100,
-      nativeEvent: {
-        target: document.createElement(""div"")
-      }
-    });
-  });
-
-  // Assert: A dropping placeholder is added to the DOM but not the public layout
-  expect(
-    container.querySelectorAll("".react-grid-item"").length
-  ).toBeGreaterThanOrEqual(2);
-
-  const hasDroppedItemInitially = onLayoutChange.mock.calls.some(call =>
-    call[0].some(item => item.i === ""__dropping-elem__"")
-  );
-  expect(hasDroppedItemInitially).toBe(false);
-
-  // Act: Drag the item around within the grid
-  for (let i = 0; i < 5; i++) {
-    act(() => {
+    // Simulate multiple dragOver events to mimic user movement
+    for (let i = 0; i < 5; i++) {
       TestUtils.Simulate.dragOver(grid, {
         currentTarget: {
           getBoundingClientRect: () => ({ left: 0, top: 0 })
@@ -2370,10 +2186,18 @@ file,type,line,method,methodStart,methodEnd,source
           target: document.createElement(""div"")
         }
       });
-    });
-  }
+    }
+  });
 
-  // Act: Drag the item out of the grid
+  // Assert: A dropping placeholder is added to the DOM, but not exposed in the layout.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(2);
+  const layoutsPassedToOnChange = onLayoutChange.mock.calls.flat(2);
+  const droppingElemWasInLayout = layoutsPassedToOnChange.some(
+    item => item.i === ""__dropping-elem__""
+  );
+  expect(droppingElemWasInLayout).toBe(false);
+
+  // Act: Simulate dragging the item out of the grid.
   act(() => {
     TestUtils.Simulate.dragLeave(grid, {
       clientX: -100,
@@ -2381,27 +2205,18 @@ file,type,line,method,methodStart,methodEnd,source
     });
   });
 
-  // Assert: The placeholder is removed and no errors occurred
-  expect(container.querySelectorAll("".react-grid-item"").length).toBe(1);
-
-  const finalLayoutCalls = onLayoutChange.mock.calls;
-  const lastLayout =
-    finalLayoutCalls[finalLayoutCalls.length - 1]?.[0] || [];
-  const hasDroppedItemInFinalLayout = lastLayout.some(
-    item => item.i === ""__dropping-elem__""
-  );
-  expect(hasDroppedItemInFinalLayout).toBe(false);
-
-  expect(onDrag.mock.calls.length).toBeLessThan(50);
+  // Assert: The placeholder is removed and no infinite loop errors occurred.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(1);
 
   const maxDepthErrors = consoleError.mock.calls.filter(call =>
     call[0]?.includes?.(""Maximum update depth exceeded"")
   );
   expect(maxDepthErrors).toHaveLength(0);
+  expect(onDrag.mock.calls.length).toBeLessThan(50);
 
   consoleError.mockRestore();
-})",916,1019,snuts
-/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':1022,'endLine':1100}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
+})",916,992,snuts
+/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':995,'endLine':1073}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -2479,8 +2294,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1022,1100,snuts
-/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':2567,'endLine':2669}","it(""does not cause item to jump on drag start with default positionStrategy"", function () {
+      })",995,1073,snuts
+/test/spec/lifecycle-test.js,VerboseStatement,"{'startLine':2540,'endLine':2642}","it(""does not cause item to jump on drag start with default positionStrategy"", function () {
       const onDrag = jest.fn();
       const onDragStart = jest.fn();
 
@@ -2582,7 +2397,7 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2567,2669,snuts
+    })",2540,2642,snuts
 /test/spec/fast-horizontal-compactor-test.js,TranscriptingTest,"{'startLine':315,'endLine':337}","it(""compares with static items (200 items, 20 static)"", () => {
       const layout = generateRandomLayout(200, 12, 20);
 
@@ -3711,8 +3526,8 @@ file,type,line,method,methodStart,methodEnd,source
           );
         }
       })",473,531,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 977, 'column': 2, 'index': 32050}","it(""should not cause an infinite update loop when dragging an item in and then out of the grid"", function () {
-  // Arrange
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 952, 'column': 4, 'index': 31503}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+  // Arrange: Mock console.error to spy on React warnings and mock event handlers.
   const consoleError = jest
     .spyOn(console, ""error"")
     .mockImplementation(() => {});
@@ -3738,42 +3553,16 @@ file,type,line,method,methodStart,methodEnd,source
       </div>
     </ReactGridLayout>
   );
-
   const grid = container.querySelector("".react-grid-layout"");
 
-  // Act: Drag an external item into the grid
+  // Act: Simulate dragging an external item into and over the grid.
   act(() => {
     TestUtils.Simulate.dragEnter(grid, {
       clientX: 200,
       clientY: 100
     });
-  });
-  act(() => {
-    TestUtils.Simulate.dragOver(grid, {
-      currentTarget: {
-        getBoundingClientRect: () => ({ left: 0, top: 0 })
-      },
-      clientX: 200,
-      clientY: 100,
-      nativeEvent: {
-        target: document.createElement(""div"")
-      }
-    });
-  });
-
-  // Assert: A dropping placeholder is added to the DOM but not the public layout
-  expect(
-    container.querySelectorAll("".react-grid-item"").length
-  ).toBeGreaterThanOrEqual(2);
-
-  const hasDroppedItemInitially = onLayoutChange.mock.calls.some(call =>
-    call[0].some(item => item.i === ""__dropping-elem__"")
-  );
-  expect(hasDroppedItemInitially).toBe(false);
-
-  // Act: Drag the item around within the grid
-  for (let i = 0; i < 5; i++) {
-    act(() => {
+    // Simulate multiple dragOver events to mimic user movement
+    for (let i = 0; i < 5; i++) {
       TestUtils.Simulate.dragOver(grid, {
         currentTarget: {
           getBoundingClientRect: () => ({ left: 0, top: 0 })
@@ -3784,10 +3573,18 @@ file,type,line,method,methodStart,methodEnd,source
           target: document.createElement(""div"")
         }
       });
-    });
-  }
+    }
+  });
 
-  // Act: Drag the item out of the grid
+  // Assert: A dropping placeholder is added to the DOM, but not exposed in the layout.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(2);
+  const layoutsPassedToOnChange = onLayoutChange.mock.calls.flat(2);
+  const droppingElemWasInLayout = layoutsPassedToOnChange.some(
+    item => item.i === ""__dropping-elem__""
+  );
+  expect(droppingElemWasInLayout).toBe(false);
+
+  // Act: Simulate dragging the item out of the grid.
   act(() => {
     TestUtils.Simulate.dragLeave(grid, {
       clientX: -100,
@@ -3795,27 +3592,18 @@ file,type,line,method,methodStart,methodEnd,source
     });
   });
 
-  // Assert: The placeholder is removed and no errors occurred
-  expect(container.querySelectorAll("".react-grid-item"").length).toBe(1);
-
-  const finalLayoutCalls = onLayoutChange.mock.calls;
-  const lastLayout =
-    finalLayoutCalls[finalLayoutCalls.length - 1]?.[0] || [];
-  const hasDroppedItemInFinalLayout = lastLayout.some(
-    item => item.i === ""__dropping-elem__""
-  );
-  expect(hasDroppedItemInFinalLayout).toBe(false);
-
-  expect(onDrag.mock.calls.length).toBeLessThan(50);
+  // Assert: The placeholder is removed and no infinite loop errors occurred.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(1);
 
   const maxDepthErrors = consoleError.mock.calls.filter(call =>
     call[0]?.includes?.(""Maximum update depth exceeded"")
   );
   expect(maxDepthErrors).toHaveLength(0);
+  expect(onDrag.mock.calls.length).toBeLessThan(50);
 
   consoleError.mockRestore();
-})",916,1019,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1070, 'column': 8, 'index': 34850}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
+})",916,992,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1043, 'column': 8, 'index': 34415}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -3893,8 +3681,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1022,1100,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1152, 'column': 8, 'index': 37410}","it(""does not cause Maximum update depth exceeded with ResponsiveReactGridLayout (#2210)"", function () {
+      })",995,1073,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1125, 'column': 8, 'index': 36975}","it(""does not cause Maximum update depth exceeded with ResponsiveReactGridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -3973,8 +3761,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1103,1182,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1259, 'column': 8, 'index': 40982}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
+      })",1076,1155,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1232, 'column': 8, 'index': 40547}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
         // This test replicates the exact scenario from the bug report:
         // - User has controlled state where onLayoutChange updates their layout state
         // - Children are memoized and derived from that state
@@ -4079,8 +3867,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1185,1290,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1321, 'column': 8, 'index': 43112}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
+      })",1158,1263,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1294, 'column': 8, 'index': 42677}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
         // This test verifies that repeatedly dragging an item INTO and then OUT OF
         // the grid (without releasing) doesn't cause infinite loops.
         const consoleError = jest
@@ -4148,8 +3936,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1293,1361,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1529, 'column': 53, 'index': 48977}","it(""sets up resizable handles"", () => {
+      })",1266,1334,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1502, 'column': 53, 'index': 48542}","it(""sets up resizable handles"", () => {
         const { container } = render(<ResizableLayout />);
 
         // Ensure every handle is present on the target element
@@ -4159,8 +3947,8 @@ file,type,line,method,methodStart,methodEnd,source
           );
           expect(handles.length).toBeGreaterThan(0);
         });
-      })",1525,1535,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1928, 'column': 10, 'index': 60552}","it(""Does not allow elements to move when resizing with no free space"", () => {
+      })",1498,1508,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1901, 'column': 10, 'index': 60117}","it(""Does not allow elements to move when resizing with no free space"", () => {
           const onLayoutChange = jest.fn();
           const { container } = render(
             <PreventCollisionContainer
@@ -4191,8 +3979,8 @@ file,type,line,method,methodStart,methodEnd,source
               expect(item0.w).toBeLessThanOrEqual(1);
             }
           }
-        })",1908,1939,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1935, 'column': 12, 'index': 60874}","it(""Does not allow elements to move when resizing with no free space"", () => {
+        })",1881,1912,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 1908, 'column': 12, 'index': 60439}","it(""Does not allow elements to move when resizing with no free space"", () => {
           const onLayoutChange = jest.fn();
           const { container } = render(
             <PreventCollisionContainer
@@ -4223,8 +4011,8 @@ file,type,line,method,methodStart,methodEnd,source
               expect(item0.w).toBeLessThanOrEqual(1);
             }
           }
-        })",1908,1939,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 2064, 'column': 8, 'index': 64893}","it(""constrains movement when isBounded is true"", function () {
+        })",1881,1912,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 2037, 'column': 8, 'index': 64458}","it(""constrains movement when isBounded is true"", function () {
         const onDragStart = jest.fn();
         const onDragStop = jest.fn();
         const { container } = render(
@@ -4280,8 +4068,8 @@ file,type,line,method,methodStart,methodEnd,source
           expect(newItem.x).toBeGreaterThanOrEqual(0);
           expect(newItem.y).toBeGreaterThanOrEqual(0);
         }
-      })",2012,2068,steel
-/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 2184, 'column': 8, 'index': 68221}","it(""handles concurrent updates without warnings"", function () {
+      })",1985,2041,steel
+/test/spec/lifecycle-test.js,Conditional Test Logic,"{'line': 2157, 'column': 8, 'index': 67786}","it(""handles concurrent updates without warnings"", function () {
       const consoleError = jest
         .spyOn(console, ""error"")
         .mockImplementation(() => {});
@@ -4327,7 +4115,7 @@ file,type,line,method,methodStart,methodEnd,source
       expect(flushSyncWarnings).toHaveLength(0);
 
       consoleError.mockRestore();
-    })",2164,2210,steel
+    })",2137,2183,steel
 /test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 492, 'column': 8, 'index': 15981}","it(""WidthProvider responds to ResizeObserver width changes"", async function () {
         // Mock offsetWidth to return initial value
         const originalOffsetWidth = Object.getOwnPropertyDescriptor(
@@ -4446,8 +4234,8 @@ file,type,line,method,methodStart,methodEnd,source
           );
         }
       })",473,531,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 967, 'column': 2, 'index': 31720}","it(""should not cause an infinite update loop when dragging an item in and then out of the grid"", function () {
-  // Arrange
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 967, 'column': 2, 'index': 31928}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+  // Arrange: Mock console.error to spy on React warnings and mock event handlers.
   const consoleError = jest
     .spyOn(console, ""error"")
     .mockImplementation(() => {});
@@ -4473,42 +4261,16 @@ file,type,line,method,methodStart,methodEnd,source
       </div>
     </ReactGridLayout>
   );
-
   const grid = container.querySelector("".react-grid-layout"");
 
-  // Act: Drag an external item into the grid
+  // Act: Simulate dragging an external item into and over the grid.
   act(() => {
     TestUtils.Simulate.dragEnter(grid, {
       clientX: 200,
       clientY: 100
     });
-  });
-  act(() => {
-    TestUtils.Simulate.dragOver(grid, {
-      currentTarget: {
-        getBoundingClientRect: () => ({ left: 0, top: 0 })
-      },
-      clientX: 200,
-      clientY: 100,
-      nativeEvent: {
-        target: document.createElement(""div"")
-      }
-    });
-  });
-
-  // Assert: A dropping placeholder is added to the DOM but not the public layout
-  expect(
-    container.querySelectorAll("".react-grid-item"").length
-  ).toBeGreaterThanOrEqual(2);
-
-  const hasDroppedItemInitially = onLayoutChange.mock.calls.some(call =>
-    call[0].some(item => item.i === ""__dropping-elem__"")
-  );
-  expect(hasDroppedItemInitially).toBe(false);
-
-  // Act: Drag the item around within the grid
-  for (let i = 0; i < 5; i++) {
-    act(() => {
+    // Simulate multiple dragOver events to mimic user movement
+    for (let i = 0; i < 5; i++) {
       TestUtils.Simulate.dragOver(grid, {
         currentTarget: {
           getBoundingClientRect: () => ({ left: 0, top: 0 })
@@ -4519,10 +4281,18 @@ file,type,line,method,methodStart,methodEnd,source
           target: document.createElement(""div"")
         }
       });
-    });
-  }
+    }
+  });
 
-  // Act: Drag the item out of the grid
+  // Assert: A dropping placeholder is added to the DOM, but not exposed in the layout.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(2);
+  const layoutsPassedToOnChange = onLayoutChange.mock.calls.flat(2);
+  const droppingElemWasInLayout = layoutsPassedToOnChange.some(
+    item => item.i === ""__dropping-elem__""
+  );
+  expect(droppingElemWasInLayout).toBe(false);
+
+  // Act: Simulate dragging the item out of the grid.
   act(() => {
     TestUtils.Simulate.dragLeave(grid, {
       clientX: -100,
@@ -4530,28 +4300,19 @@ file,type,line,method,methodStart,methodEnd,source
     });
   });
 
-  // Assert: The placeholder is removed and no errors occurred
-  expect(container.querySelectorAll("".react-grid-item"").length).toBe(1);
-
-  const finalLayoutCalls = onLayoutChange.mock.calls;
-  const lastLayout =
-    finalLayoutCalls[finalLayoutCalls.length - 1]?.[0] || [];
-  const hasDroppedItemInFinalLayout = lastLayout.some(
-    item => item.i === ""__dropping-elem__""
-  );
-  expect(hasDroppedItemInFinalLayout).toBe(false);
-
-  expect(onDrag.mock.calls.length).toBeLessThan(50);
+  // Assert: The placeholder is removed and no infinite loop errors occurred.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(1);
 
   const maxDepthErrors = consoleError.mock.calls.filter(call =>
     call[0]?.includes?.(""Maximum update depth exceeded"")
   );
   expect(maxDepthErrors).toHaveLength(0);
+  expect(onDrag.mock.calls.length).toBeLessThan(50);
 
   consoleError.mockRestore();
-})",916,1019,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 1001, 'column': 2, 'index': 32617}","it(""should not cause an infinite update loop when dragging an item in and then out of the grid"", function () {
-  // Arrange
+})",916,992,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 983, 'column': 2, 'index': 32474}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+  // Arrange: Mock console.error to spy on React warnings and mock event handlers.
   const consoleError = jest
     .spyOn(console, ""error"")
     .mockImplementation(() => {});
@@ -4577,42 +4338,16 @@ file,type,line,method,methodStart,methodEnd,source
       </div>
     </ReactGridLayout>
   );
-
   const grid = container.querySelector("".react-grid-layout"");
 
-  // Act: Drag an external item into the grid
+  // Act: Simulate dragging an external item into and over the grid.
   act(() => {
     TestUtils.Simulate.dragEnter(grid, {
       clientX: 200,
       clientY: 100
     });
-  });
-  act(() => {
-    TestUtils.Simulate.dragOver(grid, {
-      currentTarget: {
-        getBoundingClientRect: () => ({ left: 0, top: 0 })
-      },
-      clientX: 200,
-      clientY: 100,
-      nativeEvent: {
-        target: document.createElement(""div"")
-      }
-    });
-  });
-
-  // Assert: A dropping placeholder is added to the DOM but not the public layout
-  expect(
-    container.querySelectorAll("".react-grid-item"").length
-  ).toBeGreaterThanOrEqual(2);
-
-  const hasDroppedItemInitially = onLayoutChange.mock.calls.some(call =>
-    call[0].some(item => item.i === ""__dropping-elem__"")
-  );
-  expect(hasDroppedItemInitially).toBe(false);
-
-  // Act: Drag the item around within the grid
-  for (let i = 0; i < 5; i++) {
-    act(() => {
+    // Simulate multiple dragOver events to mimic user movement
+    for (let i = 0; i < 5; i++) {
       TestUtils.Simulate.dragOver(grid, {
         currentTarget: {
           getBoundingClientRect: () => ({ left: 0, top: 0 })
@@ -4623,10 +4358,18 @@ file,type,line,method,methodStart,methodEnd,source
           target: document.createElement(""div"")
         }
       });
-    });
-  }
+    }
+  });
 
-  // Act: Drag the item out of the grid
+  // Assert: A dropping placeholder is added to the DOM, but not exposed in the layout.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(2);
+  const layoutsPassedToOnChange = onLayoutChange.mock.calls.flat(2);
+  const droppingElemWasInLayout = layoutsPassedToOnChange.some(
+    item => item.i === ""__dropping-elem__""
+  );
+  expect(droppingElemWasInLayout).toBe(false);
+
+  // Act: Simulate dragging the item out of the grid.
   act(() => {
     TestUtils.Simulate.dragLeave(grid, {
       clientX: -100,
@@ -4634,27 +4377,18 @@ file,type,line,method,methodStart,methodEnd,source
     });
   });
 
-  // Assert: The placeholder is removed and no errors occurred
-  expect(container.querySelectorAll("".react-grid-item"").length).toBe(1);
-
-  const finalLayoutCalls = onLayoutChange.mock.calls;
-  const lastLayout =
-    finalLayoutCalls[finalLayoutCalls.length - 1]?.[0] || [];
-  const hasDroppedItemInFinalLayout = lastLayout.some(
-    item => item.i === ""__dropping-elem__""
-  );
-  expect(hasDroppedItemInFinalLayout).toBe(false);
-
-  expect(onDrag.mock.calls.length).toBeLessThan(50);
+  // Assert: The placeholder is removed and no infinite loop errors occurred.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(1);
 
   const maxDepthErrors = consoleError.mock.calls.filter(call =>
     call[0]?.includes?.(""Maximum update depth exceeded"")
   );
   expect(maxDepthErrors).toHaveLength(0);
+  expect(onDrag.mock.calls.length).toBeLessThan(50);
 
   consoleError.mockRestore();
-})",916,1019,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2482, 'column': 6, 'index': 76874}","it(""does not start drag until mouse moves threshold pixels (v2 API)"", function () {
+})",916,992,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2455, 'column': 6, 'index': 76439}","it(""does not start drag until mouse moves threshold pixels (v2 API)"", function () {
       const onDragStart = jest.fn();
 
       const { container } = render(
@@ -4708,8 +4442,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2450,2504,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2490, 'column': 6, 'index': 77098}","it(""does not start drag until mouse moves threshold pixels (v2 API)"", function () {
+    })",2423,2477,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2463, 'column': 6, 'index': 76663}","it(""does not start drag until mouse moves threshold pixels (v2 API)"", function () {
       const onDragStart = jest.fn();
 
       const { container } = render(
@@ -4763,8 +4497,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2450,2504,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2538, 'column': 6, 'index': 78398}","it(""uses default threshold of 3px when not specified (v2 API)"", function () {
+    })",2423,2477,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2511, 'column': 6, 'index': 77963}","it(""uses default threshold of 3px when not specified (v2 API)"", function () {
       const onDragStart = jest.fn();
 
       const { container } = render(
@@ -4818,8 +4552,8 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2506,2560,steel
-/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2546, 'column': 6, 'index': 78634}","it(""uses default threshold of 3px when not specified (v2 API)"", function () {
+    })",2479,2533,steel
+/test/spec/lifecycle-test.js,Duplicate Assert,"{'line': 2519, 'column': 6, 'index': 78199}","it(""uses default threshold of 3px when not specified (v2 API)"", function () {
       const onDragStart = jest.fn();
 
       const { container } = render(
@@ -4873,7 +4607,7 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2506,2560,steel
+    })",2479,2533,steel
 /test/spec/lifecycle-test.js,Ignored Test,"{'line': 116, 'column': 13, 'index': 3535}","describe.skip(""optional min/max dimension props log err"", () => {
       describe(""minW"", () => {
         let mockError;
@@ -5284,8 +5018,8 @@ file,type,line,method,methodStart,methodEnd,source
         );
         expect(hasDroppedItemInPublicLayout).toBe(false);
       })",857,914,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 969, 'column': 27, 'index': 31813}","it(""should not cause an infinite update loop when dragging an item in and then out of the grid"", function () {
-  // Arrange
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 967, 'column': 70, 'index': 31996}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+  // Arrange: Mock console.error to spy on React warnings and mock event handlers.
   const consoleError = jest
     .spyOn(console, ""error"")
     .mockImplementation(() => {});
@@ -5311,42 +5045,16 @@ file,type,line,method,methodStart,methodEnd,source
       </div>
     </ReactGridLayout>
   );
-
   const grid = container.querySelector("".react-grid-layout"");
 
-  // Act: Drag an external item into the grid
+  // Act: Simulate dragging an external item into and over the grid.
   act(() => {
     TestUtils.Simulate.dragEnter(grid, {
       clientX: 200,
       clientY: 100
     });
-  });
-  act(() => {
-    TestUtils.Simulate.dragOver(grid, {
-      currentTarget: {
-        getBoundingClientRect: () => ({ left: 0, top: 0 })
-      },
-      clientX: 200,
-      clientY: 100,
-      nativeEvent: {
-        target: document.createElement(""div"")
-      }
-    });
-  });
-
-  // Assert: A dropping placeholder is added to the DOM but not the public layout
-  expect(
-    container.querySelectorAll("".react-grid-item"").length
-  ).toBeGreaterThanOrEqual(2);
-
-  const hasDroppedItemInitially = onLayoutChange.mock.calls.some(call =>
-    call[0].some(item => item.i === ""__dropping-elem__"")
-  );
-  expect(hasDroppedItemInitially).toBe(false);
-
-  // Act: Drag the item around within the grid
-  for (let i = 0; i < 5; i++) {
-    act(() => {
+    // Simulate multiple dragOver events to mimic user movement
+    for (let i = 0; i < 5; i++) {
       TestUtils.Simulate.dragOver(grid, {
         currentTarget: {
           getBoundingClientRect: () => ({ left: 0, top: 0 })
@@ -5357,10 +5065,18 @@ file,type,line,method,methodStart,methodEnd,source
           target: document.createElement(""div"")
         }
       });
-    });
-  }
+    }
+  });
 
-  // Act: Drag the item out of the grid
+  // Assert: A dropping placeholder is added to the DOM, but not exposed in the layout.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(2);
+  const layoutsPassedToOnChange = onLayoutChange.mock.calls.flat(2);
+  const droppingElemWasInLayout = layoutsPassedToOnChange.some(
+    item => item.i === ""__dropping-elem__""
+  );
+  expect(droppingElemWasInLayout).toBe(false);
+
+  // Act: Simulate dragging the item out of the grid.
   act(() => {
     TestUtils.Simulate.dragLeave(grid, {
       clientX: -100,
@@ -5368,28 +5084,19 @@ file,type,line,method,methodStart,methodEnd,source
     });
   });
 
-  // Assert: The placeholder is removed and no errors occurred
-  expect(container.querySelectorAll("".react-grid-item"").length).toBe(1);
-
-  const finalLayoutCalls = onLayoutChange.mock.calls;
-  const lastLayout =
-    finalLayoutCalls[finalLayoutCalls.length - 1]?.[0] || [];
-  const hasDroppedItemInFinalLayout = lastLayout.some(
-    item => item.i === ""__dropping-elem__""
-  );
-  expect(hasDroppedItemInFinalLayout).toBe(false);
-
-  expect(onDrag.mock.calls.length).toBeLessThan(50);
+  // Assert: The placeholder is removed and no infinite loop errors occurred.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(1);
 
   const maxDepthErrors = consoleError.mock.calls.filter(call =>
     call[0]?.includes?.(""Maximum update depth exceeded"")
   );
   expect(maxDepthErrors).toHaveLength(0);
+  expect(onDrag.mock.calls.length).toBeLessThan(50);
 
   consoleError.mockRestore();
-})",916,1019,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1001, 'column': 69, 'index': 32684}","it(""should not cause an infinite update loop when dragging an item in and then out of the grid"", function () {
-  // Arrange
+})",916,992,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 983, 'column': 70, 'index': 32542}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+  // Arrange: Mock console.error to spy on React warnings and mock event handlers.
   const consoleError = jest
     .spyOn(console, ""error"")
     .mockImplementation(() => {});
@@ -5415,42 +5122,16 @@ file,type,line,method,methodStart,methodEnd,source
       </div>
     </ReactGridLayout>
   );
-
   const grid = container.querySelector("".react-grid-layout"");
 
-  // Act: Drag an external item into the grid
+  // Act: Simulate dragging an external item into and over the grid.
   act(() => {
     TestUtils.Simulate.dragEnter(grid, {
       clientX: 200,
       clientY: 100
     });
-  });
-  act(() => {
-    TestUtils.Simulate.dragOver(grid, {
-      currentTarget: {
-        getBoundingClientRect: () => ({ left: 0, top: 0 })
-      },
-      clientX: 200,
-      clientY: 100,
-      nativeEvent: {
-        target: document.createElement(""div"")
-      }
-    });
-  });
-
-  // Assert: A dropping placeholder is added to the DOM but not the public layout
-  expect(
-    container.querySelectorAll("".react-grid-item"").length
-  ).toBeGreaterThanOrEqual(2);
-
-  const hasDroppedItemInitially = onLayoutChange.mock.calls.some(call =>
-    call[0].some(item => item.i === ""__dropping-elem__"")
-  );
-  expect(hasDroppedItemInitially).toBe(false);
-
-  // Act: Drag the item around within the grid
-  for (let i = 0; i < 5; i++) {
-    act(() => {
+    // Simulate multiple dragOver events to mimic user movement
+    for (let i = 0; i < 5; i++) {
       TestUtils.Simulate.dragOver(grid, {
         currentTarget: {
           getBoundingClientRect: () => ({ left: 0, top: 0 })
@@ -5461,10 +5142,18 @@ file,type,line,method,methodStart,methodEnd,source
           target: document.createElement(""div"")
         }
       });
-    });
-  }
+    }
+  });
 
-  // Act: Drag the item out of the grid
+  // Assert: A dropping placeholder is added to the DOM, but not exposed in the layout.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(2);
+  const layoutsPassedToOnChange = onLayoutChange.mock.calls.flat(2);
+  const droppingElemWasInLayout = layoutsPassedToOnChange.some(
+    item => item.i === ""__dropping-elem__""
+  );
+  expect(droppingElemWasInLayout).toBe(false);
+
+  // Act: Simulate dragging the item out of the grid.
   act(() => {
     TestUtils.Simulate.dragLeave(grid, {
       clientX: -100,
@@ -5472,28 +5161,19 @@ file,type,line,method,methodStart,methodEnd,source
     });
   });
 
-  // Assert: The placeholder is removed and no errors occurred
-  expect(container.querySelectorAll("".react-grid-item"").length).toBe(1);
-
-  const finalLayoutCalls = onLayoutChange.mock.calls;
-  const lastLayout =
-    finalLayoutCalls[finalLayoutCalls.length - 1]?.[0] || [];
-  const hasDroppedItemInFinalLayout = lastLayout.some(
-    item => item.i === ""__dropping-elem__""
-  );
-  expect(hasDroppedItemInFinalLayout).toBe(false);
-
-  expect(onDrag.mock.calls.length).toBeLessThan(50);
+  // Assert: The placeholder is removed and no infinite loop errors occurred.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(1);
 
   const maxDepthErrors = consoleError.mock.calls.filter(call =>
     call[0]?.includes?.(""Maximum update depth exceeded"")
   );
   expect(maxDepthErrors).toHaveLength(0);
+  expect(onDrag.mock.calls.length).toBeLessThan(50);
 
   consoleError.mockRestore();
-})",916,1019,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1011, 'column': 48, 'index': 33029}","it(""should not cause an infinite update loop when dragging an item in and then out of the grid"", function () {
-  // Arrange
+})",916,992,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 988, 'column': 38, 'index': 32711}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+  // Arrange: Mock console.error to spy on React warnings and mock event handlers.
   const consoleError = jest
     .spyOn(console, ""error"")
     .mockImplementation(() => {});
@@ -5519,42 +5199,16 @@ file,type,line,method,methodStart,methodEnd,source
       </div>
     </ReactGridLayout>
   );
-
   const grid = container.querySelector("".react-grid-layout"");
 
-  // Act: Drag an external item into the grid
+  // Act: Simulate dragging an external item into and over the grid.
   act(() => {
     TestUtils.Simulate.dragEnter(grid, {
       clientX: 200,
       clientY: 100
     });
-  });
-  act(() => {
-    TestUtils.Simulate.dragOver(grid, {
-      currentTarget: {
-        getBoundingClientRect: () => ({ left: 0, top: 0 })
-      },
-      clientX: 200,
-      clientY: 100,
-      nativeEvent: {
-        target: document.createElement(""div"")
-      }
-    });
-  });
-
-  // Assert: A dropping placeholder is added to the DOM but not the public layout
-  expect(
-    container.querySelectorAll("".react-grid-item"").length
-  ).toBeGreaterThanOrEqual(2);
-
-  const hasDroppedItemInitially = onLayoutChange.mock.calls.some(call =>
-    call[0].some(item => item.i === ""__dropping-elem__"")
-  );
-  expect(hasDroppedItemInitially).toBe(false);
-
-  // Act: Drag the item around within the grid
-  for (let i = 0; i < 5; i++) {
-    act(() => {
+    // Simulate multiple dragOver events to mimic user movement
+    for (let i = 0; i < 5; i++) {
       TestUtils.Simulate.dragOver(grid, {
         currentTarget: {
           getBoundingClientRect: () => ({ left: 0, top: 0 })
@@ -5565,10 +5219,18 @@ file,type,line,method,methodStart,methodEnd,source
           target: document.createElement(""div"")
         }
       });
-    });
-  }
+    }
+  });
 
-  // Act: Drag the item out of the grid
+  // Assert: A dropping placeholder is added to the DOM, but not exposed in the layout.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(2);
+  const layoutsPassedToOnChange = onLayoutChange.mock.calls.flat(2);
+  const droppingElemWasInLayout = layoutsPassedToOnChange.some(
+    item => item.i === ""__dropping-elem__""
+  );
+  expect(droppingElemWasInLayout).toBe(false);
+
+  // Act: Simulate dragging the item out of the grid.
   act(() => {
     TestUtils.Simulate.dragLeave(grid, {
       clientX: -100,
@@ -5576,28 +5238,19 @@ file,type,line,method,methodStart,methodEnd,source
     });
   });
 
-  // Assert: The placeholder is removed and no errors occurred
-  expect(container.querySelectorAll("".react-grid-item"").length).toBe(1);
-
-  const finalLayoutCalls = onLayoutChange.mock.calls;
-  const lastLayout =
-    finalLayoutCalls[finalLayoutCalls.length - 1]?.[0] || [];
-  const hasDroppedItemInFinalLayout = lastLayout.some(
-    item => item.i === ""__dropping-elem__""
-  );
-  expect(hasDroppedItemInFinalLayout).toBe(false);
-
-  expect(onDrag.mock.calls.length).toBeLessThan(50);
+  // Assert: The placeholder is removed and no infinite loop errors occurred.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(1);
 
   const maxDepthErrors = consoleError.mock.calls.filter(call =>
     call[0]?.includes?.(""Maximum update depth exceeded"")
   );
   expect(maxDepthErrors).toHaveLength(0);
+  expect(onDrag.mock.calls.length).toBeLessThan(50);
 
   consoleError.mockRestore();
-})",916,1019,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1016, 'column': 38, 'index': 33199}","it(""should not cause an infinite update loop when dragging an item in and then out of the grid"", function () {
-  // Arrange
+})",916,992,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 989, 'column': 48, 'index': 32763}","it(""does not cause Maximum update depth exceeded when dragging in then out (#2210)"", function () {
+  // Arrange: Mock console.error to spy on React warnings and mock event handlers.
   const consoleError = jest
     .spyOn(console, ""error"")
     .mockImplementation(() => {});
@@ -5623,42 +5276,16 @@ file,type,line,method,methodStart,methodEnd,source
       </div>
     </ReactGridLayout>
   );
-
   const grid = container.querySelector("".react-grid-layout"");
 
-  // Act: Drag an external item into the grid
+  // Act: Simulate dragging an external item into and over the grid.
   act(() => {
     TestUtils.Simulate.dragEnter(grid, {
       clientX: 200,
       clientY: 100
     });
-  });
-  act(() => {
-    TestUtils.Simulate.dragOver(grid, {
-      currentTarget: {
-        getBoundingClientRect: () => ({ left: 0, top: 0 })
-      },
-      clientX: 200,
-      clientY: 100,
-      nativeEvent: {
-        target: document.createElement(""div"")
-      }
-    });
-  });
-
-  // Assert: A dropping placeholder is added to the DOM but not the public layout
-  expect(
-    container.querySelectorAll("".react-grid-item"").length
-  ).toBeGreaterThanOrEqual(2);
-
-  const hasDroppedItemInitially = onLayoutChange.mock.calls.some(call =>
-    call[0].some(item => item.i === ""__dropping-elem__"")
-  );
-  expect(hasDroppedItemInitially).toBe(false);
-
-  // Act: Drag the item around within the grid
-  for (let i = 0; i < 5; i++) {
-    act(() => {
+    // Simulate multiple dragOver events to mimic user movement
+    for (let i = 0; i < 5; i++) {
       TestUtils.Simulate.dragOver(grid, {
         currentTarget: {
           getBoundingClientRect: () => ({ left: 0, top: 0 })
@@ -5669,10 +5296,18 @@ file,type,line,method,methodStart,methodEnd,source
           target: document.createElement(""div"")
         }
       });
-    });
-  }
+    }
+  });
 
-  // Act: Drag the item out of the grid
+  // Assert: A dropping placeholder is added to the DOM, but not exposed in the layout.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(2);
+  const layoutsPassedToOnChange = onLayoutChange.mock.calls.flat(2);
+  const droppingElemWasInLayout = layoutsPassedToOnChange.some(
+    item => item.i === ""__dropping-elem__""
+  );
+  expect(droppingElemWasInLayout).toBe(false);
+
+  // Act: Simulate dragging the item out of the grid.
   act(() => {
     TestUtils.Simulate.dragLeave(grid, {
       clientX: -100,
@@ -5680,27 +5315,18 @@ file,type,line,method,methodStart,methodEnd,source
     });
   });
 
-  // Assert: The placeholder is removed and no errors occurred
-  expect(container.querySelectorAll("".react-grid-item"").length).toBe(1);
-
-  const finalLayoutCalls = onLayoutChange.mock.calls;
-  const lastLayout =
-    finalLayoutCalls[finalLayoutCalls.length - 1]?.[0] || [];
-  const hasDroppedItemInFinalLayout = lastLayout.some(
-    item => item.i === ""__dropping-elem__""
-  );
-  expect(hasDroppedItemInFinalLayout).toBe(false);
-
-  expect(onDrag.mock.calls.length).toBeLessThan(50);
+  // Assert: The placeholder is removed and no infinite loop errors occurred.
+  expect(container.querySelectorAll("".react-grid-item"")).toHaveLength(1);
 
   const maxDepthErrors = consoleError.mock.calls.filter(call =>
     call[0]?.includes?.(""Maximum update depth exceeded"")
   );
   expect(maxDepthErrors).toHaveLength(0);
+  expect(onDrag.mock.calls.length).toBeLessThan(50);
 
   consoleError.mockRestore();
-})",916,1019,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1097, 'column': 44, 'index': 35702}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
+})",916,992,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1070, 'column': 44, 'index': 35267}","it(""does not cause Maximum update depth exceeded with v2 API GridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -5778,8 +5404,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1022,1100,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1179, 'column': 44, 'index': 38262}","it(""does not cause Maximum update depth exceeded with ResponsiveReactGridLayout (#2210)"", function () {
+      })",995,1073,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1152, 'column': 44, 'index': 37827}","it(""does not cause Maximum update depth exceeded with ResponsiveReactGridLayout (#2210)"", function () {
         const consoleError = jest
           .spyOn(console, ""error"")
           .mockImplementation(() => {});
@@ -5858,8 +5484,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1103,1182,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1287, 'column': 44, 'index': 41959}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
+      })",1076,1155,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1260, 'column': 44, 'index': 41524}","it(""does not cause Maximum update depth exceeded with controlled state where children derive from layout (#2210)"", function () {
         // This test replicates the exact scenario from the bug report:
         // - User has controlled state where onLayoutChange updates their layout state
         // - Children are memoized and derived from that state
@@ -5964,8 +5590,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1185,1290,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1358, 'column': 44, 'index': 44297}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
+      })",1158,1263,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1331, 'column': 44, 'index': 43862}","it(""does not cause Maximum update depth exceeded during repeated drag in/out cycles (#2210)"", function () {
         // This test verifies that repeatedly dragging an item INTO and then OUT OF
         // the grid (without releasing) doesn't cause infinite loops.
         const consoleError = jest
@@ -6033,8 +5659,8 @@ file,type,line,method,methodStart,methodEnd,source
         expect(maxDepthErrors).toHaveLength(0);
 
         consoleError.mockRestore();
-      })",1293,1361,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1533, 'column': 49, 'index': 49161}","it(""sets up resizable handles"", () => {
+      })",1266,1334,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1506, 'column': 49, 'index': 48726}","it(""sets up resizable handles"", () => {
         const { container } = render(<ResizableLayout />);
 
         // Ensure every handle is present on the target element
@@ -6044,8 +5670,8 @@ file,type,line,method,methodStart,methodEnd,source
           );
           expect(handles.length).toBeGreaterThan(0);
         });
-      })",1525,1535,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 1936, 'column': 50, 'index': 60937}","it(""Does not allow elements to move when resizing with no free space"", () => {
+      })",1498,1508,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 1909, 'column': 50, 'index': 60502}","it(""Does not allow elements to move when resizing with no free space"", () => {
           const onLayoutChange = jest.fn();
           const { container } = render(
             <PreventCollisionContainer
@@ -6076,8 +5702,8 @@ file,type,line,method,methodStart,methodEnd,source
               expect(item0.w).toBeLessThanOrEqual(1);
             }
           }
-        })",1908,1939,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2065, 'column': 51, 'index': 64959}","it(""constrains movement when isBounded is true"", function () {
+        })",1881,1912,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2038, 'column': 51, 'index': 64524}","it(""constrains movement when isBounded is true"", function () {
         const onDragStart = jest.fn();
         const onDragStop = jest.fn();
         const { container } = render(
@@ -6133,8 +5759,8 @@ file,type,line,method,methodStart,methodEnd,source
           expect(newItem.x).toBeGreaterThanOrEqual(0);
           expect(newItem.y).toBeGreaterThanOrEqual(0);
         }
-      })",2012,2068,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2066, 'column': 51, 'index': 65014}","it(""constrains movement when isBounded is true"", function () {
+      })",1985,2041,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2039, 'column': 51, 'index': 64579}","it(""constrains movement when isBounded is true"", function () {
         const onDragStart = jest.fn();
         const onDragStop = jest.fn();
         const { container } = render(
@@ -6190,8 +5816,8 @@ file,type,line,method,methodStart,methodEnd,source
           expect(newItem.x).toBeGreaterThanOrEqual(0);
           expect(newItem.y).toBeGreaterThanOrEqual(0);
         }
-      })",2012,2068,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2159, 'column': 42, 'index': 67604}","it(""renders without errors in StrictMode"", function () {
+      })",1985,2041,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2132, 'column': 42, 'index': 67169}","it(""renders without errors in StrictMode"", function () {
       const consoleError = jest
         .spyOn(console, ""error"")
         .mockImplementation(() => {});
@@ -6227,8 +5853,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(criticalErrors).toHaveLength(0);
 
       consoleError.mockRestore();
-    })",2126,2162,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2207, 'column': 45, 'index': 68905}","it(""handles concurrent updates without warnings"", function () {
+    })",2099,2135,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2180, 'column': 45, 'index': 68470}","it(""handles concurrent updates without warnings"", function () {
       const consoleError = jest
         .spyOn(console, ""error"")
         .mockImplementation(() => {});
@@ -6274,8 +5900,8 @@ file,type,line,method,methodStart,methodEnd,source
       expect(flushSyncWarnings).toHaveLength(0);
 
       consoleError.mockRestore();
-    })",2164,2210,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2235, 'column': 37, 'index': 69693}","it(""works with multiple grid items in StrictMode"", function () {
+    })",2137,2183,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2208, 'column': 37, 'index': 69258}","it(""works with multiple grid items in StrictMode"", function () {
       const { container } = render(
         <StrictMode>
           <ReactGridLayout
@@ -6299,8 +5925,8 @@ file,type,line,method,methodStart,methodEnd,source
 
       const gridItems = container.querySelectorAll("".react-grid-item"");
       expect(gridItems).toHaveLength(3);
-    })",2212,2236,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2260, 'column': 37, 'index': 70406}","it(""positions items correctly based on data-grid"", function () {
+    })",2185,2209,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2233, 'column': 37, 'index': 69971}","it(""positions items correctly based on data-grid"", function () {
       const { container } = render(
         <ReactGridLayout
           className=""layout""
@@ -6327,8 +5953,8 @@ file,type,line,method,methodStart,methodEnd,source
         const style = item.getAttribute(""style"");
         expect(style).toContain(""transform"");
       });
-    })",2240,2267,steel
-/test/spec/lifecycle-test.js,Magic Number,"{'line': 2655, 'column': 37, 'index': 82784}","it(""does not cause item to jump on drag start with default positionStrategy"", function () {
+    })",2213,2240,steel
+/test/spec/lifecycle-test.js,Magic Number,"{'line': 2628, 'column': 37, 'index': 82349}","it(""does not cause item to jump on drag start with default positionStrategy"", function () {
       const onDrag = jest.fn();
       const onDragStart = jest.fn();
 
@@ -6430,7 +6056,7 @@ file,type,line,method,methodStart,methodEnd,source
         });
         document.dispatchEvent(mouseUpEvent);
       });
-    })",2567,2669,steel
+    })",2540,2642,steel
 /test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 23, 'column': 2, 'index': 615}",Unknown,,,steel
 /test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 40, 'column': 2, 'index': 1069}",Unknown,,,steel
 /test/spec/fast-horizontal-compactor-test.js,Conditional Test Logic,"{'line': 55, 'column': 2, 'index': 1370}",Unknown,,,steel

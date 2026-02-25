@@ -1,4 +1,4 @@
-it("should set a value for a path with multiple keys", function() {
+it("should set a value for a path containing a key set", function() {
 
     var cache = {};
     var version = 0;

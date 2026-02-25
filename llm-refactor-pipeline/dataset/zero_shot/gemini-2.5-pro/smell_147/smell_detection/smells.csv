@@ -252,40 +252,6 @@ file,type,line,method,methodStart,methodEnd,source
         }
         pond.removeFile(item);
     })",119,131,snuts
-/src/js/__tests__/removeFile.test.js,OvercommentedTest,"{'startLine':96,'endLine':129}","test('remove file object from client and fail to remove from server', async () => {
-    // Create a promise that resolves when the 'onremovefile' event occurs
-    const removal = new Promise(resolve => {
-        pond.onremovefile = (error, file) => {
-            // Resolve the promise with the arguments from the event
-            resolve({ error, file });
-        };
-    });
-
-    // Mock the server to simulate an immediate failure.
-    // The artificial delay is not needed as the component's event-driven
-    // nature is what makes the process asynchronous.
-    pond.server = {
-        ...server,
-        remove: (source, load, error) => {
-            error('fail');
-        },
-    };
-
-    // Set up the trigger: when a file is added, immediately try to remove it.
-    pond.onaddfile = () => {
-        pond.removeFile();
-    };
-
-    // Trigger the 'addfile' event, which starts the removal process
-    pond.files = [LOCAL_FILE];
-
-    // Wait for the 'onremovefile' event to fire
-    const { error } = await removal;
-
-    // Assert the outcome
-    expect(error.type).toBe('error');
-    expect(pond.getFiles().length).toBe(1);
-})",96,129,snuts
 /src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':56,'endLine':56}","test('remove file object', () => {
         pond.files = [DUMMY_FILE];
         pond.removeFile();
@@ -361,40 +327,28 @@ file,type,line,method,methodStart,methodEnd,source
 
         pond.files = [LOCAL_FILE];
     })",73,94,snuts
-/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':128,'endLine':128}","test('remove file object from client and fail to remove from server', async () => {
-    // Create a promise that resolves when the 'onremovefile' event occurs
-    const removal = new Promise(resolve => {
-        pond.onremovefile = (error, file) => {
-            // Resolve the promise with the arguments from the event
-            resolve({ error, file });
-        };
-    });
-
-    // Mock the server to simulate an immediate failure.
-    // The artificial delay is not needed as the component's event-driven
-    // nature is what makes the process asynchronous.
+/src/js/__tests__/removeFile.test.js,SubOptimalAssert,"{'startLine':108,'endLine':108}","test('remove file object from client and fail to remove from server', done => {
     pond.server = {
         ...server,
         remove: (source, load, error) => {
+            // Fail synchronously without a timeout
             error('fail');
         },
     };
 
-    // Set up the trigger: when a file is added, immediately try to remove it.
+    pond.onremovefile = (error, file) => {
+        expect(error.type).toBe('error');
+        // The file should not be removed from the pond instance on server error
+        expect(pond.getFiles().length).toBe(1);
+        done();
+    };
+
     pond.onaddfile = () => {
         pond.removeFile();
     };
 
-    // Trigger the 'addfile' event, which starts the removal process
     pond.files = [LOCAL_FILE];
-
-    // Wait for the 'onremovefile' event to fire
-    const { error } = await removal;
-
-    // Assert the outcome
-    expect(error.type).toBe('error');
-    expect(pond.getFiles().length).toBe(1);
-})",96,129,snuts
+})",96,117,snuts
 /src/js/__tests__/createInstance.test.js,AnonymousTest,"{'startLine':5,'endLine':7}","test('without parameters', () => {
         expect(create()).toBeDefined();
     })",5,7,snuts
@@ -777,40 +731,28 @@ file,type,line,method,methodStart,methodEnd,source
 
         pond.files = [LOCAL_FILE];
     })",73,94,steel
-/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 128, 'column': 40, 'index': 3472}","test('remove file object from client and fail to remove from server', async () => {
-    // Create a promise that resolves when the 'onremovefile' event occurs
-    const removal = new Promise(resolve => {
-        pond.onremovefile = (error, file) => {
-            // Resolve the promise with the arguments from the event
-            resolve({ error, file });
-        };
-    });
-
-    // Mock the server to simulate an immediate failure.
-    // The artificial delay is not needed as the component's event-driven
-    // nature is what makes the process asynchronous.
+/src/js/__tests__/removeFile.test.js,Magic Number,"{'line': 108, 'column': 44, 'index': 2816}","test('remove file object from client and fail to remove from server', done => {
     pond.server = {
         ...server,
         remove: (source, load, error) => {
+            // Fail synchronously without a timeout
             error('fail');
         },
     };
 
-    // Set up the trigger: when a file is added, immediately try to remove it.
+    pond.onremovefile = (error, file) => {
+        expect(error.type).toBe('error');
+        // The file should not be removed from the pond instance on server error
+        expect(pond.getFiles().length).toBe(1);
+        done();
+    };
+
     pond.onaddfile = () => {
         pond.removeFile();
     };
 
-    // Trigger the 'addfile' event, which starts the removal process
     pond.files = [LOCAL_FILE];
-
-    // Wait for the 'onremovefile' event to fire
-    const { error } = await removal;
-
-    // Assert the outcome
-    expect(error.type).toBe('error');
-    expect(pond.getFiles().length).toBe(1);
-})",96,129,steel
+})",96,117,steel
 /src/js/__tests__/removeFile.test.js,Sleepy Test,"{'line': 77, 'column': 16, 'index': 1955}","test('remove file object from client and from server', done => {
         pond.server = {
             ...server,

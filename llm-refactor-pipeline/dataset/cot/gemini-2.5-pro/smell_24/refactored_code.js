@@ -1,8 +1,9 @@
-test("Tuesday should be reported as the 2nd day of the week", () => {
-    const A_TUESDAY_DATE = "2023-08-08";
-    const EXPECTED_WEEKDAY_FOR_TUESDAY = 2;
+const A_TUESDAY_IN_ISO_FORMAT = "2023-08-08";
+const TUESDAY_AS_WEEKDAY_NUMBER = 2;
 
-    const dt = DateTime.fromISO(A_TUESDAY_DATE, { locale: "de-DE" });
-    
-    expect(dt.localWeekday).toBe(EXPECTED_WEEKDAY_FOR_TUESDAY);
-  })
+test("Tuesday should be reported as the 2nd day of the week", () => {
+  const dt = DateTime.fromISO(A_TUESDAY_IN_ISO_FORMAT, {
+    locale: "de-DE"
+  });
+  expect(dt.localWeekday).toBe(TUESDAY_AS_WEEKDAY_NUMBER);
+})

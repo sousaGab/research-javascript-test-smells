@@ -1,15 +1,15 @@
-test('should create a write stream on open and propagate stream errors', (done) => {
-    const error = new Error('test');
-    file.on('error', (err) => {
-      expect(err).toBe(error);
-      done();
-    });
+test('should propagate errors from the file stream when opening', (done) => {
+  const error = new Error('test');
+  file.on('error', (err) => {
+    expect(err).toBe(error);
+    done();
+  });
 
-    file.emit('error', error);
+  file.emit('error', error);
 
-    expect(writeStreamMock).toBeCalled();
-    expect(writeStreamInstanceMock.on).toBeCalledWith(
-      'error',
-      expect.any(Function),
-    );
-  })
+  expect(writeStreamMock).toBeCalled();
+  expect(writeStreamInstanceMock.on).toBeCalledWith(
+    'error',
+    expect.any(Function),
+  );
+});

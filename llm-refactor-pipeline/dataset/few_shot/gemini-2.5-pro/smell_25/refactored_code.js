@@ -1,6 +1,7 @@
 test("Sunday should be reported as the 1st day of the week", () => {
-    const A_KNOWN_SUNDAY_ISO = "2023-08-06";
+    const A_KNOWN_SUNDAY = "2023-08-06";
     const SUNDAY_AS_FIRST_DAY_OF_WEEK = 1;
-    const dt = DateTime.fromISO(A_KNOWN_SUNDAY_ISO, { locale: "en-US" });
+
+    const dt = DateTime.fromISO(A_KNOWN_SUNDAY, { locale: "en-US" });
     expect(dt.localWeekday).toBe(SUNDAY_AS_FIRST_DAY_OF_WEEK);
   })
