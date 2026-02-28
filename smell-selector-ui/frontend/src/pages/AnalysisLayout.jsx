@@ -2,11 +2,11 @@ import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 
 const rqs = [
-  { path: '/rq1', label: 'RQ1', desc: 'Smell prevalence' },
-  { path: '/rq2', label: 'RQ2', desc: 'Refactoring success' },
-  { path: '/rq3', label: 'RQ3', desc: 'Strategy comparison' },
-  { path: '/rq4', label: 'RQ4', desc: 'Model comparison' },
-  { path: '/rq5', label: 'RQ5', desc: 'Smell-specific patterns' },
+  { path: '/analysis/rq1', label: 'RQ1', desc: 'Smell prevalence' },
+  { path: '/analysis/rq2', label: 'RQ2', desc: 'Refactoring success' },
+  { path: '/analysis/rq3', label: 'RQ3', desc: 'Strategy comparison' },
+  { path: '/analysis/rq4', label: 'RQ4', desc: 'Model comparison' },
+  { path: '/analysis/rq5', label: 'RQ5', desc: 'Smell-specific patterns' },
 ];
 
 export default function AnalysisLayout() {

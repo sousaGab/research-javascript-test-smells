@@ -46,19 +46,17 @@ function App() {
         </header>
 
         <div className="main-content">
-          {/* Menu lateral só aparece nas rotas RQ */}
           <Routes>
-            <Route element={<AnalysisLayout />}>
-              <Route path="/analysis" element={<DataAnalysis />} />
-              <Route path="/rq1" element={<RQ1 />} />
-              <Route path="/rq2" element={<RQ2 />} />
-              <Route path="/rq3" element={<RQ3 />} />
-              <Route path="/rq4" element={<RQ4 />} />
-              <Route path="/rq5" element={<RQ5 />} />
-            </Route>
-            {/* Rotas padrão */}
             <Route path="/" element={<SmellSelector />} />
             <Route path="/refactorings" element={<Refatoracoes />} />
+            <Route path="/analysis" element={<AnalysisLayout />}>
+              <Route index element={<DataAnalysis />} />
+              <Route path="rq1" element={<RQ1 />} />
+              <Route path="rq2" element={<RQ2 />} />
+              <Route path="rq3" element={<RQ3 />} />
+              <Route path="rq4" element={<RQ4 />} />
+              <Route path="rq5" element={<RQ5 />} />
+            </Route>
           </Routes>
         </div>
       </div>
