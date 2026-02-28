@@ -501,7 +501,7 @@ class HuggingFaceModels:
         },
         {
             "id": 2,
-            "name": "CodeLlama 34B Instruct",
+            "name": "CodeLlama 34B",
             "model_id": "meta-llama/CodeLlama-34b-Instruct-hf",
             "description": "CodeLlama model via custom Inference Endpoint",
             "endpoint_url": "https://u1i04a28mj4iv60z.us-east-1.aws.endpoints.huggingface.cloud/v1",
@@ -528,9 +528,9 @@ class HuggingFaceModels:
         },
         {
             "id": 5,
-            "name": "DeepSeek-V3.2: Efficient Reasoning & Agentic AI",
+            "name": "DeepSeek-V3.2",
             "model_id": "deepseek-ai/DeepSeek-V3.2",
-            "description": "DeepSeek-V3.2: Efficient Reasoning & Agentic AI",
+            "description": "DeepSeek-V3.2",
             "endpoint_url": None, # Uses default HF router
             "provider": LLMProvider.HUGGINGFACE,
             "api_key_env": "HF_TOKEN"

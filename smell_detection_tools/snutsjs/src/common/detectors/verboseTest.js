@@ -12,7 +12,7 @@ const detectVerboseStatement = (ast) => {
       if (
         maybeTestCall?.type === "CallExpression" &&
         astService.isTestCase(maybeTestCall) &&
-        path.node.body.length > 13
+        path.node.body.length > 20
       ) {
         smells.push({
           startLine: loc.start.line,
