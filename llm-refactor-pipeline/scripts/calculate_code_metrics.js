@@ -28,11 +28,14 @@ function tryParseWithPlugins(code, plugins) {
             ast: parser.parse(code, {
                 sourceType: "module",
                 plugins,
-                errorRecovery: true
+                errorRecovery: true,
+                allowUndeclaredExports: true,
+                allowReturnOutsideFunction: true
             }),
             error: null
         };
     } catch (e) {
+        // Return error object, don't throw
         return { ast: null, error: e };
     }
 }
@@ -210,80 +213,144 @@ function calculateMaintainabilityIndex(logicalSloc, cyclomatic, halsteadVolume) 
 }
 
 /**
+ * Fallback analysis for unparseable code using text-based heuristics
+ */
+function analyzeCodeFallback(code, parseError) {
+    // Count logical SLOC (non-empty, non-comment lines)
+    const lines = code.split('\n');
+    let logicalSloc = 0;
+    let inMultiLineComment = false;
+    
+    for (const line of lines) {
+        const trimmed = line.trim();
+        
+        // Handle multi-line comments
+        if (trimmed.includes('/*')) inMultiLineComment = true;
+        if (inMultiLineComment) {
+            if (trimmed.includes('*/')) inMultiLineComment = false;
+            continue;
+        }
+        
+        // Skip empty lines and single-line comments
+        if (trimmed && !trimmed.startsWith('//')) {
+            logicalSloc++;
+        }
+    }
+    
+    // Approximate cyclomatic complexity by counting decision keywords
+    const decisionKeywords = [
+        /\bif\s*\(/g,
+        /\belse\s+if\s*\(/g,
+        /\bfor\s*\(/g,
+        /\bwhile\s*\(/g,
+        /\bdo\s*\{/g,
+        /\bswitch\s*\(/g,
+        /\bcase\s+/g,
+        /\bcatch\s*\(/g,
+        /\?[^:]*:/g,  // Ternary operators
+        /&&/g,
+        /\|\|/g
+    ];
+    
+    let cyclomaticApprox = 1; // Base complexity
+    for (const pattern of decisionKeywords) {
+        const matches = code.match(pattern);
+        if (matches) {
+            cyclomaticApprox += matches.length;
+        }
+    }
+    
+    const cyclomaticDensity = logicalSloc > 0
+        ? (cyclomaticApprox / logicalSloc) * 100
+        : 0;
+    
+    // Return metrics with warning that they're approximate
+    const errorMsg = parseError.loc 
+        ? `Parse error at line ${parseError.loc.line}: ${parseError.message}` 
+        : `Parse error: ${parseError.message}`;
+    
+    return {
+        error: `${errorMsg} [FALLBACK: metrics are approximate]`,
+        sloc_logical: logicalSloc,
+        cyclomatic_complexity: cyclomaticApprox,
+        cyclomatic_density: parseFloat(cyclomaticDensity.toFixed(2)),
+        halstead_effort: null,  // Cannot compute without AST
+        halstead_bugs: null,
+        halstead_difficulty: null,
+        halstead_volume: null,
+        maintainability_index: null  // Cannot compute without Halstead
+    };
+}
+
+/**
  * Analyze code and compute all metrics
  */
 function analyzeCode(code) {
-    // Parse code
-    const parseResult = parseCode(code);
-    
-    if (!parseResult.ast) {
-        const error = parseResult.error;
-        const line = error.loc ? error.loc.line : (error.lineNumber || 'unknown');
-        return {
-            error: `Parse error at line ${line}: ${error.message}`,
-            sloc_logical: null,
-            cyclomatic_complexity: null,
-            cyclomatic_density: null,
-            halstead_effort: null,
-            halstead_bugs: null,
-            halstead_difficulty: null,
-            halstead_volume: null,
-            maintainability_index: null
-        };
-    }
-    
-    // Initialize metrics collection
-    const metrics = {
-        logicalSloc: 0,
-        cyclomatic: 1, // Base complexity is 1
-        operators: new Set(),
-        operands: new Set(),
-        operatorCount: 0,
-        operandCount: 0
-    };
-    
-    // Traverse AST and collect metrics
-    traverse(parseResult.ast, {
-        enter(path) {
-            const node = path.node;
-            
-            // Count logical SLOC
-            if (isStatementNode(node)) {
-                metrics.logicalSloc++;
-            }
-            
-            // Count decision points for cyclomatic complexity
-            if (isDecisionPoint(node)) {
-                metrics.cyclomatic++;
-            }
-            
-            // Collect Halstead metrics
-            collectHalsteadMetrics(node, metrics);
+    try {
+        // Parse code
+        const parseResult = parseCode(code);
+        
+        if (!parseResult.ast) {
+            // Use fallback analysis for unparseable code
+            return analyzeCodeFallback(code, parseResult.error);
         }
-    });
-    
-    // Calculate derived metrics
-    const halstead = calculateHalsteadMetrics(metrics);
-    const cyclomaticDensity = metrics.logicalSloc > 0
-        ? (metrics.cyclomatic / metrics.logicalSloc) * 100
-        : 0;
-    const maintainability = calculateMaintainabilityIndex(
-        metrics.logicalSloc,
-        metrics.cyclomatic,
-        halstead.volume
-    );
-    
-    return {
-        error: null,
-        sloc_logical: metrics.logicalSloc,
-        cyclomatic_complexity: metrics.cyclomatic,
-        cyclomatic_density: parseFloat(cyclomaticDensity.toFixed(2)),
-        halstead_effort: parseFloat(halstead.effort.toFixed(2)),
-        halstead_bugs: parseFloat(halstead.bugs.toFixed(4)),
-        halstead_difficulty: parseFloat(halstead.difficulty.toFixed(2)),
-        halstead_volume: parseFloat(halstead.volume.toFixed(2)),
-        maintainability_index: parseFloat(maintainability.toFixed(2))
-    };
+        
+        // Initialize metrics collection
+        const metrics = {
+            logicalSloc: 0,
+            cyclomatic: 1, // Base complexity is 1
+            operators: new Set(),
+            operands: new Set(),
+            operatorCount: 0,
+            operandCount: 0
+        };
+        
+        // Traverse AST and collect metrics
+        traverse(parseResult.ast, {
+            enter(path) {
+                const node = path.node;
+                
+                // Count logical SLOC
+                if (isStatementNode(node)) {
+                    metrics.logicalSloc++;
+                }
+                
+                // Count decision points for cyclomatic complexity
+                if (isDecisionPoint(node)) {
+                    metrics.cyclomatic++;
+                }
+                
+                // Collect Halstead metrics
+                collectHalsteadMetrics(node, metrics);
+            }
+        });
+        
+        // Calculate derived metrics
+        const halstead = calculateHalsteadMetrics(metrics);
+        const cyclomaticDensity = metrics.logicalSloc > 0
+            ? (metrics.cyclomatic / metrics.logicalSloc) * 100
+            : 0;
+        const maintainability = calculateMaintainabilityIndex(
+            metrics.logicalSloc,
+            metrics.cyclomatic,
+            halstead.volume
+        );
+        
+        return {
+            error: null,
+            sloc_logical: metrics.logicalSloc,
+            cyclomatic_complexity: metrics.cyclomatic,
+            cyclomatic_density: parseFloat(cyclomaticDensity.toFixed(2)),
+            halstead_effort: parseFloat(halstead.effort.toFixed(2)),
+            halstead_bugs: parseFloat(halstead.bugs.toFixed(4)),
+            halstead_difficulty: parseFloat(halstead.difficulty.toFixed(2)),
+            halstead_volume: parseFloat(halstead.volume.toFixed(2)),
+            maintainability_index: parseFloat(maintainability.toFixed(2))
+        };
+    } catch (error) {
+        // If anything goes wrong, use fallback analysis
+        return analyzeCodeFallback(code, error);
+    }
 }
 
 /**
@@ -309,12 +376,34 @@ async function main() {
                 process.exit(1);
             }
             
-            // Process each item
+            // Process each item (wrap in try-catch to isolate failures)
             const results = items.map(item => {
-                if (!item.code) {
+                try {
+                    if (!item.code) {
+                        return {
+                            id: item.id,
+                            error: 'Missing code field',
+                            sloc_logical: null,
+                            cyclomatic_complexity: null,
+                            cyclomatic_density: null,
+                            halstead_effort: null,
+                            halstead_bugs: null,
+                            halstead_difficulty: null,
+                            halstead_volume: null,
+                            maintainability_index: null
+                        };
+                    }
+                    
+                    const metrics = analyzeCode(item.code);
                     return {
                         id: item.id,
-                        error: 'Missing code field',
+                        ...metrics
+                    };
+                } catch (error) {
+                    // Isolate individual item failures - don't stop the batch
+                    return {
+                        id: item.id,
+                        error: `Failed to analyze code: ${error.message}`,
                         sloc_logical: null,
                         cyclomatic_complexity: null,
                         cyclomatic_density: null,
@@ -325,12 +414,6 @@ async function main() {
                         maintainability_index: null
                     };
                 }
-                
-                const metrics = analyzeCode(item.code);
-                return {
-                    id: item.id,
-                    ...metrics
-                };
             });
             
             // Output results as JSON

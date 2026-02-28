@@ -16,6 +16,7 @@ Usage:
     python3 backfill_code_metrics.py --phase before [--dry-run] [--limit N]
     python3 backfill_code_metrics.py --phase after [--dry-run] [--limit N]
     python3 backfill_code_metrics.py --phase all [--dry-run]
+    python3 backfill_code_metrics.py --phase after --force [--verbose]
     
 Options:
     --phase PHASE       Which phase to process: before, after, or all
@@ -24,6 +25,7 @@ Options:
     --start-from ID     Start from specific smell/experiment ID
     --verbose           Show detailed output including metrics values
     --continue-on-error Continue processing even if some items fail
+    --force             Re-analyze ALL experiments, deleting existing metrics first
 """
 
 import sys
@@ -98,7 +100,8 @@ def process_before_phase(
     limit: Optional[int] = None,
     start_from: Optional[int] = None,
     verbose: bool = False,
-    continue_on_error: bool = False
+    continue_on_error: bool = False,
+    force: bool = False
 ) -> Dict[str, int]:
     """
     Process 'before' phase: compute metrics for selected study smells.
@@ -110,6 +113,7 @@ def process_before_phase(
         start_from: Start from specific smell ID
         verbose: Show detailed output
         continue_on_error: Continue even if some items fail
+        force: If True, re-analyze even if metrics already exist
         
     Returns:
         Dict with statistics (processed, inserted, skipped, failed)
@@ -185,6 +189,7 @@ def process_before_phase(
             
             # Check if any of these experiments already have 'before' metrics
             has_before_metrics = False
+            existing_metrics_list = []
             for exp in experiments_with_this_smell:
                 existing_metrics = session.query(CodeMetric).filter_by(
                     experiment_id=exp.id,
@@ -192,13 +197,21 @@ def process_before_phase(
                 ).first()
                 if existing_metrics:
                     has_before_metrics = True
-                    break
+                    existing_metrics_list.append(existing_metrics)
             
-            if has_before_metrics:
+            if has_before_metrics and not force:
                 if verbose:
                     print(f"  [SKIP] Smell {smell_id}: Already has 'before' metrics")
                 stats['skipped'] += 1
                 continue
+            
+            # If forcing re-analysis, delete existing metrics
+            if has_before_metrics and force:
+                if not dry_run:
+                    for metric in existing_metrics_list:
+                        session.delete(metric)
+                if verbose:
+                    print(f"  [FORCE] Smell {smell_id}: Deleting {len(existing_metrics_list)} existing 'before' metrics")
             
             # Add to computation batch
             idx = len(items_to_compute)
@@ -227,19 +240,30 @@ def process_before_phase(
             idx = result['id']
             smell_id, repo_name, file_path, smell_type, experiments = smell_id_map[idx]
             
-            if result.get('error'):
-                print(f"  [ERROR] Smell {smell_id}: {result['error']}")
+            error_msg = result.get('error')
+            is_fallback = error_msg and '[FALLBACK' in error_msg
+            has_metrics = result.get('sloc_logical') is not None
+            
+            if error_msg and not is_fallback:
+                # Complete parse failure, no metrics available
+                print(f"  [ERROR] Smell {smell_id}: {error_msg}")
                 stats['parse_errors'] += 1
                 stats['failed'] += 1
                 if not continue_on_error:
                     raise RuntimeError(f"Failed to compute metrics for smell {smell_id}")
                 continue
             
-            if verbose:
+            if is_fallback:
+                # Fallback metrics - partial analysis from unparseable code
+                print(f"  [WARN] Smell {smell_id}: {error_msg}")
+                stats['parse_errors'] += 1
+            elif verbose:
                 print(f"  [OK] Smell {smell_id} ({repo_name}/{file_path})")
+            
+            if verbose or is_fallback:
                 print(f"       SLOC: {result['sloc_logical']}, "
                       f"Cyclomatic: {result['cyclomatic_complexity']}, "
-                      f"Maintainability: {result['maintainability_index']:.2f}")
+                      f"Maintainability: {result['maintainability_index'] or 'N/A'}")
             
             # Save to database (for each experiment that references this smell)
             if not dry_run:
@@ -260,7 +284,9 @@ def process_before_phase(
                         )
                         stats['inserted'] += 1
                     except Exception as e:
+                        session.rollback()  # Rollback immediately to keep session healthy
                         print(f"  [WARN] Smell {smell_id}, Exp {exp.id}: DB insert failed: {e}")
+                        stats['failed'] += 1
                         if not continue_on_error:
                             raise
             else:
@@ -287,7 +313,8 @@ def process_after_phase(
     limit: Optional[int] = None,
     start_from: Optional[int] = None,
     verbose: bool = False,
-    continue_on_error: bool = False
+    continue_on_error: bool = False,
+    force: bool = False
 ) -> Dict[str, int]:
     """
     Process 'after' phase: compute metrics for experiment refactored code.
@@ -299,6 +326,7 @@ def process_after_phase(
         start_from: Start from specific experiment ID
         verbose: Show detailed output
         continue_on_error: Continue even if some items fail
+        force: If True, re-analyze even if metrics already exist
         
     Returns:
         Dict with statistics (processed, inserted, skipped, failed)
@@ -308,20 +336,28 @@ def process_after_phase(
     print("=" * 70)
     
     # Query experiments that don't have 'after' metrics yet
-    # Use LEFT JOIN to find experiments without metrics
+    # Use LEFT JOIN to find experiments without metrics (unless forcing)
     from sqlalchemy import and_
     
-    query = session.query(Experiment).outerjoin(
-        CodeMetric,
-        and_(
-            CodeMetric.experiment_id == Experiment.id,
-            CodeMetric.phase == 'after'
-        )
-    ).filter(
-        CodeMetric.id.is_(None),  # No 'after' metrics exist
-        Experiment.refactored_code.isnot(None),  # Has refactored code
-        Experiment.refactoring_completed == True  # Refactoring was successful
-    ).order_by(Experiment.id)
+    if force:
+        # Force mode: process ALL experiments with refactored code
+        query = session.query(Experiment).filter(
+            Experiment.refactored_code.isnot(None),  # Has refactored code
+            Experiment.refactoring_completed == True  # Refactoring was successful
+        ).order_by(Experiment.id)
+    else:
+        # Normal mode: only process experiments without metrics
+        query = session.query(Experiment).outerjoin(
+            CodeMetric,
+            and_(
+                CodeMetric.experiment_id == Experiment.id,
+                CodeMetric.phase == 'after'
+            )
+        ).filter(
+            CodeMetric.id.is_(None),  # No 'after' metrics exist
+            Experiment.refactored_code.isnot(None),  # Has refactored code
+            Experiment.refactoring_completed == True  # Refactoring was successful
+        ).order_by(Experiment.id)
     
     if start_from:
         query = query.filter(Experiment.id >= start_from)
@@ -332,7 +368,10 @@ def process_after_phase(
     experiments = query.all()
     
     if not experiments:
-        print("No experiments found that need 'after' metrics")
+        if force:
+            print("No experiments found with refactored code")
+        else:
+            print("No experiments found that need 'after' metrics")
         return {'processed': 0, 'inserted': 0, 'skipped': 0, 'failed': 0}
     
     print(f"Found {len(experiments)} experiments to process")
@@ -369,6 +408,18 @@ def process_after_phase(
                 stats['skipped'] += 1
                 continue
             
+            # If forcing, check and delete existing metrics
+            if force:
+                existing = session.query(CodeMetric).filter_by(
+                    experiment_id=exp.id,
+                    phase='after'
+                ).first()
+                if existing:
+                    if not dry_run:
+                        session.delete(existing)
+                    if verbose:
+                        print(f"  [FORCE] Experiment {exp.id}: Deleting existing 'after' metrics")
+            
             # Add to computation batch
             idx = len(items_to_compute)
             items_to_compute.append({
@@ -396,23 +447,46 @@ def process_after_phase(
             idx = result['id']
             exp_id = exp_id_map[idx]
             
-            if result.get('error'):
-                print(f"  [ERROR] Experiment {exp_id}: {result['error']}")
+            error_msg = result.get('error')
+            is_fallback = error_msg and '[FALLBACK' in error_msg
+            has_metrics = result.get('sloc_logical') is not None
+            
+            if error_msg and not is_fallback:
+                # Complete parse failure, no metrics available
+                print(f"  [ERROR] Experiment {exp_id}: {error_msg}")
                 stats['parse_errors'] += 1
                 stats['failed'] += 1
                 if not continue_on_error:
                     raise RuntimeError(f"Failed to compute metrics for experiment {exp_id}")
                 continue
             
-            if verbose:
+            if is_fallback:
+                # Fallback metrics - partial analysis from unparseable code
+                print(f"  [WARN] Experiment {exp_id}: {error_msg}")
+                stats['parse_errors'] += 1
+            elif verbose:
                 print(f"  [OK] Experiment {exp_id}")
+            
+            if verbose or is_fallback:
                 print(f"       SLOC: {result['sloc_logical']}, "
                       f"Cyclomatic: {result['cyclomatic_complexity']}, "
-                      f"Maintainability: {result['maintainability_index']:.2f}")
+                      f"Maintainability: {result['maintainability_index'] or 'N/A'}")
             
             # Save to database
             if not dry_run:
                 try:
+                    # Double-check if metrics already exist to avoid unique constraint
+                    existing = session.query(CodeMetric).filter_by(
+                        experiment_id=exp_id,
+                        phase='after'
+                    ).first()
+                    
+                    if existing:
+                        if verbose:
+                            print(f"  [SKIP] Experiment {exp_id}: Metrics already exist")
+                        stats['skipped'] += 1
+                        continue
+                    
                     create_code_metrics(
                         session=session,
                         experiment_id=exp_id,
@@ -428,7 +502,9 @@ def process_after_phase(
                     )
                     stats['inserted'] += 1
                 except Exception as e:
+                    session.rollback()  # Rollback immediately to keep session healthy
                     print(f"  [WARN] Experiment {exp_id}: DB insert failed: {e}")
+                    stats['failed'] += 1
                     if not continue_on_error:
                         raise
             else:
@@ -465,6 +541,12 @@ Examples:
   
   # Process both phases
   python3 backfill_code_metrics.py --phase all --verbose
+  
+  # Re-analyze all experiments (force mode)
+  python3 backfill_code_metrics.py --phase after --force --verbose
+  
+  # Re-analyze specific experiments starting from ID 100
+  python3 backfill_code_metrics.py --phase after --force --start-from 100
         """
     )
     parser.add_argument(
@@ -498,6 +580,11 @@ Examples:
         action='store_true',
         help='Continue processing even if some items fail'
     )
+    parser.add_argument(
+        '--force',
+        action='store_true',
+        help='Re-analyze experiments that already have metrics (deletes existing metrics)'
+    )
     
     args = parser.parse_args()
     
@@ -507,6 +594,9 @@ Examples:
     
     if args.dry_run:
         print("[DRY RUN MODE - No changes will be made]")
+    
+    if args.force:
+        print("[FORCE MODE - Will re-analyze experiments with existing metrics]")
     
     # Check if Node.js script exists
     script_path = find_metrics_analyzer_script()
@@ -531,7 +621,8 @@ Examples:
                 limit=args.limit if args.phase == 'before' else None,
                 start_from=args.start_from if args.phase == 'before' else None,
                 verbose=args.verbose,
-                continue_on_error=args.continue_on_error
+                continue_on_error=args.continue_on_error,
+                force=args.force
             )
         else:
             stats_before = None
@@ -543,7 +634,8 @@ Examples:
                 limit=args.limit if args.phase == 'after' else None,
                 start_from=args.start_from if args.phase == 'after' else None,
                 verbose=args.verbose,
-                continue_on_error=args.continue_on_error
+                continue_on_error=args.continue_on_error,
+                force=args.force
             )
         else:
             stats_after = None
