@@ -29,6 +29,7 @@ from llm_refactor.modules.database import crud
 
 import models as api_models
 import smell_constants
+from controllers.rq1_controller import router as rq1_router
 
 # =============================================================================
 # APP INITIALIZATION
@@ -52,6 +53,9 @@ app.add_middleware(
 # Initialize database
 db = ResearchDB()
 db.init_database()
+
+# Register routers
+app.include_router(rq1_router)
 
 
 # =============================================================================
