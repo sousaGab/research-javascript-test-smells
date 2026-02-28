@@ -2,6 +2,13 @@ import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-do
 import SmellSelector from './pages/SmellSelector';
 import Refatoracoes from './pages/Refatoracoes';
 import DataAnalysis from './pages/DataAnalysis';
+
+import AnalysisLayout from './pages/AnalysisLayout';
+import RQ1 from './pages/RQ1';
+import RQ2 from './pages/RQ2';
+import RQ3 from './pages/RQ3';
+import RQ4 from './pages/RQ4';
+import RQ5 from './pages/RQ5';
 import './App.css';
 
 function App() {
@@ -38,11 +45,22 @@ function App() {
           </div>
         </header>
 
-        <Routes>
-          <Route path="/" element={<SmellSelector />} />
-          <Route path="/refactorings" element={<Refatoracoes />} />
-          <Route path="/analysis" element={<DataAnalysis />} />
-        </Routes>
+        <div className="main-content">
+          {/* Menu lateral só aparece nas rotas RQ */}
+          <Routes>
+            <Route element={<AnalysisLayout />}>
+              <Route path="/analysis" element={<DataAnalysis />} />
+              <Route path="/rq1" element={<RQ1 />} />
+              <Route path="/rq2" element={<RQ2 />} />
+              <Route path="/rq3" element={<RQ3 />} />
+              <Route path="/rq4" element={<RQ4 />} />
+              <Route path="/rq5" element={<RQ5 />} />
+            </Route>
+            {/* Rotas padrão */}
+            <Route path="/" element={<SmellSelector />} />
+            <Route path="/refactorings" element={<Refatoracoes />} />
+          </Routes>
+        </div>
       </div>
     </Router>
   );
