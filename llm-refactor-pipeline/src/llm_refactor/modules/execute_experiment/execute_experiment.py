@@ -20,7 +20,8 @@ from llm_refactor.modules.database.crud import (
     get_or_create_baseline_smell_from_study,
     create_repository_baseline_tests,
     repository_has_baseline_tests,
-    reset_experiment_execution_data
+    reset_experiment_execution_data,
+    get_repository_baseline_tests
 )
 from llm_refactor.modules.refactor.hf_client import (
     HuggingFaceRefactorClient,
@@ -1641,6 +1642,8 @@ NOTES:
         
         # Parse and save detailed test results (after phase only)
         test_summary_path = output_dir / "test_summary.txt"
+        test_output_path = output_dir / "test_output.txt"
+        after_suites_failed = None
         
         if test_summary_path.exists():
             summary_text = load_test_summary(test_summary_path)
@@ -1649,6 +1652,7 @@ NOTES:
                 # Parse test counts and coverage from summary
                 test_counts = parse_test_counts_from_summary(summary_text)
                 coverage_data = parse_coverage_from_summary(summary_text)
+                after_suites_failed = test_counts.get('test_suites_failed') if test_counts else None
                 
                 # Create test results record with all metrics (after phase)
                 create_test_results(
@@ -1656,7 +1660,7 @@ NOTES:
                     experiment_id=experiment_id,
                     phase='after',
                     test_suites_passed=test_counts.get('test_suites_passed') if test_counts else None,
-                    test_suites_failed=test_counts.get('test_suites_failed') if test_counts else None,
+                    test_suites_failed=after_suites_failed,
                     test_suites_total=test_counts.get('test_suites_total') if test_counts else None,
                     tests_passed=test_counts.get('tests_passed') if test_counts else None,
                     tests_failed=test_counts.get('tests_failed') if test_counts else None,
@@ -1684,8 +1688,45 @@ NOTES:
                 all_tests_passed=tests_passed
             )
         
+        # Classify and save tests_failed / tests_failed_type
+        test_output_text = None
+        if test_output_path.exists():
+            try:
+                test_output_text = test_output_path.read_text(encoding='utf-8', errors='replace')
+            except Exception:
+                pass
+        baseline = get_repository_baseline_tests(session, repository_id)
+        baseline_suites_failed = baseline.test_suites_failed if baseline else 0
+        tf, tf_type = self._classify_tests_failed(after_suites_failed, baseline_suites_failed, test_output_text)
+        update_experiment(session=session, experiment_id=experiment_id,
+                          tests_failed=tf, tests_failed_type=tf_type)
+        
         # Note: commit deferred to caller for batch optimization
     
+    @staticmethod
+    def _classify_tests_failed(after_suites_failed, baseline_suites_failed, test_output_text):
+        """
+        Classify whether the refactored experiment introduced test failures.
+
+        Returns:
+            (tests_failed: int, tests_failed_type: str|None)
+              0, None                     → no new failures
+              1, 'suites_failed_increase' → more failed suites than baseline
+              1, 'syntax_error'           → JS syntax error in generated code
+              1, 'module_resolution_error'→ missing module at runtime
+        """
+        af = after_suites_failed or 0
+        bl = baseline_suites_failed or 0
+        if af > bl:
+            return 1, 'suites_failed_increase'
+        if test_output_text:
+            lo = test_output_text.lower()
+            if 'syntaxerror' in lo or 'unexpected token' in lo:
+                return 1, 'syntax_error'
+            if 'cannot find module' in lo or 'module not found' in lo:
+                return 1, 'module_resolution_error'
+        return 0, None
+
     def _format_summary(self, smell_id: int, smell_data: Dict[str, Any],
                        strategy_id: int, model_id: int,
                        output_dir: Path, execution_time: float,

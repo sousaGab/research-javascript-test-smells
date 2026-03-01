@@ -208,7 +208,11 @@ def extract_test_results(output: str) -> Optional[str]:
     # Look for test results pattern (Jest, Mocha, etc.)
     # We use findall to get ALL matches, then take the last one
     patterns = [
+        # Standard Jest: Test Suites + Tests + Snapshots + Time
         r"(Test Suites:.*?\nTests:.*?\nSnapshots:.*?\nTime:.*?)(?:\n|$)",
+        # Jest without Snapshots line (e.g. nock / custom test runners)
+        r"(Test Suites:.*?\nTests:.*?\nTime:.*?)(?:\n|$)",
+        # Mocha: "N passing"
         r"(Tests:.*?passing.*?)(?:\n|$)",
         r"(\d+\s+passing.*?)(?:\n|$)",
     ]
