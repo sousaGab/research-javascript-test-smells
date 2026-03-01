@@ -291,6 +291,7 @@ class TestResult(Base):
     test_suites_total = Column(Integer)
     tests_passed = Column(Integer)
     tests_failed = Column(Integer)
+    tests_skipped = Column(Integer)
     tests_total = Column(Integer)
     snapshots_total = Column(Integer)
     execution_time_seconds = Column(Float)

@@ -723,6 +723,7 @@ def create_test_results(session: Session, experiment_id: int, phase: str,
                        test_suites_total: Optional[int] = None,
                        tests_passed: Optional[int] = None,
                        tests_failed: Optional[int] = None,
+                       tests_skipped: Optional[int] = None,
                        tests_total: Optional[int] = None,
                        snapshots_total: Optional[int] = None,
                        execution_time_seconds: Optional[float] = None,
@@ -743,6 +744,7 @@ def create_test_results(session: Session, experiment_id: int, phase: str,
         test_suites_total: Total test suites (optional)
         tests_passed: Number of tests passed (optional)
         tests_failed: Number of tests failed (optional)
+        tests_skipped: Number of tests skipped (optional)
         tests_total: Total tests (optional)
         snapshots_total: Total snapshots (optional)
         execution_time_seconds: Execution time in seconds (optional)
@@ -763,6 +765,7 @@ def create_test_results(session: Session, experiment_id: int, phase: str,
         test_suites_total=test_suites_total,
         tests_passed=tests_passed,
         tests_failed=tests_failed,
+        tests_skipped=tests_skipped,
         tests_total=tests_total,
         snapshots_total=snapshots_total,
         execution_time_seconds=execution_time_seconds,

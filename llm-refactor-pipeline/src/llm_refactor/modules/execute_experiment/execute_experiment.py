@@ -1664,6 +1664,7 @@ NOTES:
                     test_suites_total=test_counts.get('test_suites_total') if test_counts else None,
                     tests_passed=test_counts.get('tests_passed') if test_counts else None,
                     tests_failed=test_counts.get('tests_failed') if test_counts else None,
+                    tests_skipped=test_counts.get('tests_skipped') if test_counts else None,
                     tests_total=test_counts.get('tests_total') if test_counts else None,
                     coverage_statements=coverage_data.get('statements') if coverage_data else None,
                     coverage_branches=coverage_data.get('branches') if coverage_data else None,

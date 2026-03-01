@@ -99,16 +99,22 @@ def parse_test_counts_from_summary(summary_text: str) -> Optional[Dict[str, int]
             counts['test_suites_passed'] = int(suite_match.group(2) or 0)
             counts['test_suites_total'] = int(suite_match.group(3))
         
-        # Extract Tests
-        tests_match = re.search(
-            r'Tests:\s*(?:(\d+)\s+skipped,\s*)?(?:(\d+)\s+failed,\s*)?(?:(\d+)\s+passed,\s*)?(\d+)\s+total',
-            summary_text
-        )
-        if tests_match:
-            counts['tests_skipped'] = int(tests_match.group(1) or 0)
-            counts['tests_failed'] = int(tests_match.group(2) or 0)
-            counts['tests_passed'] = int(tests_match.group(3) or 0)
-            counts['tests_total'] = int(tests_match.group(4))
+        # Extract Tests — flexible parser that handles any field order,
+        # including non-standard fields like 'todo' (e.g. winston format):
+        #   Tests: 1 failed, 3 todo, 231 passed, 235 total
+        tests_line_match = re.search(r'Tests:\s*([^\n]+)', summary_text)
+        if tests_line_match:
+            line = tests_line_match.group(1)
+            def _extract(field):
+                m = re.search(r'(\d+)\s+' + field, line)
+                return int(m.group(1)) if m else 0
+            counts['tests_failed']  = _extract('failed')
+            counts['tests_passed']  = _extract('passed')
+            counts['tests_skipped'] = _extract('skipped')
+            counts['tests_todo']    = _extract('todo')
+            total_match = re.search(r'(\d+)\s+total', line)
+            if total_match:
+                counts['tests_total'] = int(total_match.group(1))
         
         if not counts:
             return None
