@@ -3,9 +3,12 @@ RQ2 Controller — Pass Preservation Rate (PPR) analysis.
 
 Do LLM-generated refactorings preserve the functional behavior of the test suite?
 
-Behavioral definition:
-  behavior_preserved = 1  iff  experiments.tests_failed = 0
-  (i.e. no suites_failed_increase, no syntax/runtime/module/timeout/unknown error)
+Behavioral definition (Option B — count-based, stricter than runner heuristic):
+  behavior_preserved = 1  iff  ALL of:
+    (a) after_tests_failed  <= before_tests_failed   (no new individual test failures)
+    (b) after_suites_failed <= before_suites_failed  (no new failing suites)
+    (c) tests_failed_type NOT IN error_types         (runner actually executed)
+  This catches intra-suite regressions invisible to the runner's suite-only heuristic.
 
 Failure taxonomy:
   tests_failed_type values:
@@ -71,15 +74,28 @@ SMELL_TYPE_COL = "COALESCE(ss.smell_type, bsd.smell_type)"
 # An experiment is included in RQ2 iff it has an after-phase test_results row
 INCLUSION_CLAUSE = "tr_a.id IS NOT NULL"
 
-# behavior_preserved: tests_failed=0 means no failure of any kind
-PRESERVED_EXPR = "CASE WHEN e.tests_failed = 0 OR e.tests_failed IS NULL THEN 1 ELSE 0 END"
+# Error-class failure types: runner never produced a parseable summary.
+# Defined early so it can be reused in PRESERVED_EXPR and TESTS_* expressions.
+_ERROR_TYPES = "'syntax_error', 'runtime_error', 'module_resolution_error', 'timeout', 'unknown'"
+
+# Option B — behavior_preserved rule (derived purely from test_results counts):
+#   1. No increase in individual test failures  (after_tests_failed  <= before)
+#   2. No increase in failing suites            (after_suites_failed <= before)
+#   3. Not an error-class failure (runner could not run at all)
+# This is stricter than the runner's suite-only heuristic and correctly captures
+# intra-suite regressions where the suite count stays the same but more tests fail.
+PRESERVED_EXPR = f"""
+    CASE WHEN
+        COALESCE(tr_a.tests_failed,        0) <= COALESCE(tr_b.tests_failed,        0)
+        AND COALESCE(tr_a.test_suites_failed, 0) <= COALESCE(tr_b.test_suites_failed, 0)
+        AND (e.tests_failed_type IS NULL
+             OR e.tests_failed_type NOT IN ({_ERROR_TYPES}))
+    THEN 1 ELSE 0 END
+"""
 
 # is_error_class: the runner could not execute tests at all
-ERROR_CLASS_EXPR = """
-    CASE WHEN e.tests_failed_type IN (
-        'syntax_error', 'runtime_error',
-        'module_resolution_error', 'timeout', 'unknown'
-    ) THEN 1 ELSE 0 END
+ERROR_CLASS_EXPR = f"""
+    CASE WHEN e.tests_failed_type IN ({_ERROR_TYPES}) THEN 1 ELSE 0 END
 """
 
 # Friendly label for tests_failed_type
@@ -94,9 +110,6 @@ FAILURE_LABEL_EXPR = """
         ELSE NULL
     END
 """
-
-# Shorthand: error classes that prevent the runner from producing a summary
-_ERROR_TYPES = "'syntax_error', 'runtime_error', 'module_resolution_error', 'timeout', 'unknown'"
 
 # For error-class rows, all counts are reported as 0 (runner produced no summary)
 TESTS_EXECUTED_EXPR = f"""
@@ -272,9 +285,12 @@ def rq2_summary(
             GROUP BY e.prompting_approach
             ORDER BY
                 CASE e.prompting_approach
-                    WHEN 'zero-shot' THEN 1
-                    WHEN 'few-shot'  THEN 2
-                    WHEN 'cot'       THEN 3
+                    WHEN 'Zero-Shot'        THEN 1
+                    WHEN 'zero-shot'        THEN 1
+                    WHEN 'Few-Shot'         THEN 2
+                    WHEN 'few-shot'         THEN 2
+                    WHEN 'Chain-of-Thought' THEN 3
+                    WHEN 'cot'             THEN 3
                     ELSE 4
                 END
         """), params).fetchall()
@@ -327,20 +343,33 @@ def rq2_summary(
         model_matrix.sort(key=lambda x: x["overall_ppr"] or 0, reverse=True)
 
         # ── failure taxonomy ──────────────────────────────────────────────
+        # Classify every included experiment using the Option B rule:
+        #   priority: error_class > intra_suite > suite_increase > preserved
+        # Test-case level is the primary signal; suite level is secondary.
+        # This matches the Colab regression_type() function exactly.
         taxonomy_rows = session.execute(text(f"""
             SELECT
-                e.tests_failed_type      AS failure_type,
+                CASE
+                    WHEN e.tests_failed_type IN ({_ERROR_TYPES})
+                        THEN e.tests_failed_type
+                    WHEN COALESCE(tr_a.tests_failed, 0) > COALESCE(tr_b.tests_failed, 0)
+                        THEN 'intra_suite_regression'
+                    WHEN COALESCE(tr_a.test_suites_failed, 0) > COALESCE(tr_b.test_suites_failed, 0)
+                        THEN 'suites_failed_increase'
+                    ELSE NULL
+                END AS failure_type,
                 COUNT(e.id)              AS cnt
             {SMELL_JOIN}
             {where}
-              AND e.tests_failed = 1
-            GROUP BY e.tests_failed_type
+            GROUP BY 1
             ORDER BY cnt DESC
         """), params).fetchall()
 
-        total_failed = sum(r[1] for r in taxonomy_rows) or 1  # avoid /0
+        # pct is share of ALL included experiments (matches Colab's n_total denominator)
+        total_for_pct = n_included or 1  # avoid /0
         LABEL_MAP = {
             "suites_failed_increase":  "Behavioral regression",
+            "intra_suite_regression":  "Intra-suite regression",
             "syntax_error":            "Error: syntax",
             "module_resolution_error": "Error: module resolution",
             "runtime_error":           "Error: runtime",
@@ -348,22 +377,24 @@ def rq2_summary(
             "unknown":                 "Error: unknown",
         }
         IS_ERROR = {
-            "suites_failed_increase": False,
-            "syntax_error":           True,
-            "module_resolution_error":True,
-            "runtime_error":          True,
-            "timeout":                True,
-            "unknown":                True,
+            "suites_failed_increase":  False,
+            "intra_suite_regression":  False,
+            "syntax_error":            True,
+            "module_resolution_error": True,
+            "runtime_error":           True,
+            "timeout":                 True,
+            "unknown":                 True,
         }
         failure_taxonomy = [
             {
-                "failure_type": r[0] or "unknown",
-                "label": LABEL_MAP.get(r[0] or "unknown", r[0] or "unknown"),
+                "failure_type": r[0] or "none",
+                "label": LABEL_MAP.get(r[0] or "none", r[0] or "none"),
                 "count": r[1],
-                "pct": round(r[1] / total_failed * 100, 1),
-                "is_error": IS_ERROR.get(r[0] or "unknown", True),
+                "pct": round(r[1] / total_for_pct * 100, 1),
+                "is_error": IS_ERROR.get(r[0] or "none", False),
             }
             for r in taxonomy_rows
+            if r[0] is not None  # skip NULL = preserved rows from taxonomy list
         ]
 
         return {
@@ -433,7 +464,6 @@ def rq2_export(
                     {SMELL_TYPE_COL}                                               AS smell_type,
                     e.ai_model_version                                             AS model,
                     e.prompting_approach                                           AS prompt,
-                    {PRESERVED_EXPR}                                               AS behavior_preserved,
                     COALESCE(e.tests_failed_type, 'none')                          AS failure_type,
                     CASE WHEN tr_a.test_suites_failed > COALESCE(tr_b.test_suites_failed,0)
                          THEN 1 ELSE 0 END                                         AS suite_regression,
@@ -462,7 +492,7 @@ def rq2_export(
 
             writer.writerow([
                 "instance_id", "smell_type", "model", "prompt",
-                "behavior_preserved", "failure_type", "suite_regression",
+                "failure_type", "suite_regression",
                 "before_suites_failed",
                 "before_tests_total", "before_tests_passed", "before_tests_failed",
                 "before_tests_skipped", "before_tests_todo",

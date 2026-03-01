@@ -7,7 +7,8 @@ import {
 import './RQ2.css';
 
 const API = 'http://localhost:8001/api/rq2';
-const PROMPT_ORDER = ['zero-shot', 'few-shot', 'cot'];
+// Ordered exactly as stored in the DB (Title Case)
+const PROMPT_ORDER = ['Zero-Shot', 'Few-Shot', 'Chain-of-Thought'];
 
 function fmt(val) { return val == null ? '—' : `${val.toFixed(1)}%`; }
 
@@ -79,7 +80,8 @@ function BarTooltip({ active, payload, label }) {
 }
 
 const TAXONOMY_COLORS = {
-  'suites_failed_increase':  '#f97316',
+  'intra_suite_regression':  '#fb923c',  // orange — test-case level regression
+  'suites_failed_increase':  '#f97316',  // darker orange — suite level regression
   'syntax_error':            '#ef4444',
   'module_resolution_error': '#dc2626',
   'runtime_error':           '#b91c1c',
@@ -148,10 +150,11 @@ export default function RQ2() {
   useEffect(() => { fetchSummary(); }, [fetchSummary]);
 
   const fo = data?.filter_options ?? {};
+  // Preserve PROMPT_ORDER for known values; append any unknown values at the end
   const allPrompts = fo.prompting_approaches?.length
     ? PROMPT_ORDER.filter(p => fo.prompting_approaches.includes(p))
         .concat(fo.prompting_approaches.filter(p => !PROMPT_ORDER.includes(p)))
-    : [];
+    : fo.prompting_approaches ?? [];
 
   const smellChartData = (data?.by_smell ?? []).map(d => ({
     ...d,
@@ -282,7 +285,7 @@ export default function RQ2() {
             <section className="rq2-chart-card">
               <h2 className="rq2-section-title">
                 G4 — Failure Taxonomy
-                <span className="rq2-chart-hint">among failed experiments only</span>
+                <span className="rq2-chart-hint">% of all included experiments</span>
               </h2>
               {taxonomyChartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={260}>
