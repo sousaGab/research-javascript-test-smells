@@ -190,6 +190,9 @@ class Experiment(Base):
     llm_latency_seconds = Column(Float)  # LLM API response time only
     tokens_used = Column(Integer)  # Total tokens (prompt + completion)
 
+    # Added smells: JSON dict {smell_type: count_added} for types where after > before
+    added_smells = Column(Text)  # e.g. '{"AssertionRoulette": 2, "EagerTest": 1}'
+
     # Notes
     notes = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)

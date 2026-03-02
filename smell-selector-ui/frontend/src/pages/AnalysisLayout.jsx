@@ -4,7 +4,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 const rqs = [
   { path: '/analysis/rq1', label: 'RQ1', desc: 'Smell prevalence' },
   { path: '/analysis/rq2', label: 'RQ2', desc: 'Refactoring success' },
-  { path: '/analysis/rq3', label: 'RQ3', desc: 'Strategy comparison' },
+  { path: '/analysis/rq3', label: 'RQ3', desc: 'Structural side effects' },
   { path: '/analysis/rq4', label: 'RQ4', desc: 'Model comparison' },
   { path: '/analysis/rq5', label: 'RQ5', desc: 'Smell-specific patterns' },
 ];
