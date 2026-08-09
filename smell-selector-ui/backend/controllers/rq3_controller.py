@@ -55,6 +55,25 @@ _SMELL_ALIASES: dict = {
     "ConditionalTestLogic": "Conditional Test Logic",
 }
 
+# Only these smell types are counted as "accidentally added" smells.
+# Any other type returned by the detector is silently ignored.
+# Matching is case-insensitive and space-insensitive.
+_ALLOWED_ADDED_SMELLS: set = {
+    "Conditional Test Logic",
+    "Overcommented Test",
+    "Suboptimal Assert",
+    "Anonymous Test",
+    "Verbose Statement",
+    "Duplicate Assert",
+    "Exception Handling",
+    "Magic Number",
+    "Sleepy Test",
+    "Unknown Test",
+}
+
+# Pre-computed normalised key set (lowercase, no spaces)
+_ALLOWED_KEYS: set = {s.lower().replace(" ", "") for s in _ALLOWED_ADDED_SMELLS}
+
 
 def _normalize_smell(name: str) -> str:
     """Return the canonical smell name, resolving known aliases."""
@@ -62,7 +81,8 @@ def _normalize_smell(name: str) -> str:
 
 
 def _normalize_added_smells(js) -> dict:
-    """Parse an added_smells JSON string and merge aliased smell names."""
+    """Parse an added_smells JSON string, merge aliased smell names, and
+    keep only smell types present in _ALLOWED_ADDED_SMELLS (case+space insensitive)."""
     if not js or str(js) in ('{}', 'None', ''):
         return {}
     try:
@@ -72,6 +92,8 @@ def _normalize_added_smells(js) -> dict:
     merged: dict = {}
     for k, v in raw.items():
         canon = _normalize_smell(k)
+        if canon.lower().replace(" ", "") not in _ALLOWED_KEYS:
+            continue
         merged[canon] = merged.get(canon, 0) + int(v)
     return merged
 
@@ -473,6 +495,53 @@ def rq3_summary(
             for r in by_model_b_rows
         ]
 
+        # By prompt strategy (coverage)
+        by_prompt_b_rows = session.execute(text(f"""
+            SELECT
+                e.prompting_approach AS prompt,
+                COUNT(e.id)          AS n,
+                AVG(COALESCE(tr_a.coverage_statements,0) - COALESCE(tr_b.coverage_statements,0)) AS avg_delta_stmt,
+                AVG(COALESCE(tr_a.coverage_branches,0)   - COALESCE(tr_b.coverage_branches,0))   AS avg_delta_br,
+                AVG(COALESCE(tr_a.coverage_functions,0)  - COALESCE(tr_b.coverage_functions,0))  AS avg_delta_fn,
+                AVG(COALESCE(tr_a.coverage_lines,0)      - COALESCE(tr_b.coverage_lines,0))      AS avg_delta_ln,
+                SUM(CASE WHEN e.coverage_decreased=1 THEN 1 ELSE 0 END) AS degraded_exp,
+                SUM(CASE WHEN (
+                        COALESCE(tr_a.coverage_statements,0) > COALESCE(tr_b.coverage_statements,0) OR
+                        COALESCE(tr_a.coverage_branches,0)   > COALESCE(tr_b.coverage_branches,0)   OR
+                        COALESCE(tr_a.coverage_functions,0)  > COALESCE(tr_b.coverage_functions,0)  OR
+                        COALESCE(tr_a.coverage_lines,0)      > COALESCE(tr_b.coverage_lines,0)
+                    ) THEN 1 ELSE 0 END) AS improved_exp
+            {COVERAGE_JOIN}
+            {where_b}
+            GROUP BY e.prompting_approach
+            ORDER BY
+                CASE e.prompting_approach
+                    WHEN 'Zero-Shot'        THEN 1
+                    WHEN 'zero-shot'        THEN 1
+                    WHEN 'Few-Shot'         THEN 2
+                    WHEN 'few-shot'         THEN 2
+                    WHEN 'Chain-of-Thought' THEN 3
+                    WHEN 'cot'              THEN 3
+                    ELSE 4
+                END
+        """), params_b).fetchall()
+
+        rq3b_by_prompt = [
+            {
+                "prompt":               r[0] or "Unknown",
+                "n":                    r[1],
+                "avg_delta_statements": round(float(r[2] or 0), 3),
+                "avg_delta_branches":   round(float(r[3] or 0), 3),
+                "avg_delta_functions":  round(float(r[4] or 0), 3),
+                "avg_delta_lines":      round(float(r[5] or 0), 3),
+                "degraded_experiments": int(r[6] or 0),
+                "degraded_rate":        _pct(int(r[6] or 0), r[1]),
+                "improved_experiments": int(r[7] or 0),
+                "improved_rate":        _pct(int(r[7] or 0), r[1]),
+            }
+            for r in by_prompt_b_rows
+        ]
+
         return {
             "filter_options": {
                 "models":               models_list,
@@ -489,9 +558,10 @@ def rq3_summary(
                 "interaction_matrix": interaction_matrix,
             },
             "rq3b": {
-                "overall":  rq3b_overall,
-                "by_smell": rq3b_by_smell,
-                "by_model": rq3b_by_model,
+                "overall":   rq3b_overall,
+                "by_smell":  rq3b_by_smell,
+                "by_model":  rq3b_by_model,
+                "by_prompt": rq3b_by_prompt,
             },
         }
     finally:

@@ -229,6 +229,23 @@ export default function RQ3() {
     color: MODEL_COLORS[i % MODEL_COLORS.length],
   }));
 
+  // Prompt strategy comparison data (merged smell + coverage)
+  const promptSmellData = (a.by_prompt ?? []).map(r => ({
+    name:              r.prompt ?? 'Unknown',
+    'Removal Rate':    r.removal_rate ?? 0,
+    'New Intros Rate': r.new_introduction_rate ?? 0,
+  }));
+
+  // Build a lookup for coverage by prompt to merge into prompt table rows
+  const promptCoverageLookup = Object.fromEntries(
+    (b.by_prompt ?? []).map(r => [r.prompt, r])
+  );
+
+  const promptCoverageDeltaData = (b.by_prompt ?? []).map(r => ({
+    name:  r.prompt ?? 'Unknown',
+    delta: r.avg_delta_statements ?? 0,
+  }));
+
   return (
     <div className="rq3-page">
 
@@ -465,6 +482,105 @@ export default function RQ3() {
             (a.interaction_matrix?.cells ?? []).map(c => [c.targeted, c.added, c.count]),
           )}
         />
+
+        {/* ── Prompt Strategy Comparison ── */}
+        <div className="rq3-subsection-title">Prompt Strategy Comparison</div>
+
+        {(a.by_prompt ?? []).length === 0
+          ? <div className="rq3-empty">No prompt strategy breakdown available.</div>
+          : (
+            <>
+              <div className="rq3-chart-grid">
+                {/* G6 — Smell metrics by prompt */}
+                <div className="rq3-chart-card">
+                  <p className="rq3-chart-title">G6 — Smell Removal vs New Introduction by Prompt Strategy</p>
+                  <p className="rq3-chart-subtitle">% of experiments per prompting approach</p>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={promptSmellData} margin={{ top: 4, right: 20, bottom: 20, left: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                      <YAxis tickFormatter={v => `${v}%`} tick={{ fontSize: 11 }} domain={[0, 100]} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend wrapperStyle={{ fontSize: '0.8rem' }} />
+                      <Bar dataKey="Removal Rate"    fill={PURPLE} radius={[3,3,0,0]} />
+                      <Bar dataKey="New Intros Rate" fill={AMBER}  radius={[3,3,0,0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+
+                {/* G7 — Coverage delta by prompt */}
+                <div className="rq3-chart-card">
+                  <p className="rq3-chart-title">G7 — Mean Δ Statement Coverage by Prompt Strategy</p>
+                  <p className="rq3-chart-subtitle">Positive = coverage increased; negative = decreased</p>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={promptCoverageDeltaData} margin={{ top: 4, right: 20, bottom: 20, left: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                      <YAxis tickFormatter={v => v.toFixed(1)} tick={{ fontSize: 11 }} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <ReferenceLine y={0} stroke="#374151" strokeWidth={1.5} />
+                      <Bar dataKey="delta" name="Avg Δ Stmt Coverage" radius={[3,3,0,0]}>
+                        {promptCoverageDeltaData.map((entry, i) => (
+                          <Cell key={i} fill={entry.delta >= 0 ? GREEN : RED} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* T5 — Combined prompt strategy table */}
+              <div className="rq3-table-card">
+                <div className="rq3-table-card-header">
+                  <p className="rq3-table-title">T5 — Smell &amp; Coverage by Prompt Strategy</p>
+                  <button className="rq3-table-dl-btn" onClick={() => downloadCSV(
+                    'rq3_t5_by_prompt_strategy.csv',
+                    ['Prompt Strategy', 'n (Smell)', 'Removal Rate (%)', 'New Intro Rate (%)', 'n (Coverage)', 'Avg Δ Stmt', 'Degraded (%)', 'Improved (%)'],
+                    (a.by_prompt ?? []).map(r => {
+                      const cov = promptCoverageLookup[r.prompt] ?? {};
+                      return [
+                        r.prompt, r.n, r.removal_rate, r.new_introduction_rate,
+                        cov.n ?? '—', cov.avg_delta_statements ?? '—',
+                        cov.degraded_rate ?? '—', cov.improved_rate ?? '—',
+                      ];
+                    }),
+                  )}>↓ CSV</button>
+                </div>
+                <table className="rq3-table">
+                  <thead>
+                    <tr>
+                      <th>Prompt Strategy</th>
+                      <th className="num">n</th>
+                      <th className="pct">Removal Rate</th>
+                      <th className="pct">New Intro Rate</th>
+                      <th className="num">n (Cov.)</th>
+                      <th className="num">Avg Δ Stmt</th>
+                      <th className="pct">Degraded %</th>
+                      <th className="pct">Improved %</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(a.by_prompt ?? []).map(r => {
+                      const cov = promptCoverageLookup[r.prompt] ?? {};
+                      return (
+                        <tr key={r.prompt}>
+                          <td>{r.prompt}</td>
+                          <td className="num">{fmtN(r.n)}</td>
+                          <PctCell v={r.removal_rate} good="high" />
+                          <PctCell v={r.new_introduction_rate} good="low" />
+                          <td className="num">{cov.n != null ? fmtN(cov.n) : '—'}</td>
+                          <DeltaCell v={cov.avg_delta_statements ?? null} />
+                          <PctCell v={cov.degraded_rate ?? null} good="low" />
+                          <PctCell v={cov.improved_rate ?? null} good="high" />
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )
+        }
 
       </div>
 

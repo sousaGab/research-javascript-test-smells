@@ -64,8 +64,17 @@ fi
 
 echo "✓ Database found"
 
-# Run migration if needed
-if ! grep -q "smell_ui_metadata" <(sqlite3 ../research_data/research.db ".tables") 2>/dev/null; then
+# Run migration if needed (use Python instead of sqlite3 CLI, which may not be installed)
+NEEDS_MIGRATION=true
+if command -v sqlite3 &> /dev/null; then
+    grep -q "smell_ui_metadata" <(sqlite3 ../research_data/research.db ".tables") 2>/dev/null && NEEDS_MIGRATION=false
+elif [ -f "../.venv/bin/python" ]; then
+    ../.venv/bin/python -c "import sqlite3; c=sqlite3.connect('../research_data/research.db'); t=[r[0] for r in c.execute(\"SELECT name FROM sqlite_master WHERE type='table'\")]; exit(0 if 'smell_ui_metadata' in t else 1)" 2>/dev/null && NEEDS_MIGRATION=false
+elif command -v python3 &> /dev/null; then
+    python3 -c "import sqlite3; c=sqlite3.connect('../research_data/research.db'); t=[r[0] for r in c.execute(\"SELECT name FROM sqlite_master WHERE type='table'\")]; exit(0 if 'smell_ui_metadata' in t else 1)" 2>/dev/null && NEEDS_MIGRATION=false
+fi
+
+if [ "$NEEDS_MIGRATION" = true ]; then
     echo "  Running database migration..."
     cd backend
     # Use virtual environment Python if available, otherwise system python3
@@ -144,7 +153,7 @@ cd ..
 
 # Wait for backend to start
 echo "  Waiting for backend to start..."
-for i in {1..10}; do
+for i in {1..30}; do
     if curl -s http://localhost:8001/ > /dev/null 2>&1; then
         echo -e "  ${GREEN}✓ Backend ready at http://localhost:8001${NC}"
         break

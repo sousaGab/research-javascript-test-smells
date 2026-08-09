@@ -32,6 +32,8 @@ import smell_constants
 from controllers.rq1_controller import router as rq1_router
 from controllers.rq2_controller import router as rq2_router
 from controllers.rq3_controller import router as rq3_router
+from controllers.rq4_controller import router as rq4_router
+from controllers.rq5_controller import router as rq5_router
 
 # =============================================================================
 # APP INITIALIZATION
@@ -60,6 +62,8 @@ db.init_database()
 app.include_router(rq1_router)
 app.include_router(rq2_router)
 app.include_router(rq3_router)
+app.include_router(rq4_router)
+app.include_router(rq5_router)
 
 
 # =============================================================================

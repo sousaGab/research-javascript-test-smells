@@ -6,8 +6,11 @@ For each completed experiment, compare per-category smell counts between:
   - after:    dataset/{strategy}/{model}/smell_{id}/smell_detection/smells.csv
 
 If count_after > count_before for a smell category, record it.
-Saves a JSON string like {"AssertionRoulette": 2, "EagerTest": 1} to experiments.added_smells.
-Also recalculates introduced_new_smells boolean.
+Saves a JSON string like {"AssertionRoulette": 2, "EagerTest": 1} to experiments.added_smells
+(raw, unfiltered — all smell types that increased are stored).
+
+introduced_new_smells is set to 1 ONLY when at least one smell from ALLOWED_ADDED_SMELLS
+was added (i.e. the allowlist controls the boolean flag, not the raw storage).
 """
 
 import sqlite3
@@ -24,6 +27,42 @@ PROJECT_ROOT = PIPELINE_DIR.parent          # research-javascript-test-smells/
 DB_PATH      = PROJECT_ROOT / "research_data" / "research.db"
 DATASET_DIR  = PIPELINE_DIR / "dataset"
 BASELINE_DIR = PROJECT_ROOT / "smells_detected"
+
+# ── Detector name aliases → canonical names ─────────────────────────────────────
+# Different detector versions report the same smell under different naming
+# conventions (e.g. camelCase vs space-separated).  Normalise before allowlist check.
+SMELL_ALIASES: dict = {
+    "ConditionalTestLogic": "Conditional Test Logic",
+    "OvercommentedTest":    "Overcommented Test",
+    "SubOptimalAssert":     "Suboptimal Assert",
+    "AnonymousTest":        "Anonymous Test",
+    "VerboseStatement":     "Verbose Statement",
+}
+
+# ── Allowlist: introduced_new_smells is only True for these smell types ─────────
+# Any smell outside this set is stored in added_smells for audit purposes but
+# does NOT set the introduced_new_smells flag.
+# Matching is case-insensitive and space-insensitive.
+ALLOWED_ADDED_SMELLS: set = {
+    "Conditional Test Logic",
+    "Overcommented Test",
+    "Suboptimal Assert",
+    "Anonymous Test",
+    "Verbose Statement",
+    "Duplicate Assert",
+    "Exception Handling",
+    "Magic Number",
+    "Sleepy Test",
+    "Unknown Test",
+}
+
+# Pre-compute normalised allowlist key set (lowercase, no spaces)
+_ALLOWED_KEYS: set = {s.lower().replace(" ", "") for s in ALLOWED_ADDED_SMELLS}
+
+
+def _is_allowed(smell_type: str) -> bool:
+    """Return True if smell_type (any casing/spacing) is in the allowlist."""
+    return smell_type.lower().replace(" ", "") in _ALLOWED_KEYS
 
 
 # ── Strategy name normalisation ────────────────────────────────────────────────
@@ -117,9 +156,10 @@ def backfill():
         db.commit()
         print("✓ Added 'added_smells' column to experiments table")
     else:
-        print("'added_smells' column already exists – will overwrite")
+        print("'added_smells' column already exists – will overwrite ALL rows")
 
-    # Fetch all completed experiments with their repo + smell-id
+    # Fetch ALL completed experiments (reprocess even if already filled,
+    # so introduced_new_smells is recalculated with the current allowlist)
     c.execute("""
         SELECT
             e.id          AS exp_id,
@@ -132,7 +172,6 @@ def backfill():
         JOIN files f ON ss.file_id = f.id
         JOIN repositories r ON f.repository_id = r.id
         WHERE e.execution_phase_completed = 1
-          AND e.added_smells IS NULL
         ORDER BY e.id
     """)
     rows = c.fetchall()
@@ -176,15 +215,19 @@ def backfill():
             continue
 
         # ── Compute additions ──
+        # Normalise detector names to canonical names, then store ALL increases
+        # (raw, for audit).  introduced_new_smells flag uses only ALLOWED smells
+        # matched case-insensitively and space-insensitively via _is_allowed().
         added: dict[str, int] = {}
         for smell_type, after_n in after_counts.items():
-            before_n = baseline_counts.get(smell_type, 0)
-            delta = after_n - before_n
+            canonical = SMELL_ALIASES.get(smell_type, smell_type)
+            before_n  = baseline_counts.get(smell_type, 0)
+            delta     = after_n - before_n
             if delta > 0:
-                added[smell_type] = delta
+                added[canonical] = added.get(canonical, 0) + delta
 
         added_json = json.dumps(added)   # '{}' when nothing added – distinguishable from NULL
-        has_new    = bool(added)
+        has_new    = any(_is_allowed(s) for s in added)
 
         c.execute(
             "UPDATE experiments SET added_smells=?, introduced_new_smells=? WHERE id=?",
