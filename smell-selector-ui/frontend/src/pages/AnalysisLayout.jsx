@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 
 const rqs = [
+  { path: '/analysis/overview', label: 'Overview', desc: 'Repository smell overview' },
   { path: '/analysis/rq1', label: 'RQ1', desc: 'Smell prevalence' },
   { path: '/analysis/rq2', label: 'RQ2', desc: 'Refactoring success' },
   { path: '/analysis/rq3', label: 'RQ3', desc: 'Structural side effects' },

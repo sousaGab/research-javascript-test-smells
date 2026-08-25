@@ -9,6 +9,7 @@ import RQ2 from './pages/RQ2';
 import RQ3 from './pages/RQ3';
 import RQ4 from './pages/RQ4';
 import RQ5 from './pages/RQ5';
+import Overview from './pages/Overview';
 import './App.css';
 
 function App() {
@@ -51,6 +52,7 @@ function App() {
             <Route path="/refactorings" element={<Refatoracoes />} />
             <Route path="/analysis" element={<AnalysisLayout />}>
               <Route index element={<DataAnalysis />} />
+              <Route path="overview" element={<Overview />} />
               <Route path="rq1" element={<RQ1 />} />
               <Route path="rq2" element={<RQ2 />} />
               <Route path="rq3" element={<RQ3 />} />
