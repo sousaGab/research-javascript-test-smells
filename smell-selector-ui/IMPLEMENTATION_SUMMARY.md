@@ -338,6 +338,5 @@ Se encontrar problemas:
 
 ---
 
-**Implementado por:** Claude Code (Sonnet 4.5)
 **Data:** Janeiro 2026
 **Status:** ✅ Pronto para Produção
